@@ -22,26 +22,26 @@ echo "📝 Adding modified source files..."
 # Source files that were modified
 git add server.js
 git add src/services/apiCallTrackerService.ts
-git add src/mfa/components/MFADocumentationPageV8.tsx
-git add src/mfa/components/SuperSimpleApiDisplayV8.tsx
-git add src/mfa/flows/MFAAuthenticationMainPageV8.tsx
-git add src/mfa/flows/MFAConfigurationPageV8.tsx
-git add src/mfa/flows/MFAReportingFlowV8.tsx
+git add src/mfa/components/MFADocumentationPage.tsx
+git add src/mfa/components/SuperSimpleApiDisplay.tsx
+git add src/mfa/flows/MFAAuthenticationMainPage.tsx
+git add src/mfa/flows/MFAConfigurationPage.tsx
+git add src/mfa/flows/MFAReportingFlow.tsx
 git add src/mfa/flows/components/MFAOTPInput.tsx
 git add src/mfa/flows/controllers/FIDO2FlowController.ts
 git add src/mfa/flows/controllers/MFAFlowController.ts
-git add src/mfa/flows/shared/MFAFlowBaseV8.tsx
-git add src/mfa/flows/types/EmailFlowV8.tsx
-git add src/mfa/flows/types/FIDO2ConfigurationPageV8.tsx
-git add src/mfa/flows/types/FIDO2FlowV8.tsx
-git add src/mfa/flows/types/SMSFlowV8.tsx
-git add src/mfa/flows/types/TOTPFlowV8.tsx
-git add src/mfa/flows/types/WhatsAppFlowV8.tsx
-git add src/mfa/services/mfaAuthenticationServiceV8.ts
-git add src/mfa/services/mfaConfigurationServiceV8.ts
-git add src/mfa/services/mfaReportingServiceV8.ts
-git add src/mfa/services/mfaServiceV8.ts
-git add src/mfa/utils/analyticsLoggerV8.ts
+git add src/mfa/flows/shared/MFAFlowBase.tsx
+git add src/mfa/flows/types/EmailFlow.tsx
+git add src/mfa/flows/types/FIDO2ConfigurationPage.tsx
+git add src/mfa/flows/types/FIDO2Flow.tsx
+git add src/mfa/flows/types/SMSFlow.tsx
+git add src/mfa/flows/types/TOTPFlow.tsx
+git add src/mfa/flows/types/WhatsAppFlow.tsx
+git add src/mfa/services/mfaAuthenticationService.ts
+git add src/mfa/services/mfaConfigurationService.ts
+git add src/mfa/services/mfaReportingService.ts
+git add src/mfa/services/mfaService.ts
+git add src/mfa/utils/analyticsLogger.ts
 
 echo "✅ Source files added"
 

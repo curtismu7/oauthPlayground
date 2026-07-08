@@ -6,7 +6,7 @@
  * @since 2026-01-29
  *
  * Purpose: Configuration-driven device flows for SMS, Email, Mobile, WhatsApp, TOTP, and FIDO2.
- * This enables a single UnifiedMFARegistrationFlowV8 component to handle all device types
+ * This enables a single UnifiedMFARegistrationFlow component to handle all device types
  * using device-specific configurations instead of separate components.
  *
  * Part of Week 3: Device Configuration System
@@ -19,8 +19,8 @@
  * const isValid = smsConfig.validationRules.phoneNumber('+15125201234');
  */
 
-import { ValidationServiceV8 } from '@/mfa/services/validationServiceV8';
-import { validateAndNormalizePhone } from '@/mfa/utils/phoneValidationV8';
+import { ValidationService } from '@/mfa/services/validationService';
+import { validateAndNormalizePhone } from '@/mfa/utils/phoneValidation';
 import type {
 	DeviceConfigKey,
 	DeviceFlowConfig,
@@ -48,7 +48,7 @@ const validatePhoneNumber: ValidationFunction = (value: string): ValidationResul
  * Validate email address for Email/WhatsApp
  */
 const validateEmail: ValidationFunction = (value: string): ValidationResult => {
-	const isValid = ValidationServiceV8.validateEmail(value);
+	const isValid = ValidationService.validateEmail(value);
 	return {
 		valid: isValid,
 		error: isValid ? undefined : 'Please enter a valid email address (e.g., user@example.com)',

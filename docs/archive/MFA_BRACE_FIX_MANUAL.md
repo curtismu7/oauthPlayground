@@ -2,7 +2,7 @@
 
 ## 🎯 **Issue Identified**
 
-**Root Cause**: Missing closing brace for `onAuthenticate` function in MFAAuthenticationMainPageV8.tsx
+**Root Cause**: Missing closing brace for `onAuthenticate` function in MFAAuthenticationMainPage.tsx
 
 **Analysis**: 
 - **1435 opening braces** vs **1434 closing braces**
@@ -13,7 +13,7 @@
 
 ## 🔧 **Manual Fix Required**
 
-### **Location**: Line 5337-5340 in MFAAuthenticationMainPageV8.tsx
+### **Location**: Line 5337-5340 in MFAAuthenticationMainPage.tsx
 
 **Current Structure:**
 ```typescript

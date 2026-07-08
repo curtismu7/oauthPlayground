@@ -89,17 +89,17 @@ Created a focused, professional application that showcases:
 ### ✅ Import Path Updates
 ```typescript
 // Before (original app with subdirectories)
-import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
+import { MFANavigation } from '@/v8/components/MFANavigation';
 // After (standalone app with flat structure)
-import { MFANavigationV8 } from './components/MFANavigationV8';
+import { MFANavigation } from './components/MFANavigation';
 import { UnifiedNavigationV8U } from './components/UnifiedNavigationV8U';
 ```
 
 ## 🎯 Key Components to Copy
 
 ### MFA Hub Components (`src/v8/`)
-- **Main Page**: `MFAAuthenticationMainPageV8.tsx` (5,745 lines)
-- **Navigation**: `MFANavigationV8.tsx` (319 lines)
+- **Main Page**: `MFAAuthenticationMainPage.tsx` (5,745 lines)
+- **Navigation**: `MFANavigation.tsx` (319 lines)
 - **Components**: All MFA-specific components (75 items)
   - Device management, authentication flows, reporting
   - Modals, forms, status displays
@@ -422,11 +422,11 @@ Comprehensive documentation including:
 ### ✅ Import Path Updates
 ```typescript
 // Before (original app)
-import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
+import { MFANavigation } from '@/v8/components/MFANavigation';
 import { UnifiedNavigationV8U } from '@/v8u/components/UnifiedNavigationV8U';
 
 // After (standalone app)
-import { MFANavigationV8 } from './components/MFANavigationV8';
+import { MFANavigation } from './components/MFANavigation';
 import { UnifiedNavigationV8U } from './components/UnifiedNavigationV8U';
 ```
 

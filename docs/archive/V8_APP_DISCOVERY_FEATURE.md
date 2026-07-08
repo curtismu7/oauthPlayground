@@ -85,13 +85,13 @@ When user selects an app:
 
 ---
 
-## 💻 AppDiscoveryServiceV8 API
+## 💻 AppDiscoveryService API
 
 ### getWorkerToken()
 **Get or prompt for worker token**
 
 ```typescript
-const token = await AppDiscoveryServiceV8.getWorkerToken();
+const token = await AppDiscoveryService.getWorkerToken();
 
 // If token is stored and valid, returns it
 // If not stored or expired, prompts user
@@ -110,7 +110,7 @@ const token = await AppDiscoveryServiceV8.getWorkerToken();
 **Store worker token securely**
 
 ```typescript
-AppDiscoveryServiceV8.storeWorkerToken('worker-token-xyz');
+AppDiscoveryService.storeWorkerToken('worker-token-xyz');
 
 // Stores with:
 // - Token value
@@ -124,7 +124,7 @@ AppDiscoveryServiceV8.storeWorkerToken('worker-token-xyz');
 **Get stored token if valid**
 
 ```typescript
-const token = AppDiscoveryServiceV8.getStoredWorkerToken();
+const token = AppDiscoveryService.getStoredWorkerToken();
 
 // Returns token if:
 // - Exists in localStorage
@@ -140,7 +140,7 @@ const token = AppDiscoveryServiceV8.getStoredWorkerToken();
 **Clear stored worker token**
 
 ```typescript
-AppDiscoveryServiceV8.clearWorkerToken();
+AppDiscoveryService.clearWorkerToken();
 
 // Removes token from localStorage
 // User will be prompted for new token on next use
@@ -152,7 +152,7 @@ AppDiscoveryServiceV8.clearWorkerToken();
 **Discover all apps in environment**
 
 ```typescript
-const apps = await AppDiscoveryServiceV8.discoverApplications(
+const apps = await AppDiscoveryService.discoverApplications(
   '12345678-1234-1234-1234-123456789012',
   'worker-token-xyz'
 );
@@ -189,7 +189,7 @@ const apps = await AppDiscoveryServiceV8.discoverApplications(
 **Get configuration for auto-fill**
 
 ```typescript
-const config = AppDiscoveryServiceV8.getAppConfig(app);
+const config = AppDiscoveryService.getAppConfig(app);
 
 // Returns:
 {
@@ -212,7 +212,7 @@ const config = AppDiscoveryServiceV8.getAppConfig(app);
 **Format apps for dropdown UI**
 
 ```typescript
-const options = AppDiscoveryServiceV8.formatForDropdown(apps);
+const options = AppDiscoveryService.formatForDropdown(apps);
 
 // Returns:
 [
@@ -240,7 +240,7 @@ const options = AppDiscoveryServiceV8.formatForDropdown(apps);
 **Find app by ID**
 
 ```typescript
-const app = AppDiscoveryServiceV8.getApplicationById(apps, 'app-123');
+const app = AppDiscoveryService.getApplicationById(apps, 'app-123');
 
 // Returns DiscoveredApplication or null
 ```
@@ -251,7 +251,7 @@ const app = AppDiscoveryServiceV8.getApplicationById(apps, 'app-123');
 **Get token expiry information**
 
 ```typescript
-const expiryInfo = AppDiscoveryServiceV8.getWorkerTokenExpiryInfo();
+const expiryInfo = AppDiscoveryService.getWorkerTokenExpiryInfo();
 
 // Returns:
 {
@@ -270,7 +270,7 @@ const expiryInfo = AppDiscoveryServiceV8.getWorkerTokenExpiryInfo();
 **Refresh worker token**
 
 ```typescript
-const newToken = await AppDiscoveryServiceV8.refreshWorkerToken();
+const newToken = await AppDiscoveryService.refreshWorkerToken();
 
 // Clears old token
 // Prompts user for new token

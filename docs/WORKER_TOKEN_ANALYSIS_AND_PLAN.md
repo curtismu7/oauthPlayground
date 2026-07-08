@@ -10,16 +10,16 @@
 
 | Area | Current state | Target |
 |------|----------------|--------|
-| **Modals** | 2 UI modals (WorkerTokenModalV9 + WorkerTokenModalV8) and 2 “request” modals (WorkerTokenRequestModal, WorkerTokenRequestModalV8) used in different places | **One modal only:** WorkerTokenModalV9, opened via `open-worker-token-modal` event |
-| **Retrieval services** | unifiedWorkerTokenService, workerTokenManager, workerTokenServiceV8, workerTokenRepository, tokenGatewayV8, workerTokenModalHelperV8 | **Single read path:** unifiedWorkerTokenService (credentials from SQLite + cache; token from unifiedTokenStorage → IndexedDB + SQLite) |
+| **Modals** | 2 UI modals (WorkerTokenModalV9 + WorkerTokenModal) and 2 “request” modals (WorkerTokenRequestModal, WorkerTokenRequestModal) used in different places | **One modal only:** WorkerTokenModalV9, opened via `open-worker-token-modal` event |
+| **Retrieval services** | unifiedWorkerTokenService, workerTokenManager, workerTokenService, workerTokenRepository, tokenGateway, workerTokenModalHelper | **Single read path:** unifiedWorkerTokenService (credentials from SQLite + cache; token from unifiedTokenStorage → IndexedDB + SQLite) |
 | **Token storage** | Credentials: SQLite (source of truth) + IndexedDB + localStorage. Token: unifiedWorkerTokenService → IndexedDB + SQLite + localStorage; workerTokenManager → repository → **localStorage only** | **All token writes** go through unifiedWorkerTokenService so token is in IndexedDB and SQLite (no localStorage-only path for token) |
-| **Hardcoded endpoints** | WorkerTokenModalV8 builds `https://${domain}/${envId}/as/token`; WorkerTokenModalV9 uses `/api/pingone/token` proxy; WorkerTokenRequestModal can use raw `tokenEndpoint` | **No direct PingOne URL in app:** all token requests via backend proxy `/api/pingone/token` or service that uses proxy |
+| **Hardcoded endpoints** | WorkerTokenModal builds `https://${domain}/${envId}/as/token`; WorkerTokenModalV9 uses `/api/pingone/token` proxy; WorkerTokenRequestModal can use raw `tokenEndpoint` | **No direct PingOne URL in app:** all token requests via backend proxy `/api/pingone/token` or service that uses proxy |
 
 ### Plan status (is it complete?)
 
 **No.** The plan is not complete. Current state:
 
-- **Modal migration (Section 7.2):** 3 of ~16 “pages that render a worker token modal” are migrated to `open-worker-token-modal` and no longer render WorkerTokenModalV8: **DeleteAllDevicesUtilityV8**, **UnifiedErrorDisplayV8**, **CredentialsFormV8U**. The rest (UnifiedFlowSteps, workerTokenUIServiceV8, MFAFlowBaseV8, MFADeviceCreateDemoV8, DeviceAuthenticationDetailsV8, HelioMartPasswordReset, PingOneApplicationPickerModal, ConfigurationURIChecker, WorkerTokenFlowV9, SDKExamplesHome, WorkerTokenTester, CustomDomainTestPage, plus FIDO2/MFA snapshot pages) still render WorkerTokenModalV8 or a local V9 modal.
+- **Modal migration (Section 7.2):** 3 of ~16 “pages that render a worker token modal” are migrated to `open-worker-token-modal` and no longer render WorkerTokenModal: **DeleteAllDevicesUtility**, **UnifiedErrorDisplay**, **CredentialsFormV8U**. The rest (UnifiedFlowSteps, workerTokenUIService, MFAFlowBase, MFADeviceCreateDemo, DeviceAuthenticationDetails, HelioMartPasswordReset, PingOneApplicationPickerModal, ConfigurationURIChecker, WorkerTokenFlowV9, SDKExamplesHome, WorkerTokenTester, CustomDomainTestPage, plus FIDO2/MFA snapshot pages) still render WorkerTokenModal or a local V9 modal.
 - **Storage path (Section 5.2):** Path B (workerTokenManager → workerTokenRepository → localStorage only) is still present; token saves from that path do not go through unifiedWorkerTokenService → IndexedDB + SQLite. Recommendation not yet implemented.
 - **Section 9 summary checklist:** All items remain unchecked (single modal, single read/write path, no direct PingOne token calls, manager saves via unified, checkboxes, button colors, etc.).
 
@@ -33,9 +33,9 @@ To complete the plan, finish the modal migration list in 7.2, implement manager/
 
 | Service | Role | Storage used | Used by |
 |--------|------|--------------|---------|
-| **unifiedWorkerTokenService** | Credentials + token load/save; token request via backend proxy (when applicable). **Source of truth for credentials:** SQLite. | Credentials: SQLite (`/api/credentials/sqlite/*`) + memory + IndexedDB + localStorage. Token: `unifiedTokenStorage.saveWorkerToken` → IndexedDB + SQLite + `localStorage` key `unified_worker_token`. | WorkerTokenModalV9, workerTokenServiceV8 (wrapper), WorkerTokenModal (legacy), many flows |
+| **unifiedWorkerTokenService** | Credentials + token load/save; token request via backend proxy (when applicable). **Source of truth for credentials:** SQLite. | Credentials: SQLite (`/api/credentials/sqlite/*`) + memory + IndexedDB + localStorage. Token: `unifiedTokenStorage.saveWorkerToken` → IndexedDB + SQLite + `localStorage` key `unified_worker_token`. | WorkerTokenModalV9, workerTokenService (wrapper), WorkerTokenModal (legacy), many flows |
 | **unifiedTokenStorageService** | Stores worker token (and other tokens) in IndexedDB and SQLite. | `storeToken` → IndexedDB + `/api/tokens/store` (SQLite). `saveWorkerToken` uses `storeToken`. | unifiedWorkerTokenService.saveToken → saveWorkerToken |
-| **workerTokenServiceV8** | **Wrapper only.** All methods delegate to unifiedWorkerTokenService. | Same as unifiedWorkerTokenService. | MFAServiceV8, CredentialsFormV8U, WorkerTokenSectionV8, WorkerTokenModalV8 (reads/writes via this), appDiscoveryServiceV8, etc. |
+| **workerTokenService** | **Wrapper only.** All methods delegate to unifiedWorkerTokenService. | Same as unifiedWorkerTokenService. | MFAService, CredentialsFormV8U, WorkerTokenSection, WorkerTokenModal (reads/writes via this), appDiscoveryService, etc. |
 
 ### 2.2 Secondary / legacy services
 
@@ -44,8 +44,8 @@ To complete the plan, finish the modal migration list in 7.2, implement manager/
 | **workerTokenManager** | Fetches token (and can save after fetch). Used by useGlobalWorkerToken when no token in unifiedWorkerTokenService. | **Saves via workerTokenRepository** → unifiedStorageManager → **localStorage only**. Does not write to IndexedDB or SQLite. | Token written by manager is not in unified token storage; other pages that read only from unifiedWorkerTokenService won’t see it. |
 | **workerTokenRepository** | Load/save credentials and token for workerTokenManager. | **unifiedStorageManager** → localStorage only (keys `unified_worker_token_credentials`, `unified_worker_token`). No IndexedDB, no SQLite. | Inconsistent with “storage service for IndexedDB + SQLite” goal. |
 | **unifiedStorageManager** | Generic key/value persistence. | **localStorage only.** | Used only by workerTokenRepository in worker-token path. |
-| **tokenGatewayV8** | V8 auth gateway; can fetch worker token. | Uses workerTokenServiceV8 (so unified underneath). | OK if all callers use workerTokenServiceV8 for persistence. |
-| **workerTokenModalHelperV8** | Opens modal and/or fetches token (silent or show modal). | Depends on tokenGatewayV8 / workerTokenServiceV8. | Replaced by “open global modal” (dispatch event) on key pages; many V8 flows still use it and show WorkerTokenModalV8. |
+| **tokenGateway** | V8 auth gateway; can fetch worker token. | Uses workerTokenService (so unified underneath). | OK if all callers use workerTokenService for persistence. |
+| **workerTokenModalHelper** | Opens modal and/or fetches token (silent or show modal). | Depends on tokenGateway / workerTokenService. | Replaced by “open global modal” (dispatch event) on key pages; many V8 flows still use it and show WorkerTokenModal. |
 
 ### 2.3 Backend
 
@@ -64,24 +64,24 @@ To complete the plan, finish the modal migration list in 7.2, implement manager/
 | Modal | File | How opened | Writes token to |
 |-------|------|------------|------------------|
 | **WorkerTokenModalV9** | `src/components/WorkerTokenModalV9.tsx` | App.tsx (global) on `open-worker-token-modal`; or local state on various pages | unifiedWorkerTokenService.saveToken → IndexedDB + SQLite + localStorage |
-| **WorkerTokenModalV8** | `src/v8/components/WorkerTokenModalV8.tsx` | Local state on UnifiedFlowSteps, WorkerTokenUIServiceV8, MFAFlowBaseV8, MFADeviceCreateDemoV8, DeviceAuthenticationDetailsV8, FIDO2ConfigurationPageV8, MFAAuthenticationMainPageV8, WorkerTokenSectionV8, TokenMonitoringPage, UnifiedOAuthFlowV8U, plus locked copies. *(DeleteAllDevicesUtilityV8, UnifiedErrorDisplayV8, CredentialsFormV8U migrated to event.)* | unifiedWorkerTokenService (same as V9) |
+| **WorkerTokenModal** | `src/v8/components/WorkerTokenModal.tsx` | Local state on UnifiedFlowSteps, WorkerTokenUIService, MFAFlowBase, MFADeviceCreateDemo, DeviceAuthenticationDetails, FIDO2ConfigurationPage, MFAAuthenticationMainPage, WorkerTokenSection, TokenMonitoringPage, UnifiedOAuthFlowV8U, plus locked copies. *(DeleteAllDevicesUtility, UnifiedErrorDisplay, CredentialsFormV8U migrated to event.)* | unifiedWorkerTokenService (same as V9) |
 | **WorkerTokenRequestModal** | `src/components/WorkerTokenRequestModal.tsx` | Educational “request” modal; can call `fetch(tokenEndpoint)` directly if no `onSendRequest` | N/A (display only unless used with callback that saves) |
-| **WorkerTokenRequestModalV8** | `src/v8/components/WorkerTokenRequestModalV8.tsx` | From WorkerTokenModalV8 (e.g. “Send Request” step) | workerTokenServiceV8.saveToken |
+| **WorkerTokenRequestModal** | `src/v8/components/WorkerTokenRequestModal.tsx` | From WorkerTokenModal (e.g. “Send Request” step) | workerTokenService.saveToken |
 
-**Target:** Only **WorkerTokenModalV9** is used to get a worker token. All “Get worker token” / “Fix token” actions dispatch `open-worker-token-modal` and App shows WorkerTokenModalV9. WorkerTokenModalV8 and WorkerTokenRequestModal(V8) are either removed from the open path or reduced to legacy/optional.
+**Target:** Only **WorkerTokenModalV9** is used to get a worker token. All “Get worker token” / “Fix token” actions dispatch `open-worker-token-modal` and App shows WorkerTokenModalV9. WorkerTokenModal and WorkerTokenRequestModal(V8) are either removed from the open path or reduced to legacy/optional.
 
 ### 3.2 Where each modal is rendered (for migration)
 
 - **WorkerTokenModalV9:** App.tsx (global), HelioMartPasswordReset, PingOneApplicationPickerModal, ConfigurationURIChecker, WorkerTokenFlowV9, SDKExamplesHome, WorkerTokenTester, CustomDomainTestPage.
-- **WorkerTokenModalV8:** UnifiedFlowSteps, workerTokenUIServiceV8, MFAFlowBaseV8, MFADeviceCreateDemoV8, DeviceAuthenticationDetailsV8, FIDO2ConfigurationPageV8, MFAAuthenticationMainPageV8, WorkerTokenSectionV8, TokenMonitoringPage, UnifiedOAuthFlowV8U, plus locked/snapshot copies. *(Migrated off V8 modal: DeleteAllDevicesUtilityV8, UnifiedErrorDisplayV8, CredentialsFormV8U.)*
+- **WorkerTokenModal:** UnifiedFlowSteps, workerTokenUIService, MFAFlowBase, MFADeviceCreateDemo, DeviceAuthenticationDetails, FIDO2ConfigurationPage, MFAAuthenticationMainPage, WorkerTokenSection, TokenMonitoringPage, UnifiedOAuthFlowV8U, plus locked/snapshot copies. *(Migrated off V8 modal: DeleteAllDevicesUtility, UnifiedErrorDisplay, CredentialsFormV8U.)*
 
-Pages that already use **only** the event (no local modal): TokenStatusPageV8U, WorkerTokenStatusDisplayV8, UserInfoPostFlow, PingOneLogoutFlow.
+Pages that already use **only** the event (no local modal): TokenStatusPageV8U, WorkerTokenStatusDisplay, UserInfoPostFlow, PingOneLogoutFlow.
 
 ---
 
 ## 4. Hardcoded / Non-Service Usage
 
-- **WorkerTokenModalV8** builds token URL: `https://${domain}/${environmentId}/as/token` (e.g. `auth.pingone.com`). It also uses `pingOneFetch(requestDetails.tokenEndpoint, ...)` for the request. So V8 modal can call PingOne directly (CORS permitting) instead of always using `/api/pingone/token`.
+- **WorkerTokenModal** builds token URL: `https://${domain}/${environmentId}/as/token` (e.g. `auth.pingone.com`). It also uses `pingOneFetch(requestDetails.tokenEndpoint, ...)` for the request. So V8 modal can call PingOne directly (CORS permitting) instead of always using `/api/pingone/token`.
 - **WorkerTokenModalV9** correctly uses `fetch('/api/pingone/token', ...)` (backend proxy).
 - **WorkerTokenRequestModal** takes `tokenEndpoint` and can `fetch(tokenEndpoint)` unless `onSendRequest` is provided.
 - **workerTokenManager** (and thus workerTokenRepository) does not use unifiedWorkerTokenService for **saving** the token; it uses only localStorage via unifiedStorageManager. So tokens obtained by the manager are not in IndexedDB/SQLite.
@@ -112,15 +112,15 @@ Pages that already use **only** the event (no local modal): TokenStatusPageV8U, 
 1. **Single modal**
    - Use **only WorkerTokenModalV9** for obtaining the worker token.
    - Every “Get worker token” / “Fix token” / “Manage token” action dispatches `open-worker-token-modal`. App.tsx shows WorkerTokenModalV9 with optional wait screen.
-   - Migrate all pages that currently render WorkerTokenModalV8 (or open it via workerTokenModalHelperV8) to dispatch `open-worker-token-modal` and remove local WorkerTokenModalV8 rendering.
-   - Keep WorkerTokenModalV8 only for locked/snapshot code if required; main app and v8u/v8 active code should not open it.
+   - Migrate all pages that currently render WorkerTokenModal (or open it via workerTokenModalHelper) to dispatch `open-worker-token-modal` and remove local WorkerTokenModal rendering.
+   - Keep WorkerTokenModal only for locked/snapshot code if required; main app and v8u/v8 active code should not open it.
 
 2. **Single retrieval and write path**
-   - **Read:** All callers that need a worker token use **unifiedWorkerTokenService.getToken()** (or workerTokenServiceV8.getToken() which delegates). useGlobalWorkerToken should prefer unifiedWorkerTokenService.hasValidTokenSync/getTokenDataSync first and only call workerTokenManager when unified has no token and auto-fetch is desired; when manager fetches a token, it should **save via unifiedWorkerTokenService.saveToken** so the token is in IndexedDB + SQLite.
+   - **Read:** All callers that need a worker token use **unifiedWorkerTokenService.getToken()** (or workerTokenService.getToken() which delegates). useGlobalWorkerToken should prefer unifiedWorkerTokenService.hasValidTokenSync/getTokenDataSync first and only call workerTokenManager when unified has no token and auto-fetch is desired; when manager fetches a token, it should **save via unifiedWorkerTokenService.saveToken** so the token is in IndexedDB + SQLite.
    - **Write:** Every token save goes through **unifiedWorkerTokenService.saveToken** (and thus unifiedTokenStorage.saveWorkerToken → IndexedDB + SQLite). Deprecate workerTokenRepository for token persistence in favor of unifiedWorkerTokenService (or make repository delegate to unifiedWorkerTokenService for token save).
 
 3. **No hardcoded token requests from the client**
-   - All browser-originated token requests go to **`/api/pingone/token`** (backend proxy). Remove or refactor WorkerTokenModalV8 so it does not call `pingOneFetch(tokenEndpoint)` directly; either use the proxy or open the global V9 modal.
+   - All browser-originated token requests go to **`/api/pingone/token`** (backend proxy). Remove or refactor WorkerTokenModal so it does not call `pingOneFetch(tokenEndpoint)` directly; either use the proxy or open the global V9 modal.
 
 4. **Storage consistency**
    - Credentials: already correct (SQLite + cache).
@@ -136,8 +136,8 @@ Use this as a checklist to ensure no hardcoded usage, no stray modals, and consi
 
 - `WorkerTokenModal` (V8, V9, or no suffix)
 - `open-worker-token-modal` | `showWorkerTokenModal` | `setShowWorkerTokenModal`
-- `workerTokenManager` | `workerTokenRepository` | `workerTokenServiceV8` | `unifiedWorkerTokenService`
-- `handleShowWorkerTokenModal` | `workerTokenModalHelperV8`
+- `workerTokenManager` | `workerTokenRepository` | `workerTokenService` | `unifiedWorkerTokenService`
+- `handleShowWorkerTokenModal` | `workerTokenModalHelper`
 - `getWorkerToken` | `getToken()` in worker-token context
 - `saveToken` in worker-token context
 - `auth.pingone` + `token` or `/as/token`
@@ -149,21 +149,21 @@ Use this as a checklist to ensure no hardcoded usage, no stray modals, and consi
 
 - [ ] `src/App.tsx` — global WorkerTokenModalV9 and `open-worker-token-modal` listener.
 - [ ] `src/components/WorkerTokenModalV9.tsx` — uses unifiedWorkerTokenService; requests via `/api/pingone/token`.
-- [ ] `src/components/WorkerTokenModalV8.tsx` — replace opening with event or refactor to use proxy only.
+- [ ] `src/components/WorkerTokenModal.tsx` — replace opening with event or refactor to use proxy only.
 - [ ] `src/components/WorkerTokenModal.tsx` — legacy; ensure it uses unifiedWorkerTokenService and does not add a second modal flow.
 - [ ] `src/components/WorkerTokenRequestModal.tsx` — ensure no direct PingOne URL when used; prefer proxy.
-- [ ] `src/v8/components/WorkerTokenRequestModalV8.tsx` — same; save via workerTokenServiceV8 (unified).
+- [ ] `src/v8/components/WorkerTokenRequestModal.tsx` — same; save via workerTokenService (unified).
 
 **Pages that render a worker token modal**
 
-- [x] `src/v8/pages/DeleteAllDevicesUtilityV8.tsx` — switch to `open-worker-token-modal`, remove WorkerTokenModalV8. **(Done)**
-- [x] `src/v8u/components/CredentialsFormV8U.tsx` — switch to event, remove local WorkerTokenModalV8. **(Done)**
-- [ ] `src/v8u/components/UnifiedFlowSteps.tsx` — switch to event, remove local WorkerTokenModalV8.
-- [ ] `src/v8/services/workerTokenUIServiceV8.tsx` — switch to event, remove local WorkerTokenModalV8.
-- [ ] `src/v8/flows/shared/MFAFlowBaseV8.tsx` — switch to event, remove local WorkerTokenModalV8.
-- [ ] `src/v8/pages/MFADeviceCreateDemoV8.tsx` — switch to event, remove local WorkerTokenModalV8.
-- [ ] `src/v8/pages/DeviceAuthenticationDetailsV8.tsx` — switch to event, remove local WorkerTokenModalV8.
-- [x] `src/v8/flows/unified/components/UnifiedErrorDisplayV8.tsx` — switch to event, remove local WorkerTokenModalV8. **(Done)**
+- [x] `src/v8/pages/DeleteAllDevicesUtility.tsx` — switch to `open-worker-token-modal`, remove WorkerTokenModal. **(Done)**
+- [x] `src/v8u/components/CredentialsFormV8U.tsx` — switch to event, remove local WorkerTokenModal. **(Done)**
+- [ ] `src/v8u/components/UnifiedFlowSteps.tsx` — switch to event, remove local WorkerTokenModal.
+- [ ] `src/v8/services/workerTokenUIService.tsx` — switch to event, remove local WorkerTokenModal.
+- [ ] `src/v8/flows/shared/MFAFlowBase.tsx` — switch to event, remove local WorkerTokenModal.
+- [ ] `src/v8/pages/MFADeviceCreateDemo.tsx` — switch to event, remove local WorkerTokenModal.
+- [ ] `src/v8/pages/DeviceAuthenticationDetails.tsx` — switch to event, remove local WorkerTokenModal.
+- [x] `src/v8/flows/unified/components/UnifiedErrorDisplay.tsx` — switch to event, remove local WorkerTokenModal. **(Done)**
 - [ ] `src/pages/security/HelioMartPasswordReset.tsx` — use event + global modal or keep single local V9 modal.
 - [ ] `src/components/PingOneApplicationPickerModal.tsx` — use event or keep single local V9 modal.
 - [ ] `src/components/ConfigurationURIChecker.tsx` — use event or keep single local V9 modal.
@@ -178,26 +178,26 @@ Use this as a checklist to ensure no hardcoded usage, no stray modals, and consi
 - [ ] `src/services/unifiedTokenStorageService.ts` — saveWorkerToken → IndexedDB + SQLite; no bypass.
 - [ ] `src/services/workerTokenManager.ts` — after fetch, save via unifiedWorkerTokenService.saveToken (not only repository).
 - [ ] `src/services/workerTokenRepository.ts` — token save: delegate to unifiedWorkerTokenService or deprecate token save.
-- [ ] `src/services/workerTokenServiceV8.ts` — remains thin wrapper over unifiedWorkerTokenService.
-- [ ] `src/v8/utils/workerTokenModalHelperV8.ts` — only opens modal via event (no silent fetch that bypasses unified storage).
+- [ ] `src/services/workerTokenService.ts` — remains thin wrapper over unifiedWorkerTokenService.
+- [ ] `src/v8/utils/workerTokenModalHelper.ts` — only opens modal via event (no silent fetch that bypasses unified storage).
 
 **Hooks and consumers**
 
 - [ ] `src/hooks/useGlobalWorkerToken.ts` — prefer unifiedWorkerTokenService; when workerTokenManager fetches, save with unifiedWorkerTokenService.saveToken.
-- [ ] `src/v8/services/mfaServiceV8.ts` — getWorkerToken from workerTokenServiceV8 only (already delegates to unified).
-- [ ] `src/v8/services/workerTokenStatusServiceV8.ts` — reads from workerTokenServiceV8 / unified only.
-- [ ] `src/v8/services/workerTokenCacheServiceV8.ts` — uses unifiedWorkerTokenService; OK.
-- [ ] `src/v8/services/appDiscoveryServiceV8.ts` — uses workerTokenServiceV8; OK.
+- [ ] `src/v8/services/mfaService.ts` — getWorkerToken from workerTokenService only (already delegates to unified).
+- [ ] `src/v8/services/workerTokenStatusService.ts` — reads from workerTokenService / unified only.
+- [ ] `src/v8/services/workerTokenCacheService.ts` — uses unifiedWorkerTokenService; OK.
+- [ ] `src/v8/services/appDiscoveryService.ts` — uses workerTokenService; OK.
 
 **Other**
 
-- [ ] `src/v8/components/WorkerTokenStatusDisplayV8.tsx` — already dispatches `open-worker-token-modal`; no local modal.
-- [ ] `src/v8/components/WorkerTokenSectionV8.tsx` — ensure it does not open WorkerTokenModalV8; use event.
-- [ ] Any file under `src/` that imports WorkerTokenModalV8 or WorkerTokenRequestModalV8 — change to dispatch event and remove local modal.
+- [ ] `src/v8/components/WorkerTokenStatusDisplay.tsx` — already dispatches `open-worker-token-modal`; no local modal.
+- [ ] `src/v8/components/WorkerTokenSection.tsx` — ensure it does not open WorkerTokenModal; use event.
+- [ ] Any file under `src/` that imports WorkerTokenModal or WorkerTokenRequestModal — change to dispatch event and remove local modal.
 
 ### 7.3 Locked / snapshot code
 
-- Files under `src/locked/` can be audited later or left as-is if they are frozen snapshots. Prefer not adding new WorkerTokenModalV8 usage there.
+- Files under `src/locked/` can be audited later or left as-is if they are frozen snapshots. Prefer not adding new WorkerTokenModal usage there.
 
 ### 7.4 Full list of files under `/src` that reference worker token (exclude `locked/` for active code)
 
@@ -207,24 +207,24 @@ Use this list to ensure each file uses the single modal and storage service. (Lo
 
 - `src/App.tsx`
 - `src/components/WorkerTokenModalV9.tsx`
-- `src/components/WorkerTokenModalV8.tsx`
+- `src/components/WorkerTokenModal.tsx`
 - `src/components/WorkerTokenModal.tsx`
 - `src/components/WorkerTokenRequestModal.tsx` (if present in src)
-- `src/v8/components/WorkerTokenRequestModalV8.tsx`
+- `src/v8/components/WorkerTokenRequestModal.tsx`
 
 **Pages that open or render a worker token modal**
 
-- `src/v8/pages/DeleteAllDevicesUtilityV8.tsx` *(migrated: uses open-worker-token-modal)*
+- `src/v8/pages/DeleteAllDevicesUtility.tsx` *(migrated: uses open-worker-token-modal)*
 - `src/v8u/pages/TokenStatusPageV8U.tsx`
 - `src/v8u/components/CredentialsFormV8U.tsx` *(migrated: uses open-worker-token-modal)*
 - `src/v8u/components/UnifiedFlowSteps.tsx`
-- `src/v8/services/workerTokenUIServiceV8.tsx`
-- `src/v8/flows/shared/MFAFlowBaseV8.tsx`
-- `src/v8/pages/MFADeviceCreateDemoV8.tsx`
-- `src/v8/pages/DeviceAuthenticationDetailsV8.tsx`
-- `src/v8/flows/unified/components/UnifiedErrorDisplayV8.tsx` *(migrated: uses open-worker-token-modal)*
-- `src/v8/lockdown/fido2/snapshot/MFAAuthenticationMainPageV8.tsx`
-- `src/v8/lockdown/fido2/snapshot/FIDO2ConfigurationPageV8.tsx`
+- `src/v8/services/workerTokenUIService.tsx`
+- `src/v8/flows/shared/MFAFlowBase.tsx`
+- `src/v8/pages/MFADeviceCreateDemo.tsx`
+- `src/v8/pages/DeviceAuthenticationDetails.tsx`
+- `src/v8/flows/unified/components/UnifiedErrorDisplay.tsx` *(migrated: uses open-worker-token-modal)*
+- `src/v8/lockdown/fido2/snapshot/MFAAuthenticationMainPage.tsx`
+- `src/v8/lockdown/fido2/snapshot/FIDO2ConfigurationPage.tsx`
 - `src/pages/security/HelioMartPasswordReset.tsx`
 - `src/components/PingOneApplicationPickerModal.tsx`
 - `src/components/ConfigurationURIChecker.tsx`
@@ -237,9 +237,9 @@ Use this list to ensure each file uses the single modal and storage service. (Lo
 
 **Components that show status or open modal**
 
-- `src/v8/components/WorkerTokenStatusDisplayV8.tsx`
-- `src/v8/components/WorkerTokenSectionV8.tsx`
-- `src/v8/components/WorkerTokenExpiryBannerV8.tsx`
+- `src/v8/components/WorkerTokenStatusDisplay.tsx`
+- `src/v8/components/WorkerTokenSection.tsx`
+- `src/v8/components/WorkerTokenExpiryBanner.tsx`
 - `src/components/WorkerTokenSectionV9.tsx`
 - `src/components/WorkerTokenStatusLabel.tsx`
 
@@ -249,15 +249,15 @@ Use this list to ensure each file uses the single modal and storage service. (Lo
 - `src/services/unifiedTokenStorageService.ts`
 - `src/services/workerTokenManager.ts`
 - `src/services/workerTokenRepository.ts`
-- `src/v8/services/workerTokenServiceV8.ts`
-- `src/v8/utils/workerTokenModalHelperV8.ts`
-- `src/v8/services/mfaServiceV8.ts`
-- `src/v8/services/mfaAuthenticationServiceV8.ts`
-- `src/v8/services/appDiscoveryServiceV8.ts`
-- `src/v8/services/workerTokenCacheServiceV8.ts`
-- `src/v8/services/workerTokenStatusServiceV8.ts`
+- `src/v8/services/workerTokenService.ts`
+- `src/v8/utils/workerTokenModalHelper.ts`
+- `src/v8/services/mfaService.ts`
+- `src/v8/services/mfaAuthenticationService.ts`
+- `src/v8/services/appDiscoveryService.ts`
+- `src/v8/services/workerTokenCacheService.ts`
+- `src/v8/services/workerTokenStatusService.ts`
 - `src/v8/services/globalWorkerTokenService.ts`
-- `src/v8/services/auth/tokenGatewayV8.ts`
+- `src/v8/services/auth/tokenGateway.ts`
 - `src/services/workerTokenCredentialsService.ts`
 - `src/services/aiAssistantWorkerTokenService.ts`
 - `src/services/v9/WorkerTokenStatusService.ts`
@@ -282,7 +282,7 @@ Use this list to ensure each file uses the single modal and storage service. (Lo
 - `src/v8u/components/CompactAppPickerV8U.tsx`
 - `src/v8/flows/unified/components/UnifiedActivationStep.modern.tsx`
 - `src/pages/JWKSTroubleshooting.tsx`
-- `src/services/unifiedWorkerTokenBackupServiceV8.ts`
+- `src/services/unifiedWorkerTokenBackupService.ts`
 - `src/services/comprehensiveCredentialsService.tsx`
 - `src/services/commonImportsService.ts`
 - `src/hooks/useAutoEnvironmentId.ts`
@@ -292,9 +292,9 @@ Use this list to ensure each file uses the single modal and storage service. (Lo
 
 ```bash
 # From repo root
-grep -Rl "WorkerTokenModalV8\|WorkerTokenModalV9\|WorkerTokenModal[^V]" src --include="*.tsx" --include="*.ts" | grep -v locked
+grep -Rl "WorkerTokenModal\|WorkerTokenModalV9\|WorkerTokenModal[^V]" src --include="*.tsx" --include="*.ts" | grep -v locked
 grep -Rn "open-worker-token-modal\|showWorkerTokenModal" src --include="*.tsx" --include="*.ts" | grep -v locked
-grep -Rn "workerTokenManager\|workerTokenRepository\|unifiedWorkerTokenService\|workerTokenServiceV8" src --include="*.ts" --include="*.tsx" | grep -v locked
+grep -Rn "workerTokenManager\|workerTokenRepository\|unifiedWorkerTokenService\|workerTokenService" src --include="*.ts" --include="*.tsx" | grep -v locked
 grep -Rn "auth\.pingone.*token\|/as/token" src --include="*.ts" --include="*.tsx" | grep -v locked
 ```
 
@@ -304,8 +304,8 @@ grep -Rn "auth\.pingone.*token\|/as/token" src --include="*.ts" --include="*.tsx
 
 ### 8.1 Checkboxes (Silent API Retrieval, Show Token at End)
 
-- **Must work:** The "Silent API Token Retrieval" and "Show Token at End" (or "Show Token After Generation") checkboxes must be **functional and persist**. State is stored in **MFAConfigurationServiceV8** / **WorkerTokenConfigServiceV8** and must load/save correctly so toggles are not lost on refresh or navigation.
-- **Fix if broken:** If checkboxes do not reflect saved state or do not persist, fix the config load/save path (WorkerTokenConfigServiceV8, MFA config save, `mfaConfigurationUpdated` / `workerTokenConfigUpdated` events) so all surfaces that show these checkboxes read from and write to the same source.
+- **Must work:** The "Silent API Token Retrieval" and "Show Token at End" (or "Show Token After Generation") checkboxes must be **functional and persist**. State is stored in **MFAConfigurationService** / **WorkerTokenConfigService** and must load/save correctly so toggles are not lost on refresh or navigation.
+- **Fix if broken:** If checkboxes do not reflect saved state or do not persist, fix the config load/save path (WorkerTokenConfigService, MFA config save, `mfaConfigurationUpdated` / `workerTokenConfigUpdated` events) so all surfaces that show these checkboxes read from and write to the same source.
 
 ### 8.2 Modal behavior (silent vs show modal)
 
@@ -325,18 +325,18 @@ grep -Rn "auth\.pingone.*token\|/as/token" src --include="*.ts" --include="*.tsx
 - **Clear Token:** **Yellow** button to clear the current worker token from storage. Does not remove credentials. Label: "Clear Token".
 - **Update Token:** **Blue** button when the user already has a worker token and wants to refresh or get a new one. Shown only when a token is already present. Label: "Update Token".
 
-These apply to **WorkerTokenModalV9** and, where applicable, to any other surface that exposes Get/Clear/Update worker token actions (e.g. WorkerTokenSectionV8, status displays).
+These apply to **WorkerTokenModalV9** and, where applicable, to any other surface that exposes Get/Clear/Update worker token actions (e.g. WorkerTokenSection, status displays).
 
 ---
 
 ## 9. Summary Checklist
 
 - [ ] Only one modal is used to get worker token: **WorkerTokenModalV9**, opened via **`open-worker-token-modal`**.
-- [ ] All token **reads** go through **unifiedWorkerTokenService** (or workerTokenServiceV8 wrapper).
+- [ ] All token **reads** go through **unifiedWorkerTokenService** (or workerTokenService wrapper).
 - [ ] All token **writes** go through **unifiedWorkerTokenService.saveToken** so storage is **IndexedDB + SQLite** (and optional localStorage cache).
 - [ ] No client-side token request goes directly to PingOne; all go through **`/api/pingone/token`**.
 - [ ] workerTokenManager, when it fetches a token, **saves it via unifiedWorkerTokenService.saveToken**.
-- [ ] No new uses of WorkerTokenModalV8 in active code; existing uses migrated to dispatch event and use global WorkerTokenModalV9.
+- [ ] No new uses of WorkerTokenModal in active code; existing uses migrated to dispatch event and use global WorkerTokenModalV9.
 - [ ] Checkboxes (Silent API Retrieval, Show Token at End) work and persist (Section 8.1).
 - [ ] Modal uses silent retrieval when credentials exist and checkbox is ON; shows modal when no credentials or user clicks Get Worker Token (Section 8.2).
 - [ ] Any Configuration (or other) credential form that edits worker credentials calls unifiedWorkerTokenService.saveCredentials() so modal picks up changes (Section 8.3).

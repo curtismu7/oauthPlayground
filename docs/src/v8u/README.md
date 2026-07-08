@@ -53,25 +53,25 @@ V8U imports and uses these V8 services directly:
 
 ```typescript
 // From V8 services
-import { SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
-import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
-import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
-import { ImplicitFlowIntegrationServiceV8 } from '@/v8/services/implicitFlowIntegrationServiceV8';
-import { ClientCredentialsIntegrationServiceV8 } from '@/v8/services/clientCredentialsIntegrationServiceV8';
-import { DeviceCodeIntegrationServiceV8 } from '@/v8/services/deviceCodeIntegrationServiceV8';
-import { ROPCIntegrationServiceV8 } from '@/v8/services/ropcIntegrationServiceV8';
-import { HybridFlowIntegrationServiceV8 } from '@/v8/services/hybridFlowIntegrationServiceV8';
-import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { SpecVersionService } from '@/v8/services/specVersionService';
+import { UnifiedFlowOptionsService } from '@/v8/services/unifiedFlowOptionsService';
+import { OAuthIntegrationService } from '@/v8/services/oauthIntegrationService';
+import { ImplicitFlowIntegrationService } from '@/v8/services/implicitFlowIntegrationService';
+import { ClientCredentialsIntegrationService } from '@/v8/services/clientCredentialsIntegrationService';
+import { DeviceCodeIntegrationService } from '@/v8/services/deviceCodeIntegrationService';
+import { ROPCIntegrationService } from '@/v8/services/ropcIntegrationService';
+import { HybridFlowIntegrationService } from '@/v8/services/hybridFlowIntegrationService';
+import { ValidationService } from '@/v8/services/validationService';
+import { CredentialsService } from '@/v8/services/credentialsService';
 
 // From V8 components
-import CredentialsFormV8 from '@/v8/components/CredentialsFormV8';
-import StepNavigationV8 from '@/v8/components/StepNavigationV8';
-import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
-import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
+import CredentialsForm from '@/v8/components/CredentialsForm';
+import StepNavigation from '@/v8/components/StepNavigation';
+import StepActionButtons from '@/v8/components/StepActionButtons';
+import StepValidationFeedback from '@/v8/components/StepValidationFeedback';
 
 // From V8 hooks
-import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
+import { useStepNavigation } from '@/v8/hooks/useStepNavigation';
 ```
 
 ### V8U-Specific Services

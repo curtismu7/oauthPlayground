@@ -44,7 +44,7 @@ For silent API retrieval to work, the following must be true:
 
 1. **Credentials Must Be Saved**: 
    - User must have previously saved worker token credentials (via "Get Worker Token" button with "Save credentials for next time" checked)
-   - Credentials are stored in `workerTokenServiceV8` storage
+   - Credentials are stored in `workerTokenService` storage
 
 2. **Token Must Be Missing or Expired**:
    - Silent retrieval only triggers when there's no valid token
@@ -70,14 +70,14 @@ For silent API retrieval to work, the following must be true:
 
 ### Storage Location
 
-Credentials are stored using `workerTokenServiceV8.saveCredentials()`, which saves to:
+Credentials are stored using `workerTokenService.saveCredentials()`, which saves to:
 - Primary: Browser localStorage (`v8:worker_token`)
 - Backup: IndexedDB (`oauth_playground_v8` database)
 
 ### Silent Retrieval Flow
 
 1. Check if `silentApiRetrieval` is enabled in configuration
-2. Load credentials from `workerTokenServiceV8.loadCredentials()`
+2. Load credentials from `workerTokenService.loadCredentials()`
 3. If credentials exist, make a POST request to `/api/pingone/token` with:
    - `environment_id`
    - `client_id`
@@ -91,18 +91,18 @@ Credentials are stored using `workerTokenServiceV8.saveCredentials()`, which sav
 
 ### Code Locations
 
-- **Helper Function**: `src/v8/utils/workerTokenModalHelperV8.ts`
+- **Helper Function**: `src/v8/utils/workerTokenModalHelper.ts`
   - `attemptSilentTokenRetrieval()`: Performs the silent token fetch
   - `handleShowWorkerTokenModal()`: Main handler that respects silent settings
 
 - **UI Components**:
-  - `src/v8/flows/MFAHubV8.tsx`: Hub page with checkboxes
-  - `src/v8/flows/MFAAuthenticationMainPageV8.tsx`: Authentication page with checkboxes
-  - `src/v8/flows/MFAConfigurationPageV8.tsx`: Configuration page with checkboxes
+  - `src/v8/flows/MFAHub.tsx`: Hub page with checkboxes
+  - `src/v8/flows/MFAAuthenticationMainPage.tsx`: Authentication page with checkboxes
+  - `src/v8/flows/MFAConfigurationPage.tsx`: Configuration page with checkboxes
 
 - **Service**:
-  - `src/v8/services/workerTokenServiceV8.ts`: Credential and token storage
-  - `src/v8/services/mfaConfigurationServiceV8.ts`: Configuration storage
+  - `src/v8/services/workerTokenService.ts`: Credential and token storage
+  - `src/v8/services/mfaConfigurationService.ts`: Configuration storage
 
 ## Troubleshooting
 

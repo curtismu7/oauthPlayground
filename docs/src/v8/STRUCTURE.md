@@ -8,32 +8,32 @@ All V8 code is organized in `src/v8/` to keep it separate from V7 and maintain c
 src/v8/
 ├── components/              # Reusable V8 components
 │   ├── __tests__/          # Component tests
-│   ├── CredentialsFormV8.tsx
-│   ├── StepActionButtonsV8.tsx
-│   ├── StepNavigationV8.tsx
-│   ├── StepProgressBarV8.tsx
-│   └── StepValidationFeedbackV8.tsx
+│   ├── CredentialsForm.tsx
+│   ├── StepActionButtons.tsx
+│   ├── StepNavigation.tsx
+│   ├── StepProgressBar.tsx
+│   └── StepValidationFeedback.tsx
 │
 ├── flows/                   # V8 flow implementations
 │   ├── __tests__/          # Flow tests
-│   ├── OAuthAuthorizationCodeFlowV8.tsx
-│   └── ImplicitFlowV8.tsx
+│   ├── OAuthAuthorizationCodeFlow.tsx
+│   └── ImplicitFlow.tsx
 │
 ├── hooks/                   # Custom React hooks for V8
 │   ├── __tests__/          # Hook tests
-│   └── useStepNavigationV8.ts
+│   └── useStepNavigation.ts
 │
 ├── services/                # Business logic services
 │   ├── __tests__/          # Service tests
-│   ├── appDiscoveryServiceV8.ts
-│   ├── configCheckerServiceV8.ts
-│   ├── credentialsServiceV8.ts
-│   ├── errorHandlerV8.ts
-│   ├── flowResetServiceV8.ts
-│   ├── implicitFlowIntegrationServiceV8.ts
-│   ├── oauthIntegrationServiceV8.ts
-│   ├── storageServiceV8.ts
-│   └── validationServiceV8.ts
+│   ├── appDiscoveryService.ts
+│   ├── configCheckerService.ts
+│   ├── credentialsService.ts
+│   ├── errorHandler.ts
+│   ├── flowResetService.ts
+│   ├── implicitFlowIntegrationService.ts
+│   ├── oauthIntegrationService.ts
+│   ├── storageService.ts
+│   └── validationService.ts
 │
 ├── types/                   # TypeScript type definitions
 │   └── stepNavigation.ts
@@ -56,13 +56,13 @@ All V8 imports use the `@/v8/` alias for consistency:
 
 ```typescript
 // ✅ CORRECT
-import { CredentialsFormV8 } from '@/v8/components/CredentialsFormV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
+import { CredentialsForm } from '@/v8/components/CredentialsForm';
+import { CredentialsService } from '@/v8/services/credentialsService';
+import { useStepNavigation } from '@/v8/hooks/useStepNavigation';
 
 // ❌ WRONG
-import { CredentialsFormV8 } from '../components/CredentialsFormV8';
-import { CredentialsServiceV8 } from '../services/credentialsServiceV8';
+import { CredentialsForm } from '../components/CredentialsForm';
+import { CredentialsService } from '../services/credentialsService';
 ```
 
 ## Path Aliases
@@ -85,39 +85,39 @@ Configured in `tsconfig.json` and `vite.config.ts`:
 
 Reusable UI components used across V8 flows:
 
-- **CredentialsFormV8.tsx** - Smart credentials input form
-- **StepNavigationV8.tsx** - Step indicator/navigation
-- **StepActionButtonsV8.tsx** - Previous/Next/Finish buttons
-- **StepValidationFeedbackV8.tsx** - Error/warning display
-- **StepProgressBarV8.tsx** - Progress visualization
+- **CredentialsForm.tsx** - Smart credentials input form
+- **StepNavigation.tsx** - Step indicator/navigation
+- **StepActionButtons.tsx** - Previous/Next/Finish buttons
+- **StepValidationFeedback.tsx** - Error/warning display
+- **StepProgressBar.tsx** - Progress visualization
 
 ### Flows (`src/v8/flows/`)
 
 Complete flow implementations:
 
-- **OAuthAuthorizationCodeFlowV8.tsx** - Authorization Code flow
-- **ImplicitFlowV8.tsx** - Implicit flow
-- (Future: ClientCredentialsFlowV8.tsx, DeviceCodeFlowV8.tsx, etc.)
+- **OAuthAuthorizationCodeFlow.tsx** - Authorization Code flow
+- **ImplicitFlow.tsx** - Implicit flow
+- (Future: ClientCredentialsFlow.tsx, DeviceCodeFlow.tsx, etc.)
 
 ### Hooks (`src/v8/hooks/`)
 
 Custom React hooks:
 
-- **useStepNavigationV8.ts** - Step navigation state management
+- **useStepNavigation.ts** - Step navigation state management
 
 ### Services (`src/v8/services/`)
 
 Business logic and integrations:
 
-- **credentialsServiceV8.ts** - Credentials management (implements ICredentialsService)
-- **oauthIntegrationServiceV8.ts** - OAuth flow logic (implements IOAuthIntegrationService)
-- **implicitFlowIntegrationServiceV8.ts** - Implicit flow logic (implements IImplicitFlowIntegrationService)
-- **validationServiceV8.ts** - Validation rules (implements IValidationService)
-- **storageServiceV8.ts** - localStorage management (implements IStorageService)
-- **appDiscoveryServiceV8.ts** - App discovery integration
-- **configCheckerServiceV8.ts** - Config validation
-- **errorHandlerV8.ts** - Error handling (implements IErrorHandlerService)
-- **flowResetServiceV8.ts** - Flow reset logic (implements IFlowResetService)
+- **credentialsService.ts** - Credentials management (implements ICredentialsService)
+- **oauthIntegrationService.ts** - OAuth flow logic (implements IOAuthIntegrationService)
+- **implicitFlowIntegrationService.ts** - Implicit flow logic (implements IImplicitFlowIntegrationService)
+- **validationService.ts** - Validation rules (implements IValidationService)
+- **storageService.ts** - localStorage management (implements IStorageService)
+- **appDiscoveryService.ts** - App discovery integration
+- **configCheckerService.ts** - Config validation
+- **errorHandler.ts** - Error handling (implements IErrorHandlerService)
+- **flowResetService.ts** - Flow reset logic (implements IFlowResetService)
 
 ### Types (`src/v8/types/`)
 
@@ -137,15 +137,15 @@ Configuration files:
 All V8 code follows strict naming conventions:
 
 ### Files
-- Components: `ComponentNameV8.tsx`
-- Services: `serviceNameV8.ts`
-- Hooks: `useHookNameV8.ts`
+- Components: `ComponentName.tsx`
+- Services: `serviceName.ts`
+- Hooks: `useHookName.ts`
 - Types: `typeName.ts`
 
 ### Exports
-- Components: `export const ComponentNameV8: React.FC<Props>`
-- Services: `export class ServiceNameV8` or `export const serviceNameV8`
-- Hooks: `export const useHookNameV8 = (...)`
+- Components: `export const ComponentName: React.FC<Props>`
+- Services: `export class ServiceName` or `export const serviceName`
+- Hooks: `export const useHookName = (...)`
 
 ### Module Tags
 All logging uses module tags:
@@ -162,19 +162,19 @@ Tests are colocated in `__tests__/` directories:
 src/v8/
 ├── components/
 │   ├── __tests__/
-│   │   ├── CredentialsFormV8.test.tsx
-│   │   ├── StepNavigationV8.test.tsx
+│   │   ├── CredentialsForm.test.tsx
+│   │   ├── StepNavigation.test.tsx
 │   │   └── ...
 │   └── ...
 ├── services/
 │   ├── __tests__/
-│   │   ├── credentialsServiceV8.test.ts
-│   │   ├── oauthIntegrationServiceV8.test.ts
+│   │   ├── credentialsService.test.ts
+│   │   ├── oauthIntegrationService.test.ts
 │   │   └── ...
 │   └── ...
 └── hooks/
     ├── __tests__/
-    │   └── useStepNavigationV8.test.ts
+    │   └── useStepNavigation.test.ts
     └── ...
 ```
 
@@ -182,34 +182,34 @@ src/v8/
 
 When adding a new flow (e.g., Client Credentials):
 
-1. Create `src/v8/flows/ClientCredentialsFlowV8.tsx`
+1. Create `src/v8/flows/ClientCredentialsFlow.tsx`
 2. Import shared components and services
-3. Use `CredentialsFormV8` for credentials step
-4. Use `useStepNavigationV8` for step management
-5. Create integration service if needed: `src/v8/services/clientCredentialsIntegrationServiceV8.ts`
-6. Add tests in `src/v8/flows/__tests__/ClientCredentialsFlowV8.test.tsx`
+3. Use `CredentialsForm` for credentials step
+4. Use `useStepNavigation` for step management
+5. Create integration service if needed: `src/v8/services/clientCredentialsIntegrationService.ts`
+6. Add tests in `src/v8/flows/__tests__/ClientCredentialsFlow.test.tsx`
 7. Update `src/App.tsx` to import and route the new flow
 
 ## Adding New Components
 
 When adding a new component:
 
-1. Create `src/v8/components/ComponentNameV8.tsx`
+1. Create `src/v8/components/ComponentName.tsx`
 2. Add TypeScript interfaces for props
 3. Include module tag for logging
 4. Add JSDoc comments
-5. Create tests in `src/v8/components/__tests__/ComponentNameV8.test.tsx`
+5. Create tests in `src/v8/components/__tests__/ComponentName.test.tsx`
 6. Export from component file
 
 ## Adding New Services
 
 When adding a new service:
 
-1. Create `src/v8/services/serviceNameV8.ts`
+1. Create `src/v8/services/serviceName.ts`
 2. Export as class or const
 3. Include module tag for logging
 4. Add JSDoc comments for all public methods
-5. Create tests in `src/v8/services/__tests__/serviceNameV8.test.ts`
+5. Create tests in `src/v8/services/__tests__/serviceName.test.ts`
 
 ## Import Guidelines
 
@@ -217,8 +217,8 @@ When adding a new service:
 
 ```typescript
 // Import from v8 directory
-import { CredentialsFormV8 } from '@/v8/components/CredentialsFormV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { CredentialsForm } from '@/v8/components/CredentialsForm';
+import { CredentialsService } from '@/v8/services/credentialsService';
 
 // Import shared utilities (if truly shared)
 import { logger } from '@/utils/logger';
@@ -231,7 +231,7 @@ import React, { useState } from 'react';
 
 ```typescript
 // Don't use relative paths
-import { CredentialsFormV8 } from '../components/CredentialsFormV8';
+import { CredentialsForm } from '../components/CredentialsForm';
 
 // Don't import V8 code from V7
 import { SomeV8Component } from '@/v8/components/SomeV8Component';

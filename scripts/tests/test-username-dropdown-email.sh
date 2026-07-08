@@ -5,7 +5,7 @@ echo "============================================"
 
 # Test 1: Check SearchableDropdownOption import
 echo "📋 Checking SearchableDropdownOption import..."
-if grep -q "import.*SearchableDropdownOption.*from.*@/v8/components/SearchableDropdownV8" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
+if grep -q "import.*SearchableDropdownOption.*from.*@/v8/components/SearchableDropdown" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
     echo "✅ SearchableDropdownOption imported"
 else
     echo "❌ SearchableDropdownOption import missing"

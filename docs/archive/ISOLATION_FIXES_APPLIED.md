@@ -10,11 +10,11 @@
 ### 1. ✅ Removed "Allow Redirect URI Patterns" Checkbox
 
 **Files Modified:**
-- `src/v8/components/CredentialsFormV8.tsx`
+- `src/v8/components/CredentialsForm.tsx`
   - Removed `allowRedirectUriPatterns` state variable
   - Removed checkbox UI component
   - Simplified redirect URI placeholder (no pattern support)
-- `src/v8/services/unifiedFlowOptionsServiceV8.ts`
+- `src/v8/services/unifiedFlowOptionsService.ts`
   - Removed `showRedirectUriPatterns` from `CheckboxAvailability` interface
   - Removed logic that enabled redirect URI patterns checkbox
 
@@ -25,7 +25,7 @@
 ### 2. ✅ Fixed Linting Errors
 
 **Files Modified:**
-- `src/v8/components/CredentialsFormV8.tsx`
+- `src/v8/components/CredentialsForm.tsx`
   - Changed `[key: string]: any` to `[key: string]: unknown` (line 58)
   - Fixed redundant comparison in `effectiveFlowKey` calculation (line 123)
 
@@ -64,10 +64,10 @@
 ### ⚠️ V8 Files in Shared Directories
 
 **Files:**
-- `src/pages/flows/ImplicitFlowV8.tsx` - Should be in `src/v8/flows/`
-- `src/pages/flows/PingOnePARFlowV8/` - Should be in `src/v8/flows/`
-- `src/hooks/useCredentialStoreV8.ts` - V8 hook in shared directory
-- `src/services/credentialStoreV8.ts` - V8 service in shared directory
+- `src/pages/flows/ImplicitFlow.tsx` - Should be in `src/v8/flows/`
+- `src/pages/flows/PingOnePARFlow/` - Should be in `src/v8/flows/`
+- `src/hooks/useCredentialStore.ts` - V8 hook in shared directory
+- `src/services/credentialStore.ts` - V8 service in shared directory
 - `src/services/v8StorageService.ts` - V8 service in shared directory
 
 **Status:** ✅ **NOT VIOLATING ISOLATION**

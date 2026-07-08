@@ -17,8 +17,8 @@ import styled from 'styled-components';
 import {
 	PageHeaderGradients,
 	PageHeaderTextColors,
-	PageHeaderV8,
-} from '@/mfa/components/shared/PageHeaderV8';
+	PageHeader,
+} from '@/mfa/components/shared/PageHeader';
 
 const _MODULE_TAG = '[ UNIFIED-FLOW-HELPER-V8U]';
 
@@ -172,7 +172,7 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 				Back to Unified Start
 			</BackButton>
 
-			<PageHeaderV8
+			<PageHeader
 				title="OAuth/OIDC Flow & Specification Comparison Guide"
 				subtitle="Comprehensive reference comparing specification versions and flow types, including PingOne-specific requirements and implementations."
 				gradient={PageHeaderGradients.unifiedOAuth}

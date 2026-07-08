@@ -61,7 +61,7 @@ src/v8/
 
 ### Day 1-2: Foundation Services (4 files)
 
-#### 1. educationServiceV8.ts ✅ STARTED
+#### 1. educationService.ts ✅ STARTED
 **Status:** Partially complete, needs finishing
 **Contains:**
 - Tooltip content registry (40+ tooltips)
@@ -77,13 +77,13 @@ src/v8/
 
 ---
 
-#### 2. validationServiceV8.ts 📝 NEXT
+#### 2. validationService.ts 📝 NEXT
 **Purpose:** Validation rules for all fields
 **Critical for:** Step navigation system
 
 **Must include:**
 ```typescript
-class ValidationServiceV8 {
+class ValidationService {
   // Validate credentials
   static validateCredentials(
     credentials: Partial<StepCredentials>,
@@ -124,13 +124,13 @@ class ValidationServiceV8 {
 
 ---
 
-#### 3. errorHandlerV8.ts 📝 NEXT
+#### 3. errorHandler.ts 📝 NEXT
 **Purpose:** User-friendly error messages
 **Critical for:** Better UX than V7
 
 **Must include:**
 ```typescript
-class ErrorHandlerV8 {
+class ErrorHandler {
   // Handle error with context
   static handleError(
     error: Error | string,
@@ -157,13 +157,13 @@ class ErrorHandlerV8 {
 
 ---
 
-#### 4. storageServiceV8.ts 📝 NEXT
+#### 4. storageService.ts 📝 NEXT
 **Purpose:** Versioned storage with migrations
 **Critical for:** Saving progress, export/import
 
 **Must include:**
 ```typescript
-class StorageServiceV8 {
+class StorageService {
   // Save with versioning
   static save<T>(
     key: string,
@@ -195,7 +195,7 @@ class StorageServiceV8 {
 
 ### Day 3: Step Navigation System (4 components) ⭐ CRITICAL
 
-#### 1. StepNavigationV8.tsx
+#### 1. StepNavigation.tsx
 **Purpose:** Main step navigation component
 **Shows:** Step indicators with completion status
 
@@ -261,7 +261,7 @@ interface StepValidationFeedbackProps {
 
 #### 1. EducationTooltip.tsx
 **Purpose:** Reusable tooltip component
-**Uses:** educationServiceV8.ts
+**Uses:** educationService.ts
 
 ```tsx
 interface EducationTooltipProps {
@@ -276,7 +276,7 @@ interface EducationTooltipProps {
 
 #### 2. ErrorDisplay.tsx
 **Purpose:** User-friendly error messages
-**Uses:** errorHandlerV8.ts
+**Uses:** errorHandler.ts
 
 ```tsx
 interface ErrorDisplayProps {
@@ -291,8 +291,8 @@ interface ErrorDisplayProps {
 
 ### Day 5: Integration & Testing
 
-#### Update OAuthAuthorizationCodeFlowV8
-- Add StepNavigationV8
+#### Update OAuthAuthorizationCodeFlow
+- Add StepNavigation
 - Add validation for each step
 - Add StepActionButtons
 - Test complete flow
@@ -398,15 +398,15 @@ Success! 🎉
 
 ### First Command
 ```
-"Let's start with Week 1, Day 1: Create validationServiceV8.ts"
+"Let's start with Week 1, Day 1: Create validationService.ts"
 ```
 
 ### Order of Implementation
-1. ✅ educationServiceV8.ts (already started)
-2. 📝 validationServiceV8.ts (NEXT - critical for step nav)
-3. 📝 errorHandlerV8.ts
-4. 📝 storageServiceV8.ts
-5. 📝 StepNavigationV8.tsx
+1. ✅ educationService.ts (already started)
+2. 📝 validationService.ts (NEXT - critical for step nav)
+3. 📝 errorHandler.ts
+4. 📝 storageService.ts
+5. 📝 StepNavigation.tsx
 6. 📝 StepProgressBar.tsx
 7. 📝 StepActionButtons.tsx
 8. 📝 StepValidationFeedback.tsx
@@ -458,7 +458,7 @@ Everything else builds on these 4 services.
 
 **Next step:** Start coding!
 
-**First file:** `validationServiceV8.ts`
+**First file:** `validationService.ts`
 
 **Goal:** Working step navigation by end of Week 1
 

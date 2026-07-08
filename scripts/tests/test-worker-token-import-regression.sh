@@ -1,20 +1,20 @@
 #!/bin/bash
 
-# Test for WorkerTokenStatusServiceV8 import regression
+# Test for WorkerTokenStatusService import regression
 # This script checks that the import is properly included in CredentialsFormV8U.tsx
 
-echo "🧪 Testing WorkerTokenStatusServiceV8 Import Regression"
+echo "🧪 Testing WorkerTokenStatusService Import Regression"
 echo "=================================================="
 
 # Test 1: Check if import exists in CredentialsFormV8U.tsx
 echo "📋 Checking import in CredentialsFormV8U.tsx..."
 
-if grep -q "import.*WorkerTokenStatusServiceV8.*from.*@/v8/services/workerTokenStatusServiceV8" src/lab/components/CredentialsFormV8U.tsx; then
+if grep -q "import.*WorkerTokenStatusService.*from.*@/v8/services/workerTokenStatusService" src/lab/components/CredentialsFormV8U.tsx; then
     echo "✅ Import found in CredentialsFormV8U.tsx"
 else
     echo "❌ Import NOT found in CredentialsFormV8U.tsx"
-    echo "🔍 Searching for any WorkerTokenStatusServiceV8 usage..."
-    if grep -n "WorkerTokenStatusServiceV8" src/lab/components/CredentialsFormV8U.tsx; then
+    echo "🔍 Searching for any WorkerTokenStatusService usage..."
+    if grep -n "WorkerTokenStatusService" src/lab/components/CredentialsFormV8U.tsx; then
         echo "⚠️  Usage found but import missing - REGRESSION DETECTED"
         exit 1
     else
@@ -26,8 +26,8 @@ fi
 echo ""
 echo "📋 Checking if service file exists..."
 
-if [ -f "src/mfa/services/workerTokenStatusServiceV8.ts" ]; then
-    echo "✅ Service file exists: src/mfa/services/workerTokenStatusServiceV8.ts"
+if [ -f "src/mfa/services/workerTokenStatusService.ts" ]; then
+    echo "✅ Service file exists: src/mfa/services/workerTokenStatusService.ts"
 else
     echo "❌ Service file NOT found"
     exit 1
@@ -37,10 +37,10 @@ fi
 echo ""
 echo "📋 Checking service exports..."
 
-if grep -q "export.*WorkerTokenStatusServiceV8" src/mfa/services/workerTokenStatusServiceV8.ts; then
-    echo "✅ Service exports WorkerTokenStatusServiceV8"
+if grep -q "export.*WorkerTokenStatusService" src/mfa/services/workerTokenStatusService.ts; then
+    echo "✅ Service exports WorkerTokenStatusService"
 else
-    echo "❌ Service does NOT export WorkerTokenStatusServiceV8"
+    echo "❌ Service does NOT export WorkerTokenStatusService"
     exit 1
 fi
 
@@ -59,16 +59,16 @@ fi
 echo ""
 echo "📋 Checking for import-related errors..."
 
-# Check if there are any "is not defined" errors related to WorkerTokenStatusServiceV8
-if grep -r "WorkerTokenStatusServiceV8.*is not defined" src/lab/components/ > /dev/null 2>&1; then
-    echo "❌ 'WorkerTokenStatusServiceV8 is not defined' errors found"
+# Check if there are any "is not defined" errors related to WorkerTokenStatusService
+if grep -r "WorkerTokenStatusService.*is not defined" src/lab/components/ > /dev/null 2>&1; then
+    echo "❌ 'WorkerTokenStatusService is not defined' errors found"
     exit 1
 else
-    echo "✅ No 'WorkerTokenStatusServiceV8 is not defined' errors"
+    echo "✅ No 'WorkerTokenStatusService is not defined' errors"
 fi
 
 echo ""
-echo "🎉 All WorkerTokenStatusServiceV8 import tests PASSED!"
+echo "🎉 All WorkerTokenStatusService import tests PASSED!"
 echo "✅ No regression detected"
 
 exit 0

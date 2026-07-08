@@ -108,7 +108,7 @@ npm run dev
    - **Timing**: Check if it's a cached response
 
 ### Solution 7: Bypass Proxy (Temporary Debug)
-Modify `src/v8/services/oidcDiscoveryServiceV8.ts`:
+Modify `src/v8/services/oidcDiscoveryService.ts`:
 
 ```typescript
 // Temporary: Use backend directly

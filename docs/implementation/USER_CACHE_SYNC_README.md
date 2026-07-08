@@ -87,8 +87,8 @@ node sync-users-cli.mjs sync 12345678-1234-1234-1234-123456789012 \
 
 ### Web Version
 - React component with hooks for state management
-- Uses UserCacheServiceV8 for IndexedDB operations
-- UserServiceV8 for PingOne API calls
+- Uses UserCacheService for IndexedDB operations
+- UserService for PingOne API calls
 - Progress tracking and error handling
 - Toast notifications for user feedback
 

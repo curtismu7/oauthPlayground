@@ -55,7 +55,7 @@ This plan covers automated tests for the Unified OAuth flow UI, APIs, logging, b
 |---------|------------|
 | unifiedFlowIntegrationV8U | Flow availability, auth URL generation, PKCE params |
 | unifiedFlowLoggerServiceV8U | Log levels, sanitization, formatMessage |
-| SpecVersionServiceV8 | Flow availability per spec |
+| SpecVersionService | Flow availability per spec |
 
 Existing: `unifiedFlowIntegrationV8U.integration.test.ts` covers flow switching and auth URL.
 

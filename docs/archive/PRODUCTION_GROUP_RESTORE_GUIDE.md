@@ -199,7 +199,7 @@ const restoreFromBackup = async () => {
     // Restore flow credentials
     const flowCredentialsBackup = await IndexedDBBackupServiceV8U.load('v8u_unified_credentials');
     if (flowCredentialsBackup) {
-      await CredentialsServiceV8.saveCredentials('unified', flowCredentialsBackup);
+      await CredentialsService.saveCredentials('unified', flowCredentialsBackup);
     }
     
     console.log('✅ Database restore completed');
@@ -331,7 +331,7 @@ const diagnoseCredentials = (flowKey) => {
     localStorage: !!localStorage.getItem(`v8u_${flowKey}_credentials`),
     indexedDB: checkIndexedDB(`v8u_${flowKey}_credentials`),
     backup: checkBackup(flowKey),
-    serviceAvailable: !!window.CredentialsServiceV8
+    serviceAvailable: !!window.CredentialsService
   };
   
   console.log(`🔍 ${flowKey} credentials diagnosis:`, checks);
@@ -343,14 +343,14 @@ const fixCredentials = async (flowKey) => {
   // Try backup restoration
   const backup = await loadBackup(flowKey);
   if (backup) {
-    await CredentialsServiceV8.saveCredentials(flowKey, backup);
+    await CredentialsService.saveCredentials(flowKey, backup);
   }
   
   // Try legacy storage
   const legacyKey = `v8:${flowKey}_credentials`;
   const legacyData = localStorage.getItem(legacyKey);
   if (legacyData) {
-    await CredentialsServiceV8.saveCredentials(flowKey, JSON.parse(legacyData));
+    await CredentialsService.saveCredentials(flowKey, JSON.parse(legacyData));
   }
 };
 ```
@@ -360,13 +360,13 @@ const fixCredentials = async (flowKey) => {
 // Diagnosis
 const diagnosePreflight = async () => {
   try {
-    const { PreFlightValidationServiceV8 } = await import('@/v8/services/preFlightValidationServiceV8');
-    const workerToken = await workerTokenServiceV8.getToken();
+    const { PreFlightValidationService } = await import('@/v8/services/preFlightValidationService');
+    const workerToken = await workerTokenService.getToken();
     
     const checks = {
-      serviceAvailable: !!PreFlightValidationServiceV8,
+      serviceAvailable: !!PreFlightValidationService,
       workerTokenAvailable: !!workerToken,
-      credentialsValid: !!workerTokenServiceV8.loadCredentials()
+      credentialsValid: !!workerTokenService.loadCredentials()
     };
     
     console.log('🔍 Pre-flight diagnosis:', checks);
@@ -380,18 +380,18 @@ const diagnosePreflight = async () => {
 // Fix
 const fixPreflight = async () => {
   // Ensure worker token is available
-  const credentials = await workerTokenServiceV8.loadCredentials();
+  const credentials = await workerTokenService.loadCredentials();
   if (!credentials) {
     throw new Error('No worker token credentials found');
   }
   
   // Test pre-flight service
-  const { PreFlightValidationServiceV8 } = await import('@/v8/services/preFlightValidationServiceV8');
-  const result = await PreFlightValidationServiceV8.validateOAuthConfig({
+  const { PreFlightValidationService } = await import('@/v8/services/preFlightValidationService');
+  const result = await PreFlightValidationService.validateOAuthConfig({
     specVersion: 'oauth2.0',
     flowType: 'client-credentials',
     credentials,
-    workerToken: await workerTokenServiceV8.getToken()
+    workerToken: await workerTokenService.getToken()
   });
   
   console.log('✅ Pre-flight validation result:', result);
@@ -457,7 +457,7 @@ const emergencyRecovery = async (backupData) => {
     // Priority 2: Restore flow credentials
     if (backupData.flowCredentials) {
       for (const [flowKey, credentials] of Object.entries(backupData.flowCredentials)) {
-        await CredentialsServiceV8.saveCredentials(flowKey, credentials);
+        await CredentialsService.saveCredentials(flowKey, credentials);
       }
       console.log('✅ Flow credentials restored');
     }
@@ -485,8 +485,8 @@ const emergencyRecovery = async (backupData) => {
 const recoverServices = async () => {
   const services = [
     'unifiedWorkerTokenService',
-    'CredentialsServiceV8',
-    'PreFlightValidationServiceV8',
+    'CredentialsService',
+    'PreFlightValidationService',
     'tokenMonitoringService'
   ];
   

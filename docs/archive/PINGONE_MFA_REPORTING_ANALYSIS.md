@@ -68,7 +68,7 @@ app.post('/api/pingone/mfa/dataExplorations-entries', async (req, res) => {
 });
 ```
 
-#### **Frontend Service (MFAReportingServiceV8.ts)**
+#### **Frontend Service (MFAReportingService.ts)**
 ```typescript
 // Official dataExplorations methods
 static async createDataExploration(params: DataExplorationParams)
@@ -199,7 +199,7 @@ filter: '((deviceType eq "SMS") and (deviceStatus eq "ACTIVE"))'
 
 ### **Create SMS Devices Report**
 ```typescript
-const report = await MFAReportingServiceV8.createDataExploration({
+const report = await MFAReportingService.createDataExploration({
   environmentId: 'env-123',
   fields: [{ name: 'userId' }, { name: 'username' }, { name: 'phone' }],
   filter: '(deviceType eq "SMS")',
@@ -209,14 +209,14 @@ const report = await MFAReportingServiceV8.createDataExploration({
 
 ### **Create Async MFA-Enabled Users Report**
 ```typescript
-const asyncReport = await MFAReportingServiceV8.createAsyncDataExploration({
+const asyncReport = await MFAReportingService.createAsyncDataExploration({
   environmentId: 'env-123',
   fields: [{ name: 'userId' }, { name: 'username' }, { name: 'mfaEnabled' }],
   filter: '(mfaEnabled eq "true")',
   deliverAs: 'ASYNC_FILE'
 });
 
-const completed = await MFAReportingServiceV8.pollAsyncDataExploration({
+const completed = await MFAReportingService.pollAsyncDataExploration({
   environmentId: 'env-123',
   dataExplorationId: asyncReport.id
 });
@@ -224,7 +224,7 @@ const completed = await MFAReportingServiceV8.pollAsyncDataExploration({
 
 ### **Filter by Username and Device Type**
 ```typescript
-const report = await MFAReportingServiceV8.createDataExploration({
+const report = await MFAReportingService.createDataExploration({
   environmentId: 'env-123',
   filter: '((deviceType eq "FIDO2") and (username eq "john.doe"))',
   fields: [{ name: 'deviceId' }, { name: 'deviceName' }, { name: 'manufacturer' }]

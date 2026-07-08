@@ -98,9 +98,9 @@ if [ $total -eq 0 ]; then
 else
   echo -e "${YELLOW}⚠️  $total system modal(s) remaining${NC}"
   echo ""
-  echo "Use uiNotificationServiceV8 instead:"
-  echo "  - alert()   → uiNotificationServiceV8.showError() or showSuccess()"
-  echo "  - confirm() → await uiNotificationServiceV8.confirm()"
-  echo "  - prompt()  → await uiNotificationServiceV8.prompt()"
+  echo "Use uiNotificationService instead:"
+  echo "  - alert()   → uiNotificationService.showError() or showSuccess()"
+  echo "  - confirm() → await uiNotificationService.confirm()"
+  echo "  - prompt()  → await uiNotificationService.prompt()"
   exit 1
 fi

@@ -514,11 +514,11 @@ sed -i '' "s|from '../utils/|from '@/mfa/utils/|g" "$FLOW"`}</Pre>
 				</tr>
 				<tr>
 					<td>8</td>
-					<td>WorkerTokenSectionV8 import error</td>
+					<td>WorkerTokenSection import error</td>
 					<td>
 						Use named import:{' '}
 						<Code>
-							import {'{ WorkerTokenSectionV8 }'} from '@/mfa/components/WorkerTokenSectionV8'
+							import {'{ WorkerTokenSection }'} from '@/mfa/components/WorkerTokenSection'
 						</Code>
 					</td>
 				</tr>
@@ -579,7 +579,7 @@ const ServicesTab: React.FC = () => (
 		<UL>
 			<li>
 				<strong>Single pattern:</strong> Use the standard Worker Token UI (e.g.{' '}
-				<Code>WorkerTokenSectionV8</Code> / modal) — no custom "Get Token" buttons or inline token
+				<Code>WorkerTokenSection</Code> / modal) — no custom "Get Token" buttons or inline token
 				state that duplicates it.
 			</li>
 			<li>
@@ -607,37 +607,37 @@ const ServicesTab: React.FC = () => (
 			</thead>
 			<tbody>
 				<tr>
-					<td>workerTokenStatusServiceV8</td>
+					<td>workerTokenStatusService</td>
 					<td>WorkerTokenStatusService</td>
 					<td>✅ Done</td>
 					<td>Adapter for backward compat</td>
 				</tr>
 				<tr>
-					<td>specVersionServiceV8</td>
+					<td>specVersionService</td>
 					<td>V9SpecVersionService</td>
 					<td>✅ Done</td>
 					<td></td>
 				</tr>
 				<tr>
-					<td>unifiedFlowLoggerServiceV8</td>
+					<td>unifiedFlowLoggerService</td>
 					<td>PlatformLoggingService</td>
 					<td>✅ Done</td>
 					<td>See docs/UPDATE_LOG</td>
 				</tr>
 				<tr>
-					<td>mfaServiceV8</td>
+					<td>mfaService</td>
 					<td>V9MFAService</td>
 					<td>⏳ Planning</td>
 					<td>High complexity</td>
 				</tr>
 				<tr>
-					<td>workerTokenServiceV8</td>
+					<td>workerTokenService</td>
 					<td>V9TokenService</td>
 					<td>⏳ Planning</td>
 					<td>Token lifecycle</td>
 				</tr>
 				<tr>
-					<td>credentialsServiceV8</td>
+					<td>credentialsService</td>
 					<td>V9CredentialService</td>
 					<td>⏳ Planning</td>
 					<td>Unified storage</td>

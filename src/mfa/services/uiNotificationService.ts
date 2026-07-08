@@ -1,0 +1,246 @@
+/**
+ * @file uiNotificationService.ts
+ * @module v8/services
+ * @description Centralized UI notification service - replaces all system modals (alert/confirm/prompt)
+ * @version 8.0.0
+ * @since 2024-11-23
+ *
+ * This service provides a unified interface for all user-facing notifications:
+ * - Toast messages (non-blocking)
+ * - Confirmation dialogs (blocking)
+ * - Prompt dialogs (blocking with input)
+ * - All notifications are logged for debugging
+ *
+ * @example
+ * // Show toast
+ * uiNotificationService.showSuccess('Operation completed');
+ *
+ * // Show confirmation
+ * const confirmed = await uiNotificationService.confirm('Delete this item?');
+ *
+ * // Show prompt
+ * const value = await uiNotificationService.prompt('Enter name:');
+ */
+
+import { modernMessaging } from '@/platform/ModernMessagingService';
+
+import { logger } from '../../utils/logger';
+
+const MODULE_TAG = '[ UI-NOTIFICATION-V8]';
+
+export type NotificationSeverity = 'success' | 'error' | 'warning' | 'info';
+
+export interface NotificationOptions {
+	duration?: number;
+	description?: string;
+}
+
+export interface ConfirmOptions {
+	title?: string;
+	message: string;
+	confirmText?: string;
+	cancelText?: string;
+	severity?: 'warning' | 'danger' | 'info';
+}
+
+export interface PromptOptions {
+	title?: string;
+	message: string;
+	defaultValue?: string;
+	placeholder?: string;
+	confirmText?: string;
+	cancelText?: string;
+}
+
+/**
+ * Notification log entry for debugging
+ */
+interface NotificationLog {
+	timestamp: Date;
+	type: 'toast' | 'confirm' | 'prompt';
+	severity: NotificationSeverity | 'confirm' | 'prompt';
+	message: string;
+	result?: boolean | string | null;
+}
+
+/**
+ * UINotificationService
+ *
+ * Centralized service for all user-facing notifications.
+ * Replaces system modals (alert/confirm/prompt) with app-level UI.
+ */
+class UINotificationService {
+	private logs: NotificationLog[] = [];
+	private maxLogs = 100;
+	private confirmCallback: ((options: ConfirmOptions) => Promise<boolean>) | null = null;
+	private promptCallback: ((options: PromptOptions) => Promise<string | null>) | null = null;
+
+	/**
+	 * Register confirmation dialog handler
+	 * This should be called by the ConfirmationModal component on mount
+	 */
+	registerConfirmHandler(handler: (options: ConfirmOptions) => Promise<boolean>): void {
+		this.confirmCallback = handler;
+	}
+
+	/**
+	 * Register prompt dialog handler
+	 * This should be called by the PromptModal component on mount
+	 */
+	registerPromptHandler(handler: (options: PromptOptions) => Promise<string | null>): void {
+		this.promptCallback = handler;
+	}
+
+	/**
+	 * Show success toast
+	 */
+	showSuccess(message: string, options?: NotificationOptions): void {
+		this.log('toast', 'success', message);
+		logger.info(`${MODULE_TAG} ✅ Success:`, message);
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message,
+			duration: options?.duration ?? 3000,
+		});
+	}
+
+	/**
+	 * Show error toast
+	 */
+	showError(message: string, _options?: NotificationOptions): void {
+		this.log('toast', 'error', message);
+		logger.error(`${MODULE_TAG} ❌ Error:`, message);
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message, dismissible: true });
+	}
+
+	/**
+	 * Show warning toast
+	 */
+	showWarning(message: string, _options?: NotificationOptions): void {
+		this.log('toast', 'warning', message);
+		logger.warn(`${MODULE_TAG} ⚠️ Warning:`, message);
+		modernMessaging.showBanner({ type: 'warning', title: 'Warning', message, dismissible: true });
+	}
+
+	/**
+	 * Show info toast
+	 */
+	showInfo(message: string, _options?: NotificationOptions): void {
+		this.log('toast', 'info', message);
+		logger.info(`${MODULE_TAG} ℹ️ Info:`, message);
+		modernMessaging.showFooterMessage({ type: 'info', message, duration: 3000 });
+	}
+
+	/**
+	 * Show confirmation dialog
+	 * @returns Promise that resolves to true if confirmed, false if cancelled
+	 */
+	async confirm(options: string | ConfirmOptions): Promise<boolean> {
+		const confirmOptions: ConfirmOptions =
+			typeof options === 'string' ? { message: options } : options;
+
+		logger.info(`${MODULE_TAG} Confirm requested:`, confirmOptions.message);
+
+		if (!this.confirmCallback) {
+			logger.error(
+				`${MODULE_TAG} No confirmation handler registered! Falling back to console.`,
+				'Logger error'
+			);
+			// Fallback: log to console and return false (safer default)
+			logger.warn(`${MODULE_TAG} Confirmation needed: ${confirmOptions.message}`, 'Logger warning');
+			return false;
+		}
+
+		try {
+			const result = await this.confirmCallback(confirmOptions);
+			this.log('confirm', 'confirm', confirmOptions.message, result);
+			logger.info(`${MODULE_TAG} Confirm result:`, result);
+			return result;
+		} catch (error) {
+			logger.error(`${MODULE_TAG} Confirmation error:`, error);
+			return false;
+		}
+	}
+
+	/**
+	 * Show prompt dialog
+	 * @returns Promise that resolves to user input string, or null if cancelled
+	 */
+	async prompt(options: string | PromptOptions): Promise<string | null> {
+		const promptOptions: PromptOptions =
+			typeof options === 'string' ? { message: options } : options;
+
+		logger.info(`${MODULE_TAG} Prompt requested:`, promptOptions.message);
+
+		if (!this.promptCallback) {
+			logger.error(
+				`${MODULE_TAG} No prompt handler registered! Falling back to console.`,
+				'Logger error'
+			);
+			// Fallback: log to console and return null
+			logger.warn(`${MODULE_TAG} Prompt needed: ${promptOptions.message}`, 'Logger warning');
+			return null;
+		}
+
+		try {
+			const result = await this.promptCallback(promptOptions);
+			this.log('prompt', 'prompt', promptOptions.message, result);
+			logger.info(`${MODULE_TAG} Prompt result:`, result ? `"${result}"` : 'cancelled');
+			return result;
+		} catch (error) {
+			logger.error(`${MODULE_TAG} Prompt error:`, error);
+			return null;
+		}
+	}
+
+	/**
+	 * Log notification for debugging
+	 */
+	private log(
+		type: 'toast' | 'confirm' | 'prompt',
+		severity: NotificationSeverity | 'confirm' | 'prompt',
+		message: string,
+		result?: boolean | string | null
+	): void {
+		const entry: NotificationLog = {
+			timestamp: new Date(),
+			type,
+			severity,
+			message,
+			result,
+		};
+
+		this.logs.push(entry);
+
+		// Keep only last N logs
+		if (this.logs.length > this.maxLogs) {
+			this.logs.shift();
+		}
+	}
+
+	/**
+	 * Get notification logs for debugging
+	 */
+	getLogs(): NotificationLog[] {
+		return [...this.logs];
+	}
+
+	/**
+	 * Clear notification logs
+	 */
+	clearLogs(): void {
+		logger.info(`${MODULE_TAG} Clearing notification logs`, 'Logger info');
+		this.logs = [];
+	}
+
+	/**
+	 * Export logs as JSON for debugging
+	 */
+	exportLogs(): string {
+		return JSON.stringify(this.logs, null, 2);
+	}
+}
+
+// Export singleton instance
+export const uiNotificationService = new UINotificationService();
+export default uiNotificationService;

@@ -17,23 +17,23 @@
 
 ## Overview
 
-This document provides implementation details, code snippets, and restoration guidance for the FIDO2 MFA flow (`FIDO2FlowV8.tsx` and `FIDO2ConfigurationPageV8.tsx`).
+This document provides implementation details, code snippets, and restoration guidance for the FIDO2 MFA flow (`FIDO2Flow.tsx` and `FIDO2ConfigurationPage.tsx`).
 
 ---
 
 ## File Locations
 
 **Components:**
-- `src/v8/flows/types/FIDO2FlowV8.tsx` - Main FIDO2 flow component
-- `src/v8/flows/types/FIDO2ConfigurationPageV8.tsx` - FIDO2 configuration page
-- `src/v8/pages/FIDO2RegistrationDocsPageV8.tsx` - FIDO2 documentation page
+- `src/v8/flows/types/FIDO2Flow.tsx` - Main FIDO2 flow component
+- `src/v8/flows/types/FIDO2ConfigurationPage.tsx` - FIDO2 configuration page
+- `src/v8/pages/FIDO2RegistrationDocsPage.tsx` - FIDO2 documentation page
 
 **Controllers:**
 - `src/v8/flows/controllers/FIDO2FlowController.ts` - FIDO2 flow business logic
 
 **Services:**
-- `src/v8/services/mfaServiceV8.ts` - MFA API calls
-- `src/v8/services/mfaAuthenticationServiceV8.ts` - MFA authentication calls
+- `src/v8/services/mfaService.ts` - MFA API calls
+- `src/v8/services/mfaAuthenticationService.ts` - MFA authentication calls
 
 ---
 
@@ -43,22 +43,22 @@ This document provides implementation details, code snippets, and restoration gu
 
 **Issue:** FIDO2 policies not showing because `environmentId` is empty when `loadFido2Policies` is called.
 
-**Root Cause:** `FIDO2ConfigurationPageV8.tsx` only loads `environmentId` from `EnvironmentIdServiceV8.getEnvironmentId()`, which may be empty. Other MFA configuration pages load it from `CredentialsServiceV8.loadCredentials('mfa-flow-v8', ...)` which includes the environment ID from worker token credentials.
+**Root Cause:** `FIDO2ConfigurationPage.tsx` only loads `environmentId` from `EnvironmentIdService.getEnvironmentId()`, which may be empty. Other MFA configuration pages load it from `CredentialsService.loadCredentials('mfa-flow-v8', ...)` which includes the environment ID from worker token credentials.
 
 **Correct Implementation:**
 ```typescript
-// In FIDO2ConfigurationPageV8.tsx
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+// In FIDO2ConfigurationPage.tsx
+import { CredentialsService } from '@/v8/services/credentialsService';
 
 // Load environment ID from multiple sources
 useEffect(() => {
-    // Try EnvironmentIdServiceV8 first
-    let envId = EnvironmentIdServiceV8.getEnvironmentId();
+    // Try EnvironmentIdService first
+    let envId = EnvironmentIdService.getEnvironmentId();
     
     // Fallback to worker token credentials if not found
     if (!envId) {
         try {
-            const credentials = workerTokenServiceV8.loadCredentials();
+            const credentials = workerTokenService.loadCredentials();
             envId = credentials?.environmentId?.trim() || '';
         } catch {
             // Ignore errors
@@ -68,7 +68,7 @@ useEffect(() => {
     // Fallback to MFA flow credentials if still not found
     if (!envId) {
         try {
-            const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+            const stored = CredentialsService.loadCredentials('mfa-flow-v8', {
                 flowKey: 'mfa-flow-v8',
                 flowType: 'oidc',
                 includeClientSecret: false,
@@ -90,14 +90,14 @@ useEffect(() => {
 
 **Incorrect Implementation (DO NOT DO THIS):**
 ```typescript
-// ❌ WRONG: Only checks EnvironmentIdServiceV8
+// ❌ WRONG: Only checks EnvironmentIdService
 useEffect(() => {
-    const envId = EnvironmentIdServiceV8.getEnvironmentId();
+    const envId = EnvironmentIdService.getEnvironmentId();
     if (envId) {
         setEnvironmentId(envId);
     }
 }, []);
-// This will fail if EnvironmentIdServiceV8 returns empty string,
+// This will fail if EnvironmentIdService returns empty string,
 // even though environmentId exists in worker token credentials
 ```
 
@@ -110,7 +110,7 @@ useEffect(() => {
 **Verification:**
 Check logs for early return:
 ```json
-{"location":"FIDO2ConfigurationPageV8.tsx:207","message":"Early return - missing prerequisites","data":{"hasEnvironmentId":false,"hasToken":true}}
+{"location":"FIDO2ConfigurationPage.tsx:207","message":"Early return - missing prerequisites","data":{"hasEnvironmentId":false,"hasToken":true}}
 ```
 
 ---
@@ -121,7 +121,7 @@ Check logs for early return:
 
 **Correct Implementation:**
 ```typescript
-// In FIDO2ConfigurationPageV8.tsx
+// In FIDO2ConfigurationPage.tsx
 const loadFido2Policies = useCallback(async () => {
     if (!environmentId || !tokenStatus.isValid) {
         return; // Early return if prerequisites missing
@@ -131,12 +131,12 @@ const loadFido2Policies = useCallback(async () => {
     setPoliciesError(null);
 
     try {
-        const workerToken = await workerTokenServiceV8.getToken();
+        const workerToken = await workerTokenService.getToken();
         if (!workerToken) {
             throw new Error('Worker token not found');
         }
 
-        const credentialsData = await workerTokenServiceV8.loadCredentials();
+        const credentialsData = await workerTokenService.loadCredentials();
         const region = credentialsData?.region || 'na';
 
         const params = new URLSearchParams({
@@ -209,13 +209,13 @@ const loadFido2Policies = useCallback(async () => {
 
 ### 3. FIDO2 Flow Policy Loading
 
-**Contract:** `FIDO2FlowV8.tsx` must also check multiple sources for environment ID.
+**Contract:** `FIDO2Flow.tsx` must also check multiple sources for environment ID.
 
 **Correct Implementation:**
 ```typescript
-// In FIDO2FlowV8.tsx
+// In FIDO2Flow.tsx
 const fetchFido2Policies = useCallback(async () => {
-    const storedCredentials = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+    const storedCredentials = CredentialsService.loadCredentials('mfa-flow-v8', {
         flowKey: 'mfa-flow-v8',
         flowType: 'oidc',
         includeClientSecret: false,
@@ -224,7 +224,7 @@ const fetchFido2Policies = useCallback(async () => {
         includeScopes: false,
     });
     const envId = storedCredentials.environmentId?.trim();
-    const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatus().isValid;
+    const tokenValid = WorkerTokenStatusService.checkWorkerTokenStatus().isValid;
     
     if (!envId || !tokenValid) {
         setFido2Policies([]);
@@ -242,21 +242,21 @@ const fetchFido2Policies = useCallback(async () => {
 }, []);
 ```
 
-**Note:** `FIDO2FlowV8.tsx` already loads from `CredentialsServiceV8`, which is correct. The issue was only in `FIDO2ConfigurationPageV8.tsx`.
+**Note:** `FIDO2Flow.tsx` already loads from `CredentialsService`, which is correct. The issue was only in `FIDO2ConfigurationPage.tsx`.
 
 ---
 
 ### 4. React Hook Dependencies and Imports (CRITICAL FIX - 2026-01-27)
 
-**Issue:** `FIDO2FlowV8.tsx` crashes with `ReferenceError: useCallback is not defined` and `ReferenceError: credentials is not defined` errors.
+**Issue:** `FIDO2Flow.tsx` crashes with `ReferenceError: useCallback is not defined` and `ReferenceError: credentials is not defined` errors.
 
 **Root Cause:** 
 1. Missing `useCallback` import from React
 2. Incorrect `useMemo` dependency array includes props values (`credentials`, `setCredentials`, `tokenStatus`) that don't exist in component scope
 
 **Symptoms:**
-- Console error: `FIDO2FlowV8.tsx:569 Uncaught ReferenceError: useCallback is not defined`
-- Console error: `FIDO2FlowV8.tsx:1360 Uncaught ReferenceError: credentials is not defined`
+- Console error: `FIDO2Flow.tsx:569 Uncaught ReferenceError: useCallback is not defined`
+- Console error: `FIDO2Flow.tsx:1360 Uncaught ReferenceError: credentials is not defined`
 - Component fails to render
 - React error boundary catches the error
 
@@ -264,13 +264,13 @@ const fetchFido2Policies = useCallback(async () => {
 
 **Fix 1: Add `useCallback` to React imports**
 ```typescript
-// In FIDO2FlowV8.tsx - Line 8
+// In FIDO2Flow.tsx - Line 8
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 ```
 
 **Fix 2: Correct `useMemo` dependency array**
 ```typescript
-// In FIDO2FlowV8.tsx - Line 1360
+// In FIDO2Flow.tsx - Line 1360
 // ❌ WRONG: Includes props values that don't exist in component scope
 }, [isConfigured, webAuthnSupported, webAuthnCapabilities, fido2Policies, isLoadingFido2Policies, fido2PoliciesError, fetchFido2Policies, credentials, setCredentials, tokenStatus]);
 
@@ -306,9 +306,9 @@ const renderStep0 = useMemo(() => {
 4. Check browser console for any `ReferenceError` messages
 
 **Related Code Locations:**
-- `src/v8/flows/types/FIDO2FlowV8.tsx:8` - React imports
-- `src/v8/flows/types/FIDO2FlowV8.tsx:740` - `renderStep0` useMemo definition
-- `src/v8/flows/types/FIDO2FlowV8.tsx:1360` - Dependency array
+- `src/v8/flows/types/FIDO2Flow.tsx:8` - React imports
+- `src/v8/flows/types/FIDO2Flow.tsx:740` - `renderStep0` useMemo definition
+- `src/v8/flows/types/FIDO2Flow.tsx:1360` - Dependency array
 
 ---
 
@@ -401,7 +401,7 @@ The generated Postman collection follows the [PingOne Postman Environment Templa
 
 ## Related Files
 
-- `src/v8/flows/types/FIDO2ConfigurationPageV8.tsx` - Configuration page
-- `src/v8/flows/types/FIDO2FlowV8.tsx` - Registration/authentication flow
-- `src/v8/services/mfaServiceV8.ts` - MFA API service
+- `src/v8/flows/types/FIDO2ConfigurationPage.tsx` - Configuration page
+- `src/v8/flows/types/FIDO2Flow.tsx` - Registration/authentication flow
+- `src/v8/services/mfaService.ts` - MFA API service
 - `server.js` - Backend FIDO2 policy endpoint (`/api/pingone/mfa/fido2-policies`)

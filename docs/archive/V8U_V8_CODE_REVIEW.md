@@ -301,7 +301,7 @@ Added comprehensive OAuth/OIDC specification links:
 - ✅ Green styling to differentiate from API docs
 
 **Implementation:**
-- New `SpecUrlServiceV8` service for spec URL management
+- New `SpecUrlService` service for spec URL management
 - Integrated into `UnifiedOAuthFlowV8U` component
 - Shows primary spec + related specs per flow type
 

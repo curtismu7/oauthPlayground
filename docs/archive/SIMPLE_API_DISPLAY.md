@@ -195,8 +195,8 @@ The component is automatically included in MFA Flow V8. It appears at the bottom
 
 ---
 
-**Component:** `SimplePingOneApiDisplayV8`
-**Location:** `src/v8/components/SimplePingOneApiDisplayV8.tsx`
+**Component:** `SimplePingOneApiDisplay`
+**Location:** `src/v8/components/SimplePingOneApiDisplay.tsx`
 **Used In:** MFA Flow V8
 **Version:** 8.0.0
 **Date:** 2024-11-19

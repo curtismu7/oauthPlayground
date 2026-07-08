@@ -4,14 +4,14 @@
  * @description V9 Single source of truth for redirect URIs for all Unified OAuth flows.
  *
  *   Drop-in replacement for UnifiedRedirectUriServiceV8U — delegates to
- *   RedirectUriService instead of RedirectUriServiceV8. Adds
+ *   RedirectUriService instead of RedirectUriService. Adds
  *   `getDefaultReturnPath()` so callback handlers can navigate back to the
  *   correct app page without hardcoding routes.
  *
  * @version 9.0.0
  */
 
-import type { FlowType } from '@/mfa/services/specVersionServiceV8';
+import type { FlowType } from '@/mfa/services/specVersionService';
 import { RedirectUriService } from './RedirectUriService';
 
 /** Redirect URI used when response_mode=pi.flow (redirectless); no browser redirect. */

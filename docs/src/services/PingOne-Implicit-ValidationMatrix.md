@@ -6,7 +6,7 @@
 # PingOne Implicit Validation Matrix  
 ### apidocs → UI Components Mapping (V8)
 
-> This matrix connects PingOne API requirements (from apidocs) to your **UI fields, validation rules, and error states** in ImplicitFlowV8.
+> This matrix connects PingOne API requirements (from apidocs) to your **UI fields, validation rules, and error states** in ImplicitFlow.
 
 ---
 

@@ -20,74 +20,74 @@ Each service has two types of documentation:
 
 | Service | UI Contract | Restore | Description |
 |---------|-------------|---------|-------------|
-| `oauthIntegrationServiceV8` | ✅ | ✅ | OAuth authorization code flow integration |
-| `implicitFlowIntegrationServiceV8` | ✅ | ✅ | Implicit flow integration |
-| `hybridFlowIntegrationServiceV8` | ✅ | ✅ | Hybrid flow integration |
-| `clientCredentialsIntegrationServiceV8` | ✅ | ✅ | Client credentials flow integration |
-| `deviceCodeIntegrationServiceV8` | ✅ | ✅ | Device code flow integration |
-| `ropcIntegrationServiceV8` | ✅ | ✅ | Resource owner password credentials (mock) |
+| `oauthIntegrationService` | ✅ | ✅ | OAuth authorization code flow integration |
+| `implicitFlowIntegrationService` | ✅ | ✅ | Implicit flow integration |
+| `hybridFlowIntegrationService` | ✅ | ✅ | Hybrid flow integration |
+| `clientCredentialsIntegrationService` | ✅ | ✅ | Client credentials flow integration |
+| `deviceCodeIntegrationService` | ✅ | ✅ | Device code flow integration |
+| `ropcIntegrationService` | ✅ | ✅ | Resource owner password credentials (mock) |
 
 ### Configuration & Validation Services
 
 | Service | UI Contract | Restore | Description |
 |---------|-------------|---------|-------------|
-| `specVersionServiceV8` | ✅ | ✅ | Specification version management |
-| `preFlightValidationServiceV8` | ✅ | ✅ | Pre-flight validation checks |
-| `configCheckerServiceV8` | ✅ | ✅ | Configuration validation |
-| `credentialsServiceV8` | ✅ | ✅ | Credential storage and management |
-| `unifiedFlowOptionsServiceV8` | ✅ | ✅ | Unified flow options management |
-| `flowOptionsServiceV8` | ✅ | ✅ | Flow options management |
+| `specVersionService` | ✅ | ✅ | Specification version management |
+| `preFlightValidationService` | ✅ | ✅ | Pre-flight validation checks |
+| `configCheckerService` | ✅ | ✅ | Configuration validation |
+| `credentialsService` | ✅ | ✅ | Credential storage and management |
+| `unifiedFlowOptionsService` | ✅ | ✅ | Unified flow options management |
+| `flowOptionsService` | ✅ | ✅ | Flow options management |
 
 ### Token & Authentication Services
 
 | Service | UI Contract | Restore | Description |
 |---------|-------------|---------|-------------|
-| `tokenOperationsServiceV8` | ✅ | ✅ | Token operations (refresh, introspect) |
-| `tokenDisplayServiceV8` | ✅ | ✅ | Token display and formatting |
-| `workerTokenServiceV8` | ✅ | ✅ | Worker token management |
-| `workerTokenStatusServiceV8` | ✅ | ✅ | Worker token status checking |
-| `oidcDiscoveryServiceV8` | ✅ | ✅ | OIDC discovery document fetching |
+| `tokenOperationsService` | ✅ | ✅ | Token operations (refresh, introspect) |
+| `tokenDisplayService` | ✅ | ✅ | Token display and formatting |
+| `workerTokenService` | ✅ | ✅ | Worker token management |
+| `workerTokenStatusService` | ✅ | ✅ | Worker token status checking |
+| `oidcDiscoveryService` | ✅ | ✅ | OIDC discovery document fetching |
 
 ### MFA Services
 
 | Service | UI Contract | Restore | Description |
 |---------|-------------|---------|-------------|
-| `mfaServiceV8` | ✅ | ✅ | Core MFA operations |
-| `mfaAuthenticationServiceV8` | ✅ | ✅ | MFA authentication flows |
-| `mfaConfigurationServiceV8` | ✅ | ✅ | MFA configuration management |
-| `mfaEducationServiceV8` | ✅ | ✅ | MFA educational content |
-| `mfaReportingServiceV8` | ✅ | ✅ | MFA reporting APIs |
-| `passkeyServiceV8` | ✅ | ✅ | Passkey/FIDO2 operations |
-| `webAuthnAuthenticationServiceV8` | ✅ | ✅ | WebAuthn authentication |
-| `fido2SessionCookieServiceV8` | ✅ | ✅ | FIDO2 session cookie management |
-| `emailMfaSignOnFlowServiceV8` | ✅ | ✅ | Email MFA sign-on flow |
+| `mfaService` | ✅ | ✅ | Core MFA operations |
+| `mfaAuthenticationService` | ✅ | ✅ | MFA authentication flows |
+| `mfaConfigurationService` | ✅ | ✅ | MFA configuration management |
+| `mfaEducationService` | ✅ | ✅ | MFA educational content |
+| `mfaReportingService` | ✅ | ✅ | MFA reporting APIs |
+| `passkeyService` | ✅ | ✅ | Passkey/FIDO2 operations |
+| `webAuthnAuthenticationService` | ✅ | ✅ | WebAuthn authentication |
+| `fido2SessionCookieService` | ✅ | ✅ | FIDO2 session cookie management |
+| `emailMfaSignOnFlowService` | ✅ | ✅ | Email MFA sign-on flow |
 
 ### Utility Services
 
 | Service | UI Contract | Restore | Description |
 |---------|-------------|---------|-------------|
-| `appDiscoveryServiceV8` | ✅ | ✅ | Application discovery from PingOne |
-| `authMethodServiceV8` | ✅ | ✅ | Authentication method management |
-| `tokenEndpointAuthMethodServiceV8` | ✅ | ✅ | Token endpoint auth method |
-| `redirectUriServiceV8` | ✅ | ✅ | Redirect URI management |
-| `responseTypeServiceV8` | ✅ | ✅ | Response type management |
-| `redirectlessServiceV8` | ✅ | ✅ | Redirectless flow support |
-| `flowResetServiceV8` | ✅ | ✅ | Flow reset functionality |
-| `storageServiceV8` | ✅ | ✅ | Storage abstraction |
-| `dualStorageServiceV8` | ✅ | ✅ | Dual storage (localStorage + IndexedDB) |
-| `validationServiceV8` | ✅ | ✅ | General validation utilities |
-| `errorHandlerV8` | ✅ | ✅ | Error handling utilities |
-| `oauthErrorCodesServiceV8` | ✅ | ✅ | OAuth error code definitions |
-| `uiNotificationServiceV8` | ✅ | ✅ | UI notification service |
-| `tooltipContentServiceV8` | ✅ | ✅ | Tooltip content management |
-| `apiDisplayServiceV8` | ✅ | ✅ | API call display formatting |
-| `specUrlServiceV8` | ✅ | ✅ | Specification URL management |
-| `environmentIdServiceV8` | ✅ | ✅ | Environment ID management |
-| `phoneAutoPopulationServiceV8` | ✅ | ✅ | Phone number auto-population |
-| `protectServiceV8` | ✅ | ✅ | Feature protection/lockdown |
-| `sharedCredentialsServiceV8` | ✅ | ✅ | Shared credentials management |
-| `deviceCreateDemoServiceV8` | ✅ | ✅ | Device creation demo |
-| `unifiedMFASuccessPageServiceV8` | ✅ | ✅ | Unified MFA success page |
+| `appDiscoveryService` | ✅ | ✅ | Application discovery from PingOne |
+| `authMethodService` | ✅ | ✅ | Authentication method management |
+| `tokenEndpointAuthMethodService` | ✅ | ✅ | Token endpoint auth method |
+| `redirectUriService` | ✅ | ✅ | Redirect URI management |
+| `responseTypeService` | ✅ | ✅ | Response type management |
+| `redirectlessService` | ✅ | ✅ | Redirectless flow support |
+| `flowResetService` | ✅ | ✅ | Flow reset functionality |
+| `storageService` | ✅ | ✅ | Storage abstraction |
+| `dualStorageService` | ✅ | ✅ | Dual storage (localStorage + IndexedDB) |
+| `validationService` | ✅ | ✅ | General validation utilities |
+| `errorHandler` | ✅ | ✅ | Error handling utilities |
+| `oauthErrorCodesService` | ✅ | ✅ | OAuth error code definitions |
+| `uiNotificationService` | ✅ | ✅ | UI notification service |
+| `tooltipContentService` | ✅ | ✅ | Tooltip content management |
+| `apiDisplayService` | ✅ | ✅ | API call display formatting |
+| `specUrlService` | ✅ | ✅ | Specification URL management |
+| `environmentIdService` | ✅ | ✅ | Environment ID management |
+| `phoneAutoPopulationService` | ✅ | ✅ | Phone number auto-population |
+| `protectService` | ✅ | ✅ | Feature protection/lockdown |
+| `sharedCredentialsService` | ✅ | ✅ | Shared credentials management |
+| `deviceCreateDemoService` | ✅ | ✅ | Device creation demo |
+| `unifiedMFASuccessPageService` | ✅ | ✅ | Unified MFA success page |
 
 ---
 

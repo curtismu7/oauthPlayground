@@ -64,7 +64,7 @@ Successfully removed all server-side only configurations from the credentials fo
 
 ## Files Modified
 
-1. `src/v8/components/CredentialsFormV8.tsx`
+1. `src/v8/components/CredentialsForm.tsx`
    - Removed "Allow Redirect URI Patterns" checkbox
    - Removed "Refresh Token Duration" fields
    - Removed "Rolling Duration" fields

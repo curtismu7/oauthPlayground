@@ -23,10 +23,10 @@ src/v8/
 ## Naming Convention
 
 **All V8 code MUST include "V8" suffix:**
-- Files: `TokenDisplayV8.tsx`, `educationServiceV8.ts`
-- Components: `export const TokenDisplayV8 = () => {}`
-- Services: `export class EducationServiceV8 {}`
-- Hooks: `export const useModalManagerV8 = () => {}`
+- Files: `TokenDisplay.tsx`, `educationService.ts`
+- Components: `export const TokenDisplay = () => {}`
+- Services: `export class EducationService {}`
+- Hooks: `export const useModalManager = () => {}`
 
 ---
 

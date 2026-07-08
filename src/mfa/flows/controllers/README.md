@@ -220,5 +220,5 @@ To migrate existing flows to use controllers:
 3. Use the `useMFAFlowController` hook for state management
 4. Update UI components to use controller methods
 
-See the refactored `SMSFlowV8` and `EmailFlowV8` components for examples.
+See the refactored `SMSFlow` and `EmailFlow` components for examples.
 

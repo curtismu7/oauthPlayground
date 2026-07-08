@@ -29,7 +29,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { modernMessaging } from '@/platform/ModernMessagingService';
 import type { DeviceFlowConfig } from '@/mfa/config/deviceFlowConfigTypes';
-import type { MFAFlowBaseRenderProps } from '@/mfa/flows/shared/MFAFlowBaseV8';
+import type { MFAFlowBaseRenderProps } from '@/mfa/flows/shared/MFAFlowBase';
 import { logger } from '../../../../utils/logger';
 import { UnifiedOTPActivationTemplate } from './UnifiedOTPActivationTemplate';
 
@@ -196,11 +196,11 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 		try {
 			logger.info(`${MODULE_TAG} Activating device via activateDevice API`, 'Logger info');
 
-			// Activate device via MFAServiceV8.activateDevice()
+			// Activate device via MFAService.activateDevice()
 			// This is the correct method for registration flows (not validateOTP)
-			const { MFAServiceV8 } = await import('@/mfa/services/mfaServiceV8');
+			const { MFAService } = await import('@/mfa/services/mfaService');
 
-			const result = await MFAServiceV8.activateDevice({
+			const result = await MFAService.activateDevice({
 				environmentId: credentials.environmentId,
 				username: credentials.username,
 				deviceId: mfaState.deviceId,
@@ -281,10 +281,10 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 		setResendCooldown(60); // 60 second cooldown
 
 		try {
-			// Resend pairing code via MFAServiceV8.resendPairingCode()
+			// Resend pairing code via MFAService.resendPairingCode()
 			// This is the correct method for registration activation flows
-			const { MFAServiceV8 } = await import('@/mfa/services/mfaServiceV8');
-			await MFAServiceV8.resendPairingCode({
+			const { MFAService } = await import('@/mfa/services/mfaService');
+			await MFAService.resendPairingCode({
 				environmentId: credentials.environmentId,
 				username: credentials.username,
 				deviceId: mfaState.deviceId,

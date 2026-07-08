@@ -27,7 +27,7 @@ This document defines the UI structure, components, and user experience for FIDO
 ### 1. FIDO2 Configuration Page
 
 **Location:** `/v8/mfa/configure/fido2`  
-**Component:** `FIDO2ConfigurationPageV8.tsx`
+**Component:** `FIDO2ConfigurationPage.tsx`
 
 #### Layout Structure
 
@@ -109,7 +109,7 @@ This document defines the UI structure, components, and user experience for FIDO
 ### 2. FIDO2 Registration Flow
 
 **Location:** `/v8/mfa/register/fido2`  
-**Component:** `FIDO2FlowV8.tsx`
+**Component:** `FIDO2Flow.tsx`
 
 #### Step 0: Configuration
 
@@ -135,7 +135,7 @@ This document defines the UI structure, components, and user experience for FIDO
 
 **Special Handling:**
 - Checks for existing FIDO2 devices
-- Shows `FIDODeviceExistsModalV8` if device exists
+- Shows `FIDODeviceExistsModal` if device exists
 - Only one FIDO2 device allowed per user
 
 #### Step 2: Device Registration
@@ -192,7 +192,7 @@ This document defines the UI structure, components, and user experience for FIDO
 ### 3. FIDO2 Authentication Flow
 
 **Location:** `/v8/mfa/authenticate`  
-**Component:** `MFAAuthenticationMainPageV8.tsx`
+**Component:** `MFAAuthenticationMainPage.tsx`
 
 #### Device Selection
 
@@ -249,7 +249,7 @@ This document defines the UI structure, components, and user experience for FIDO
 
 #### FIDO Device Exists Modal
 
-**Component:** `FIDODeviceExistsModalV8.tsx`
+**Component:** `FIDODeviceExistsModal.tsx`
 
 **Trigger:**
 - User attempts to register FIDO2 device
@@ -383,10 +383,10 @@ This document defines the UI structure, components, and user experience for FIDO
 **Purpose:** Protect critical FIDO2 UI components from accidental modification or regression.
 
 **Locked UI Files:**
-- `src/v8/flows/types/FIDO2FlowV8.tsx` - Main registration flow UI
-- `src/v8/flows/types/FIDO2ConfigurationPageV8.tsx` - Configuration page UI
-- `src/v8/flows/MFAAuthenticationMainPageV8.tsx` - Authentication page UI (FIDO2 sections)
-- `src/v8/components/FIDODeviceExistsModalV8.tsx` - Error modal UI
+- `src/v8/flows/types/FIDO2Flow.tsx` - Main registration flow UI
+- `src/v8/flows/types/FIDO2ConfigurationPage.tsx` - Configuration page UI
+- `src/v8/flows/MFAAuthenticationMainPage.tsx` - Authentication page UI (FIDO2 sections)
+- `src/v8/components/FIDODeviceExistsModal.tsx` - Error modal UI
 
 **Verification:**
 ```bash
@@ -408,7 +408,7 @@ If FIDO2 UI breaks, restore from snapshots:
 ## Success Page
 
 **Location:** Step 3 of FIDO2 registration flow  
-**Component:** `MFASuccessPageV8` (wraps `UnifiedMFASuccessPageV8`)
+**Component:** `MFASuccessPage` (wraps `UnifiedMFASuccessPage`)
 
 ### Required UI Elements
 
@@ -456,14 +456,14 @@ If FIDO2 UI breaks, restore from snapshots:
 ## Implementation Files
 
 **Components:**
-- `src/v8/flows/types/FIDO2FlowV8.tsx` - Main FIDO2 registration flow
-- `src/v8/flows/FIDO2ConfigurationPageV8.tsx` - Configuration page
-- `src/v8/components/FIDODeviceExistsModalV8.tsx` - Error modal
-- `src/v8/flows/MFAAuthenticationMainPageV8.tsx` - Authentication page
+- `src/v8/flows/types/FIDO2Flow.tsx` - Main FIDO2 registration flow
+- `src/v8/flows/FIDO2ConfigurationPage.tsx` - Configuration page
+- `src/v8/components/FIDODeviceExistsModal.tsx` - Error modal
+- `src/v8/flows/MFAAuthenticationMainPage.tsx` - Authentication page
 
 **Services:**
-- `src/v8/services/mfaServiceV8.ts` - FIDO2 device registration
-- `src/v8/services/mfaAuthenticationServiceV8.ts` - FIDO2 authentication
+- `src/v8/services/mfaService.ts` - FIDO2 device registration
+- `src/v8/services/mfaAuthenticationService.ts` - FIDO2 authentication
 - `src/v8/flows/controllers/FIDO2FlowController.ts` - FIDO2 flow controller
 
 ---

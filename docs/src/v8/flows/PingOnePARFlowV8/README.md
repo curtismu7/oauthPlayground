@@ -13,13 +13,13 @@ This is a **complete rewrite** of the PAR (Pushed Authorization Requests) flow, 
 
 ### 2. **Adopted V7.1 Architecture**
 ```
-PingOnePARFlowV8/
+PingOnePARFlow/
 ├── types/              # TypeScript interfaces
 ├── constants/          # Flow constants and metadata
 ├── hooks/              # State management and operations
 │   ├── usePARFlowState.ts      # State management
 │   └── usePAROperations.ts     # API operations
-└── PingOnePARFlowV8.tsx        # Main component
+└── PingOnePARFlow.tsx        # Main component
 ```
 
 ### 3. **Simplified UX with Smart Education**
@@ -137,7 +137,7 @@ export const usePARFlowState = () => {
 ### Component Structure
 ```typescript
 // Clean, functional component
-export const PingOnePARFlowV8: React.FC = () => {
+export const PingOnePARFlow: React.FC = () => {
   const state = usePARFlowState();
   const operations = usePAROperations();
   
@@ -234,10 +234,10 @@ const parResponse = await operations.pushAuthorizationRequest(
 ## Usage
 
 ```typescript
-import PingOnePARFlowV8 from './v8/flows/PingOnePARFlowV8';
+import PingOnePARFlow from './v8/flows/PingOnePARFlow';
 
 // In your router
-<Route path="/par-flow-v8" element={<PingOnePARFlowV8 />} />
+<Route path="/par-flow-v8" element={<PingOnePARFlow />} />
 ```
 
 ## Future Enhancements

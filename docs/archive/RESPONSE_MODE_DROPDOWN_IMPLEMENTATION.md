@@ -11,9 +11,9 @@ Replaced the redirectless checkbox with a comprehensive response mode dropdown t
 
 ## What Changed
 
-### 1. New Component: ResponseModeDropdownV8
+### 1. New Component: ResponseModeDropdown
 
-**File:** `src/v8/components/ResponseModeDropdownV8.tsx`
+**File:** `src/v8/components/ResponseModeDropdown.tsx`
 
 **Features:**
 - Dropdown with 4 response modes: `query`, `fragment`, `form_post`, `pi.flow`
@@ -37,7 +37,7 @@ Replaced the redirectless checkbox with a comprehensive response mode dropdown t
 **File:** `src/v8u/components/CredentialsFormV8U.tsx`
 
 **Changes:**
-- ✅ Replaced `useRedirectless` checkbox with `ResponseModeDropdownV8`
+- ✅ Replaced `useRedirectless` checkbox with `ResponseModeDropdown`
 - ✅ Added `responseMode` state (replaces `useRedirectless` boolean)
 - ✅ Legacy support: Converts `useRedirectless=true` to `responseMode='pi.flow'`
 - ✅ Toast notifications when response mode changes
@@ -191,7 +191,7 @@ params.set('response_mode', responseMode);
 
 ## Files Modified
 
-1. ✅ `src/v8/components/ResponseModeDropdownV8.tsx` - NEW
+1. ✅ `src/v8/components/ResponseModeDropdown.tsx` - NEW
 2. ✅ `src/v8u/components/CredentialsFormV8U.tsx` - Updated
 3. ✅ `src/v8u/services/unifiedFlowIntegrationV8U.ts` - Updated
 4. ✅ `src/v8u/components/UnifiedFlowSteps.tsx` - Updated

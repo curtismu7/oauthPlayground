@@ -34,26 +34,26 @@ export default defineConfig({
           
           // Phase 5/6 components
           'components-v8': [
-            './src/v8/components/shared/FlowProgressTrackerV8',
-            './src/v8/components/shared/LazyLoadWrapperV8',
-            './src/v8/components/shared/ComponentTestSuiteV8',
-            './src/v8/components/shared/PerformanceMonitorV8',
+            './src/v8/components/shared/FlowProgressTracker',
+            './src/v8/components/shared/LazyLoadWrapper',
+            './src/v8/components/shared/ComponentTestSuite',
+            './src/v8/components/shared/PerformanceMonitor',
           ],
           
           // MFA flows
           'flows-v8': [
-            './src/v8/flows/types/SMSFlowV8',
-            './src/v8/flows/types/WhatsAppFlowV8',
-            './src/v8/flows/types/TOTPFlowV8',
-            './src/v8/flows/types/MobileFlowV8',
-            './src/v8/flows/types/FIDO2FlowV8',
+            './src/v8/flows/types/SMSFlow',
+            './src/v8/flows/types/WhatsAppFlow',
+            './src/v8/flows/types/TOTPFlow',
+            './src/v8/flows/types/MobileFlow',
+            './src/v8/flows/types/FIDO2Flow',
           ],
           
           // Utilities and services
           'utils-v8': [
-            './src/v8/utils/loadingStateManagerV8',
-            './src/v8/utils/analyticsServerCheckV8',
-            './src/v8/utils/phoneValidationV8',
+            './src/v8/utils/loadingStateManager',
+            './src/v8/utils/analyticsServerCheck',
+            './src/v8/utils/phoneValidation',
           ],
         },
       },
@@ -65,8 +65,8 @@ export default defineConfig({
     include: [
       'react',
       'react-dom',
-      '@/v8/components/shared/FlowProgressTrackerV8',
-      '@/v8/components/shared/LazyLoadWrapperV8',
+      '@/v8/components/shared/FlowProgressTracker',
+      '@/v8/components/shared/LazyLoadWrapper',
     ],
   },
 });
@@ -98,18 +98,18 @@ VITE_PERFORMANCE_MONITOR_ENABLED=true
 
 ```typescript
 // src/v8/utils/preloadStrategy.ts
-import { ComponentPreloader } from '@/v8/components/shared/LazyLoadWrapperV8';
+import { ComponentPreloader } from '@/v8/components/shared/LazyLoadWrapper';
 
 // Critical components to preload immediately
 const CRITICAL_COMPONENTS = {
-  'flow-progress': () => import('@/v8/components/shared/FlowProgressTrackerV8'),
-  'performance-monitor': () => import('@/v8/components/shared/PerformanceMonitorV8'),
+  'flow-progress': () => import('@/v8/components/shared/FlowProgressTracker'),
+  'performance-monitor': () => import('@/v8/components/shared/PerformanceMonitor'),
 };
 
 // Secondary components to preload after initial render
 const SECONDARY_COMPONENTS = {
-  'lazy-load-wrapper': () => import('@/v8/components/shared/LazyLoadWrapperV8'),
-  'component-test-suite': () => import('@/v8/components/shared/ComponentTestSuiteV8'),
+  'lazy-load-wrapper': () => import('@/v8/components/shared/LazyLoadWrapper'),
+  'component-test-suite': () => import('@/v8/components/shared/ComponentTestSuite'),
 };
 
 export const preloadCriticalComponents = () => {
@@ -126,11 +126,11 @@ export const preloadSecondaryComponents = () => {
 // Preload MFA flow components based on user behavior
 export const preloadMFAFlow = (flowType: string) => {
   const flowComponents = {
-    'sms': () => import('@/v8/flows/types/SMSFlowV8'),
-    'whatsapp': () => import('@/v8/flows/types/WhatsAppFlowV8'),
-    'totp': () => import('@/v8/flows/types/TOTPFlowV8'),
-    'mobile': () => import('@/v8/flows/types/MobileFlowV8'),
-    'fido2': () => import('@/v8/flows/types/FIDO2FlowV8'),
+    'sms': () => import('@/v8/flows/types/SMSFlow'),
+    'whatsapp': () => import('@/v8/flows/types/WhatsAppFlow'),
+    'totp': () => import('@/v8/flows/types/TOTPFlow'),
+    'mobile': () => import('@/v8/flows/types/MobileFlow'),
+    'fido2': () => import('@/v8/flows/types/FIDO2Flow'),
   };
 
   if (flowComponents[flowType as keyof typeof flowComponents]) {
@@ -160,7 +160,7 @@ npx vite-bundle-analyzer dist/assets
 
 ```typescript
 // src/v8/monitoring/performanceTracker.ts
-import { PerformanceMonitorV8 } from '@/v8/components/shared/PerformanceMonitorV8';
+import { PerformanceMonitor } from '@/v8/components/shared/PerformanceMonitor';
 
 interface PerformanceAlert {
   type: 'memory' | 'network' | 'render' | 'error';
@@ -531,7 +531,7 @@ export const testResponsiveComponents = () => {
 ### Touch Optimization
 
 ```typescript
-// src/v8/components/shared/TouchOptimizedV8.tsx
+// src/v8/components/shared/TouchOptimized.tsx
 import React from 'react';
 
 interface TouchOptimizedProps {
@@ -540,7 +540,7 @@ interface TouchOptimizedProps {
   className?: string;
 }
 
-export const TouchOptimizedV8: React.FC<TouchOptimizedProps> = ({
+export const TouchOptimized: React.FC<TouchOptimizedProps> = ({
   children,
   minTouchTarget = 44,
   className = '',
@@ -787,7 +787,7 @@ export const rollbackComponent = async (componentName: string, targetVersion: st
 ```typescript
 // src/v8/monitoring/dashboard.tsx
 import React from 'react';
-import { PerformanceMonitorV8 } from '@/v8/components/shared/PerformanceMonitorV8';
+import { PerformanceMonitor } from '@/v8/components/shared/PerformanceMonitor';
 
 export const MonitoringDashboard: React.FC = () => {
   return (
@@ -797,7 +797,7 @@ export const MonitoringDashboard: React.FC = () => {
       <div className="dashboard-grid">
         <div className="dashboard-section">
           <h2>Performance Metrics</h2>
-          <PerformanceMonitorV8 enabled={true} showAlerts={true} />
+          <PerformanceMonitor enabled={true} showAlerts={true} />
         </div>
         
         <div className="dashboard-section">

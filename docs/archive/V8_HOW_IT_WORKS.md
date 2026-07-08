@@ -42,7 +42,7 @@ const credentials = {
 
 **Validation service checks:**
 ```typescript
-const result = ValidationServiceV8.validateCredentials(credentials, 'oidc');
+const result = ValidationService.validateCredentials(credentials, 'oidc');
 
 // Result:
 {
@@ -71,7 +71,7 @@ const credentials = {
 
 **Validation service checks:**
 ```typescript
-const result = ValidationServiceV8.validateCredentials(credentials, 'oidc');
+const result = ValidationService.validateCredentials(credentials, 'oidc');
 
 // Result:
 {
@@ -122,7 +122,7 @@ const credentials = {
 
 **Validation service checks:**
 ```typescript
-const result = ValidationServiceV8.validateCredentials(credentials, 'oidc');
+const result = ValidationService.validateCredentials(credentials, 'oidc');
 
 // Result:
 {
@@ -166,7 +166,7 @@ const credentials = {
 
 **Validation service checks:**
 ```typescript
-const result = ValidationServiceV8.validateCredentials(credentials, 'oidc');
+const result = ValidationService.validateCredentials(credentials, 'oidc');
 
 // Result:
 {
@@ -210,7 +210,7 @@ const credentials = {
 
 **Validation service checks:**
 ```typescript
-const result = ValidationServiceV8.validateCredentials(credentials, 'oidc');
+const result = ValidationService.validateCredentials(credentials, 'oidc');
 
 // Result:
 {
@@ -268,7 +268,7 @@ const result = ValidationServiceV8.validateCredentials(credentials, 'oidc');
 
 **Behind the scenes:**
 ```typescript
-const tooltip = EducationServiceV8.getTooltip('credential.clientId');
+const tooltip = EducationService.getTooltip('credential.clientId');
 
 // Returns:
 {
@@ -359,7 +359,7 @@ const tooltip = EducationServiceV8.getTooltip('credential.clientId');
 
 **Behind the scenes:**
 ```typescript
-const explanation = EducationServiceV8.getExplanation('offline_access');
+const explanation = EducationService.getExplanation('offline_access');
 
 // Returns:
 {
@@ -379,7 +379,7 @@ const explanation = EducationServiceV8.getExplanation('offline_access');
 
 **User clicks "Quick Start" button:**
 ```typescript
-const presets = EducationServiceV8.getAvailablePresets('oidc');
+const presets = EducationService.getAvailablePresets('oidc');
 ```
 
 **Modal shows presets:**
@@ -417,7 +417,7 @@ const presets = EducationServiceV8.getAvailablePresets('oidc');
 
 **User selects "PingOne OIDC":**
 ```typescript
-const preset = EducationServiceV8.getQuickStartPreset('pingone-oidc');
+const preset = EducationService.getQuickStartPreset('pingone-oidc');
 
 // Returns:
 {
@@ -497,7 +497,7 @@ const preset = EducationServiceV8.getQuickStartPreset('pingone-oidc');
 **Behind the scenes:**
 ```typescript
 // Component validates on every change
-const validation = ValidationServiceV8.validateCredentials(
+const validation = ValidationService.validateCredentials(
   credentials,
   'oidc'
 );
@@ -549,7 +549,7 @@ const validation = ValidationServiceV8.validateCredentials(
 **Behind the scenes:**
 ```typescript
 // Preset applied
-const preset = EducationServiceV8.getQuickStartPreset('pingone-oidc');
+const preset = EducationService.getQuickStartPreset('pingone-oidc');
 
 // Form updates
 setCredentials({
@@ -558,7 +558,7 @@ setCredentials({
 });
 
 // Validation runs
-const validation = ValidationServiceV8.validateCredentials(
+const validation = ValidationService.validateCredentials(
   credentials,
   'oidc'
 );
@@ -644,7 +644,7 @@ if (validation.canProceed) {
 **Behind the scenes:**
 ```typescript
 // Validate Step 1
-const validation = ValidationServiceV8.validateAuthorizationUrlParams({
+const validation = ValidationService.validateAuthorizationUrlParams({
   authorizationEndpoint: endpoints.authorization_endpoint,
   clientId: credentials.clientId,
   redirectUri: credentials.redirectUri,
@@ -672,23 +672,23 @@ const validation = ValidationServiceV8.validateAuthorizationUrlParams({
 
 ### 1. **Validation Service** provides the rules
 ```typescript
-ValidationServiceV8.validateCredentials(credentials, 'oidc')
+ValidationService.validateCredentials(credentials, 'oidc')
 → Returns: { valid, canProceed, errors, warnings }
 ```
 
 ### 2. **Education Service** provides the content
 ```typescript
-EducationServiceV8.getTooltip('credential.clientId')
+EducationService.getTooltip('credential.clientId')
 → Returns: { title, description, icon, learnMoreUrl }
 
-EducationServiceV8.getQuickStartPreset('pingone-oidc')
+EducationService.getQuickStartPreset('pingone-oidc')
 → Returns: { config, scopes, description }
 ```
 
 ### 3. **Step Navigation** uses both
 ```typescript
 // Check if can proceed
-const validation = ValidationServiceV8.validateCredentials(...);
+const validation = ValidationService.validateCredentials(...);
 
 // Show tooltips
 <EducationTooltip contentKey="credential.clientId">

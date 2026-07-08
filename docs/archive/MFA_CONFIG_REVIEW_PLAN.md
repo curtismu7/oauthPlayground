@@ -1,7 +1,7 @@
 # MFA Configuration Page Review Plan
 
 ## Overview
-Review of the MFA configuration page (`MFAConfigurationStepV8.tsx` and its usage in configuration pages) to ensure all features are wired up and working correctly.
+Review of the MFA configuration page (`MFAConfigurationStep.tsx` and its usage in configuration pages) to ensure all features are wired up and working correctly.
 
 ## Areas to Review
 
@@ -9,7 +9,7 @@ Review of the MFA configuration page (`MFAConfigurationStepV8.tsx` and its usage
 **Status**: Generally working, but has some edge cases
 
 **Current Implementation**:
-- Policies are loaded via `MFAServiceV8.listDeviceAuthenticationPolicies()` which always uses worker tokens
+- Policies are loaded via `MFAService.listDeviceAuthenticationPolicies()` which always uses worker tokens
 - Policy loading is triggered when both `environmentId` and `tokenStatus.isValid` (worker token) are available
 - For user token flows, policies are optional - users can manually enter policy ID if no worker token is available
 - Policies are loaded in each configuration page component (SMS, Email, WhatsApp, TOTP)
@@ -18,14 +18,14 @@ Review of the MFA configuration page (`MFAConfigurationStepV8.tsx` and its usage
 1. **Policy loading doesn't trigger when switching from user token to worker token**: If user starts with user token, enters env ID, then adds worker token, policies might not automatically load
    - **Fix**: Add `tokenStatus.isValid` to dependency array or add a separate effect that watches for token status changes
    
-2. **Policy refresh button state**: The refresh button in `MFAConfigurationStepV8` is disabled when `!isTokenValid || !credentials.environmentId`, but `isTokenValid` uses `tokenType === 'worker' ? tokenStatus.isValid : userTokenStatus === 'active'`. This means in user token flows, the refresh button is always disabled even if a worker token is available.
+2. **Policy refresh button state**: The refresh button in `MFAConfigurationStep` is disabled when `!isTokenValid || !credentials.environmentId`, but `isTokenValid` uses `tokenType === 'worker' ? tokenStatus.isValid : userTokenStatus === 'active'`. This means in user token flows, the refresh button is always disabled even if a worker token is available.
    - **Fix**: Check `tokenStatus.isValid` (worker token) for the refresh button, not the flow token type
 
 **Files to Check**:
-- `src/v8/flows/shared/MFAConfigurationStepV8.tsx` (lines 1063-1093)
-- `src/v8/flows/types/SMSOTPConfigurationPageV8.tsx` (lines 510-550)
-- `src/v8/flows/types/EmailOTPConfigurationPageV8.tsx` (lines 339-377)
-- `src/v8/flows/types/WhatsAppOTPConfigurationPageV8.tsx` (lines 335-373)
+- `src/v8/flows/shared/MFAConfigurationStep.tsx` (lines 1063-1093)
+- `src/v8/flows/types/SMSOTPConfigurationPage.tsx` (lines 510-550)
+- `src/v8/flows/types/EmailOTPConfigurationPage.tsx` (lines 339-377)
+- `src/v8/flows/types/WhatsAppOTPConfigurationPage.tsx` (lines 335-373)
 
 ### 2. Continue Button State Logic ✅
 **Status**: Working correctly
@@ -37,7 +37,7 @@ Review of the MFA configuration page (`MFAConfigurationStepV8.tsx` and its usage
   - `credentials.username`
   - Valid token (worker token if `tokenType === 'worker'`, user token if `tokenType === 'user'`)
 
-**Validation Logic** (from `SMSOTPConfigurationPageV8.tsx` lines 1114-1121):
+**Validation Logic** (from `SMSOTPConfigurationPage.tsx` lines 1114-1121):
 ```typescript
 disabled={
   !credentials.deviceAuthenticationPolicyId ||
@@ -52,10 +52,10 @@ disabled={
 **Potential Issues**: None identified - logic looks correct
 
 **Files to Check**:
-- `src/v8/flows/types/SMSOTPConfigurationPageV8.tsx` (lines 1111-1154)
-- `src/v8/flows/types/EmailOTPConfigurationPageV8.tsx` (lines 804-847)
-- `src/v8/flows/types/WhatsAppOTPConfigurationPageV8.tsx` (lines 794-837)
-- `src/v8/flows/types/TOTPConfigurationPageV8.tsx` (lines 101-128, 219-240)
+- `src/v8/flows/types/SMSOTPConfigurationPage.tsx` (lines 1111-1154)
+- `src/v8/flows/types/EmailOTPConfigurationPage.tsx` (lines 804-847)
+- `src/v8/flows/types/WhatsAppOTPConfigurationPage.tsx` (lines 794-837)
+- `src/v8/flows/types/TOTPConfigurationPage.tsx` (lines 101-128, 219-240)
 
 ### 3. Navigation Flow ✅
 **Status**: Working correctly
@@ -65,7 +65,7 @@ disabled={
 - Shows toast warnings for missing fields
 - Passes all necessary state to the registration flow via navigation state
 
-**Validation Checks** (from `SMSOTPConfigurationPageV8.tsx` lines 673-730):
+**Validation Checks** (from `SMSOTPConfigurationPage.tsx` lines 673-730):
 1. Device Authentication Policy ID
 2. Token validity (worker or user)
 3. Environment ID
@@ -74,16 +74,16 @@ disabled={
 **Potential Issues**: None identified - validation is comprehensive
 
 **Files to Check**:
-- `src/v8/flows/types/SMSOTPConfigurationPageV8.tsx` (lines 673-730)
-- `src/v8/flows/types/EmailOTPConfigurationPageV8.tsx` (lines 447-497)
-- `src/v8/flows/types/WhatsAppOTPConfigurationPageV8.tsx` (lines 443-493)
-- `src/v8/flows/types/TOTPConfigurationPageV8.tsx` (lines 101-128)
+- `src/v8/flows/types/SMSOTPConfigurationPage.tsx` (lines 673-730)
+- `src/v8/flows/types/EmailOTPConfigurationPage.tsx` (lines 447-497)
+- `src/v8/flows/types/WhatsAppOTPConfigurationPage.tsx` (lines 443-493)
+- `src/v8/flows/types/TOTPConfigurationPage.tsx` (lines 101-128)
 
 ### 4. OAuth Token Sync ✅
 **Status**: Working correctly
 
 **Current Implementation**:
-- `MFAConfigurationStepV8` syncs user tokens from `authContext.tokens?.access_token`
+- `MFAConfigurationStep` syncs user tokens from `authContext.tokens?.access_token`
 - Multiple `useEffect` hooks handle token synchronization:
   - Syncs from auth context if available and credentials.userToken is missing
   - Syncs from credentials.userToken when it changes
@@ -96,7 +96,7 @@ disabled={
 2. **Token validation for 'oauth_completed' placeholder**: The validation correctly handles this placeholder, but ensure it's consistent across all flows
 
 **Files to Check**:
-- `src/v8/flows/shared/MFAConfigurationStepV8.tsx` (lines 225-395)
+- `src/v8/flows/shared/MFAConfigurationStep.tsx` (lines 225-395)
 - Token validation logic (lines 111-176)
 
 ### 5. Registration Flow Type Handling ⚠️
@@ -116,11 +116,11 @@ disabled={
    - **Review**: Ensure proper order of effects and use of `isUpdatingCredentialsRef`
 
 **Files to Check**:
-- `src/v8/flows/shared/MFAConfigurationStepV8.tsx` (lines 179-223)
-- `src/v8/flows/types/SMSOTPConfigurationPageV8.tsx` (lines 773-1015)
-- `src/v8/flows/types/EmailOTPConfigurationPageV8.tsx` (check for flow type selector)
-- `src/v8/flows/types/WhatsAppOTPConfigurationPageV8.tsx` (check for flow type selector)
-- `src/v8/flows/types/TOTPConfigurationPageV8.tsx` (check for flow type selector)
+- `src/v8/flows/shared/MFAConfigurationStep.tsx` (lines 179-223)
+- `src/v8/flows/types/SMSOTPConfigurationPage.tsx` (lines 773-1015)
+- `src/v8/flows/types/EmailOTPConfigurationPage.tsx` (check for flow type selector)
+- `src/v8/flows/types/WhatsAppOTPConfigurationPage.tsx` (check for flow type selector)
+- `src/v8/flows/types/TOTPConfigurationPage.tsx` (check for flow type selector)
 
 ### 6. Error Handling ✅
 **Status**: Working correctly
@@ -133,21 +133,21 @@ disabled={
 **Potential Issues**: None identified
 
 **Files to Check**:
-- `src/v8/flows/shared/MFAConfigurationStepV8.tsx` (lines 1096-1122)
+- `src/v8/flows/shared/MFAConfigurationStep.tsx` (lines 1096-1122)
 - Error display in configuration pages
 
 ### 7. MFA Settings Modal Integration ✅
 **Status**: Working correctly
 
 **Current Implementation**:
-- MFA Settings button is shown in `MFAConfigurationStepV8`
+- MFA Settings button is shown in `MFAConfigurationStep`
 - Button is disabled when token is invalid or environment ID is missing
 - Modal is managed via props (`showSettingsModal`, `setShowSettingsModal`)
 
 **Potential Issues**: None identified
 
 **Files to Check**:
-- `src/v8/flows/shared/MFAConfigurationStepV8.tsx` (lines 887-932)
+- `src/v8/flows/shared/MFAConfigurationStep.tsx` (lines 887-932)
 
 ## Testing Checklist
 
@@ -186,7 +186,7 @@ disabled={
 
 ### Priority 1 (Critical)
 
-1. **Fix policy refresh button state** (Line 1080 in `MFAConfigurationStepV8.tsx`)
+1. **Fix policy refresh button state** (Line 1080 in `MFAConfigurationStep.tsx`)
    - Change from checking flow token type to checking worker token status
    - Button should be enabled when worker token is available, regardless of flow type
 
@@ -211,8 +211,8 @@ disabled={
 
 ## Implementation Notes
 
-- The `MFAConfigurationStepV8` component is a shared component used across SMS, Email, WhatsApp, and TOTP flows
-- Each configuration page (`*OTPConfigurationPageV8.tsx`) renders `MFAConfigurationStepV8` and handles navigation
-- The Continue button is rendered in the configuration pages, not in `MFAConfigurationStepV8`
+- The `MFAConfigurationStep` component is a shared component used across SMS, Email, WhatsApp, and TOTP flows
+- Each configuration page (`*OTPConfigurationPage.tsx`) renders `MFAConfigurationStep` and handles navigation
+- The Continue button is rendered in the configuration pages, not in `MFAConfigurationStep`
 - Policy loading always requires a worker token, even in user token flows
 - User token flows allow manual policy ID entry when no worker token is available

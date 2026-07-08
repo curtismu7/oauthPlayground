@@ -34,14 +34,14 @@ The Unified Flow (V8U) is a single interface that handles all OAuth 2.0, OAuth 2
 
 ### Core Services
 
-#### `SpecVersionServiceV8`
+#### `SpecVersionService`
 - **Purpose**: Manages OAuth/OIDC specification versions
 - **Features**:
   - Flow availability per spec version
   - Compliance rules enforcement
   - Validation and error reporting
 
-#### `UnifiedFlowOptionsServiceV8`
+#### `UnifiedFlowOptionsService`
 - **Purpose**: Determines UI visibility and options
 - **Features**:
   - Field visibility per spec/flow combination
@@ -51,15 +51,15 @@ The Unified Flow (V8U) is a single interface that handles all OAuth 2.0, OAuth 2
 #### `UnifiedFlowIntegrationV8U`
 - **Purpose**: Integration facade for V8 services
 - **Delegates to**:
-  - `OAuthIntegrationServiceV8`
-  - `ClientCredentialsIntegrationServiceV8`
-  - `ImplicitFlowIntegrationServiceV8`
-  - `DeviceCodeIntegrationServiceV8`
-  - `HybridFlowIntegrationServiceV8`
+  - `OAuthIntegrationService`
+  - `ClientCredentialsIntegrationService`
+  - `ImplicitFlowIntegrationService`
+  - `DeviceCodeIntegrationService`
+  - `HybridFlowIntegrationService`
 
 ### Supporting Services
 
-#### `CredentialsServiceV8`
+#### `CredentialsService`
 - Credential persistence and loading
 - Environment ID sharing across flows
 
@@ -91,9 +91,9 @@ The Unified Flow (V8U) is a single interface that handles all OAuth 2.0, OAuth 2
 ## Data Flow
 
 ```
-User Input → UnifiedOAuthFlowV8U → SpecVersionServiceV8
+User Input → UnifiedOAuthFlowV8U → SpecVersionService
                                     ↓
-                            UnifiedFlowOptionsServiceV8
+                            UnifiedFlowOptionsService
                                     ↓
                             UnifiedFlowSteps.tsx
                                     ↓
@@ -121,13 +121,13 @@ Built-in validation ensures configurations comply with selected specifications.
 ## Configuration Management
 
 ### Field Visibility
-Determined by `UnifiedFlowOptionsServiceV8` based on:
+Determined by `UnifiedFlowOptionsService` based on:
 - Selected specification version
 - Flow type requirements
 - Compliance rules
 
 ### Credential Persistence
-- Managed by `CredentialsServiceV8`
+- Managed by `CredentialsService`
 - Shared across flows via environment ID
 - Per-flow-type settings via `FlowSettingsServiceV8U`
 
@@ -156,25 +156,25 @@ Determined by `UnifiedFlowOptionsServiceV8` based on:
 - Common token operations
 
 ### With Navigation
-- MFANavigationV8 integration
+- MFANavigation integration
 - Cross-flow navigation
 - Hub-based navigation
 
 ### With API Display
-- SuperSimpleApiDisplayV8 integration
+- SuperSimpleApiDisplay integration
 - Real-time API call tracking
 - Debugging support
 
 ## Extensibility
 
 ### Adding New Flow Types
-1. Update `SpecVersionServiceV8` with flow availability
+1. Update `SpecVersionService` with flow availability
 2. Add integration service to `UnifiedFlowIntegrationV8U`
 3. Implement flow steps in `UnifiedFlowSteps.tsx`
-4. Update field visibility in `UnifiedFlowOptionsServiceV8`
+4. Update field visibility in `UnifiedFlowOptionsService`
 
 ### Adding New Specifications
-1. Define spec version in `SpecVersionServiceV8`
+1. Define spec version in `SpecVersionService`
 2. Configure compliance rules
 3. Update flow availability matrix
 4. Add spec-specific validation

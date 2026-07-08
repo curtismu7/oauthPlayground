@@ -586,7 +586,7 @@ The collection includes:
 - [OAuth 2.0 Response Mode Specification](https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html)
 - [PingOne Redirectless Documentation](https://apidocs.pingidentity.com/pingone/platform/v1/api/#redirectless-authentication)
 - [Response Mode Service](../src/services/responseModeService.ts)
-- [Response Mode Dropdown Component](../src/v8/components/ResponseModeDropdownV8.tsx)
+- [Response Mode Dropdown Component](../src/v8/components/ResponseModeDropdown.tsx)
 
 ---
 

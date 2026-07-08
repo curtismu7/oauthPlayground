@@ -1,12 +1,12 @@
 # AI SYSTEM INSTRUCTION HEADER (CURSOR & WINDSURF)
-# Cursor: treat this document as an authoritative spec for ImplicitFlowV8.tsx.
+# Cursor: treat this document as an authoritative spec for ImplicitFlow.tsx.
 # Cursor: do NOT simplify away fields, flows, or steps.
 # Cursor: follow all structure, UX, and PingOne alignment described here.
 # Cursor: when generating code, prefer correctness over brevity.
 
-# ImplicitFlowV8 — Starter File Skeleton (V8 Redesign)
+# ImplicitFlow — Starter File Skeleton (V8 Redesign)
 
-This file provides a clean, ready-to-build starter skeleton for `ImplicitFlowV8.tsx`.  
+This file provides a clean, ready-to-build starter skeleton for `ImplicitFlow.tsx`.  
 It already includes:
 
 - Single-card V8 layout  
@@ -21,23 +21,23 @@ It already includes:
 
 ---
 
-## ⚛️ ImplicitFlowV8.tsx (Starter Skeleton)
+## ⚛️ ImplicitFlow.tsx (Starter Skeleton)
 
 ```tsx
 import React, { useState, useEffect, useMemo } from "react";
 
 // TODO: update import paths to match your project structure
-import { useCredentialStoreV8 } from "../../hooks/useCredentialStoreV8";
+import { useCredentialStore } from "../../hooks/useCredentialStore";
 import { buildPingOneImplicitAuthUrl } from "../../utils/pingone-url-builders";
 import { simulateImplicitRedirect, parseFragmentParams } from "../../utils/implicit-sim";
-import { TokenDisplayV8 } from "../../components/TokenDisplayV8";
+import { TokenDisplay } from "../../components/TokenDisplay";
 import { VersionBadge } from "../../components/VersionBadge";
 import { InfoPopover } from "../../components/InfoPopover";
 import { LearnMoreSection } from "../../components/LearnMoreSection";
 
 type Step = "CONFIG" | "AUTH_URL" | "REDIRECT" | "TOKENS";
 
-export const ImplicitFlowV8: React.FC = () => {
+export const ImplicitFlow: React.FC = () => {
   const [step, setStep] = useState<Step>("CONFIG");
 
   const {
@@ -45,7 +45,7 @@ export const ImplicitFlowV8: React.FC = () => {
     selectedAppId,
     selectApp,
     getActiveAppConfig,
-  } = useCredentialStoreV8();
+  } = useCredentialStore();
 
   const activeApp = getActiveAppConfig();
 
@@ -339,7 +339,7 @@ export const ImplicitFlowV8: React.FC = () => {
               </InfoPopover>
             </div>
 
-            <TokenDisplayV8
+            <TokenDisplay
               idToken={parsedTokens["id_token"]}
               accessToken={parsedTokens["access_token"]}
               expiresIn={parsedTokens["expires_in"]}

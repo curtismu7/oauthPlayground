@@ -13,7 +13,7 @@
  */
 
 import React, { useState } from 'react';
-import { OAuthErrorCodesServiceV8 } from '@/mfa/services/oauthErrorCodesServiceV8';
+import { OAuthErrorCodesService } from '@/mfa/services/oauthErrorCodesService';
 import { FiAlertCircle } from '../../icons';
 
 const _MODULE_TAG = '[❌ ERROR-DISPLAY-V8U]';
@@ -207,8 +207,8 @@ export const ErrorDisplayWithRetry: React.FC<ErrorDisplayWithRetryProps> = ({
 	const [showDetails, setShowDetails] = useState(false);
 
 	// Extract OAuth error code from error message
-	const errorCode = OAuthErrorCodesServiceV8.extractErrorCode(error);
-	const errorInfo = errorCode ? OAuthErrorCodesServiceV8.getErrorInfo(errorCode) : null;
+	const errorCode = OAuthErrorCodesService.extractErrorCode(error);
+	const errorInfo = errorCode ? OAuthErrorCodesService.getErrorInfo(errorCode) : null;
 
 	// Determine if this is a retryable error
 	const _isRetryable =

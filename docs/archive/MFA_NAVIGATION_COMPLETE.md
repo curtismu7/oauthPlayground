@@ -6,7 +6,7 @@ Added cross-navigation links to all MFA flows, allowing users to easily navigate
 ## Changes Made
 
 ### 1. MFA Device Registration Flow
-**File:** `src/v8/flows/MFAFlowV8.tsx`
+**File:** `src/v8/flows/MFAFlow.tsx`
 
 **Added Navigation Links:**
 - 🏠 MFA Hub → `/v8/mfa-hub`
@@ -16,7 +16,7 @@ Added cross-navigation links to all MFA flows, allowing users to easily navigate
 **Location:** Below the header, above the step breadcrumb
 
 ### 2. MFA Device Management Flow
-**File:** `src/v8/flows/MFADeviceManagementFlowV8.tsx`
+**File:** `src/v8/flows/MFADeviceManagementFlow.tsx`
 
 **Added Navigation Links:**
 - 🏠 MFA Hub → `/v8/mfa-hub`
@@ -26,7 +26,7 @@ Added cross-navigation links to all MFA flows, allowing users to easily navigate
 **Location:** Below the header, above the setup section
 
 ### 3. MFA Reporting Flow
-**File:** `src/v8/flows/MFAReportingFlowV8.tsx`
+**File:** `src/v8/flows/MFAReportingFlow.tsx`
 
 **Added Navigation Links:**
 - 🏠 MFA Hub → `/v8/mfa-hub`
@@ -213,9 +213,9 @@ Added cross-navigation links to all MFA flows, allowing users to easily navigate
 
 ## Files Modified
 
-- `src/v8/flows/MFAFlowV8.tsx` - Added navigation links
-- `src/v8/flows/MFADeviceManagementFlowV8.tsx` - Added navigation links
-- `src/v8/flows/MFAReportingFlowV8.tsx` - Added navigation links
+- `src/v8/flows/MFAFlow.tsx` - Added navigation links
+- `src/v8/flows/MFADeviceManagementFlow.tsx` - Added navigation links
+- `src/v8/flows/MFAReportingFlow.tsx` - Added navigation links
 
 ## Complete MFA System
 

@@ -36,7 +36,7 @@ This document defines the UI contract for SMS device registration and authentica
 
 ### 1. SMS Configuration Page
 
-**Component:** `SMSOTPConfigurationPageV8.tsx`  
+**Component:** `SMSOTPConfigurationPage.tsx`  
 **Route:** `/v8/mfa/register/sms`
 
 #### Required UI Elements
@@ -66,7 +66,7 @@ This document defines the UI contract for SMS device registration and authentica
 
 #### State Management
 
-- Configuration must be saved to `localStorage` via `CredentialsServiceV8`
+- Configuration must be saved to `localStorage` via `CredentialsService`
 - Configuration must be loaded on page mount
 - Changes must be persisted immediately
 
@@ -82,7 +82,7 @@ This document defines the UI contract for SMS device registration and authentica
 
 ### 2. SMS Registration Flow
 
-**Component:** `SMSFlowV8.tsx`  
+**Component:** `SMSFlow.tsx`  
 **Route:** `/v8/mfa/register/sms/device`
 
 #### Step 0: Configuration
@@ -97,8 +97,8 @@ This document defines the UI contract for SMS device registration and authentica
 
 **State:**
 - Credentials stored in `credentials` state
-- Token status checked via `WorkerTokenStatusServiceV8`
-- Policies loaded from `MFAServiceV8.listDeviceAuthenticationPolicies()`
+- Token status checked via `WorkerTokenStatusService`
+- Policies loaded from `MFAService.listDeviceAuthenticationPolicies()`
 
 #### Step 1: Device Selection
 
@@ -171,7 +171,7 @@ if (isConfigured && nav.currentStep === 1) {
 
 ### 3. SMS Authentication Flow
 
-**Component:** `MFAAuthenticationMainPageV8.tsx`  
+**Component:** `MFAAuthenticationMainPage.tsx`  
 **Route:** `/v8/mfa/auth`
 
 #### Device Selection
@@ -206,7 +206,7 @@ if (isConfigured && nav.currentStep === 1) {
 ### Error Types
 
 1. **LIMIT_EXCEEDED**
-   - Must display `MFACooldownModalV8` with cooldown duration
+   - Must display `MFACooldownModal` with cooldown duration
    - Must show toast notification
    - Must prevent further attempts during cooldown
 

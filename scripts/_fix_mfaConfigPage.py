@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Fix MFAConfigurationPageV8.tsx:
+Fix MFAConfigurationPage.tsx:
 1. Change [_hasChanges, setHasChanges] → [, setHasChanges] (setter used in active code)
 2. Delete const [_isSaving, setIsSaving] entirely (setter only used in dead _handleSave)
 3. Delete const [_isRefreshingToken, ...] entirely (setter only used in dead function)
@@ -13,7 +13,7 @@ Fix MFAConfigurationPageV8.tsx:
 """
 import re
 
-path = '/Users/cmuir/P1Import-apps/oauth-playground/src/mfa/flows/MFAConfigurationPageV8.tsx'
+path = '/Users/cmuir/P1Import-apps/oauth-playground/src/mfa/flows/MFAConfigurationPage.tsx'
 
 with open(path, 'r', encoding='utf-8') as f:
     src = f.read()
@@ -64,4 +64,4 @@ for pattern in dead_funcs:
 with open(path, 'w', encoding='utf-8') as f:
     f.write(src)
 
-print('Done MFAConfigurationPageV8.tsx')
+print('Done MFAConfigurationPage.tsx')

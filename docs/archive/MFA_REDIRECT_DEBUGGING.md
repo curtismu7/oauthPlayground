@@ -201,7 +201,7 @@ If you've tried all the above and it's still not working:
 
 ## Related Files
 
-- `src/v8/components/UserLoginModalV8.tsx` - Stores return path before redirect
+- `src/v8/components/UserLoginModal.tsx` - Stores return path before redirect
 - `src/v8u/components/CallbackHandlerV8U.tsx` - Reads return path and redirects
-- `src/v8/flows/shared/MFAFlowBaseV8.tsx` - Handles state restoration after redirect
+- `src/v8/flows/shared/MFAFlowBase.tsx` - Handles state restoration after redirect
 

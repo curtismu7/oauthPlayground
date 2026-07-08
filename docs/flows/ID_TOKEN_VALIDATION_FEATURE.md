@@ -115,7 +115,7 @@ Added comprehensive local ID token validation feature that allows users to valid
 
 **Feature:** Local ID Token Validation Modal  
 **Component:** `IDTokenValidationModalV8U`  
-**Service:** `IDTokenValidationServiceV8`
+**Service:** `IDTokenValidationService`
 
 **Trigger:**
 - Button: "🔐 Validate ID Token Locally"
@@ -188,8 +188,8 @@ The OAuth 2.0 Token Introspection endpoint (`/as/introspect`) is designed for ac
 3. `src/v8u/components/UnifiedFlowSteps.tsx` - Added API tracking for implicit callback
 
 ### Services Used (Existing):
-1. `src/v8/services/idTokenValidationServiceV8.ts` - Core validation logic
-2. `src/v8/services/jwksCacheServiceV8.ts` - JWKS caching
+1. `src/v8/services/idTokenValidationService.ts` - Core validation logic
+2. `src/v8/services/jwksCacheService.ts` - JWKS caching
 3. `jose` library - JWT verification
 
 ## Testing

@@ -49,7 +49,7 @@ export const useGlobalWorkerToken = (
 #### `src/pages/security/HelioMartPasswordReset.tsx`
 
 1. **`useGlobalWorkerToken({ autoFetch: false })`** — page no longer triggers an API call on mount
-2. **Added `handleGetWorkerToken`** — opens `WorkerTokenModalV8`
+2. **Added `handleGetWorkerToken`** — opens `WorkerTokenModal`
 3. **Added `handleClearWorkerToken`** — calls `unifiedWorkerTokenService.clearToken()` and dispatches `workerTokenUpdated`
 4. **Worker Token button** — uses `handleGetWorkerToken`; label is "Get Worker Token" / "Worker Token Ready"; a "Clear Token" button appears when a valid token exists
 5. **`loadConfig` effect** — replaced raw `localStorage.getItem('unified_worker_token')` + `JSON.parse` with `unifiedWorkerTokenService.getTokenDataSync()` for consistency
@@ -76,6 +76,6 @@ No breaking changes. Other pages that call `useGlobalWorkerToken()` with no argu
 
 1. Navigate to `/security/password-reset`
 2. Open Network tab — confirm no token endpoint request fires on load
-3. Click "Get Worker Token" — WorkerTokenModalV8 opens
+3. Click "Get Worker Token" — WorkerTokenModal opens
 4. Generate token — button turns green ("Worker Token Ready"), "Clear Token" appears
 5. Click "Clear Token" — button returns to red ("Get Worker Token")

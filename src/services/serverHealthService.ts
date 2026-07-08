@@ -16,7 +16,7 @@ export interface HealthData {
 	status: string;
 	timestamp: string;
 	version: string;
-	versions: { app: string; mfaV8: string; unifiedV8u: string };
+	versions: { app: string; mfa: string; unifiedV8u: string };
 	pid: number;
 	startTime: string;
 	uptimeSeconds: number;
@@ -124,7 +124,7 @@ function minimalFrontendHealthData(): HealthData {
 		status: 'ok',
 		timestamp: new Date().toISOString(),
 		version: '9.4.8',
-		versions: { app: '9.4.8', mfaV8: '9.4.8', unifiedV8u: '9.4.8' },
+		versions: { app: '9.4.8', mfa: '9.4.8', unifiedV8u: '9.4.8' },
 		pid: 0,
 		startTime: new Date().toISOString(),
 		uptimeSeconds: 0,

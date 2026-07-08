@@ -6,7 +6,7 @@
 **Problem**: The FIDO2 modal was showing for username-less passkey authentication, but it requires `challengeId` which is only available for username-based FIDO2 flows.
 
 **Solution**: 
-- The username-less passkey flow (`handleUsernamelessFIDO2`) correctly uses `PasskeyServiceV8.authenticateUsernameless()` which doesn't require `challengeId`
+- The username-less passkey flow (`handleUsernamelessFIDO2`) correctly uses `PasskeyService.authenticateUsernameless()` which doesn't require `challengeId`
 - The FIDO2 modal is only for username-based FIDO2 authentication
 - Updated error message in the modal to be more helpful
 
@@ -32,7 +32,7 @@
    - Added logging to select device call
    - Fixed response parsing to avoid double consumption
 
-2. **src/v8/flows/MFAAuthenticationMainPageV8.tsx**:
+2. **src/v8/flows/MFAAuthenticationMainPage.tsx**:
    - Updated error message in FIDO2 modal to be more helpful
 
 ## Next Steps for User
@@ -52,5 +52,5 @@ If you're still seeing the "Challenge ID is missing" error:
 All PingOne API calls are now logged to:
 - ✅ `logs/api-log.log`
 - ✅ `logs/pingone-api.log`
-- ✅ API Display (SuperSimpleApiDisplayV8)
+- ✅ API Display (SuperSimpleApiDisplay)
 

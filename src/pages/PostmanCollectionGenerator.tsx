@@ -26,13 +26,13 @@ import {
 	type PostmanCollectionItem,
 } from '@/services/postmanCollectionGeneratorV8';
 import { modernMessaging } from '@/platform/ModernMessagingService';
-import { CredentialsServiceV8 } from '@/mfa/services/credentialsServiceV8';
-import { EnvironmentIdServiceV8 } from '@/mfa/services/environmentIdServiceV8';
+import { CredentialsService } from '@/mfa/services/credentialsService';
+import { EnvironmentIdService } from '@/mfa/services/environmentIdService';
 import {
 	type FlowType,
 	type SpecVersion,
-	SpecVersionServiceV8,
-} from '@/mfa/services/specVersionServiceV8';
+	SpecVersionService,
+} from '@/mfa/services/specVersionService';
 import { FlowHeader } from '../services/flowHeaderService';
 import { logger } from '../utils/logger';
 
@@ -146,7 +146,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 
 	// Get all variations for a spec version
 	const getVariationsForSpec = (specVersion: SpecVersion): UnifiedVariation[] => {
-		const flows = SpecVersionServiceV8.getAvailableFlows(specVersion);
+		const flows = SpecVersionService.getAvailableFlows(specVersion);
 		const variations: UnifiedVariation[] = [];
 		flows.forEach((flow) => {
 			variations.push(...flowTypeToVariations(flow, specVersion));
@@ -484,7 +484,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 
 	// Get credentials
 	const getCredentials = () => {
-		const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
+		const environmentId = EnvironmentIdService.getEnvironmentId();
 		const flowKey = 'oauth-authz-v8u';
 
 		// Get flow config with proper fallback
@@ -497,7 +497,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 			includeScopes: true,
 		};
 
-		const unifiedCreds = CredentialsServiceV8.loadCredentials(flowKey, unifiedConfig);
+		const unifiedCreds = CredentialsService.loadCredentials(flowKey, unifiedConfig);
 
 		// MFA flow config
 		const mfaFlowKey = 'mfa-hub-v8';
@@ -510,7 +510,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 			includeScopes: false,
 		};
 
-		const mfaCreds = CredentialsServiceV8.loadCredentials(mfaFlowKey, mfaConfig);
+		const mfaCreds = CredentialsService.loadCredentials(mfaFlowKey, mfaConfig);
 
 		// Try worker token credentials as fallback
 		let workerTokenEnvId = '';
@@ -556,7 +556,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 		// Get all flows for selected spec versions
 		const allFlows = new Set<FlowType>();
 		for (const spec of allSpecVersions) {
-			for (const flow of SpecVersionServiceV8.getAvailableFlows(spec)) {
+			for (const flow of SpecVersionService.getAvailableFlows(spec)) {
 				allFlows.add(flow);
 			}
 		}

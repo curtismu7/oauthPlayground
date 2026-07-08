@@ -5,7 +5,7 @@
  * @version 8.0.0
  * @since 2026-01-29
  *
- * Purpose: Provide React Context wrapper for MFACredentialManagerV8
+ * Purpose: Provide React Context wrapper for MFACredentialManager
  * - Makes credential state available to all MFA components
  * - Provides hooks for easy credential access
  * - Handles subscription lifecycle automatically
@@ -13,7 +13,7 @@
  * @example
  * // Wrap your app with the provider
  * <MFACredentialProvider>
- *   <UnifiedMFARegistrationFlowV8 />
+ *   <UnifiedMFARegistrationFlow />
  * </MFACredentialProvider>
  *
  * @example
@@ -23,8 +23,8 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { MFACredentials } from '../flows/shared/MFATypes';
-import type { ValidationResult } from '../services/mfaCredentialManagerV8';
-import { MFACredentialManagerV8 } from '../services/mfaCredentialManagerV8';
+import type { ValidationResult } from '../services/mfaCredentialManager';
+import { MFACredentialManager } from '../services/mfaCredentialManager';
 
 interface MFACredentialContextValue {
 	credentials: MFACredentials | null;
@@ -48,7 +48,7 @@ const MFACredentialContext = createContext<MFACredentialContextValue | null>(nul
  * Automatically manages subscription lifecycle.
  */
 export const MFACredentialProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-	const manager = React.useMemo(() => MFACredentialManagerV8.getInstance(), []);
+	const manager = React.useMemo(() => MFACredentialManager.getInstance(), []);
 	const [credentials, setCredentials] = useState<MFACredentials | null>(manager.getCredentials());
 	const [isLoading, setIsLoading] = useState(false);
 

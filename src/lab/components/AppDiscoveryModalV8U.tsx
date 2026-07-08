@@ -10,11 +10,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { modernMessaging } from '@/platform/ModernMessagingService';
-import type { DiscoveredApp } from '@/mfa/components/AppPickerV8';
+import type { DiscoveredApp } from '@/mfa/components/AppPicker';
 import {
-	AppDiscoveryServiceV8,
+	AppDiscoveryService,
 	type DiscoveredApplication,
-} from '@/mfa/services/appDiscoveryServiceV8';
+} from '@/mfa/services/appDiscoveryService';
 import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[ APP-DISCOVERY-MODAL-V8U]';
@@ -126,7 +126,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 				return;
 			}
 
-			const discovered = await AppDiscoveryServiceV8.discoverApplications(
+			const discovered = await AppDiscoveryService.discoverApplications(
 				environmentId,
 				workerToken
 			);
@@ -203,10 +203,10 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 			return;
 		}
 
-		// If we have full app data, use AppDiscoveryServiceV8.getAppConfig() to get proper config
+		// If we have full app data, use AppDiscoveryService.getAppConfig() to get proper config
 		// Otherwise just use the basic DiscoveredApp data
 		if (selectedApp.fullApp) {
-			const appConfig = AppDiscoveryServiceV8.getAppConfig(selectedApp.fullApp);
+			const appConfig = AppDiscoveryService.getAppConfig(selectedApp.fullApp);
 			// Create enhanced app object with config data (excluding redirectUri as user mentioned)
 			const enhancedApp: DiscoveredApp = {
 				id: selectedApp.id,

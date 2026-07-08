@@ -6,7 +6,7 @@ This implementation adds support for managing the order of PingOne MFA devices f
 ## Files Created/Modified
 
 ### 1. Service Layer
-- **File**: `src/v8/services/mfaServiceV8.ts`
+- **File**: `src/v8/services/mfaService.ts`
 - **Method Added**: `setUserMfaDeviceOrder(environmentId, userId, orderedDeviceIds)`
 - **Purpose**: Makes API call to PingOne to set device order
 

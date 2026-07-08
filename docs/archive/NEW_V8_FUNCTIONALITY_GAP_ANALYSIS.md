@@ -166,9 +166,9 @@ The recommended approach is to systematically migrate V7 features to V8, priorit
 
 When implementing the missing functionality in this document, **all new V8 code** must follow the same ease-of-use and simplification rules defined for the Authorization Code Flow V8 (`authz8.md`). These rules apply to:
 
-- `OAuthAuthorizationCodeFlowV8.tsx`
-- `ImplicitFlowV8.tsx`
-- `ComprehensiveCredentialsServiceV8.tsx`
+- `OAuthAuthorizationCodeFlow.tsx`
+- `ImplicitFlow.tsx`
+- `ComprehensiveCredentialsService.tsx`
 - Any shared components/services they use.
 
 ### 1. Minimal UI Footprint
@@ -239,9 +239,9 @@ Guidelines:
 - Avoid more than **3–4 main steps**.
 - Optional exploration (UserInfo, introspection, security views, extra diagnostics) belongs in **collapsible panels** under the token display, not as separate mandatory steps.
 
-### 6. ComprehensiveCredentialsServiceV8 Pattern
+### 6. ComprehensiveCredentialsService Pattern
 
-When using or extending `ComprehensiveCredentialsServiceV8`:
+When using or extending `ComprehensiveCredentialsService`:
 
 - Show only a **summary bar** + a **single Configure button** in the main flow.
 - Open a **single drawer** that has at most three sections:

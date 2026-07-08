@@ -48,9 +48,9 @@ Browser (Fast)              Server (Persistent)
 
 ## New Services
 
-### 1. SQLiteBackupServiceV8 (Client-Side)
+### 1. SQLiteBackupService (Client-Side)
 
-**File:** `src/v8/services/sqliteBackupServiceV8.ts`
+**File:** `src/v8/services/sqliteBackupService.ts`
 
 **Methods:**
 - `save(key, environmentId, dataType, data, options)` - Save to SQLite via API
@@ -62,7 +62,7 @@ Browser (Fast)              Server (Persistent)
 **Example:**
 ```typescript
 // Save credentials to SQLite
-await SQLiteBackupServiceV8.save(
+await SQLiteBackupService.save(
   'oauth-authz-v8',
   'env-123',
   'credentials',
@@ -70,12 +70,12 @@ await SQLiteBackupServiceV8.save(
 );
 
 // Load credentials from SQLite
-const creds = await SQLiteBackupServiceV8.load('oauth-authz-v8', 'env-123');
+const creds = await SQLiteBackupService.load('oauth-authz-v8', 'env-123');
 ```
 
-### 2. DualBackupServiceV8 (Unified)
+### 2. DualBackupService (Unified)
 
-**File:** `src/v8/services/dualBackupServiceV8.ts`
+**File:** `src/v8/services/dualBackupService.ts`
 
 **Methods:**
 - `save(key, data, dataType, options)` - Save to BOTH IndexedDB and SQLite
@@ -85,10 +85,10 @@ const creds = await SQLiteBackupServiceV8.load('oauth-authz-v8', 'env-123');
 
 **Example:**
 ```typescript
-import { DualBackupServiceV8 } from '@/v8/services/dualBackupServiceV8';
+import { DualBackupService } from '@/v8/services/dualBackupService';
 
 // Automatically saves to both IndexedDB and SQLite
-await DualBackupServiceV8.save(
+await DualBackupService.save(
   'oauth-authz-v8',
   credentials,
   'credentials',
@@ -96,7 +96,7 @@ await DualBackupServiceV8.save(
 );
 
 // Tries IndexedDB first, then SQLite if not found
-const creds = await DualBackupServiceV8.load('oauth-authz-v8', 'env-123');
+const creds = await DualBackupService.load('oauth-authz-v8', 'env-123');
 ```
 
 ### 3. BackupDatabaseService (Server-Side)
@@ -185,18 +185,18 @@ const data = await IndexedDBBackupServiceV8U.load('key');
 
 ```typescript
 // New way - Both IndexedDB and SQLite
-import { DualBackupServiceV8 } from '@/v8/services/dualBackupServiceV8';
+import { DualBackupService } from '@/v8/services/dualBackupService';
 
-await DualBackupServiceV8.save('key', data, 'credentials', {
+await DualBackupService.save('key', data, 'credentials', {
   environmentId: 'env-123'  // Required for SQLite backup
 });
 
-const data = await DualBackupServiceV8.load('key', 'env-123');
+const data = await DualBackupService.load('key', 'env-123');
 ```
 
 ## Usage in Services
 
-### CredentialsServiceV8
+### CredentialsService
 
 **Update saveCredentials:**
 
@@ -206,7 +206,7 @@ localStorage.setItem(`credentials_${flowKey}`, JSON.stringify(credentials));
 
 // After
 localStorage.setItem(`credentials_${flowKey}`, JSON.stringify(credentials));
-await DualBackupServiceV8.save(
+await DualBackupService.save(
   `credentials_${flowKey}`,
   credentials,
   'credentials',
@@ -223,7 +223,7 @@ await DualBackupServiceV8.save(
 await IndexedDBBackupServiceV8U.save(flowKey, codes, 'pkce');
 
 // After
-await DualBackupServiceV8.save(
+await DualBackupService.save(
   flowKey,
   codes,
   'pkce',
@@ -231,7 +231,7 @@ await DualBackupServiceV8.save(
 );
 ```
 
-### MFAConfigurationServiceV8
+### MFAConfigurationService
 
 **Update saveConfiguration:**
 
@@ -241,7 +241,7 @@ localStorage.setItem('mfa_configuration_v8', JSON.stringify(config));
 
 // After
 localStorage.setItem('mfa_configuration_v8', JSON.stringify(config));
-await DualBackupServiceV8.save(
+await DualBackupService.save(
   'mfa_configuration_v8',
   config,
   'config',

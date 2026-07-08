@@ -9,7 +9,7 @@
 ## 📋 Implementation Summary
 
 ### Phase 1: JWKS Fetching Tracking ✅
-**File:** `src/v8/services/idTokenValidationServiceV8.ts`
+**File:** `src/v8/services/idTokenValidationService.ts`
 
 - Added API call tracking around JWKS fetch operation
 - Tracks GET request to `/.well-known/jwks.json`
@@ -18,7 +18,7 @@
 - **Flow Type:** `oidc-metadata`
 
 ### Phase 2: Pre-flight Validation Tracking ✅
-**File:** `src/v8/services/configCheckerServiceV8.ts`
+**File:** `src/v8/services/configCheckerService.ts`
 
 - Added API call tracking in `fetchAppConfig()` method
 - Tracks application configuration fetching for pre-flight checks
@@ -109,27 +109,27 @@ All API calls made during this flow are automatically tracked and documented.
 ### ✅ NOW TRACKING (7/7 API Categories):
 
 1. **Worker Token Retrieval** ✅
-   - File: `WorkerTokenModalV8.tsx`
+   - File: `WorkerTokenModal.tsx`
    - Already implemented
    
 2. **Application Discovery** ✅
-   - File: `appDiscoveryServiceV8.ts`
+   - File: `appDiscoveryService.ts`
    - Implemented in previous session
    
 3. **Application Details (with secret)** ✅
-   - File: `appDiscoveryServiceV8.ts`
+   - File: `appDiscoveryService.ts`
    - Implemented in previous session
    
 4. **OIDC Discovery** ✅
-   - File: `oidcDiscoveryServiceV8.ts`
+   - File: `oidcDiscoveryService.ts`
    - Implemented in previous session
    
 5. **JWKS Fetching** ✅
-   - File: `idTokenValidationServiceV8.ts`
+   - File: `idTokenValidationService.ts`
    - **NEW: Implemented in this session**
    
 6. **Pre-flight Validation** ✅
-   - File: `configCheckerServiceV8.ts`
+   - File: `configCheckerService.ts`
    - **NEW: Implemented in this session**
    
 7. **OAuth Flow Calls** ✅
@@ -141,8 +141,8 @@ All API calls made during this flow are automatically tracked and documented.
 ## 📊 Files Modified
 
 ### Code Files (3):
-1. `src/v8/services/idTokenValidationServiceV8.ts` - Added JWKS tracking
-2. `src/v8/services/configCheckerServiceV8.ts` - Added pre-flight tracking
+1. `src/v8/services/idTokenValidationService.ts` - Added JWKS tracking
+2. `src/v8/services/configCheckerService.ts` - Added pre-flight tracking
 3. `src/v8u/components/UnifiedFlowDocumentationPageV8U.tsx` - Added category grouping
 
 ### Documentation Files (5):

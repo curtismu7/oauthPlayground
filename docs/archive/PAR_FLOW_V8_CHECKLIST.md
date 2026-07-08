@@ -146,8 +146,8 @@ import PingOnePARFlowV7 from './pages/flows/PingOnePARFlowV7';
 import { PARService } from './services/parService';
 
 // New
-import PingOnePARFlowV8 from './pages/flows/PingOnePARFlowV8';
-import { usePAROperations } from './pages/flows/PingOnePARFlowV8';
+import PingOnePARFlow from './pages/flows/PingOnePARFlow';
+import { usePAROperations } from './pages/flows/PingOnePARFlow';
 ```
 
 #### 2. Update Routes
@@ -156,7 +156,7 @@ import { usePAROperations } from './pages/flows/PingOnePARFlowV8';
 <Route path="/par-flow" element={<PingOnePARFlowV7 />} />
 
 // New
-<Route path="/par-flow" element={<PingOnePARFlowV8 />} />
+<Route path="/par-flow" element={<PingOnePARFlow />} />
 ```
 
 #### 3. Remove Service References
@@ -287,8 +287,8 @@ None currently. This is a fresh implementation.
 ## 📞 Support
 
 ### Questions?
-- Check `src/pages/flows/PingOnePARFlowV8/README.md`
-- Check `src/pages/flows/PingOnePARFlowV8/QUICKSTART.md`
+- Check `src/pages/flows/PingOnePARFlow/README.md`
+- Check `src/pages/flows/PingOnePARFlow/QUICKSTART.md`
 - Review Authorization Code Flow V7.1 for reference
 - Consult PingOne documentation
 

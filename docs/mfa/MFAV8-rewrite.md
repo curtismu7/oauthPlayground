@@ -1,10 +1,10 @@
-# AI Task: Harden and Modernize MFAFlowV8 (Without Changing Behavior or UI)
+# AI Task: Harden and Modernize MFAFlow (Without Changing Behavior or UI)
 
 You are working in my **PingOne OAuth Playground** repo.
 
 **Target file:**
 
-`/Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/MFAFlowV8.tsx`
+`/Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/MFAFlow.tsx`
 
 This file implements the **V8 MFA Flow** for my educational PingOne app.  
 It is currently **brittle** and hard to maintain. I want it rewritten to be **modern, robust, and developer-friendly**, but it must **preserve all existing functionality and UI**.
@@ -41,7 +41,7 @@ It is currently **brittle** and hard to maintain. I want it rewritten to be **mo
 
 ## 2. Goals of the Rewrite
 
-The purpose of this rewrite is to make `MFAFlowV8.tsx` feel like it was written by a **senior MFA + developer-experience pro**, while still being the same flow.
+The purpose of this rewrite is to make `MFAFlow.tsx` feel like it was written by a **senior MFA + developer-experience pro**, while still being the same flow.
 
 Focus on:
 
@@ -63,7 +63,7 @@ Focus on:
      - Small helper functions,
      - Custom hooks (where appropriate),
      - Subcomponents for clearly separable UI chunks.
-   - But keep everything **in or near** `MFAFlowV8` so the file remains discoverable and understandable (do not scatter it across unrelated folders unless obviously consistent with existing project structure).
+   - But keep everything **in or near** `MFAFlow` so the file remains discoverable and understandable (do not scatter it across unrelated folders unless obviously consistent with existing project structure).
 
 4. **Safer, explicit state management**
    - Instead of a pile of `useState` booleans and ad-hoc flags, consider:
@@ -86,9 +86,9 @@ Focus on:
 
 Follow this workflow:
 
-### Step 1 – Analyze the existing MFAFlowV8
+### Step 1 – Analyze the existing MFAFlow
 
-1. Read the existing `MFAFlowV8.tsx`.
+1. Read the existing `MFAFlow.tsx`.
 2. Summarize (in comments in the file) the **key responsibilities**:
    - What steps does the flow go through?
    - What API calls are made, and in what order?
@@ -154,7 +154,7 @@ Use the app’s existing logging utilities and conventions.
 
 ## 4. Constraints and Guardrails
 
-- **No new endpoints**: Do not add calls to endpoints that `MFAFlowV8` did not previously use.
+- **No new endpoints**: Do not add calls to endpoints that `MFAFlow` did not previously use.
 - **No removal of existing calls**: Unless you identify a call that is clearly unused and unreachable, keep all calls.
 - **No UI redesign**: This is **not** a visual redesign task.
 - **No framework changes**: Do not introduce new libraries or major architectural changes.
@@ -168,7 +168,7 @@ If you find an obvious bug (for example, a button calling the wrong handler or a
 
 ## 5. Final Output Expectations
 
-When you are done rewriting `MFAFlowV8.tsx`:
+When you are done rewriting `MFAFlow.tsx`:
 
 1. The file should:
    - Compile cleanly with TypeScript.
@@ -187,6 +187,6 @@ When you are done rewriting `MFAFlowV8.tsx`:
 
 Do all of this  in:
 
-`/Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/MFAFlowV8-Version2.tsx`
+`/Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/MFAFlow-Version2.tsx`
 
 and keep the implementation at the level of quality you’d expect from a senior MFA/identity engineer building a production-grade educational flow.

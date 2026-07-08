@@ -95,7 +95,7 @@ const isValid =
 ### Step 1: Generate PKCE Codes (Optional)
 
 **Component:** `renderStep1PKCE()` in `UnifiedFlowSteps.tsx`  
-**Service:** `PKCEServiceV8.generatePKCECodes()`  
+**Service:** `PKCEService.generatePKCECodes()`  
 **Purpose:** Generate PKCE code verifier and challenge (if PKCE enabled)
 
 #### Visibility
@@ -148,7 +148,7 @@ const isValid =
 
 Before generating the authorization URL, the system performs comprehensive pre-flight validation:
 
-**Service:** `PreFlightValidationServiceV8.validateBeforeAuthUrl()`
+**Service:** `PreFlightValidationService.validateBeforeAuthUrl()`
 
 **Validation Checks:**
 - ✅ Redirect URI matches PingOne configuration
@@ -318,7 +318,7 @@ if (!authorizationCode) {
 ### Step 4: Exchange Code for Tokens
 
 **Component:** `renderStep3ExchangeTokens()` in `UnifiedFlowSteps.tsx`  
-**Service:** `OAuthIntegrationServiceV8.exchangeCodeForTokens()`  
+**Service:** `OAuthIntegrationService.exchangeCodeForTokens()`  
 **Purpose:** Exchange authorization code for access token, ID token, and refresh token
 
 #### Inputs
@@ -417,7 +417,7 @@ if (!authorizationCode) {
 ### Step 5: Display Tokens
 
 **Component:** `renderStep4Tokens()` in `UnifiedFlowSteps.tsx`  
-**Service:** `TokenDisplayServiceV8`  
+**Service:** `TokenDisplayService`  
 **Purpose:** Display received tokens with decode and copy options
 
 #### Inputs
@@ -471,7 +471,7 @@ if (!authorizationCode) {
 ### Step 6: Introspection & UserInfo
 
 **Component:** `renderStep5Introspection()` in `UnifiedFlowSteps.tsx`  
-**Service:** `TokenOperationsServiceV8`  
+**Service:** `TokenOperationsService`  
 **Purpose:** Token introspection and UserInfo endpoint access
 
 #### Token Introspection
@@ -528,7 +528,7 @@ if (!authorizationCode) {
 
 **Feature:** Local ID Token Validation Modal  
 **Component:** `IDTokenValidationModalV8U`  
-**Service:** `IDTokenValidationServiceV8`
+**Service:** `IDTokenValidationService`
 
 **Trigger:**
 - Button: "🔐 Validate ID Token Locally"

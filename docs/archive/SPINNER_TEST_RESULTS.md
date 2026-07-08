@@ -143,7 +143,7 @@ const fetchUserInfoWithDiscovery = useCallback(async (accessToken, environmentId
 ### **🔧 **Build Status**
 
 #### **Current Issues:**
-- ⚠️ Build errors in other files (MFAAuthenticationMainPageV8.tsx)
+- ⚠️ Build errors in other files (MFAAuthenticationMainPage.tsx)
 - ⚠️ TypeScript errors in locked files
 - ✅ **No errors in UnifiedFlowSteps.tsx**
 
@@ -196,7 +196,7 @@ The unified components spinner implementation has been successfully completed fo
 3. ✅ **PKCE Generation** - Fully implemented with PKCEService integration
 4. ✅ **UserInfo Fetching** - Fully implemented with loading state management
 
-**Build Issues:** The current build errors are unrelated to our spinner implementation and are caused by issues in other files (MFAAuthenticationMainPageV8.tsx and locked files).
+**Build Issues:** The current build errors are unrelated to our spinner implementation and are caused by issues in other files (MFAAuthenticationMainPage.tsx and locked files).
 
 **Next Steps:** 
 - Manual testing in browser to verify visual behavior

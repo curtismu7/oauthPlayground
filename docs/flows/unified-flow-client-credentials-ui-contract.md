@@ -90,7 +90,7 @@ const isValid =
 
 Before requesting tokens, the system performs comprehensive pre-flight validation:
 
-**Service:** `PreFlightValidationServiceV8.validateBeforeAuthUrl()`
+**Service:** `PreFlightValidationService.validateBeforeAuthUrl()`
 
 **Validation Checks:**
 - ✅ Client secret requirements
@@ -211,7 +211,7 @@ Before requesting tokens, the system performs comprehensive pre-flight validatio
 ### Step 2: Display Tokens
 
 **Component:** `renderStep3Tokens()` in `UnifiedFlowSteps.tsx`  
-**Service:** `TokenDisplayServiceV8`  
+**Service:** `TokenDisplayService`  
 **Purpose:** Display received access token with decode and copy options
 
 #### Inputs
@@ -254,7 +254,7 @@ Before requesting tokens, the system performs comprehensive pre-flight validatio
 ### Step 3: Introspection & UserInfo
 
 **Component:** `renderStep4Introspection()` in `UnifiedFlowSteps.tsx`  
-**Service:** `TokenOperationsServiceV8`  
+**Service:** `TokenOperationsService`  
 **Purpose:** Token introspection (UserInfo not available)
 
 #### Token Introspection

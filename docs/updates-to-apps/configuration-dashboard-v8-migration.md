@@ -1,6 +1,6 @@
 # Configuration & Dashboard V8 Migration
 
-Tracking migration of Configuration page to WorkerTokenModalV8 pattern and Dashboard to unified async storage.
+Tracking migration of Configuration page to WorkerTokenModal pattern and Dashboard to unified async storage.
 
 **Commit:** 487c197e83c3ed17b6e217a6031789b4d2e3986b  
 **Date:** 2026-02-27  
@@ -12,7 +12,7 @@ Tracking migration of Configuration page to WorkerTokenModalV8 pattern and Dashb
 
 Migrated two critical pages to modern patterns:
 
-1. **Configuration Page** (`/configuration`): Upgraded from legacy `WorkerTokenModal` to `WorkerTokenModalV8` with `useGlobalWorkerToken` hook
+1. **Configuration Page** (`/configuration`): Upgraded from legacy `WorkerTokenModal` to `WorkerTokenModal` with `useGlobalWorkerToken` hook
 2. **Dashboard Page** (`/`): Migrated from synchronous `credentialManager` (localStorage) to async `UnifiedTokenStorageService` (IndexedDB + SQLite)
 
 **Why:** Standardize on V8 patterns across the app, enable dual storage persistence, and prepare for future deprecation of legacy components.
@@ -31,7 +31,7 @@ Migrated two critical pages to modern patterns:
 
 **Dependencies:**
 - `unifiedWorkerTokenService` (IndexedDB + SQLite)
-- `WorkerTokenModalV8`, `WorkerTokenStatusDisplayV8`, `useGlobalWorkerToken` hook
+- `WorkerTokenModal`, `WorkerTokenStatusDisplay`, `useGlobalWorkerToken` hook
 
 ---
 
@@ -83,8 +83,8 @@ useEffect(() => {
 
 **After (V8 Pattern):**
 ```typescript
-import { WorkerTokenModalV8 } from '../components/WorkerTokenModalV8'
-import { WorkerTokenStatusDisplayV8 } from '../components/WorkerTokenStatusDisplayV8'
+import { WorkerTokenModal } from '../components/WorkerTokenModal'
+import { WorkerTokenStatusDisplay } from '../components/WorkerTokenStatusDisplay'
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken'
 
 // Global token state via hook
@@ -108,13 +108,13 @@ useEffect(() => {
 }, [])
 
 // Render with V8 components
-<WorkerTokenStatusDisplayV8 
+<WorkerTokenStatusDisplay 
   status={globalTokenStatus} 
   showCheckboxes={true}
   onToggleSilent={/* ... */}
   onToggleShowTokens={/* ... */}
 />
-<WorkerTokenModalV8
+<WorkerTokenModal
   isOpen={isWorkerTokenModalOpen}
   onClose={() => setIsWorkerTokenModalOpen(false)}
   onTokenGenerated={(token) => {
@@ -317,8 +317,8 @@ export async function isFlowConfiguredAsync(flowType: string): Promise<boolean> 
 
 1. **Import V8 components:**
    ```typescript
-   import { WorkerTokenModalV8 } from '../components/WorkerTokenModalV8'
-   import { WorkerTokenStatusDisplayV8 } from '../components/WorkerTokenStatusDisplayV8'
+   import { WorkerTokenModal } from '../components/WorkerTokenModal'
+   import { WorkerTokenStatusDisplay } from '../components/WorkerTokenStatusDisplay'
    import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken'
    import { UnifiedTokenStorageService } from '../services/UnifiedTokenStorageService'
    ```
@@ -351,8 +351,8 @@ export async function isFlowConfiguredAsync(flowType: string): Promise<boolean> 
    ```
 
 5. **Replace legacy components:**
-   - `WorkerTokenModal` → `WorkerTokenModalV8`
-   - `WorkerTokenStatusLabel` → `WorkerTokenStatusDisplayV8`
+   - `WorkerTokenModal` → `WorkerTokenModal`
+   - `WorkerTokenStatusLabel` → `WorkerTokenStatusDisplay`
 
 ---
 
@@ -474,7 +474,7 @@ useEffect(() => {
 const USE_V8_PATTERN = false // Set to false to revert
 
 {USE_V8_PATTERN ? (
-  <WorkerTokenModalV8 />
+  <WorkerTokenModal />
 ) : (
   <WorkerTokenModal />
 )}
@@ -577,7 +577,7 @@ const USE_V8_PATTERN = false // Set to false to revert
 ### 2026-02-27 - Configuration & Dashboard V8 Migration
 
 **Configuration Page:**
-- ✅ Migrated to `WorkerTokenModalV8` and `WorkerTokenStatusDisplayV8`
+- ✅ Migrated to `WorkerTokenModal` and `WorkerTokenStatusDisplay`
 - ✅ Integrated `useGlobalWorkerToken()` hook for global state
 - ✅ Added Silent and Show Tokens checkboxes
 - ✅ Replaced storage listener with event listeners (`workerTokenUpdated`, `workerTokenMetricsUpdated`)

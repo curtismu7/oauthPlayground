@@ -41,13 +41,13 @@ if [ -f "PRODUCTION_INVENTORY.md" ]; then
     grep -rn "localStorage.*token" src/lab/services/tokenMonitoringService.ts | wc -l && echo "✅ Token persistence found" || echo "⚠️  Token persistence check"
     
     # Device Management
-    grep -rn "policy.*deviceCount\|deviceLimit" src/mfa/pages/DeleteAllDevicesUtilityV8.tsx | wc -l && echo "✅ Device count display found" || echo "⚠️  Device count check"
+    grep -rn "policy.*deviceCount\|deviceLimit" src/mfa/pages/DeleteAllDevicesUtility.tsx | wc -l && echo "✅ Device count display found" || echo "⚠️  Device count check"
     
     # Dropdown functionality
     grep -rn "All Tokens\|selectedTokenType.*all" src/lab/pages/TokenMonitoringPage.tsx | wc -l && echo "✅ Dropdown functionality found" || echo "⚠️  Dropdown check"
     
     # Controlled inputs
-    grep -rn "checked.*??.*false" src/mfa/components/SilentApiConfigCheckboxV8.tsx | wc -l && echo "✅ Controlled input fixed" || echo "⚠️  Controlled input check"
+    grep -rn "checked.*??.*false" src/mfa/components/SilentApiConfigCheckbox.tsx | wc -l && echo "✅ Controlled input fixed" || echo "⚠️  Controlled input check"
     
     # Null safety
     grep -rn "environments\?" src/pages/EnvironmentManagementPageV8.tsx | wc -l && echo "✅ Null safety implemented" || echo "⚠️  Null safety check"
@@ -68,7 +68,7 @@ if [ -f "UNIFIED_MFA_INVENTORY.md" ]; then
     fi
     
     # Silent API configuration
-    grep -rn "setShowWorkerTokenModal(true)" src/mfa/ --include="*.tsx" --include="*.ts" | grep -v "workerTokenModalHelperV8" | wc -l && echo "⚠️  Direct modal calls found (should be 0)" || echo "✅ No direct modal calls"
+    grep -rn "setShowWorkerTokenModal(true)" src/mfa/ --include="*.tsx" --include="*.ts" | grep -v "workerTokenModalHelper" | wc -l && echo "⚠️  Direct modal calls found (should be 0)" || echo "✅ No direct modal calls"
     
     # Flow type determination
     grep -rn "registrationFlowType" src/mfa/flows/unified/ | wc -l && echo "✅ Flow type logic found" || echo "⚠️  Flow type check"

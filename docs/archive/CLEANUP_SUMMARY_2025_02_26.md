@@ -76,17 +76,17 @@ Created comprehensive analysis of V7 files and their V8/V9 equivalents for syste
 - **V7 without equivalents:** 64 files (need review)
 
 **High Priority Upgrades (11 files):**
-1. CompleteMFAFlowV7.tsx → CompleteMFAFlowV8.tsx
-2. useCibaFlowV7.ts → useCibaFlowV8.ts
-3. AuthorizationCodeFlowV7.tsx → DpopAuthorizationCodeFlowV8.tsx
-4. CIBAFlowV7.tsx → CIBAFlowV8.tsx
-5. ImplicitFlowV7.tsx → ImplicitFlowV8.tsx
-6. OAuthAuthorizationCodeFlowV7.tsx → OAuthAuthorizationCodeFlowV8.tsx
-7. OIDCHybridFlowV7.tsx → OIDCHybridFlowV8.tsx
-8. PARFlowV7.tsx → PingOnePARFlowV8.tsx
-9. PingOnePARFlowV7.tsx → PingOnePARFlowV8.tsx
-10. TokenExchangeFlowV7.tsx → TokenExchangeFlowV8.tsx
-11. OAuthAuthzCodeFlowV7.config.ts → OAuthAuthzCodeFlowV8.config.ts
+1. CompleteMFAFlowV7.tsx → CompleteMFAFlow.tsx
+2. useCibaFlowV7.ts → useCibaFlow.ts
+3. AuthorizationCodeFlowV7.tsx → DpopAuthorizationCodeFlow.tsx
+4. CIBAFlowV7.tsx → CIBAFlow.tsx
+5. ImplicitFlowV7.tsx → ImplicitFlow.tsx
+6. OAuthAuthorizationCodeFlowV7.tsx → OAuthAuthorizationCodeFlow.tsx
+7. OIDCHybridFlowV7.tsx → OIDCHybridFlow.tsx
+8. PARFlowV7.tsx → PingOnePARFlow.tsx
+9. PingOnePARFlowV7.tsx → PingOnePARFlow.tsx
+10. TokenExchangeFlowV7.tsx → TokenExchangeFlow.tsx
+11. OAuthAuthzCodeFlowV7.config.ts → OAuthAuthzCodeFlow.config.ts
 
 **Documentation:** See [docs/migration/V7_TO_V8_UPGRADE_TARGETS.md](docs/migration/V7_TO_V8_UPGRADE_TARGETS.md)
 

@@ -104,10 +104,10 @@ Created a super compact, table-based API display with expandable details, show/h
 
 ### How to Add to New Flows
 ```tsx
-import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { SuperSimpleApiDisplay } from '@/v8/components/SuperSimpleApiDisplay';
 
 // In your component render:
-<SuperSimpleApiDisplayV8 />
+<SuperSimpleApiDisplay />
 ```
 
 ## API Call Detection
@@ -150,16 +150,16 @@ import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8
 - ✅ Compare calls
 - ✅ Track progress
 
-## Comparison with SimplePingOneApiDisplayV8
+## Comparison with SimplePingOneApiDisplay
 
-### SimplePingOneApiDisplayV8 (Original)
+### SimplePingOneApiDisplay (Original)
 - Card-based layout
 - Shows all details by default
 - More vertical space
 - Good for detailed analysis
 - Always expanded
 
-### SuperSimpleApiDisplayV8 (New)
+### SuperSimpleApiDisplay (New)
 - Table-based layout
 - Details on demand
 - Minimal vertical space
@@ -183,20 +183,20 @@ import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8
 ## Files
 
 ### Created
-- `src/v8/components/SuperSimpleApiDisplayV8.tsx` - New component
+- `src/v8/components/SuperSimpleApiDisplay.tsx` - New component
 
 ### Modified
-- `src/v8/flows/MFAFlowV8.tsx` - Uses SuperSimpleApiDisplayV8
-- `src/v8/flows/MFADeviceManagementFlowV8.tsx` - Uses SuperSimpleApiDisplayV8
-- `src/v8/flows/MFAReportingFlowV8.tsx` - Uses SuperSimpleApiDisplayV8
+- `src/v8/flows/MFAFlow.tsx` - Uses SuperSimpleApiDisplay
+- `src/v8/flows/MFADeviceManagementFlow.tsx` - Uses SuperSimpleApiDisplay
+- `src/v8/flows/MFAReportingFlow.tsx` - Uses SuperSimpleApiDisplay
 
 ### Preserved
-- `src/v8/components/SimplePingOneApiDisplayV8.tsx` - Original component (kept for other uses)
+- `src/v8/components/SimplePingOneApiDisplay.tsx` - Original component (kept for other uses)
 
 ---
 
 **Version:** 8.0.0
 **Date:** 2024-11-19
 **Status:** Complete ✅
-**Component:** SuperSimpleApiDisplayV8
+**Component:** SuperSimpleApiDisplay
 **Type:** Table-based API display with expandable details

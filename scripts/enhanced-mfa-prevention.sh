@@ -83,23 +83,23 @@ run_check "Dangerous HTML prevention" "grep -n 'dangerouslySetInnerHTML' src/mfa
 echo -e "\n${BLUE}🔧 3. ACTIVE ISSUES SPECIFIC PREVENTION${NC}"
 
 # SQLite Resource Exhaustion (Issue 23)
-run_check "SQLite resource exhaustion monitoring" "grep -n 'ERR_INSUFFICIENT_RESOURCES\|connection.*limit' src/mfa/services/sqliteStatsServiceV8.ts | wc -l | grep -q '^0$'" "PASS"
-run_check "SQLite connection monitoring implemented" "grep -n 'activeConnections\|circuitBreakerOpen' src/mfa/services/sqliteStatsServiceV8.ts | wc -l | grep -q '^2$'" "PASS"
+run_check "SQLite resource exhaustion monitoring" "grep -n 'ERR_INSUFFICIENT_RESOURCES\|connection.*limit' src/mfa/services/sqliteStatsService.ts | wc -l | grep -q '^0$'" "PASS"
+run_check "SQLite connection monitoring implemented" "grep -n 'activeConnections\|circuitBreakerOpen' src/mfa/services/sqliteStatsService.ts | wc -l | grep -q '^2$'" "PASS"
 
 # Worker Token Credentials Persistence (Issue 30)
 run_check "Worker token FileStorageUtil integration" "grep -n 'FileStorageUtil\|localStorage.*only' src/services/unifiedWorkerTokenService.ts | wc -l | grep -q '^0$'" "PASS"
 run_check "FileStorageUtil backend enabled" "grep -n 'backend.*API.*first' src/utils/fileStorageUtil.ts | wc -l | grep -q '^2$'" "PASS"
 
 # OIDC Scopes Validation (Issue 81)
-run_check "OIDC scopes validation for client credentials" "grep -A 5 -B 5 'openid.*scope\|client.*credentials.*openid' src/mfa/components/WorkerTokenModalV8.tsx | wc -l | grep -q '^0$'" "PASS"
-run_check "Client credentials scope validation" "grep -n 'Invalid OIDC Scopes' src/mfa/services/preFlightValidationServiceV8.ts | wc -l | grep -q '^1$'" "PASS"
+run_check "OIDC scopes validation for client credentials" "grep -A 5 -B 5 'openid.*scope\|client.*credentials.*openid' src/mfa/components/WorkerTokenModal.tsx | wc -l | grep -q '^0$'" "PASS"
+run_check "Client credentials scope validation" "grep -n 'Invalid OIDC Scopes' src/mfa/services/preFlightValidationService.ts | wc -l | grep -q '^1$'" "PASS"
 
 # Credential Import JSON Parsing (Issue 82)
 run_check "Credential import HTML detection" "grep -A 10 -B 5 'HTML.*page.*instead.*JSON' src/services/credentialExportImportService.ts | wc -l | grep -q '^1$'" "PASS"
 run_check "JSON parsing error handling" "grep -n 'Unexpected token' src/services/credentialExportImportService.ts | wc -l | grep -q '^1$'" "PASS"
 
 echo -e "\n${BLUE}🏗️  4. SWE-15 PRINCIPLES VERIFICATION${NC}"
-run_check "Breaking changes prevention (Open/Closed)" "grep -r 'MFAFlowBaseV8' src/mfa/flows/unified/ | grep -v '\.md' | wc -l | grep -q '^0$'" "PASS"
+run_check "Breaking changes prevention (Open/Closed)" "grep -r 'MFAFlowBase' src/mfa/flows/unified/ | grep -v '\.md' | wc -l | grep -q '^0$'" "PASS"
 run_check "Interface contracts (Interface Segregation)" "grep -r 'interface.*Props' src/mfa/flows/unified/ | wc -l | grep -q '^[1-9][0-9]*$'" "PASS"
 run_check "Dependency inversion" "grep -r 'import.*Service' src/mfa/flows/unified/ | wc -l | grep -q '^[1-9][0-9]*$'" "PASS"
 
@@ -108,7 +108,7 @@ run_check "User token admin flow separation" "grep -r 'userToken.*admin\|admin.*
 run_check "Registration flow type tracking" "grep -r 'registrationFlowType' src/mfa/flows/unified/ | wc -l | grep -q '^[1-9][0-9]*$'" "PASS"
 
 echo -e "\n${BLUE}🔐 6. SILENT API CONFIGURATION (Issues 56 & 59 Prevention)${NC}"
-run_check "Direct setShowWorkerTokenModal calls" "grep -rn 'setShowWorkerTokenModal(true)' src/mfa/ --include='*.tsx' --include='*.ts' | grep -v 'workerTokenModalHelperV8' | wc -l | grep -q '^3$'" "WARN" "Found test files and prototype files - acceptable"
+run_check "Direct setShowWorkerTokenModal calls" "grep -rn 'setShowWorkerTokenModal(true)' src/mfa/ --include='*.tsx' --include='*.ts' | grep -v 'workerTokenModalHelper' | wc -l | grep -q '^3$'" "WARN" "Found test files and prototype files - acceptable"
 run_check "Canonical helper usage" "grep -rn 'handleShowWorkerTokenModal' src/mfa/ --include='*.tsx' --include='*.ts' | wc -l | grep -q '^[1-9][0-9]*$'" "PASS"
 
 echo -e "\n${BLUE}🌐 7. REDIRECT URI ROUTING (Issue 55 Prevention)${NC}"
@@ -116,7 +116,7 @@ run_check "Step 3 routing checks" "grep -r 'step=3' src/lab/components/ | wc -l 
 run_check "ReturnTargetService usage" "grep -r 'ReturnTargetServiceV8U' src/lab/components/CallbackHandlerV8U.tsx | wc -l | grep -q '^[1-9][0-9]*$'" "PASS"
 
 echo -e "\n${BLUE}🔄 8. TOKEN EXCHANGE PREVENTION${NC}"
-run_check "TokenExchangeService usage" "grep -rn 'TokenExchangeServiceV8\|tokenExchangeServiceV8' src/mfa/ | grep -v '\.md' | wc -l | grep -q '^3$'" "PASS"
+run_check "TokenExchangeService usage" "grep -rn 'TokenExchangeService\|tokenExchangeService' src/mfa/ | grep -v '\.md' | wc -l | grep -q '^3$'" "PASS"
 run_check "Admin enablement validation" "grep -rn 'isEnabled.*environment\|admin.*enable.*token.*exchange' src/mfa/ | wc -l | grep -q '^[1-9][0-9]*$'" "PASS"
 
 echo -e "\n${BLUE}📁 9. FILE UPLOAD SECURITY${NC}"

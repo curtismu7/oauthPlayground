@@ -1,5 +1,5 @@
 """Fix batch 3: enhancedConfigurationService, errorHandlingService, idTokenValidation,
-credentialsServiceV9, SMSOTPConfigurationPageV8."""
+credentialsServiceV9, SMSOTPConfigurationPage."""
 
 def fix(path, replacements):
     with open(path) as f:
@@ -103,9 +103,9 @@ fix('src/platform/credentialsServiceV9.ts', [
 ])
 
 
-# ── 5. SMSOTPConfigurationPageV8.tsx ──────────────────────────────────────────
-print('5. SMSOTPConfigurationPageV8.tsx')
-fix('src/mfa/flows/types/SMSOTPConfigurationPageV8.tsx', [
+# ── 5. SMSOTPConfigurationPage.tsx ──────────────────────────────────────────
+print('5. SMSOTPConfigurationPage.tsx')
+fix('src/mfa/flows/types/SMSOTPConfigurationPage.tsx', [
     # Add TokenStatus import from comprehensiveTokenUIService
     ("import { comprehensiveTokenUIService } from '@/v8/services/comprehensiveTokenUIService';",
      "import { comprehensiveTokenUIService, type TokenStatus } from '@/v8/services/comprehensiveTokenUIService';"),
@@ -118,7 +118,7 @@ fix('src/mfa/flows/types/SMSOTPConfigurationPageV8.tsx', [
     ("status: 'valid' as any,",
      "status: 'valid' as TokenStatus,"),
     # L1267-1268: remove the require() (already imported at the top)
-    ('const {\n\t\t\t\t\t\t\t\t\t\t\t\tMFAConfigurationServiceV8,\n\t\t\t\t\t\t\t\t\t\t\t} = require(\'@/v8/services/mfaConfigurationServiceV8\');\n\t\t\t\t\t\t\t\t\t\t\tconst config',
+    ('const {\n\t\t\t\t\t\t\t\t\t\t\t\tMFAConfigurationService,\n\t\t\t\t\t\t\t\t\t\t\t} = require(\'@/v8/services/mfaConfigurationService\');\n\t\t\t\t\t\t\t\t\t\t\tconst config',
      'const config'),
 ])
 

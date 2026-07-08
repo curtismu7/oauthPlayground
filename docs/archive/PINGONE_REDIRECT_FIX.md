@@ -24,13 +24,13 @@ Modified the flow to require users to click "Authenticate on PingOne" before pro
 // BEFORE
 setFlowState(updatedState);
 nav.markStepComplete();
-toastV8.authUrlGenerated();
+toast.authUrlGenerated();
 
 // AFTER
 setFlowState(updatedState);
 // DON'T auto-mark step complete - user should click "Authenticate on PingOne" first
 // nav.markStepComplete(); // REMOVED - user should manually proceed after authentication
-toastV8.authUrlGenerated();
+toast.authUrlGenerated();
 ```
 
 #### Change 2: Mark Complete When Opening PingOne (Line ~1433)
@@ -49,7 +49,7 @@ onClick={() => {
   if (!completedSteps.includes(currentStep)) {
     console.log(`${MODULE_TAG} User opened PingOne - marking step complete`);
     nav.markStepComplete();
-    toastV8.success('PingOne opened! Complete authentication and you\'ll be redirected back.');
+    toast.success('PingOne opened! Complete authentication and you\'ll be redirected back.');
   }
 }}
 ```

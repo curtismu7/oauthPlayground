@@ -16,7 +16,7 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowUIService } from '../../services/flowUIService';
 import { CredentialStorageService } from '../../platform/CredentialStorageService';
 import { getAnyWorkerToken } from '../../utils/workerTokenDetection';
-import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
+import type { DiscoveredApp } from '../../mfa/components/AppPicker';
 import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
 
 interface MfaDevice {

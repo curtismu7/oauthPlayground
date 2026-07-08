@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { apiDisplayServiceV8 } from '@/mfa/services/apiDisplayServiceV8';
+import { apiDisplayService } from '@/mfa/services/apiDisplayService';
 
 const _MODULE_TAG = '[ API-DISPLAY-PADDING-HOOK]';
 
@@ -15,12 +15,12 @@ const _MODULE_TAG = '[ API-DISPLAY-PADDING-HOOK]';
  * @returns Object with isVisible, height, and paddingBottom values
  */
 export function useApiDisplayPadding() {
-	const [isVisible, setIsVisible] = useState(apiDisplayServiceV8.isVisible());
+	const [isVisible, setIsVisible] = useState(apiDisplayService.isVisible());
 	const [height, setHeight] = useState(0);
 
 	useEffect(() => {
 		const checkVisibility = () => {
-			const visible = apiDisplayServiceV8.isVisible();
+			const visible = apiDisplayService.isVisible();
 			setIsVisible(visible);
 
 			// Get actual height from DOM element using getBoundingClientRect for accurate measurement
@@ -44,7 +44,7 @@ export function useApiDisplayPadding() {
 		checkVisibility();
 
 		// Subscribe to visibility changes
-		const unsubscribe = apiDisplayServiceV8.subscribe(() => {
+		const unsubscribe = apiDisplayService.subscribe(() => {
 			// Small delay to allow DOM to update
 			setTimeout(checkVisibility, 100);
 		});

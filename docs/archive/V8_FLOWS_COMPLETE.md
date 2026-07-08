@@ -20,10 +20,10 @@ Two complete, production-ready OAuth flows with real PingOne API integration:
 ### Authorization Code Flow V8
 
 **Files:**
-- `src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx` - Component
-- `src/v8/services/oauthIntegrationServiceV8.ts` - OAuth integration
-- `src/v8/services/__tests__/oauthIntegrationServiceV8.test.ts` - Tests (30+)
-- `src/v8/flows/__tests__/OAuthAuthorizationCodeFlowV8.test.tsx` - Tests (28)
+- `src/v8/flows/OAuthAuthorizationCodeFlow.tsx` - Component
+- `src/v8/services/oauthIntegrationService.ts` - OAuth integration
+- `src/v8/services/__tests__/oauthIntegrationService.test.ts` - Tests (30+)
+- `src/v8/flows/__tests__/OAuthAuthorizationCodeFlow.test.tsx` - Tests (28)
 - `docs/V8_AUTHORIZATION_CODE_FLOW.md` - Documentation
 
 **Features:**
@@ -37,10 +37,10 @@ Two complete, production-ready OAuth flows with real PingOne API integration:
 ### Implicit Flow V8
 
 **Files:**
-- `src/v8/flows/ImplicitFlowV8.tsx` - Component
-- `src/v8/services/implicitFlowIntegrationServiceV8.ts` - OAuth integration
-- `src/v8/services/__tests__/implicitFlowIntegrationServiceV8.test.ts` - Tests (30+)
-- `src/v8/flows/__tests__/ImplicitFlowV8.test.tsx` - Tests (26)
+- `src/v8/flows/ImplicitFlow.tsx` - Component
+- `src/v8/services/implicitFlowIntegrationService.ts` - OAuth integration
+- `src/v8/services/__tests__/implicitFlowIntegrationService.test.ts` - Tests (30+)
+- `src/v8/flows/__tests__/ImplicitFlow.test.tsx` - Tests (26)
 - `docs/V8_IMPLICIT_FLOW.md` - Documentation
 
 **Features:**
@@ -177,18 +177,18 @@ Both flows are ready to:
 
 ### Authorization Code Flow
 ```
-src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx
-src/v8/services/oauthIntegrationServiceV8.ts
-src/v8/services/__tests__/oauthIntegrationServiceV8.test.ts
-src/v8/flows/__tests__/OAuthAuthorizationCodeFlowV8.test.tsx
+src/v8/flows/OAuthAuthorizationCodeFlow.tsx
+src/v8/services/oauthIntegrationService.ts
+src/v8/services/__tests__/oauthIntegrationService.test.ts
+src/v8/flows/__tests__/OAuthAuthorizationCodeFlow.test.tsx
 ```
 
 ### Implicit Flow
 ```
-src/v8/flows/ImplicitFlowV8.tsx
-src/v8/services/implicitFlowIntegrationServiceV8.ts
-src/v8/services/__tests__/implicitFlowIntegrationServiceV8.test.ts
-src/v8/flows/__tests__/ImplicitFlowV8.test.tsx
+src/v8/flows/ImplicitFlow.tsx
+src/v8/services/implicitFlowIntegrationService.ts
+src/v8/services/__tests__/implicitFlowIntegrationService.test.ts
+src/v8/flows/__tests__/ImplicitFlow.test.tsx
 ```
 
 ### Documentation

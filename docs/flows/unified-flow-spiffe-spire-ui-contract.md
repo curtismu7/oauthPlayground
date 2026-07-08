@@ -65,7 +65,7 @@ The SPIFFE/SPIRE Flow consists of **4 steps** (1-indexed):
   workloadType: 'kubernetes',
   namespace: 'default',
   serviceAccount: 'frontend-sa',
-  environmentId: '' // Loaded from EnvironmentIdServiceV8
+  environmentId: '' // Loaded from EnvironmentIdService
 }
 ```
 
@@ -82,7 +82,7 @@ const isValid =
 #### Output
 
 - **State**: Updated `workloadConfig` object
-- **Persistence**: Environment ID saved to global storage (via `EnvironmentIdServiceV8`)
+- **Persistence**: Environment ID saved to global storage (via `EnvironmentIdService`)
 - **Next Step**: Enabled when all required fields are present
 
 #### API Call Tracking
@@ -306,7 +306,7 @@ interface SpiffeSpireFlowState {
 
 #### Environment ID Storage
 
-- **Location**: `localStorage` (via `EnvironmentIdServiceV8`)
+- **Location**: `localStorage` (via `EnvironmentIdService`)
 - **Key**: Global environment ID key
 - **Storage Trigger**: On environment ID change
 - **Restoration**: Auto-restored on component mount

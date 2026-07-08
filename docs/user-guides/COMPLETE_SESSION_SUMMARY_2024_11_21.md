@@ -10,8 +10,8 @@
 ### 1. Token Introspection & UserInfo Education System ✅
 
 **Created comprehensive educational system:**
-- `TokenOperationsServiceV8` - Rules engine determining what operations are allowed per flow
-- `TokenOperationsEducationModalV8` - Beautiful, accessible modal explaining token operations
+- `TokenOperationsService` - Rules engine determining what operations are allowed per flow
+- `TokenOperationsEducationModal` - Beautiful, accessible modal explaining token operations
 - Flow-specific validation before introspection/UserInfo calls
 - Clear error messages when operations aren't allowed
 - Fallback endpoints when OIDC discovery fails
@@ -104,10 +104,10 @@
 ## 📁 Files Created
 
 ### Services
-- `src/v8/services/tokenOperationsServiceV8.ts` - Token operations rules engine (NEW)
+- `src/v8/services/tokenOperationsService.ts` - Token operations rules engine (NEW)
 
 ### Components
-- `src/v8/components/TokenOperationsEducationModalV8.tsx` - Educational modal (NEW)
+- `src/v8/components/TokenOperationsEducationModal.tsx` - Educational modal (NEW)
 
 ### Documentation
 - `DEVICE_CODE_INTROSPECTION_FIX.md` - Introspection fix details
@@ -123,7 +123,7 @@
 ## 📝 Files Modified
 
 ### Services
-- `src/v8/services/unifiedFlowOptionsServiceV8.ts` - Added redirectless checkbox availability
+- `src/v8/services/unifiedFlowOptionsService.ts` - Added redirectless checkbox availability
 
 ### Components
 - `src/v8u/components/CredentialsFormV8U.tsx` - Added redirectless checkbox UI and state

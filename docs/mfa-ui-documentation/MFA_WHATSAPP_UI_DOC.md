@@ -25,13 +25,13 @@ This document provides a complete reference for the UI structure, components, st
 ### WhatsApp Configuration Page
 
 **Location:** `/v8/mfa/register/whatsapp`  
-**Component:** `WhatsAppOTPConfigurationPageV8.tsx`
+**Component:** `WhatsAppOTPConfigurationPage.tsx`
 
 #### Layout Structure
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  MFANavigationV8 (Top Navigation Bar)                   │
+│  MFANavigation (Top Navigation Bar)                   │
 ├─────────────────────────────────────────────────────────┤
 │  WhatsApp Configuration Header (Blue Gradient)          │
 │  - Title: "WhatsApp Device Registration"                 │
@@ -68,7 +68,7 @@ This document provides a complete reference for the UI structure, components, st
 ## WhatsApp Registration Flow
 
 **Location:** `/v8/mfa/register/whatsapp/device`  
-**Component:** `WhatsAppFlowV8.tsx`
+**Component:** `WhatsAppFlow.tsx`
 
 ### Step 0: Configuration
 
@@ -91,14 +91,14 @@ This document provides a complete reference for the UI structure, components, st
 ### Step 2: Device Registration
 
 **UI Elements:**
-- Phone number input with country code picker (`CountryCodePickerV8`)
+- Phone number input with country code picker (`CountryCodePicker`)
 - Device name input (conditional, based on `promptForNicknameOnPairing`)
 - "Register WhatsApp Device" button
 - Loading indicator during registration
 - WhatsApp not enabled modal (if WhatsApp is not enabled)
 
 **Phone Number Input:**
-- Uses `CountryCodePickerV8` component
+- Uses `CountryCodePicker` component
 - Validates E.164 format
 - Auto-populates from PingOne user profile (if available)
 
@@ -129,7 +129,7 @@ This document provides a complete reference for the UI structure, components, st
 ## WhatsApp Authentication Flow
 
 **Location:** `/v8/mfa/auth`  
-**Component:** `MFAAuthenticationMainPageV8.tsx`
+**Component:** `MFAAuthenticationMainPage.tsx`
 
 ### Device Selection
 
@@ -152,7 +152,7 @@ This document provides a complete reference for the UI structure, components, st
 
 ## Helper Components
 
-### CountryCodePickerV8
+### CountryCodePicker
 
 **Purpose:** Country code selector for phone number input
 
@@ -181,7 +181,7 @@ This document provides a complete reference for the UI structure, components, st
 - Spacing between inputs
 - Error message below inputs
 
-### WhatsAppNotEnabledModalV8
+### WhatsAppNotEnabledModal
 
 **Purpose:** Modal to inform user that WhatsApp is not enabled
 

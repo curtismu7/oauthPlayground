@@ -27,7 +27,7 @@
 ## 2. Suggested Types
 
 ```ts
-// types/credentialStoreV8.ts
+// types/credentialStore.ts
 
 export interface V8AppConfig {
   appId: string;           // internal ID for the tool

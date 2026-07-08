@@ -12,8 +12,8 @@
  */
 
 import { useEffect, useState } from 'react';
-import type { IDTokenValidationResult } from '@/mfa/services/idTokenValidationServiceV8';
-import { IDTokenValidationServiceV8 } from '@/mfa/services/idTokenValidationServiceV8';
+import type { IDTokenValidationResult } from '@/mfa/services/idTokenValidationService';
+import { IDTokenValidationService } from '@/mfa/services/idTokenValidationService';
 
 import { logger } from '../../utils/logger';
 
@@ -46,7 +46,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 
 		try {
 			const issuer = `https://auth.pingone.com/${environmentId}/as`;
-			const result = await IDTokenValidationServiceV8.validate({
+			const result = await IDTokenValidationService.validate({
 				idToken,
 				clientId,
 				issuer,

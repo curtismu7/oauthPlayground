@@ -6,13 +6,13 @@
 1. ✅ **Fix policy refresh button state** - COMPLETED
    - Changed from checking flow token type to checking worker token status
    - Button now correctly enables when worker token is available, regardless of flow type
-   - File: `src/v8/flows/shared/MFAConfigurationStepV8.tsx` line 1080
+   - File: `src/v8/flows/shared/MFAConfigurationStep.tsx` line 1080
 
 ### Priority 2 (Important)
 1. ✅ **Policy auto-load when worker token becomes available** - ALREADY WORKING
    - Verified: All configuration pages (SMS, Email, WhatsApp) have `useEffect` hooks that watch `tokenStatus.isValid`
    - When worker token becomes available, policies automatically load via existing dependency array
-   - Files: `SMSOTPConfigurationPageV8.tsx:550`, `EmailOTPConfigurationPageV8.tsx:377`, `WhatsAppOTPConfigurationPageV8.tsx:373`
+   - Files: `SMSOTPConfigurationPage.tsx:550`, `EmailOTPConfigurationPage.tsx:377`, `WhatsAppOTPConfigurationPage.tsx:373`
 
 2. ✅ **Verify registration flow type selector exists in all configuration pages** - VERIFIED
    - SMS: ✅ Has registration flow type selector
@@ -27,7 +27,7 @@
 1. **Review token sync logic for potential race conditions** (Priority 3)
    - Current: Multiple `useEffect` hooks handle token synchronization with `isUpdatingCredentialsRef` guard
    - Status: Working correctly, but could be reviewed for potential optimization
-   - Files: `src/v8/flows/shared/MFAConfigurationStepV8.tsx` (lines 225-395)
+   - Files: `src/v8/flows/shared/MFAConfigurationStep.tsx` (lines 225-395)
    - Impact: Low - current implementation is functional
 
 2. **Add loading states for policy refresh** (Priority 3)

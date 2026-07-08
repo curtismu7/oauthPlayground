@@ -43,14 +43,14 @@ The Reset Flow feature allows users to clear tokens and PingOne sessions while p
 
 ---
 
-## 🔧 FlowResetServiceV8 API
+## 🔧 FlowResetService API
 
 ### resetFlow(flowKey, keepWorkerToken?)
 **Resets flow to initial state**
 
 ```typescript
 // Reset flow (clears tokens, keeps credentials)
-const result = FlowResetServiceV8.resetFlow('authz-code');
+const result = FlowResetService.resetFlow('authz-code');
 
 // Result:
 {
@@ -74,7 +74,7 @@ const result = FlowResetServiceV8.resetFlow('authz-code');
 
 ```typescript
 // Full reset (clears everything including credentials)
-const result = FlowResetServiceV8.fullReset('authz-code');
+const result = FlowResetService.fullReset('authz-code');
 
 // Result:
 {
@@ -91,7 +91,7 @@ const result = FlowResetServiceV8.fullReset('authz-code');
 **Clear only tokens**
 
 ```typescript
-const result = FlowResetServiceV8.clearTokens('authz-code');
+const result = FlowResetService.clearTokens('authz-code');
 
 // Keeps: credentials, session, progress
 // Clears: tokens only
@@ -103,7 +103,7 @@ const result = FlowResetServiceV8.clearTokens('authz-code');
 **Clear session data but keep credentials and tokens**
 
 ```typescript
-const result = FlowResetServiceV8.clearSession('authz-code');
+const result = FlowResetService.clearSession('authz-code');
 
 // Keeps: credentials, tokens
 // Clears: session data, progress
@@ -115,7 +115,7 @@ const result = FlowResetServiceV8.clearSession('authz-code');
 **Clear only step progress**
 
 ```typescript
-const result = FlowResetServiceV8.clearProgress('authz-code');
+const result = FlowResetService.clearProgress('authz-code');
 
 // Keeps: credentials, tokens, session
 // Clears: step progress only
@@ -127,7 +127,7 @@ const result = FlowResetServiceV8.clearProgress('authz-code');
 **Clear PingOne session (discovery and preferences)**
 
 ```typescript
-const result = FlowResetServiceV8.clearPingOneSession('authz-code');
+const result = FlowResetService.clearPingOneSession('authz-code');
 
 // Keeps: credentials, tokens, progress
 // Clears: discovery, preferences
@@ -139,7 +139,7 @@ const result = FlowResetServiceV8.clearPingOneSession('authz-code');
 **Get summary of what would be cleared**
 
 ```typescript
-const summary = FlowResetServiceV8.getResetSummary('authz-code');
+const summary = FlowResetService.getResetSummary('authz-code');
 
 // Result:
 {
@@ -159,7 +159,7 @@ const summary = FlowResetServiceV8.getResetSummary('authz-code');
 **Get user-friendly reset message**
 
 ```typescript
-const message = FlowResetServiceV8.getResetMessage('authz-code');
+const message = FlowResetService.getResetMessage('authz-code');
 
 // Result:
 // 🔄 Reset Flow?
@@ -181,13 +181,13 @@ const message = FlowResetServiceV8.getResetMessage('authz-code');
 ### Step Navigation Component
 
 ```typescript
-import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
+import { FlowResetService } from '@/v8/services/flowResetService';
 
 const handleResetFlow = () => {
-  const message = FlowResetServiceV8.getResetMessage('authz-code');
+  const message = FlowResetService.getResetMessage('authz-code');
   
   if (confirm(message)) {
-    const result = FlowResetServiceV8.resetFlow('authz-code');
+    const result = FlowResetService.resetFlow('authz-code');
     
     if (result.success) {
       // Reset UI
@@ -406,7 +406,7 @@ console.log('[🔄 FLOW-RESET-V8] Flow reset complete', {
 ## 🚀 Integration Checklist
 
 - [ ] Add reset button to step navigation
-- [ ] Import FlowResetServiceV8
+- [ ] Import FlowResetService
 - [ ] Implement handleResetFlow function
 - [ ] Add confirmation dialog
 - [ ] Show success/error messages
@@ -420,10 +420,10 @@ console.log('[🔄 FLOW-RESET-V8] Flow reset complete', {
 
 ## 📚 Related Services
 
-- **StorageServiceV8** - Manages versioned storage
-- **ValidationServiceV8** - Validates credentials
-- **ErrorHandlerV8** - Handles errors
-- **EducationServiceV8** - Provides help content
+- **StorageService** - Manages versioned storage
+- **ValidationService** - Validates credentials
+- **ErrorHandler** - Handles errors
+- **EducationService** - Provides help content
 
 ---
 

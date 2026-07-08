@@ -49,7 +49,7 @@ export interface StepNavigationState {
 }
 
 /**
- * Props for StepNavigationV8 component
+ * Props for StepNavigation component
  */
 export interface StepNavigationV8Props {
 	/** Current step number (0-based) */

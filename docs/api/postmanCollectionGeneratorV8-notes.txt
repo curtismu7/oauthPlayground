@@ -8,7 +8,7 @@
 // Collection version - update this when making breaking changes or major updates
 export const COLLECTION_VERSION = '8.1.9';
 
-import type { FlowType } from '@/v8/services/specVersionServiceV8';
+import type { FlowType } from '@/v8/services/specVersionService';
 import type { ApiCall as TrackedApiCall } from './apiCallTrackerService';
 
 /**

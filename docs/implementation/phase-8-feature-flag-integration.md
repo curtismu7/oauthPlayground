@@ -8,20 +8,20 @@
 
 ## 📋 Overview
 
-Phase 8 integrates the MFA feature flag system into the MFAFlowV8 router, enabling **gradual rollout** of the unified flow on a per-device-type basis with **instant rollback** capability.
+Phase 8 integrates the MFA feature flag system into the MFAFlow router, enabling **gradual rollout** of the unified flow on a per-device-type basis with **instant rollback** capability.
 
 ---
 
 ## ✅ What Was Completed
 
-### 1. **MFAFlowV8 Router Enhancement**
-- ✅ Integrated `MFAFeatureFlagsV8` service
+### 1. **MFAFlow Router Enhancement**
+- ✅ Integrated `MFAFeatureFlags` service
 - ✅ Added device-type to feature-flag mapping
 - ✅ Implemented conditional routing (unified vs legacy)
 - ✅ Added comprehensive logging for debugging
 - ✅ Maintained backward compatibility
 
-**File:** `src/v8/flows/MFAFlowV8.tsx` (147 lines)
+**File:** `src/v8/flows/MFAFlow.tsx` (147 lines)
 
 ### 2. **Feature Flag Helpers**
 - ✅ Created helper utilities for easy flag management
@@ -121,13 +121,13 @@ window.mfaHelpers.enableAll(100);
 
 ### 1. Router Logic
 ```typescript
-// MFAFlowV8.tsx
+// MFAFlow.tsx
 const featureFlag = DEVICE_TYPE_TO_FLAG_MAP[deviceType];
-const useUnifiedFlow = MFAFeatureFlagsV8.isEnabled(featureFlag);
+const useUnifiedFlow = MFAFeatureFlags.isEnabled(featureFlag);
 
 if (useUnifiedFlow) {
   // Route to unified flow
-  return <UnifiedMFARegistrationFlowV8 deviceType={deviceType} />;
+  return <UnifiedMFARegistrationFlow deviceType={deviceType} />;
 } else {
   // Route to legacy flow
   return <LegacyFlowComponent />;
@@ -252,7 +252,7 @@ window.mfaHelpers.disable('SMS');
 ## 📝 Files Modified/Created
 
 ### Modified
-- `src/v8/flows/MFAFlowV8.tsx` - Added feature flag integration
+- `src/v8/flows/MFAFlow.tsx` - Added feature flag integration
 - `package.json` - Updated to version 9.1.0
 
 ### Created

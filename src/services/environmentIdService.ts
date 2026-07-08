@@ -121,7 +121,7 @@ export async function loadEnvironmentId(): Promise<string | null> {
 		return fromApi;
 	}
 
-	// 3. localStorage fallback (compat with EnvironmentIdServiceV8 and other legacy keys)
+	// 3. localStorage fallback (compat with EnvironmentIdService and other legacy keys)
 	const ls = localStorage.getItem(LS_KEY);
 	if (isValidEnvId(ls)) return ls!.trim();
 
@@ -141,7 +141,7 @@ export async function saveEnvironmentId(id: string): Promise<void> {
 	// Write to all stores concurrently (best-effort for API)
 	await Promise.allSettled([setEnvIdInApi(trimmed), setEnvIdInIndexedDB(trimmed)]);
 
-	// localStorage compat — EnvironmentIdServiceV8 reads from here
+	// localStorage compat — EnvironmentIdService reads from here
 	try {
 		localStorage.setItem(LS_KEY, trimmed);
 		window.dispatchEvent(new Event('environmentIdUpdated'));

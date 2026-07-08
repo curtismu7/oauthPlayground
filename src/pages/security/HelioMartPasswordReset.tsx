@@ -20,7 +20,7 @@ import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDa
 import { PageLayoutService } from '../../services/pageLayoutService';
 // import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
 // import { renderWorkerTokenButton } from '../../services/workerTokenUIService';
-// import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
+// import type { DiscoveredApp } from '../../mfa/components/AppPicker';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 
 // Create layout components at module level so styled.header is never created inside a hook.

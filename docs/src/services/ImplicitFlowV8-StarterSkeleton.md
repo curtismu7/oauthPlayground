@@ -1,23 +1,23 @@
-# ImplicitFlowV8.tsx — Starter Skeleton (V8)
+# ImplicitFlow.tsx — Starter Skeleton (V8)
 
-> This is a **starter skeleton** for `ImplicitFlowV8.tsx`.  
+> This is a **starter skeleton** for `ImplicitFlow.tsx`.  
 > It wires up the main layout, app picker, steps, and placeholders for real PingOne API calls and the V8 credential store.
 
 ```tsx
 import React, { useState, useMemo } from "react";
 
 // TODO: update import paths to match your project structure
-import { TokenDisplayV8 } from "../components/TokenDisplayV8";
+import { TokenDisplay } from "../components/TokenDisplay";
 import { VersionBadge } from "../components/VersionBadge";
 import { InfoPopover } from "../components/InfoPopover";
 import { LearnMoreSection } from "../components/LearnMoreSection";
-import { useCredentialStoreV8 } from "../services/useCredentialStoreV8";
+import { useCredentialStore } from "../services/useCredentialStore";
 import { buildPingOneImplicitAuthUrl } from "../utils/pingoneUrlBuilders";
 import { simulateImplicitRedirect } from "../utils/implicitSimulators";
 
 type Step = "CONFIG" | "AUTH_URL" | "REDIRECT" | "TOKENS";
 
-export const ImplicitFlowV8: React.FC = () => {
+export const ImplicitFlow: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<Step>("CONFIG");
 
   // Global credential store (shared across flows)
@@ -27,7 +27,7 @@ export const ImplicitFlowV8: React.FC = () => {
     selectApp,
     addOrUpdateApp,
     getActiveAppConfig,
-  } = useCredentialStoreV8();
+  } = useCredentialStore();
 
   const activeApp = getActiveAppConfig();
 
@@ -325,7 +325,7 @@ export const ImplicitFlowV8: React.FC = () => {
               </InfoPopover>
             </div>
 
-            <TokenDisplayV8
+            <TokenDisplay
               idToken={parsedTokens.idToken}
               accessToken={parsedTokens.accessToken}
               expiresIn={parsedTokens.expiresIn}

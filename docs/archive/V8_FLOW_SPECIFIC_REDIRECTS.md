@@ -14,7 +14,7 @@ Previously, all flows used generic `/callback` endpoints. This caused issues:
 
 ## Solution
 
-Created `RedirectUriServiceV8` that generates flow-specific redirect URIs automatically.
+Created `RedirectUriService` that generates flow-specific redirect URIs automatically.
 
 ## Flow-Specific Redirect URIs
 
@@ -43,7 +43,7 @@ When a flow loads, redirect URIs are automatically set if not already configured
 // On component mount
 useEffect(() => {
   if (!credentials.redirectUri) {
-    const uri = RedirectUriServiceV8.getRedirectUriForFlow(flowKey);
+    const uri = RedirectUriService.getRedirectUriForFlow(flowKey);
     onChange({ ...credentials, redirectUri: uri });
   }
 }, [flowKey]);
@@ -52,7 +52,7 @@ useEffect(() => {
 ### Flow-Specific Placeholders
 Input fields show the correct placeholder for each flow:
 ```typescript
-placeholder={RedirectUriServiceV8.getRedirectUriPlaceholder(flowKey)}
+placeholder={RedirectUriService.getRedirectUriPlaceholder(flowKey)}
 // Shows: https://localhost:3000/callback/oauth-authorization-code
 ```
 
@@ -66,7 +66,7 @@ const baseUrl = `${window.location.protocol}//${window.location.host}`;
 
 ## Service API
 
-### RedirectUriServiceV8
+### RedirectUriService
 
 **getRedirectUriForFlow(flowKey: string): string**
 - Returns flow-specific redirect URI
@@ -153,15 +153,15 @@ grant_type=client_credentials
 
 ### In a Flow Component
 ```typescript
-import { RedirectUriServiceV8 } from '@/v8/services/redirectUriServiceV8';
+import { RedirectUriService } from '@/v8/services/redirectUriService';
 
 // Get redirect URI for current flow
-const redirectUri = RedirectUriServiceV8.getRedirectUriForFlow('oauth-authz-v8');
+const redirectUri = RedirectUriService.getRedirectUriForFlow('oauth-authz-v8');
 // Returns: http://localhost:3000/callback/oauth-authorization-code
 
 // Initialize both URIs
 const { redirectUri, postLogoutRedirectUri } = 
-  RedirectUriServiceV8.initializeRedirectUris('oidc-authz-v8');
+  RedirectUriService.initializeRedirectUris('oidc-authz-v8');
 ```
 
 ### In PingOne Configuration
@@ -188,7 +188,7 @@ https://your-domain.com/callback/logout
 ## Implementation Details
 
 ### Auto-Initialization
-The CredentialsFormV8 automatically initializes redirect URIs when:
+The CredentialsForm automatically initializes redirect URIs when:
 1. Component mounts
 2. Flow key changes
 3. Redirect URI is empty

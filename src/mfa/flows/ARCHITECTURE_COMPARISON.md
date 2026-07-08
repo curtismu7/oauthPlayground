@@ -62,7 +62,7 @@ Router → Component Factory → Component → Controller Factory → Controller
 
 The hybrid approach provides:
 
-1. **Router** (`MFAFlowV8.tsx`)
+1. **Router** (`MFAFlow.tsx`)
    - Simple UI routing
    - React-friendly
    - Easy to understand
@@ -127,8 +127,8 @@ case 'TOTP':
 
 ### Step 3: Create Component
 ```typescript
-// TOTPFlowV8.tsx
-export const TOTPFlowV8: React.FC = () => {
+// TOTPFlow.tsx
+export const TOTPFlow: React.FC = () => {
   const controller = useMemo(() => 
     MFAFlowControllerFactory.create({ deviceType: 'TOTP' }), []
   );
@@ -139,7 +139,7 @@ export const TOTPFlowV8: React.FC = () => {
 ### Step 4: Register in Component Factory
 ```typescript
 // MFAFlowComponentFactory.ts
-MFAFlowComponentFactory.register('TOTP', TOTPFlowV8);
+MFAFlowComponentFactory.register('TOTP', TOTPFlow);
 ```
 
 ### Step 5: Done! Router automatically works ✅
@@ -148,7 +148,7 @@ MFAFlowComponentFactory.register('TOTP', TOTPFlowV8);
 
 ```
 src/v8/flows/
-├── MFAFlowV8.tsx              # Router (routes to device types)
+├── MFAFlow.tsx              # Router (routes to device types)
 ├── factories/
 │   ├── MFAFlowComponentFactory.ts  # Creates React components
 │   └── MFAFlowControllerFactory.ts # Creates controllers
@@ -160,8 +160,8 @@ src/v8/flows/
 │   ├── MFADeviceSelector.tsx        # Reusable UI
 │   └── MFAOTPInput.tsx              # Reusable UI
 └── types/
-    ├── SMSFlowV8.tsx               # SMS flow component
-    └── EmailFlowV8.tsx              # Email flow component
+    ├── SMSFlow.tsx               # SMS flow component
+    └── EmailFlow.tsx              # Email flow component
 ```
 
 ## Conclusion

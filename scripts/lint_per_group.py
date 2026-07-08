@@ -558,8 +558,8 @@ MIGRATION_PATTERNS = [
     {
         "name": "toastv8-straggler",
         "severity": "error",
-        "message": "toastV8/showToastV8 still referenced — must be migrated to modernMessaging (migration gate: DONE per STANDARDIZATION_HANDOFF.md)",
-        "pattern": r"\btoastV8\b|showToastV8\b",
+        "message": "toast/showToast still referenced — must be migrated to modernMessaging (migration gate: DONE per STANDARDIZATION_HANDOFF.md)",
+        "pattern": r"\btoast\b|showToast\b",
         "check": "direct",
     },
     {

@@ -18,23 +18,23 @@
 
 ## Overview
 
-This document provides implementation details, code snippets, and restoration guidance for the Mobile MFA flow (`MobileFlowV8.tsx` and `MobileOTPConfigurationPageV8.tsx`). Mobile is implemented as an OTP device type (SMS-based) and uses the SMS flow controller.
+This document provides implementation details, code snippets, and restoration guidance for the Mobile MFA flow (`MobileFlow.tsx` and `MobileOTPConfigurationPage.tsx`). Mobile is implemented as an OTP device type (SMS-based) and uses the SMS flow controller.
 
 ---
 
 ## File Locations
 
 **Components:**
-- `src/v8/flows/types/MobileFlowV8.tsx` - Main Mobile flow component
-- `src/v8/flows/types/MobileOTPConfigurationPageV8.tsx` - Mobile configuration page
-- `src/v8/pages/MobileRegistrationDocsPageV8.tsx` - Mobile documentation page
+- `src/v8/flows/types/MobileFlow.tsx` - Main Mobile flow component
+- `src/v8/flows/types/MobileOTPConfigurationPage.tsx` - Mobile configuration page
+- `src/v8/pages/MobileRegistrationDocsPage.tsx` - Mobile documentation page
 
 **Controllers:**
 - `src/v8/flows/controllers/SMSFlowController.ts` - Mobile uses SMS controller
 
 **Services:**
-- `src/v8/services/mfaServiceV8.ts` - MFA API calls
-- `src/v8/services/mfaAuthenticationServiceV8.ts` - MFA authentication calls
+- `src/v8/services/mfaService.ts` - MFA API calls
+- `src/v8/services/mfaAuthenticationService.ts` - MFA authentication calls
 
 ---
 
@@ -118,7 +118,7 @@ The generated environment file includes all variables with pre-filled values fro
 
 **Correct Implementation:**
 ```typescript
-// In MobileFlowV8.tsx
+// In MobileFlow.tsx
 const deviceType: DeviceType = 'MOBILE';
 
 // In MFAFlowControllerFactory.ts
@@ -134,7 +134,7 @@ case 'MOBILE':
 
 **Correct Implementation:**
 ```typescript
-// In MobileFlowV8.tsx (same as SMS)
+// In MobileFlow.tsx (same as SMS)
 React.useEffect(() => {
     // Skip device loading during registration flow (when coming from config page)
     if (isConfigured) {
@@ -162,7 +162,7 @@ React.useEffect(() => {
 
 **Correct Implementation:**
 ```typescript
-// In MobileFlowV8.tsx
+// In MobileFlow.tsx
 const step2DeviceNameResetRef = React.useRef<{ step: number; deviceType: string } | null>(null);
 
 const renderStep2Register = useCallback((props: MFAFlowBaseRenderProps) => {
@@ -194,9 +194,9 @@ const renderStep2Register = useCallback((props: MFAFlowBaseRenderProps) => {
 **Correct Implementation:**
 ```typescript
 import { MFAOTPInput } from '../components/MFAOTPInput';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { MFAConfigurationService } from '@/v8/services/mfaConfigurationService';
 
-const config = MFAConfigurationServiceV8.loadConfiguration();
+const config = MFAConfigurationService.loadConfiguration();
 
 <MFAOTPInput
     length={config.otpCodeLength || 6}

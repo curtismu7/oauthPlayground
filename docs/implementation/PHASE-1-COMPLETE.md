@@ -71,7 +71,7 @@ const { environmentId, workerTokenStatus, isConfigured } = useGlobalMFA();
 **File:** `src/v8/flows/unified/services/unifiedFlowServiceIntegration.ts`
 
 **Features:**
-- ✅ Service layer using existing `MFAServiceV8`
+- ✅ Service layer using existing `MFAService`
 - ✅ Uses global Environment ID
 - ✅ Uses global Worker Token
 - ✅ Simplified API
@@ -187,7 +187,7 @@ Stats: 9 files changed, 1,714 insertions(+), 99 deletions(-)
    - `renderStep0` → `UnifiedRegistrationStepModern` (field-mapping adapter + `mfa_modern_ui` flag)
    - `renderStep1` → `UnifiedActivationStepModern` (feature-flag controlled)
    - `renderStep3` → `UnifiedSuccessStepModern` (feature-flag controlled)
-   - All steps behind `MFAFeatureFlagsV8.isEnabled('mfa_modern_ui')` (enabled 100%)
+   - All steps behind `MFAFeatureFlags.isEnabled('mfa_modern_ui')` (enabled 100%)
 
 ---
 

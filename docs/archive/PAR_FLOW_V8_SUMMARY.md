@@ -14,7 +14,7 @@ I've **completely rewritten** the PAR (Pushed Authorization Requests) flow from 
 ## New File Structure
 
 ```
-src/pages/flows/PingOnePARFlowV8/
+src/pages/flows/PingOnePARFlow/
 ├── types/
 │   └── parFlowTypes.ts              # TypeScript interfaces
 ├── constants/
@@ -22,7 +22,7 @@ src/pages/flows/PingOnePARFlowV8/
 ├── hooks/
 │   ├── usePARFlowState.ts          # State management (replaces mixed state)
 │   └── usePAROperations.ts         # API operations (replaces PARService)
-├── PingOnePARFlowV8.tsx            # Main component (~400 lines, clean)
+├── PingOnePARFlow.tsx            # Main component (~400 lines, clean)
 ├── index.ts                        # Exports
 ├── README.md                       # Technical documentation
 └── QUICKSTART.md                   # Developer quick start guide
@@ -302,13 +302,13 @@ const state = usePARFlowState();
 ## Usage Example
 
 ```typescript
-import PingOnePARFlowV8 from './pages/flows/PingOnePARFlowV8';
+import PingOnePARFlow from './pages/flows/PingOnePARFlow';
 
 // In your router
-<Route path="/par-flow-v8" element={<PingOnePARFlowV8 />} />
+<Route path="/par-flow-v8" element={<PingOnePARFlow />} />
 
 // Or use the hooks directly
-import { usePARFlowState, usePAROperations } from './pages/flows/PingOnePARFlowV8';
+import { usePARFlowState, usePAROperations } from './pages/flows/PingOnePARFlow';
 
 const MyComponent = () => {
   const state = usePARFlowState();
@@ -330,13 +330,13 @@ const MyComponent = () => {
 
 ### Created Files
 
-1. **`src/pages/flows/PingOnePARFlowV8/README.md`**
+1. **`src/pages/flows/PingOnePARFlow/README.md`**
    - Technical documentation
    - Architecture overview
    - Migration guide
    - Benefits and features
 
-2. **`src/pages/flows/PingOnePARFlowV8/QUICKSTART.md`**
+2. **`src/pages/flows/PingOnePARFlow/QUICKSTART.md`**
    - Developer quick start
    - Code examples
    - Testing guide
@@ -409,16 +409,16 @@ const MyComponent = () => {
 ## Files Created
 
 ### Implementation
-- `src/pages/flows/PingOnePARFlowV8/types/parFlowTypes.ts`
-- `src/pages/flows/PingOnePARFlowV8/constants/parFlowConstants.ts`
-- `src/pages/flows/PingOnePARFlowV8/hooks/usePARFlowState.ts`
-- `src/pages/flows/PingOnePARFlowV8/hooks/usePAROperations.ts`
-- `src/pages/flows/PingOnePARFlowV8/PingOnePARFlowV8.tsx`
-- `src/pages/flows/PingOnePARFlowV8/index.ts`
+- `src/pages/flows/PingOnePARFlow/types/parFlowTypes.ts`
+- `src/pages/flows/PingOnePARFlow/constants/parFlowConstants.ts`
+- `src/pages/flows/PingOnePARFlow/hooks/usePARFlowState.ts`
+- `src/pages/flows/PingOnePARFlow/hooks/usePAROperations.ts`
+- `src/pages/flows/PingOnePARFlow/PingOnePARFlow.tsx`
+- `src/pages/flows/PingOnePARFlow/index.ts`
 
 ### Documentation
-- `src/pages/flows/PingOnePARFlowV8/README.md`
-- `src/pages/flows/PingOnePARFlowV8/QUICKSTART.md`
+- `src/pages/flows/PingOnePARFlow/README.md`
+- `src/pages/flows/PingOnePARFlow/QUICKSTART.md`
 - `docs/PAR_FLOW_V8_REDESIGN.md`
 - `docs/PAR_FLOW_VISUAL_COMPARISON.md`
 - `PAR_FLOW_V8_SUMMARY.md` (this file)

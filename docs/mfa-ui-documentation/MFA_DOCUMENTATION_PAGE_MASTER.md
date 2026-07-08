@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-01-06 14:30:00  
 **Version:** 1.0.0  
-**Purpose:** Comprehensive reference for the MFA Flow Documentation Page (`MFADocumentationPageV8.tsx`)  
+**Purpose:** Comprehensive reference for the MFA Flow Documentation Page (`MFADocumentationPage.tsx`)  
 **Usage:** Use this document to restore correct implementations when the documentation page breaks or drifts
 
 ---
@@ -16,13 +16,13 @@
 
 ## Overview
 
-This document provides a comprehensive reference for the MFA Flow Documentation Page component (`MFADocumentationPageV8.tsx`). This page displays API documentation for MFA device registration and authentication flows, allowing users to view, expand/collapse, and download documentation as Markdown or PDF.
+This document provides a comprehensive reference for the MFA Flow Documentation Page component (`MFADocumentationPage.tsx`). This page displays API documentation for MFA device registration and authentication flows, allowing users to view, expand/collapse, and download documentation as Markdown or PDF.
 
 ---
 
 ## File Location
 
-**Component:** `src/v8/components/MFADocumentationPageV8.tsx`
+**Component:** `src/v8/components/MFADocumentationPage.tsx`
 
 ---
 
@@ -381,7 +381,7 @@ export const downloadAsPDF = (markdown: string, title: string): void
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  Navigation Bar (MFANavigationV8)                       │
+│  Navigation Bar (MFANavigation)                       │
 │  - Current Page: "documentation"                        │
 │  - Show Back to Main: true                              │
 └─────────────────────────────────────────────────────────┘

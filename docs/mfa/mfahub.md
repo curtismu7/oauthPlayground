@@ -1,7 +1,7 @@
 # MFA Hub V8 Files List
 
 ## Core Feature File
-- `src/locked/mfa-hub-v8/feature/MFAHubV8.tsx` - Main MFA Hub component
+- `src/locked/mfa-hub-v8/feature/MFAHub.tsx` - Main MFA Hub component
 
 ## Dependencies (39 files total)
 
@@ -43,30 +43,30 @@
 ### V8 Specific Dependencies (25 files)
 
 #### Components (7 files)
-- `dependencies/v8/components/MFADocumentationModalV8.tsx`
-- `dependencies/v8/components/MFADocumentationPageV8.tsx`
-- `dependencies/v8/components/MFAHeaderV8.tsx`
-- `dependencies/v8/components/MFANavigationV8.tsx`
-- `dependencies/v8/components/SuperSimpleApiDisplayV8.tsx`
-- `dependencies/v8/components/WorkerTokenGaugeV8.tsx`
-- `dependencies/v8/components/WorkerTokenModalV8.tsx`
+- `dependencies/v8/components/MFADocumentationModal.tsx`
+- `dependencies/v8/components/MFADocumentationPage.tsx`
+- `dependencies/v8/components/MFAHeader.tsx`
+- `dependencies/v8/components/MFANavigation.tsx`
+- `dependencies/v8/components/SuperSimpleApiDisplay.tsx`
+- `dependencies/v8/components/WorkerTokenGauge.tsx`
+- `dependencies/v8/components/WorkerTokenModal.tsx`
 
 #### Services (7 files)
-- `dependencies/v8/services/apiDisplayServiceV8.ts`
-- `dependencies/v8/services/credentialsServiceV8.ts`
-- `dependencies/v8/services/mfaConfigurationServiceV8.ts`
-- `dependencies/v8/services/specVersionServiceV8.ts`
-- `dependencies/v8/services/uiNotificationServiceV8.ts`
-- `dependencies/v8/services/workerTokenServiceV8.ts`
-- `dependencies/v8/services/workerTokenStatusServiceV8.ts`
+- `dependencies/v8/services/apiDisplayService.ts`
+- `dependencies/v8/services/credentialsService.ts`
+- `dependencies/v8/services/mfaConfigurationService.ts`
+- `dependencies/v8/services/specVersionService.ts`
+- `dependencies/v8/services/uiNotificationService.ts`
+- `dependencies/v8/services/workerTokenService.ts`
+- `dependencies/v8/services/workerTokenStatusService.ts`
 
 #### Hooks (1 file)
 - `dependencies/v8/hooks/useApiDisplayPadding.ts`
 
 #### Utils (3 files)
-- `dependencies/v8/utils/mfaFlowCleanupV8.ts`
-- `dependencies/v8/utils/toastNotificationsV8.ts`
-- `dependencies/v8/utils/workerTokenModalHelperV8.ts`
+- `dependencies/v8/utils/mfaFlowCleanup.ts`
+- `dependencies/v8/utils/toastNotifications.ts`
+- `dependencies/v8/utils/workerTokenModalHelper.ts`
 
 #### Flows/Types (1 file)
 - `dependencies/v8/flows/shared/MFATypes.ts`

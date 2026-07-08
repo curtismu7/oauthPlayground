@@ -641,7 +641,7 @@ You can paste this into an `.html` file to **see the training layout** of a sing
 
 In the new project, you will typically:
 
-1. Open the **root prompt** like `fixTheCodeV8.md` in Cursor.
+1. Open the **root prompt** like `fixTheCode.md` in Cursor.
 2. Ask Cursor to:
    - Create the `identity-training-ide-v8` directory (if not already created).
    - Scaffold the basic React/Vite app.

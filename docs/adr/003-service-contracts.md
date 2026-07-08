@@ -56,7 +56,7 @@ Created comprehensive service contracts for:
 - **V7-Specific (4)**: V7SharedService, HybridFlowSharedService, useHybridFlowControllerV7, useResourceOwnerPasswordFlowV7
 
 #### V8 Services (25+ total)
-- **Core (5)**: WorkerTokenModalV8, WorkerTokenExpiryBannerV8, useCredentialStoreV8, TokenDisplayV8, JWTConfigV8
+- **Core (5)**: WorkerTokenModal, WorkerTokenExpiryBanner, useCredentialStore, TokenDisplay, JWTConfigV8
 - **Locked (20+)**: Email V8, Device Code V8 services
 
 #### V9 Services (15 total)

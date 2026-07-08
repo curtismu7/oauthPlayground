@@ -14,7 +14,7 @@
  */
 
 import React, { useState } from 'react';
-import { type DecodedJWT, TokenDisplayServiceV8 } from '@/mfa/services/tokenDisplayServiceV8';
+import { type DecodedJWT, TokenDisplayService } from '@/mfa/services/tokenDisplayService';
 
 const _MODULE_TAG = '[ TOKEN-DISPLAY-V8U]';
 
@@ -49,8 +49,8 @@ export const TokenDisplayV8U: React.FC<TokenDisplayV8UProps> = ({
 
 		if (!isDecoded) {
 			// Decode the token
-			if (TokenDisplayServiceV8.isJWT(token)) {
-				const decoded = TokenDisplayServiceV8.decodeJWT(token);
+			if (TokenDisplayService.isJWT(token)) {
+				const decoded = TokenDisplayService.decodeJWT(token);
 				if (decoded) {
 					setDecodedStates((prev) => ({ ...prev, [key]: decoded }));
 					setIsDecodedStates((prev) => ({ ...prev, [key]: true }));
@@ -64,11 +64,11 @@ export const TokenDisplayV8U: React.FC<TokenDisplayV8UProps> = ({
 	};
 
 	const handleCopy = async (tokenType: string, token: string) => {
-		const label = TokenDisplayServiceV8.getTokenLabel(
+		const label = TokenDisplayService.getTokenLabel(
 			tokenType as 'access' | 'id' | 'refresh',
 			!!tokens.idToken
 		);
-		const success = await TokenDisplayServiceV8.copyToClipboard(token, label);
+		const success = await TokenDisplayService.copyToClipboard(token, label);
 
 		if (success) {
 			setCopiedStates((prev) => ({ ...prev, [tokenType]: true }));
@@ -90,8 +90,8 @@ export const TokenDisplayV8U: React.FC<TokenDisplayV8UProps> = ({
 		const isDecoded = isDecodedStates[key] || false;
 		const decoded = decodedStates[key] || null;
 		const isCopied = copiedStates[tokenType] || false;
-		const isJWT = TokenDisplayServiceV8.isJWT(token);
-		const label = TokenDisplayServiceV8.getTokenLabel(tokenType, !!tokens.idToken);
+		const isJWT = TokenDisplayService.isJWT(token);
+		const label = TokenDisplayService.getTokenLabel(tokenType, !!tokens.idToken);
 
 		return (
 			<div
@@ -232,7 +232,7 @@ export const TokenDisplayV8U: React.FC<TokenDisplayV8UProps> = ({
 							color: '#166534',
 						}}
 					>
-						{isMasked ? TokenDisplayServiceV8.maskToken(token) : token}
+						{isMasked ? TokenDisplayService.maskToken(token) : token}
 					</div>
 				) : decoded ? (
 					<div style={{ marginTop: '8px' }}>
@@ -311,12 +311,12 @@ export const TokenDisplayV8U: React.FC<TokenDisplayV8UProps> = ({
 					>
 						{expiresIn && (
 							<div>
-								<strong>Expires In:</strong> {TokenDisplayServiceV8.formatExpiry(expiresIn)}
+								<strong>Expires In:</strong> {TokenDisplayService.formatExpiry(expiresIn)}
 							</div>
 						)}
 						{!isJWT && (
 							<div style={{ color: '#f59e0b' }}>
-								⚠️ {TokenDisplayServiceV8.getOpaqueTokenMessage(tokenType)}
+								⚠️ {TokenDisplayService.getOpaqueTokenMessage(tokenType)}
 							</div>
 						)}
 					</div>

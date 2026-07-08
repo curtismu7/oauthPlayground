@@ -16,7 +16,7 @@ imports_to_delete = [
     "import ComprehensiveCredentialsService from '../../../services/comprehensiveCredentialsService';\n",
     "import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';\n",
     "import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';\n",
-    "import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';\n",
+    "import type { DiscoveredApp } from '../../../v8/components/AppPicker';\n",
 ]
 for imp in imports_to_delete:
     if imp in content:

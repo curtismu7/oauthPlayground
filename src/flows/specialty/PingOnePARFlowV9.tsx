@@ -22,7 +22,7 @@ import { ModernMessagingService } from '../../platform/ModernMessagingService';
 import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { logger } from '../../utils/logger';
-import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
+import type { DiscoveredApp } from '../../mfa/components/AppPicker';
 import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
 import { PKCEStorageServiceV8U } from '../../lab/services/pkceStorageServiceV8U';
 

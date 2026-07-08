@@ -76,7 +76,7 @@ if (data?.credentials?.environmentId && ...) { ... }
 
 ## Testing
 
-- Visit `/organization-licensing` with a valid worker token stored via WorkerTokenSectionV8
+- Visit `/organization-licensing` with a valid worker token stored via WorkerTokenSection
 - Environment ID should auto-populate from the unified service
 - Token update events (`workerTokenUpdated`) should still trigger re-reads
 

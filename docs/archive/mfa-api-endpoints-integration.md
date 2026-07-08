@@ -37,7 +37,7 @@ static async activateTOTPDevice(params: SendOTPParams): Promise<Record<string, u
 - `deviceId` - Device ID to activate
 
 **Implementation Status:** ✅ Complete
-- Service method added to `mfaServiceV8.ts`
+- Service method added to `mfaService.ts`
 - Auto-activation after TOTP device registration
 - Manual activation button available in UI (Step 1)
 - Full API call tracking and error handling
@@ -62,7 +62,7 @@ static async resendPairingCode(params: SendOTPParams): Promise<void>
 - `deviceId` - Device ID to resend code for
 
 **Implementation Status:** ✅ Service Complete, 🔄 UI Integration Pending
-- Service method added to `mfaServiceV8.ts`
+- Service method added to `mfaService.ts`
 - Backend proxy endpoint exists at `/api/pingone/mfa/resend-pairing-code`
 - UI button needs to be added to Step 2 (OTP validation)
 
@@ -96,7 +96,7 @@ static async resendPairingCode(params: SendOTPParams): Promise<void>
 
 ## Current Implementation
 
-### Service Layer (`src/v8/services/mfaServiceV8.ts`)
+### Service Layer (`src/v8/services/mfaService.ts`)
 
 #### Activate TOTP Device
 ```typescript
@@ -193,12 +193,12 @@ app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) => {
       className="btn btn-secondary"
       disabled={isLoading}
       onClick={async () => {
-        await MFAServiceV8.resendPairingCode({
+        await MFAService.resendPairingCode({
           environmentId: credentials.environmentId,
           username: credentials.username,
           deviceId: mfaState.deviceId,
         });
-        toastV8.success(`📨 Code resent to your ${deviceType}!`);
+        toast.success(`📨 Code resent to your ${deviceType}!`);
       }}
     >
       📨 Resend Pairing Code
@@ -293,7 +293,7 @@ apiCallTrackerService.updateApiCallResponse(
 );
 ```
 
-This ensures all API calls are visible in the SuperSimpleApiDisplayV8 component.
+This ensures all API calls are visible in the SuperSimpleApiDisplay component.
 
 ---
 
@@ -339,13 +339,13 @@ This ensures all API calls are visible in the SuperSimpleApiDisplayV8 component.
 ## Files Modified
 
 ### Service Layer
-- ✅ `src/v8/services/mfaServiceV8.ts` - Added `activateTOTPDevice()` and `resendPairingCode()`
+- ✅ `src/v8/services/mfaService.ts` - Added `activateTOTPDevice()` and `resendPairingCode()`
 
 ### Backend
 - ✅ `server.js` - Resend pairing code proxy endpoint exists
 
 ### UI Layer
-- 🔄 `src/v8/flows/MFAFlowV8.tsx` - Need to add resend button in Step 2
+- 🔄 `src/v8/flows/MFAFlow.tsx` - Need to add resend button in Step 2
 
 ---
 

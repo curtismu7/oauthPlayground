@@ -16,7 +16,7 @@
 
 ## Overview
 
-This document provides a complete reference for the UI structure, components, styling, and layout of the MFA Configuration Page (`MFAConfigurationPageV8.tsx`).
+This document provides a complete reference for the UI structure, components, styling, and layout of the MFA Configuration Page (`MFAConfigurationPage.tsx`).
 
 ---
 
@@ -35,13 +35,13 @@ This document provides a complete reference for the UI structure, components, st
   }}
 >
   {/* Navigation */}
-  <MFANavigationV8 currentPage="settings" showBackToMain={true} />
+  <MFANavigation currentPage="settings" showBackToMain={true} />
   
   {/* Back Button (conditional) */}
   {returnPath && <BackButton />}
   
   {/* API Display */}
-  <SuperSimpleApiDisplayV8 flowFilter="mfa" />
+  <SuperSimpleApiDisplay flowFilter="mfa" />
   
   {/* Header */}
   <Header />
@@ -223,7 +223,7 @@ This document provides a complete reference for the UI structure, components, st
   
   {/* Info Box */}
   <InfoBox>
-    <MFAInfoButtonV8 contentKey="device.authentication.policy" />
+    <MFAInfoButton contentKey="device.authentication.policy" />
     <Link to="PingOne API docs" />
   </InfoBox>
   
@@ -249,13 +249,13 @@ This document provides a complete reference for the UI structure, components, st
 - Border: `1px solid #bfdbfe`
 - Icon: `FiInfo` (16px, blue)
 - Title: "About Device Authentication Policies"
-- Content: Includes `MFAInfoButtonV8` and link to PingOne API docs
+- Content: Includes `MFAInfoButton` and link to PingOne API docs
 
 **OTP Failure Cooldown Subsection:**
 - Background: `#f9fafb`
 - Border: `1px solid #e5e7eb`
 - Padding: `16px`
-- Title: "OTP Failure Cooldown" with `MFAInfoButtonV8`
+- Title: "OTP Failure Cooldown" with `MFAInfoButton`
 - Fields:
   - Cooldown Duration (Number, 0-30)
   - Time Unit (Select: MINUTES | SECONDS)
@@ -264,7 +264,7 @@ This document provides a complete reference for the UI structure, components, st
 - Background: `#f9fafb`
 - Border: `1px solid #e5e7eb`
 - Padding: `16px`
-- Title: "Method Selection" with `MFAInfoButtonV8`
+- Title: "Method Selection" with `MFAInfoButton`
 - Dropdown: `DEFAULT_TO_FIRST` | `PROMPT_TO_SELECT_DEVICE` | `ALWAYS_DISPLAY_DEVICES`
 
 **Pairing Settings Subsection:**
@@ -292,7 +292,7 @@ This document provides a complete reference for the UI structure, components, st
 ```
 <ConfigSection title="PingOne MFA Settings" description="...">
   <InfoBox>
-    <MFAInfoButtonV8 contentKey="mfa.settings" />
+    <MFAInfoButton contentKey="mfa.settings" />
   </InfoBox>
   
   {pingOneSettings && (
@@ -426,7 +426,7 @@ This document provides a complete reference for the UI structure, components, st
 **Loading:**
 ```typescript
 const [config, setConfig] = useState<MFAConfiguration>(() =>
-  MFAConfigurationServiceV8.loadConfiguration()
+  MFAConfigurationService.loadConfiguration()
 );
 ```
 
@@ -435,11 +435,11 @@ const [config, setConfig] = useState<MFAConfiguration>(() =>
 const handleSave = async () => {
   setIsSaving(true);
   try {
-    MFAConfigurationServiceV8.saveConfiguration(config);
+    MFAConfigurationService.saveConfiguration(config);
     setHasChanges(false);
-    toastV8.success('Configuration saved successfully');
+    toast.success('Configuration saved successfully');
   } catch (error) {
-    toastV8.error('Failed to save configuration');
+    toast.error('Failed to save configuration');
   } finally {
     setIsSaving(false);
   }
@@ -477,11 +477,11 @@ const updateNestedConfig = (parent: string, key: string, value: unknown) => {
 const loadPingOneSettings = useCallback(async (envId: string) => {
   setIsLoadingPingOneSettings(true);
   try {
-    const settings = await MFAServiceV8.getMFASettings(envId);
+    const settings = await MFAService.getMFASettings(envId);
     setPingOneSettings(settings);
     setHasPingOneSettingsChanges(false);
   } catch (error) {
-    toastV8.error('Failed to load PingOne MFA settings...');
+    toast.error('Failed to load PingOne MFA settings...');
   } finally {
     setIsLoadingPingOneSettings(false);
   }
@@ -504,13 +504,13 @@ const loadPingOneSettings = useCallback(async (envId: string) => {
 const loadDeviceAuthPolicies = useCallback(async (envId: string) => {
   setIsLoadingPolicies(true);
   try {
-    const policies = await MFAServiceV8.listDeviceAuthenticationPolicies(envId);
+    const policies = await MFAService.listDeviceAuthenticationPolicies(envId);
     setDeviceAuthPolicies(policies);
     if (policies.length > 0 && !selectedPolicyId) {
       setSelectedPolicyId(policies[0].id);
     }
   } catch (error) {
-    toastV8.error('Failed to load device authentication policies...');
+    toast.error('Failed to load device authentication policies...');
   } finally {
     setIsLoadingPolicies(false);
   }
@@ -526,11 +526,11 @@ const loadSelectedPolicy = useCallback(async (envId: string, policyId: string) =
   }
   setIsLoadingPolicy(true);
   try {
-    const policy = await MFAServiceV8.readDeviceAuthenticationPolicy(envId, policyId);
+    const policy = await MFAService.readDeviceAuthenticationPolicy(envId, policyId);
     setSelectedPolicy(policy);
     setHasPolicyChanges(false);
   } catch (error) {
-    toastV8.error('Failed to load device authentication policy...');
+    toast.error('Failed to load device authentication policy...');
   } finally {
     setIsLoadingPolicy(false);
   }
@@ -544,9 +544,9 @@ const handleSavePolicy = async () => {
   
   setIsSavingPolicy(true);
   try {
-    const credentials = await workerTokenServiceV8.loadCredentials();
+    const credentials = await workerTokenService.loadCredentials();
     if (!credentials) {
-      toastV8.error('Worker token credentials are missing...');
+      toast.error('Worker token credentials are missing...');
       return;
     }
     
@@ -558,7 +558,7 @@ const handleSavePolicy = async () => {
       skipUserLockVerification: selectedPolicy.skipUserLockVerification,
     };
     
-    await MFAServiceV8.updateDeviceAuthenticationPolicy(
+    await MFAService.updateDeviceAuthenticationPolicy(
       environmentId,
       selectedPolicyId,
       policyUpdate,
@@ -566,9 +566,9 @@ const handleSavePolicy = async () => {
     );
     
     setHasPolicyChanges(false);
-    toastV8.success('Policy settings saved successfully');
+    toast.success('Policy settings saved successfully');
   } catch (error) {
-    toastV8.error('Failed to save policy settings');
+    toast.error('Failed to save policy settings');
   } finally {
     setIsSavingPolicy(false);
   }
@@ -588,12 +588,12 @@ const handleSavePolicy = async () => {
 const handleSave = async () => {
   setIsSaving(true);
   try {
-    MFAConfigurationServiceV8.saveConfiguration(config);
+    MFAConfigurationService.saveConfiguration(config);
     setHasChanges(false);
-    toastV8.success('Configuration saved successfully');
+    toast.success('Configuration saved successfully');
   } catch (error) {
     console.error(`${MODULE_TAG} Failed to save configuration:`, error);
-    toastV8.error('Failed to save configuration');
+    toast.error('Failed to save configuration');
   } finally {
     setIsSaving(false);
   }
@@ -608,11 +608,11 @@ const handleSave = async () => {
 ```typescript
 const handleReset = () => {
   if (confirm('Are you sure you want to reset all settings to defaults?')) {
-    const defaultConfig = MFAConfigurationServiceV8.getDefaultConfiguration();
+    const defaultConfig = MFAConfigurationService.getDefaultConfiguration();
     setConfig(defaultConfig);
-    MFAConfigurationServiceV8.saveConfiguration(defaultConfig);
+    MFAConfigurationService.saveConfiguration(defaultConfig);
     setHasChanges(false);
-    toastV8.success('Configuration reset to defaults');
+    toast.success('Configuration reset to defaults');
   }
 };
 ```
@@ -632,7 +632,7 @@ const handleExport = () => {
   link.download = `mfa-config-${new Date().toISOString().split('T')[0]}.json`;
   link.click();
   URL.revokeObjectURL(url);
-  toastV8.success('Configuration exported successfully');
+  toast.success('Configuration exported successfully');
 };
 ```
 
@@ -655,11 +655,11 @@ const handleImport = () => {
       try {
         const imported = JSON.parse(event.target?.result as string);
         setConfig(imported);
-        MFAConfigurationServiceV8.saveConfiguration(imported);
+        MFAConfigurationService.saveConfiguration(imported);
         setHasChanges(false);
-        toastV8.success('Configuration imported successfully');
+        toast.success('Configuration imported successfully');
       } catch (error) {
-        toastV8.error('Failed to import configuration. Invalid JSON file.');
+        toast.error('Failed to import configuration. Invalid JSON file.');
       }
     };
     reader.readAsText(file);
@@ -677,17 +677,17 @@ const handleImport = () => {
 const handleManualWorkerTokenRefresh = async () => {
   setIsRefreshingToken(true);
   try {
-    const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+    const tokenStatus = WorkerTokenStatusService.checkWorkerTokenStatus();
     if (!tokenStatus.isValid) {
-      toastV8.error('Worker token is not valid. Please generate a new token.');
+      toast.error('Worker token is not valid. Please generate a new token.');
       return;
     }
     
     // Trigger token refresh logic
-    await workerTokenServiceV8.refreshWorkerToken();
-    toastV8.success('Worker token refreshed successfully');
+    await workerTokenService.refreshWorkerToken();
+    toast.success('Worker token refreshed successfully');
   } catch (error) {
-    toastV8.error('Failed to refresh worker token');
+    toast.error('Failed to refresh worker token');
   } finally {
     setIsRefreshingToken(false);
   }
@@ -725,8 +725,8 @@ const handleManualWorkerTokenRefresh = async () => {
 ## Error Handling
 
 **Contract:**
-- All errors displayed via `toastV8.error()`
-- Success messages via `toastV8.success()`
+- All errors displayed via `toast.error()`
+- Success messages via `toast.success()`
 - Loading states disable relevant buttons
 - API errors must not crash the page
 - Missing worker token must not show errors (silently skip loading)
@@ -754,5 +754,5 @@ const handleManualWorkerTokenRefresh = async () => {
 - **Region Parameter:** `updateDeviceAuthenticationPolicy()` MUST receive `credentials.region` parameter
 - **Change Tracking:** All sections must track changes independently
 - **API Display:** Page padding must adjust based on API display visibility
-- **DOM Nesting:** `MFAInfoButtonV8` must NOT be nested inside `<p>` tags (use `<div>` instead)
+- **DOM Nesting:** `MFAInfoButton` must NOT be nested inside `<p>` tags (use `<div>` instead)
 

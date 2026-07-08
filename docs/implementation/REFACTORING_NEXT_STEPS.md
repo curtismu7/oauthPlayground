@@ -6,7 +6,7 @@
 
 ## 🎯 What We Accomplished
 
-Created 4 production-ready custom hooks that extract business logic from MFAAuthenticationMainPageV8.tsx:
+Created 4 production-ready custom hooks that extract business logic from MFAAuthenticationMainPage.tsx:
 
 1. **useMFAAuthentication.ts** (197 lines) - Auth flow management
 2. **useMFADevices.ts** (223 lines) - Device operations  
@@ -258,8 +258,8 @@ const {
 
 ## 📚 Reference Files
 
-- **Hooks**: `src/v8/flows/MFAAuthenticationMainPageV8/hooks/`
-- **Main Component**: `src/v8/flows/MFAAuthenticationMainPageV8.tsx` (5,543 lines)
+- **Hooks**: `src/v8/flows/MFAAuthenticationMainPage/hooks/`
+- **Main Component**: `src/v8/flows/MFAAuthenticationMainPage.tsx` (5,543 lines)
 - **Plan Document**: `REFACTORING_PLAN.md`
 - **Session Summary**: `REFACTORING_SESSION_1.md`
 

@@ -37,7 +37,7 @@ Added check to detect public clients and show helpful error message:
 // Check for public client (no authentication)
 if (credentials.clientAuthMethod === 'none') {
   const errorMsg = 'Token introspection is not available for public clients (clientAuthMethod: "none"). Public clients cannot authenticate to the introspection endpoint. To use introspection, configure your application with client_secret_basic or client_secret_post authentication.';
-  toastV8.error(errorMsg);
+  toast.error(errorMsg);
   setIntrospectionError(errorMsg);
   return;
 }

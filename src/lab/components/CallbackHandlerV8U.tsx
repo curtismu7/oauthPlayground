@@ -12,12 +12,12 @@
 
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { MFARedirectUriService as MFARedirectUriServiceV8 } from '@/platform/MFARedirectUriService';
+import { MFARedirectUriService as MFARedirectUriService } from '@/platform/MFARedirectUriService';
 import { trackOAuthFlow } from '@/utils/activityTracker';
 import {
 	checkPingOneAuthentication,
 	performDetailedAuthenticationCheck,
-} from '@/mfa/services/pingOneAuthenticationServiceV8';
+} from '@/mfa/services/pingOneAuthenticationService';
 import { ReturnTargetServiceV8U } from '@/lab/services/returnTargetServiceV8U';
 import { logger } from '../../utils/logger';
 import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
@@ -149,7 +149,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 			targetStep: 'pending_resolution',
 		});
 
-		MFARedirectUriServiceV8.logDebugEvent('CALLBACK_HANDLER', 'Callback handler started', {
+		MFARedirectUriService.logDebugEvent('CALLBACK_HANDLER', 'Callback handler started', {
 			path: window.location.pathname,
 			search: window.location.search,
 			hash: window.location.hash,
@@ -259,7 +259,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 				callbackPath: currentPath,
 			});
 
-			MFARedirectUriServiceV8.logDebugEvent(
+			MFARedirectUriService.logDebugEvent(
 				'CALLBACK_HANDLER',
 				'Detected MFA/user login callback path',
 				{
@@ -290,7 +290,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 				ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_authentication');
 
 			if (mfaReturnTarget) {
-				MFARedirectUriServiceV8.logDebugEvent(
+				MFARedirectUriService.logDebugEvent(
 					'CALLBACK_HANDLER',
 					'Using return target from ReturnTargetService',
 					{
@@ -322,7 +322,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 					returnTargetKind: mfaReturnTarget.kind,
 				});
 
-				MFARedirectUriServiceV8.logDebugEvent(
+				MFARedirectUriService.logDebugEvent(
 					'CALLBACK_HANDLER',
 					'Navigating to return target URL',
 					{
@@ -414,7 +414,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 			logger.info(`${MODULE_TAG} No valid stored context, using path-based detection`);
 
 			// Use MFARedirectUriService so fallback routes stay in sync with the service mapping.
-			let fallbackPath = `${MFARedirectUriServiceV8.getDefaultReturnPath('unified-mfa-v8')}?step=2`; // Default: return to device selection
+			let fallbackPath = `${MFARedirectUriService.getDefaultReturnPath('unified-mfa-v8')}?step=2`; // Default: return to device selection
 			let fallbackReason = 'default';
 
 			// Check for MFA-specific callback paths first
@@ -422,10 +422,10 @@ export const CallbackHandlerV8U: React.FC = () => {
 				currentPath.includes('mfa-unified-callback') ||
 				currentPath.includes('unified-mfa-callback')
 			) {
-				fallbackPath = `${MFARedirectUriServiceV8.getDefaultReturnPath('unified-mfa-v8')}?step=2`; // MFA flow: device selection step
+				fallbackPath = `${MFARedirectUriService.getDefaultReturnPath('unified-mfa-v8')}?step=2`; // MFA flow: device selection step
 				fallbackReason = 'mfa-callback-path';
 			} else if (currentPath.includes('mfa-hub-callback')) {
-				fallbackPath = `${MFARedirectUriServiceV8.getDefaultReturnPath('mfa-hub-v8')}?step=2`; // MFA hub: authentication flow
+				fallbackPath = `${MFARedirectUriService.getDefaultReturnPath('mfa-hub-v8')}?step=2`; // MFA hub: authentication flow
 				fallbackReason = 'mfa-hub-path';
 			} else if (
 				currentPath.includes('user-login-callback') ||
@@ -437,10 +437,10 @@ export const CallbackHandlerV8U: React.FC = () => {
 
 				if (code && state) {
 					// This looks like an OAuth callback, likely from MFA flow
-					fallbackPath = `${MFARedirectUriServiceV8.getDefaultReturnPath('unified-mfa-v8')}?step=2`; // Return to MFA flow
+					fallbackPath = `${MFARedirectUriService.getDefaultReturnPath('unified-mfa-v8')}?step=2`; // Return to MFA flow
 					fallbackReason = 'user-login-oauth-callback';
 				} else {
-					fallbackPath = `${MFARedirectUriServiceV8.getDefaultReturnPath('unified-mfa-v8')}?step=2`; // Default to MFA flow
+					fallbackPath = `${MFARedirectUriService.getDefaultReturnPath('unified-mfa-v8')}?step=2`; // Default to MFA flow
 					fallbackReason = 'user-login-default';
 				}
 			}
@@ -488,7 +488,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 				reason: fallbackReason,
 			});
 
-			MFARedirectUriServiceV8.logDebugEvent(
+			MFARedirectUriService.logDebugEvent(
 				'CALLBACK_HANDLER',
 				'Using fallback redirect path for MFA callback',
 				{

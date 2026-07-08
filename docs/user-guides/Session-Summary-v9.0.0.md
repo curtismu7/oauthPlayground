@@ -41,7 +41,7 @@ Successfully completed **Phase 1 and Phase 2** of the OIDC integration project, 
    - Initial load, async load, MFA load
    - Scopes type conversion (string[] ↔ string)
    
-4. **MFAAuthenticationMainPageV8.tsx**
+4. **MFAAuthenticationMainPage.tsx**
    - 8 credential operations migrated
    - Policy selection, username, environment ID
    - Postman collection generation
@@ -73,17 +73,17 @@ Successfully completed **Phase 1 and Phase 2** of the OIDC integration project, 
    - Lines 635-688: Security parameter generation
    - Flow key: 'new-auth-context'
    
-3. **oauthIntegrationServiceV8.ts** (V8 OAuth Service)
+3. **oauthIntegrationService.ts** (V8 OAuth Service)
    - Lines 21-23: Imports
    - Lines 103-123: PKCE generation
    - Lines 169-173: State generation
    
-4. **hybridFlowIntegrationServiceV8.ts** (V8 Hybrid Flow)
+4. **hybridFlowIntegrationService.ts** (V8 Hybrid Flow)
    - Lines 21-24: Imports
    - Lines 114-123: State and nonce generation
    - Lines 606-625: PKCE generation
    
-5. **implicitFlowIntegrationServiceV8.ts** (V8 Implicit Flow)
+5. **implicitFlowIntegrationService.ts** (V8 Implicit Flow)
    - Lines 19-21: Imports
    - Lines 99-108: State and nonce generation
 
@@ -146,9 +146,9 @@ Successfully completed **Phase 1 and Phase 2** of the OIDC integration project, 
 
 **Remaining** (4/5 files):
 - ⚪ NewAuthContext.tsx
-- ⚪ oauthIntegrationServiceV8.ts
-- ⚪ hybridFlowIntegrationServiceV8.ts
-- ⚪ implicitFlowIntegrationServiceV8.ts
+- ⚪ oauthIntegrationService.ts
+- ⚪ hybridFlowIntegrationService.ts
+- ⚪ implicitFlowIntegrationService.ts
 
 ### Phase 3B-E: Not Started
 
@@ -232,7 +232,7 @@ Successfully completed **Phase 1 and Phase 2** of the OIDC integration project, 
 
 **Default**: Disabled (false)
 
-**Components**: 4 (UnifiedFlowSteps, CredentialsFormV8U, UnifiedOAuthFlowV8U, MFAAuthenticationMainPageV8)
+**Components**: 4 (UnifiedFlowSteps, CredentialsFormV8U, UnifiedOAuthFlowV8U, MFAAuthenticationMainPage)
 
 **Admin UI**: `/admin/feature-flags`
 
@@ -248,7 +248,7 @@ Successfully completed **Phase 1 and Phase 2** of the OIDC integration project, 
 
 **Default**: Disabled (false)
 
-**Components**: 5 (useAuthActions, NewAuthContext, oauthIntegrationServiceV8, hybridFlowIntegrationServiceV8, implicitFlowIntegrationServiceV8)
+**Components**: 5 (useAuthActions, NewAuthContext, oauthIntegrationService, hybridFlowIntegrationService, implicitFlowIntegrationService)
 
 **Admin UI**: `/admin/feature-flags`
 
@@ -266,14 +266,14 @@ Successfully completed **Phase 1 and Phase 2** of the OIDC integration project, 
 1. Pilot integration: useAuthActions.ts
 2. UnifiedFlowSteps.tsx integration
 3. CredentialsFormV8U.tsx integration
-4. UnifiedOAuthFlowV8U.tsx + MFAAuthenticationMainPageV8.tsx integration
+4. UnifiedOAuthFlowV8U.tsx + MFAAuthenticationMainPage.tsx integration
 
 ### Phase 2 Commits (5)
 1. useAuthActions.ts OIDC core services
 2. NewAuthContext.tsx OIDC core services
-3. oauthIntegrationServiceV8.ts OIDC core services
-4. hybridFlowIntegrationServiceV8.ts OIDC core services
-5. implicitFlowIntegrationServiceV8.ts OIDC core services
+3. oauthIntegrationService.ts OIDC core services
+4. hybridFlowIntegrationService.ts OIDC core services
+5. implicitFlowIntegrationService.ts OIDC core services
 
 ### Documentation Commits (4)
 1. Phase 2 integration plan and status

@@ -91,14 +91,14 @@ v8/services/* (Shared Services - USED BY MFA TOO!)
 - ✅ `workerTokenStatusServiceV8U.ts` (304 lines)
 
 **Shared v8 Services (⚠️ CAUTION - USED BY MFA):**
-- ⚠️ `CredentialsServiceV8` - Used by MFA flows
-- ⚠️ `EnvironmentIdServiceV8` - Used by MFA flows
-- ⚠️ `WorkerTokenStatusServiceV8` - Used by MFA flows
-- ⚠️ `MFAServiceV8` - MFA-specific, don't touch
-- ⚠️ `MFAConfigurationServiceV8` - MFA-specific, don't touch
-- ⚠️ `SpecVersionServiceV8` - Shared spec logic
-- ⚠️ `OidcDiscoveryServiceV8` - Shared OIDC discovery
-- ⚠️ `SharedCredentialsServiceV8` - Cross-flow credentials
+- ⚠️ `CredentialsService` - Used by MFA flows
+- ⚠️ `EnvironmentIdService` - Used by MFA flows
+- ⚠️ `WorkerTokenStatusService` - Used by MFA flows
+- ⚠️ `MFAService` - MFA-specific, don't touch
+- ⚠️ `MFAConfigurationService` - MFA-specific, don't touch
+- ⚠️ `SpecVersionService` - Shared spec logic
+- ⚠️ `OidcDiscoveryService` - Shared OIDC discovery
+- ⚠️ `SharedCredentialsService` - Cross-flow credentials
 
 **Recommendation:**
 - Keep service layer as-is (well-architected)
@@ -717,14 +717,14 @@ src/v8u/__tests__/
 
 | Service | Used By Unified | Used By MFA | Risk Level |
 |---------|----------------|-------------|------------|
-| `CredentialsServiceV8` | ✅ Yes | ✅ Yes | 🔴 HIGH |
-| `EnvironmentIdServiceV8` | ✅ Yes | ✅ Yes | 🔴 HIGH |
-| `WorkerTokenStatusServiceV8` | ✅ Yes | ✅ Yes | 🔴 HIGH |
-| `MFAServiceV8` | ❌ No | ✅ Yes | 🔴 HIGH |
-| `MFAConfigurationServiceV8` | ❌ No | ✅ Yes | 🔴 HIGH |
-| `SpecVersionServiceV8` | ✅ Yes | ❌ No | 🟡 MEDIUM |
-| `OidcDiscoveryServiceV8` | ✅ Yes | ❌ No | 🟡 MEDIUM |
-| `SharedCredentialsServiceV8` | ✅ Yes | ❌ No | 🟡 MEDIUM |
+| `CredentialsService` | ✅ Yes | ✅ Yes | 🔴 HIGH |
+| `EnvironmentIdService` | ✅ Yes | ✅ Yes | 🔴 HIGH |
+| `WorkerTokenStatusService` | ✅ Yes | ✅ Yes | 🔴 HIGH |
+| `MFAService` | ❌ No | ✅ Yes | 🔴 HIGH |
+| `MFAConfigurationService` | ❌ No | ✅ Yes | 🔴 HIGH |
+| `SpecVersionService` | ✅ Yes | ❌ No | 🟡 MEDIUM |
+| `OidcDiscoveryService` | ✅ Yes | ❌ No | 🟡 MEDIUM |
+| `SharedCredentialsService` | ✅ Yes | ❌ No | 🟡 MEDIUM |
 
 ### 10.2 Safe to Modify (✅)
 

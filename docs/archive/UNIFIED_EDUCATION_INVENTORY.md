@@ -134,29 +134,29 @@
 
 1. **Application Type**
    - Location: Lines ~1797-1804
-   - Format: TooltipV8
-   - Content: TooltipContentServiceV8.APPLICATION_TYPE
+   - Format: Tooltip
+   - Content: TooltipContentService.APPLICATION_TYPE
    - Status: ✅ Complete
    - **Missing:** "What is this?" button
 
 2. **Redirect URI**
    - Location: Lines ~3123-3126
-   - Format: TooltipV8
-   - Content: TooltipContentServiceV8.REDIRECT_URI
+   - Format: Tooltip
+   - Content: TooltipContentService.REDIRECT_URI
    - Status: ✅ Complete
    - **Missing:** "What is this?" button
 
 3. **Post Logout Redirect URI**
    - Location: Lines ~3206-3209
-   - Format: TooltipV8
-   - Content: TooltipContentServiceV8.POST_LOGOUT_REDIRECT_URI
+   - Format: Tooltip
+   - Content: TooltipContentService.POST_LOGOUT_REDIRECT_URI
    - Status: ✅ Complete
    - **Missing:** "What is this?" button
 
 4. **Scopes**
    - Location: Lines ~3246-3278
-   - Format: TooltipV8 + "What is this?" button
-   - Content: TooltipContentServiceV8.SCOPES + Education Modal
+   - Format: Tooltip + "What is this?" button
+   - Content: TooltipContentService.SCOPES + Education Modal
    - Status: ✅ Complete (has "What is this?" button)
    - **Note:** This is the ONLY field with "What is this?" button
 
@@ -168,7 +168,7 @@
    - Status: ✅ Complete
 
 2. **Worker Token vs Client Credentials Education Modal**
-   - Location: Imported from `@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8`
+   - Location: Imported from `@/v8/components/WorkerTokenVsClientCredentialsEducationModal`
    - Status: ✅ Available
 
 #### Missing "What is this?" Buttons
@@ -228,7 +228,7 @@
    - Client Credentials Flow: No "What is..." section
 
 3. **Tooltip vs "What is this?" Button:**
-   - Most fields have TooltipV8 only
+   - Most fields have Tooltip only
    - Only Scopes has both tooltip AND "What is this?" button
    - Inconsistent pattern
 
@@ -314,7 +314,7 @@
 ## 🔗 Related Files
 
 - `src/v8u/components/UnifiedFlowHelperPageV8U.tsx` - Helper page with spec/flow comparisons
-- `src/v8/services/tooltipContentServiceV8.ts` - Tooltip content service
+- `src/v8/services/tooltipContentService.ts` - Tooltip content service
 - `docs/UNIFIED_EDUCATION_REVIEW_PLAN.md` - Review plan document
 
 ---

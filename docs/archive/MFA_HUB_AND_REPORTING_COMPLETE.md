@@ -6,7 +6,7 @@ Created a comprehensive MFA Hub with navigation to all MFA features, plus a full
 ## Components Created
 
 ### 1. MFA Hub (Landing Page)
-**Location:** `src/v8/flows/MFAHubV8.tsx`
+**Location:** `src/v8/flows/MFAHub.tsx`
 
 **Features:**
 - Central navigation hub for all MFA features
@@ -28,7 +28,7 @@ Created a comprehensive MFA Hub with navigation to all MFA features, plus a full
 - Info section with benefits
 
 ### 2. MFA Reporting Service
-**Location:** `src/v8/services/mfaReportingServiceV8.ts`
+**Location:** `src/v8/services/mfaReportingService.ts`
 
 **API Methods:**
 ```typescript
@@ -50,7 +50,7 @@ static async getFIDO2DeviceReports(params: ReportParams): Promise<FIDO2DeviceRep
 - Error handling
 
 ### 3. MFA Reporting Flow
-**Location:** `src/v8/flows/MFAReportingFlowV8.tsx`
+**Location:** `src/v8/flows/MFAReportingFlow.tsx`
 
 **Features:**
 - Three report types:
@@ -192,16 +192,16 @@ MFA Hub (/v8/mfa-hub)
 ## Files Created
 
 ### New Files
-- `src/v8/flows/MFAHubV8.tsx` - MFA Hub landing page
-- `src/v8/services/mfaReportingServiceV8.ts` - Reporting service
-- `src/v8/flows/MFAReportingFlowV8.tsx` - Reporting flow
+- `src/v8/flows/MFAHub.tsx` - MFA Hub landing page
+- `src/v8/services/mfaReportingService.ts` - Reporting service
+- `src/v8/flows/MFAReportingFlow.tsx` - Reporting flow
 - `MFA_HUB_AND_REPORTING_COMPLETE.md` - This documentation
 
 ### Existing Files (Using)
-- `src/v8/components/SimplePingOneApiDisplayV8.tsx` - API display
-- `src/v8/components/WorkerTokenModalV8.tsx` - Token management
-- `src/v8/services/workerTokenServiceV8.ts` - Token service
-- `src/v8/services/credentialsServiceV8.ts` - Credential storage
+- `src/v8/components/SimplePingOneApiDisplay.tsx` - API display
+- `src/v8/components/WorkerTokenModal.tsx` - Token management
+- `src/v8/services/workerTokenService.ts` - Token service
+- `src/v8/services/credentialsService.ts` - Credential storage
 
 ## Report Data Examples
 
@@ -301,4 +301,4 @@ https://apidocs.pingidentity.com/pingone/mfa/v1/api/#reporting
 **Version:** 8.0.0
 **Date:** 2024-11-19
 **Status:** Complete ✅
-**Components:** MFAHubV8, MFAReportingFlowV8, MFAReportingServiceV8
+**Components:** MFAHub, MFAReportingFlow, MFAReportingService

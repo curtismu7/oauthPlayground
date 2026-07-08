@@ -12,19 +12,19 @@
 Given the scope (32 files, 100+ catch blocks), implementing this as a **gradual rollout** rather than all at once:
 
 ### Phase 1A: Main Page (DONE)
-- ✅ `src/v8/flows/MFAAuthenticationMainPageV8.tsx`
+- ✅ `src/v8/flows/MFAAuthenticationMainPage.tsx`
 - Added UnifiedFlowErrorHandler import
 - Pattern established for other files
 
 ### Phase 1B: Critical Device Flows (COMPLETED)
-1. [x] `src/v8/flows/types/SMSFlowV8.tsx` - Device registration error handler updated
-2. [x] `src/v8/flows/types/EmailFlowV8.tsx` - Authentication initialization and device loading updated
-3. [x] `src/v8/flows/types/FIDO2FlowV8.tsx` - Import already present
-4. [x] `src/v8/flows/types/TOTPFlowV8.tsx` - Import added
+1. [x] `src/v8/flows/types/SMSFlow.tsx` - Device registration error handler updated
+2. [x] `src/v8/flows/types/EmailFlow.tsx` - Authentication initialization and device loading updated
+3. [x] `src/v8/flows/types/FIDO2Flow.tsx` - Import already present
+4. [x] `src/v8/flows/types/TOTPFlow.tsx` - Import added
 
 ### Phase 1C: Services (COMPLETED)
-1. [x] `src/v8/services/mfaServiceV8.ts` - Import added, 2 catch blocks updated (allowMfaBypass, checkMfaBypassStatus)
-2. [x] `src/v8/services/mfaAuthenticationServiceV8.ts` - Import added, 3 catch blocks updated (initializeDeviceAuthentication, initializeOneTimeDeviceAuthentication, readDeviceAuthentication)
+1. [x] `src/v8/services/mfaService.ts` - Import added, 2 catch blocks updated (allowMfaBypass, checkMfaBypassStatus)
+2. [x] `src/v8/services/mfaAuthenticationService.ts` - Import added, 3 catch blocks updated (initializeDeviceAuthentication, initializeOneTimeDeviceAuthentication, readDeviceAuthentication)
 
 ### Phase 1D: Remaining Flows (TODO)
 - Configuration pages
@@ -39,11 +39,11 @@ Given the scope (32 files, 100+ catch blocks), implementing this as a **gradual 
 ### Before (Current State):
 ```typescript
 try {
-  const result = await MFAServiceV8.registerDevice(params);
-  toastV8.success('Device registered!');
+  const result = await MFAService.registerDevice(params);
+  toast.success('Device registered!');
 } catch (error) {
   console.error(`${MODULE_TAG} Failed`, error);
-  toastV8.error(error instanceof Error ? error.message : 'Failed');
+  toast.error(error instanceof Error ? error.message : 'Failed');
   setError(error instanceof Error ? error.message : 'Unknown error');
 }
 ```
@@ -51,8 +51,8 @@ try {
 ### After (With UnifiedFlowErrorHandler):
 ```typescript
 try {
-  const result = await MFAServiceV8.registerDevice(params);
-  toastV8.success('Device registered!');
+  const result = await MFAService.registerDevice(params);
+  toast.success('Device registered!');
 } catch (error) {
   const parsed = UnifiedFlowErrorHandler.handleError(error, {
     flowType: 'mfa' as any, // Type assertion (FlowType doesn't include 'mfa')
@@ -74,41 +74,41 @@ try {
 ## Files Requiring Updates (32 total)
 
 ### High Priority (User-Facing):
-1. MFAAuthenticationMainPageV8.tsx ✅ STARTED
-2. SMSFlowV8.tsx
-3. EmailFlowV8.tsx
-4. FIDO2FlowV8.tsx
-5. TOTPFlowV8.tsx
-6. WhatsAppFlowV8.tsx
-7. MobileFlowV8.tsx
+1. MFAAuthenticationMainPage.tsx ✅ STARTED
+2. SMSFlow.tsx
+3. EmailFlow.tsx
+4. FIDO2Flow.tsx
+5. TOTPFlow.tsx
+6. WhatsAppFlow.tsx
+7. MobileFlow.tsx
 
 ### Medium Priority (Configuration):
-8. SMSOTPConfigurationPageV8.tsx
-9. EmailOTPConfigurationPageV8.tsx
-10. TOTPConfigurationPageV8.tsx
-11. FIDO2ConfigurationPageV8.tsx
-12. WhatsAppOTPConfigurationPageV8.tsx
-13. MobileOTPConfigurationPageV8.tsx
+8. SMSOTPConfigurationPage.tsx
+9. EmailOTPConfigurationPage.tsx
+10. TOTPConfigurationPage.tsx
+11. FIDO2ConfigurationPage.tsx
+12. WhatsAppOTPConfigurationPage.tsx
+13. MobileOTPConfigurationPage.tsx
 
 ### Lower Priority (Administrative):
-14. MFAHubV8.tsx
-15. MFADeviceManagementFlowV8.tsx
-16. MFADeviceOrderingFlowV8.tsx
-17. MFAReportingFlowV8.tsx
-18. MFAConfigurationPageV8.tsx
+14. MFAHub.tsx
+15. MFADeviceManagementFlow.tsx
+16. MFADeviceOrderingFlow.tsx
+17. MFAReportingFlow.tsx
+18. MFAConfigurationPage.tsx
 
 ### Services (Backend):
-19. mfaServiceV8.ts (5,000+ lines)
-20. mfaAuthenticationServiceV8.ts (2,000+ lines)
+19. mfaService.ts (5,000+ lines)
+20. mfaAuthenticationService.ts (2,000+ lines)
 
 ### Controllers:
 21-24. Various controllers (4 files)
 
 ### Shared:
-25-27. MFAFlowBaseV8, MFAConfigurationStepV8
+25-27. MFAFlowBase, MFAConfigurationStep
 
 ### Other Flows:
-28-32. EmailMFASignOnFlowV8, PingOnePARFlowV8, etc.
+28-32. EmailMFASignOnFlow, PingOnePARFlow, etc.
 
 ---
 
@@ -174,9 +174,9 @@ After each file update:
 **Recommended: Option B (Proof of Concept)**
 
 Implement in:
-1. MFAAuthenticationMainPageV8.tsx ✅ STARTED
-2. SMSFlowV8.tsx (most common device)
-3. FIDO2FlowV8.tsx (most complex device)
+1. MFAAuthenticationMainPage.tsx ✅ STARTED
+2. SMSFlow.tsx (most common device)
+3. FIDO2Flow.tsx (most complex device)
 
 Benefits:
 - Demonstrates pattern works
@@ -197,7 +197,7 @@ Then create detailed tickets for remaining 29 files.
 ## Phase 1C Implementation Summary (2026-01-19)
 
 ### ✅ Services Updated
-1. **mfaServiceV8.ts** (5,538 lines)
+1. **mfaService.ts** (5,538 lines)
    - Added UnifiedFlowErrorHandler import
    - Updated 2 critical catch blocks:
      - `allowMfaBypass`: MFA bypass permission error handling
@@ -205,7 +205,7 @@ Then create detailed tickets for remaining 29 files.
    - Pattern established for remaining 18+ catch blocks in file
    - Consistent error logging with user-friendly messages
 
-2. **mfaAuthenticationServiceV8.ts** (2,193 lines)
+2. **mfaAuthenticationService.ts** (2,193 lines)
    - Added UnifiedFlowErrorHandler import
    - Updated 3 critical authentication catch blocks:
      - `initializeDeviceAuthentication`: Phase 1 authentication start
@@ -236,7 +236,7 @@ Then create detailed tickets for remaining 29 files.
 **Medium Priority (11 files):**
 - Controllers (4 files)
 - Shared components (3 files)
-- Additional services catch blocks (20+ in mfaServiceV8.ts, 16+ in mfaAuthenticationServiceV8.ts)
+- Additional services catch blocks (20+ in mfaService.ts, 16+ in mfaAuthenticationService.ts)
 - Other flows (4 files)
 
 ---
@@ -244,36 +244,36 @@ Then create detailed tickets for remaining 29 files.
 *Updated: 2026-01-19 - Phase 1C Complete*
 
 ### ✅ Completed
-- **Phase 1A**: MFAAuthenticationMainPageV8.tsx - UnifiedFlowErrorHandler import added
+- **Phase 1A**: MFAAuthenticationMainPage.tsx - UnifiedFlowErrorHandler import added
 - **Phase 1B**: Critical Device Flows
-  - ✅ SMSFlowV8.tsx - Updated device registration catch block to use UnifiedFlowErrorHandler
-  - ✅ EmailFlowV8.tsx - Updated authentication initialization and device loading catch blocks
-  - ✅ FIDO2FlowV8.tsx - Import already present, ready for catch block updates
-  - ✅ TOTPFlowV8.tsx - Import added, ready for catch block updates
+  - ✅ SMSFlow.tsx - Updated device registration catch block to use UnifiedFlowErrorHandler
+  - ✅ EmailFlow.tsx - Updated authentication initialization and device loading catch blocks
+  - ✅ FIDO2Flow.tsx - Import already present, ready for catch block updates
+  - ✅ TOTPFlow.tsx - Import added, ready for catch block updates
 
 ### 📊 Changes Made
-1. **SMSFlowV8.tsx**: 1 catch block updated (device registration)
+1. **SMSFlow.tsx**: 1 catch block updated (device registration)
    - Replaced manual error handling with UnifiedFlowErrorHandler
    - Preserved special case logic for device limits and worker token errors
    - Improved user-friendly error messages
 
-2. **EmailFlowV8.tsx**: 2 catch blocks updated
+2. **EmailFlow.tsx**: 2 catch blocks updated
    - Device loading error handler (silent background operation)
    - Authentication initialization error handler
    - Consistent error handling across authentication flows
 
-3. **FIDO2FlowV8.tsx**: Import verified present
+3. **FIDO2Flow.tsx**: Import verified present
    - Ready for catch block updates in future phases
 
-4. **TOTPFlowV8.tsx**: Import added
+4. **TOTPFlow.tsx**: Import added
    - Ready for catch block updates in future phases
 
-5. **mfaServiceV8.ts**: Import added, 2 catch blocks updated
+5. **mfaService.ts**: Import added, 2 catch blocks updated
    - allowMfaBypass error handling improved
    - checkMfaBypassStatus error handling improved
    - Consistent error logging with user-friendly messages
 
-6. **mfaAuthenticationServiceV8.ts**: Import added, 3 catch blocks updated
+6. **mfaAuthenticationService.ts**: Import added, 3 catch blocks updated
    - initializeDeviceAuthentication error handling standardized
    - initializeOneTimeDevPhase 1A-1C changes work correctly across all device types
 2. **Phase 1D**: Apply pattern to remaining flows (configuration pages, controllers, etc.)
@@ -289,7 +289,7 @@ Then create detailed tickets for remaining 29 files.
 - Authentication services now provide consistent error messages across all operation
 ### 📝 Next Steps
 1. **Testing**: Validate changes work correctly with each device type
-2. **Phase 1C**: Apply pattern to services (mfaServiceV8.ts, mfaAuthenticationServiceV8.ts)
+2. **Phase 1C**: Apply pattern to services (mfaService.ts, mfaAuthenticationService.ts)
 3. **Phase 1D**: Update remaining flows (configuration pages, controllers, etc.)
 4. **Documentation**: Update developer guide with new error handling pattern
 

@@ -48,7 +48,7 @@ interface UnifiedFlowStepsOutput {
 #### Behavioral Contract
 
 **With `USE_NEW_CREDENTIALS_REPO` = false**:
-- Uses `CredentialsServiceV8` for all operations
+- Uses `CredentialsService` for all operations
 - Credentials stored in localStorage with old format
 - Scopes as string
 
@@ -101,8 +101,8 @@ interface CredentialsFormOutput {
 #### Behavioral Contract
 
 **With `USE_NEW_CREDENTIALS_REPO` = false**:
-- Form saves via `CredentialsServiceV8.saveCredentials()`
-- Loads via `CredentialsServiceV8.loadCredentials()`
+- Form saves via `CredentialsService.saveCredentials()`
+- Loads via `CredentialsService.loadCredentials()`
 
 **With `USE_NEW_CREDENTIALS_REPO` = true**:
 - Form saves via `CredentialsRepository.setFlowCredentials()`
@@ -150,9 +150,9 @@ interface UnifiedOAuthFlowOutput {
 #### Behavioral Contract
 
 **With `USE_NEW_CREDENTIALS_REPO` = false**:
-- Initial load: `CredentialsServiceV8.loadCredentials()`
-- Async load: `CredentialsServiceV8.loadCredentialsWithBackup()`
-- MFA load: `CredentialsServiceV8.loadCredentials('mfa-v8')`
+- Initial load: `CredentialsService.loadCredentials()`
+- Async load: `CredentialsService.loadCredentialsWithBackup()`
+- MFA load: `CredentialsService.loadCredentials('mfa-v8')`
 
 **With `USE_NEW_CREDENTIALS_REPO` = true**:
 - Initial load: `CredentialsRepository.getFlowCredentials()`
@@ -169,10 +169,10 @@ interface UnifiedOAuthFlowOutput {
 
 ---
 
-### 4. MFAAuthenticationMainPageV8.tsx
+### 4. MFAAuthenticationMainPage.tsx
 
 **Component Type**: MFA Flow Page  
-**Location**: `/src/v8/flows/MFAAuthenticationMainPageV8.tsx`
+**Location**: `/src/v8/flows/MFAAuthenticationMainPage.tsx`
 
 #### Input Contract
 
@@ -204,7 +204,7 @@ interface MFAAuthenticationOutput {
 #### Behavioral Contract
 
 **With `USE_NEW_CREDENTIALS_REPO` = false**:
-- All operations use `CredentialsServiceV8`
+- All operations use `CredentialsService`
 - Flow key: 'mfa-v8'
 
 **With `USE_NEW_CREDENTIALS_REPO` = true**:
@@ -328,9 +328,9 @@ interface AuthContextValue {
 ### 7. V8 Integration Services
 
 **Services**:
-- oauthIntegrationServiceV8.ts
-- hybridFlowIntegrationServiceV8.ts
-- implicitFlowIntegrationServiceV8.ts
+- oauthIntegrationService.ts
+- hybridFlowIntegrationService.ts
+- implicitFlowIntegrationService.ts
 
 #### Input Contract
 
@@ -383,7 +383,7 @@ interface IntegrationServiceOutput {
 
 ### Credential Data Format
 
-**Old Format (CredentialsServiceV8)**:
+**Old Format (CredentialsService)**:
 ```typescript
 interface OldCredentials {
   environmentId: string;
@@ -423,7 +423,7 @@ interface NewCredentials {
 interface CredentialsRepoFlagContract {
   // When disabled (default)
   disabled: {
-    service: 'CredentialsServiceV8';
+    service: 'CredentialsService';
     storage: 'localStorage';
     format: 'old';
     scopesType: 'string';
@@ -539,7 +539,7 @@ interface OidcCoreFlagContract {
 | UnifiedFlowSteps | ✅ | ✅ | ✅ |
 | CredentialsFormV8U | ✅ | ✅ | ✅ |
 | UnifiedOAuthFlowV8U | ✅ | ✅ | ✅ |
-| MFAAuthenticationMainPageV8 | ✅ | ✅ | ✅ |
+| MFAAuthenticationMainPage | ✅ | ✅ | ✅ |
 | useAuthActions | ✅ | ✅ | ✅ |
 | NewAuthContext | ✅ | ✅ | ✅ |
 | V8 Services | ✅ | ✅ | ✅ |

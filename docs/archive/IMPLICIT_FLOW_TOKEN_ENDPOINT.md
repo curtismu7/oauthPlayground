@@ -41,7 +41,7 @@
 
 #### 1. Hide Token Endpoint Auth Method Field for Implicit Flow
 
-**File:** `src/v8/services/unifiedFlowOptionsServiceV8.ts`
+**File:** `src/v8/services/unifiedFlowOptionsService.ts`
 
 ```typescript
 // Implicit flow doesn't use token endpoint, so no auth method needed
@@ -75,7 +75,7 @@ Added an informational box that appears for implicit flow explaining:
 
 ### Technical Details
 
-From `TokenEndpointAuthMethodServiceV8.ts`:
+From `TokenEndpointAuthMethodService.ts`:
 
 ```typescript
 // Implicit Flow (deprecated in OAuth 2.1)

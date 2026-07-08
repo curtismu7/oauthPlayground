@@ -7,10 +7,10 @@
 
 // Note: FIDO2Service is not used here - we use PingOne's publicKeyCredentialCreationOptions instead
 import { modernMessaging } from '@/platform/ModernMessagingService';
-import type { useStepNavigationV8 } from '@/mfa/hooks/useStepNavigationV8';
-import type { RegisterDeviceParams } from '@/mfa/services/mfaServiceV8';
-import { MFAServiceV8 } from '@/mfa/services/mfaServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/mfa/services/workerTokenStatusServiceV8';
+import type { useStepNavigation } from '@/mfa/hooks/useStepNavigation';
+import type { RegisterDeviceParams } from '@/mfa/services/mfaService';
+import { MFAService } from '@/mfa/services/mfaService';
+import { WorkerTokenStatusService } from '@/mfa/services/workerTokenStatusService';
 import { logger } from '../../../utils/logger';
 import type { MFACredentials } from '../shared/MFATypes';
 import { type FlowControllerCallbacks, MFAFlowController } from './MFAFlowController';
@@ -34,8 +34,8 @@ export class FIDO2FlowController extends MFAFlowController {
 
 	validateCredentials(
 		credentials: MFACredentials,
-		tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
-		nav: ReturnType<typeof useStepNavigationV8>
+		tokenStatus: ReturnType<typeof WorkerTokenStatusService.checkWorkerTokenStatus>,
+		nav: ReturnType<typeof useStepNavigation>
 	): boolean {
 		const errors: string[] = [];
 
@@ -227,7 +227,7 @@ export class FIDO2FlowController extends MFAFlowController {
 		// Check for session cookies and prefer platform authenticators (TouchID/FaceID) when appropriate
 		// Per PingOne MFA API: If session cookie exists, prefer FIDO2 platform device even if not default
 		const { getAuthenticatorSelectionPreferences } = await import(
-			'@/mfa/services/fido2SessionCookieServiceV8'
+			'@/mfa/services/fido2SessionCookieService'
 		);
 		const authenticatorPrefs = getAuthenticatorSelectionPreferences();
 
@@ -418,7 +418,7 @@ export class FIDO2FlowController extends MFAFlowController {
 			note: 'PingOne will validate that origin is in the allowed origins list for the RP ID',
 		});
 
-		const activationResult = await MFAServiceV8.activateFIDO2Device({
+		const activationResult = await MFAService.activateFIDO2Device({
 			environmentId: credentials.environmentId,
 			username: credentials.username,
 			deviceId,

@@ -18,7 +18,7 @@ import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
 import { FiLockIcon } from '../../../icons';
 import { logger } from '../../../utils/logger';
-import { UserSearchDropdownV8 } from '../../../mfa/components/UserSearchDropdownV8';
+import { UserSearchDropdown } from '../../../mfa/components/UserSearchDropdown';
 import PingOneLoginService from '../services/pingOneLoginService';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 
@@ -396,7 +396,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 				{/* Username Field */}
 				<InputGroup>
 					<InputLabel htmlFor="username">Username or Email</InputLabel>
-					<UserSearchDropdownV8
+					<UserSearchDropdown
 						id="username"
 						value={formData.username}
 						onChange={(username) => {

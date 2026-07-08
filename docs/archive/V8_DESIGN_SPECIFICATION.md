@@ -20,16 +20,16 @@ This document defines the complete design for V8 components and services, focusi
 ### 2.1 Component Hierarchy
 
 ```
-OAuthAuthorizationCodeFlowV8
+OAuthAuthorizationCodeFlow
 ├── FlowHeader (existing)
-├── ComprehensiveCredentialsServiceV8 (existing, needs refactor)
-│   ├── CredentialsModalV8 (new)
-│   ├── DiscoveryModalV8 (new)
-│   └── AdvancedOptionsModalV8 (new)
-├── ScopeManagerV8 (new)
+├── ComprehensiveCredentialsService (existing, needs refactor)
+│   ├── CredentialsModal (new)
+│   ├── DiscoveryModal (new)
+│   └── AdvancedOptionsModal (new)
+├── ScopeManager (new)
 │   └── ScopeEducationTooltip (new)
 ├── FlowSteps (existing)
-└── TokenDisplayV8 (new)
+└── TokenDisplay (new)
     ├── TokenCard (new)
     ├── TokenDecodePanel (new)
     └── TokenActionsMenu (new)
@@ -39,11 +39,11 @@ OAuthAuthorizationCodeFlowV8
 
 ```
 Services (Reusable across all V8 flows)
-├── tokenDisplayServiceV8.ts (new)
-├── scopeEducationServiceV8.ts (new)
-├── configCheckerServiceV8.ts (new)
-├── discoveryServiceV8.ts (enhance existing)
-└── credentialValidationServiceV8.ts (new)
+├── tokenDisplayService.ts (new)
+├── scopeEducationService.ts (new)
+├── configCheckerService.ts (new)
+├── discoveryService.ts (enhance existing)
+└── credentialValidationService.ts (new)
 ```
 
 ---
@@ -51,7 +51,7 @@ Services (Reusable across all V8 flows)
 ## 3. Component Specifications
 
 
-### 3.1 TokenDisplayV8 Component
+### 3.1 TokenDisplay Component
 
 **Purpose:** Unified token display for all V8 flows with education and actions
 
@@ -106,7 +106,7 @@ console.log('[🧪 TOKEN-DISPLAY-V8] Token displayed', {
 
 ---
 
-### 3.2 ScopeManagerV8 Component
+### 3.2 ScopeManager Component
 
 **Purpose:** Manage scopes with education about what each scope does
 
@@ -148,7 +148,7 @@ interface ScopeManagerV8Props {
 
 ---
 
-### 3.3 ConfigCheckerModalV8 Component
+### 3.3 ConfigCheckerModal Component
 
 **Purpose:** Compare user configuration vs PingOne application settings
 
@@ -210,7 +210,7 @@ interface ConfigCheckerModalV8Props {
 ---
 
 
-### 3.4 DiscoveryModalV8 Component
+### 3.4 DiscoveryModal Component
 
 **Purpose:** OIDC Discovery with education about what it does
 
@@ -270,7 +270,7 @@ interface DiscoveryModalV8Props {
 
 ---
 
-### 3.5 CredentialsModalV8 Component
+### 3.5 CredentialsModal Component
 
 **Purpose:** Simplified credential input with progressive disclosure
 
@@ -323,13 +323,13 @@ interface CredentialsModalV8Props {
 
 ## 4. Service Specifications
 
-### 4.1 tokenDisplayServiceV8.ts
+### 4.1 tokenDisplayService.ts
 
 **Purpose:** Business logic for token display and manipulation
 
 **Functions:**
 ```typescript
-class TokenDisplayServiceV8 {
+class TokenDisplayService {
   // Copy token to clipboard
   static async copyToken(token: string, label: string): Promise<void>
   
@@ -365,13 +365,13 @@ console.log('[🧪 TOKEN-DISPLAY-V8] Action', { action, tokenType });
 
 ---
 
-### 4.2 scopeEducationServiceV8.ts
+### 4.2 scopeEducationService.ts
 
 **Purpose:** Provide educational content about OAuth/OIDC scopes
 
 **Functions:**
 ```typescript
-class ScopeEducationServiceV8 {
+class ScopeEducationService {
   // Get description for a scope
   static getScopeDescription(scope: string): string
   
@@ -434,13 +434,13 @@ const SCOPE_DEFINITIONS = {
 ---
 
 
-### 4.3 configCheckerServiceV8.ts
+### 4.3 configCheckerService.ts
 
 **Purpose:** Compare user config with PingOne application settings
 
 **Functions:**
 ```typescript
-class ConfigCheckerServiceV8 {
+class ConfigCheckerService {
   // Fetch app config from PingOne
   static async fetchAppConfig(
     environmentId: string,
@@ -482,13 +482,13 @@ interface FixSuggestion {
 
 ---
 
-### 4.4 discoveryServiceV8.ts
+### 4.4 discoveryService.ts
 
 **Purpose:** Enhanced OIDC Discovery with education
 
 **Functions:**
 ```typescript
-class DiscoveryServiceV8 {
+class DiscoveryService {
   // Perform OIDC discovery
   static async discover(issuer: string): Promise<DiscoveryResult>
   
@@ -525,9 +525,9 @@ interface DiscoveryResult {
 ### 5.1 Phase 1: Token Display (Week 1)
 
 **Steps:**
-1. Create `TokenDisplayV8` component
-2. Create `tokenDisplayServiceV8.ts`
-3. Add to `OAuthAuthorizationCodeFlowV8`
+1. Create `TokenDisplay` component
+2. Create `tokenDisplayService.ts`
+3. Add to `OAuthAuthorizationCodeFlow`
 4. Test with both OAuth and OIDC variants
 5. Add logging and error handling
 6. Document usage
@@ -544,9 +544,9 @@ interface DiscoveryResult {
 ### 5.2 Phase 2: Scope Education (Week 1)
 
 **Steps:**
-1. Create `ScopeManagerV8` component
-2. Create `scopeEducationServiceV8.ts`
-3. Add to `ComprehensiveCredentialsServiceV8`
+1. Create `ScopeManager` component
+2. Create `scopeEducationService.ts`
+3. Add to `ComprehensiveCredentialsService`
 4. Add special handling for offline_access
 5. Test scope validation
 6. Add logging
@@ -563,8 +563,8 @@ interface DiscoveryResult {
 ### 5.3 Phase 3: Config Checker (Week 2)
 
 **Steps:**
-1. Create `ConfigCheckerModalV8` component
-2. Create `configCheckerServiceV8.ts`
+1. Create `ConfigCheckerModal` component
+2. Create `configCheckerService.ts`
 3. Add button to flow UI
 4. Integrate with worker token
 5. Test comparison logic
@@ -582,10 +582,10 @@ interface DiscoveryResult {
 ### 5.4 Phase 4: Discovery & Credentials (Week 2)
 
 **Steps:**
-1. Create `DiscoveryModalV8` component
-2. Enhance `discoveryServiceV8.ts`
-3. Create `CredentialsModalV8` component
-4. Refactor `ComprehensiveCredentialsServiceV8`
+1. Create `DiscoveryModal` component
+2. Enhance `discoveryService.ts`
+3. Create `CredentialsModal` component
+4. Refactor `ComprehensiveCredentialsService`
 5. Test progressive disclosure
 6. Add education content
 
@@ -603,17 +603,17 @@ interface DiscoveryResult {
 ### 6.1 Unit Tests
 
 **Components:**
-- TokenDisplayV8: render, actions, conditional display
-- ScopeManagerV8: validation, education, custom scopes
-- ConfigCheckerModalV8: comparison logic, fix suggestions
-- DiscoveryModalV8: discovery flow, error handling
-- CredentialsModalV8: validation, save/cancel
+- TokenDisplay: render, actions, conditional display
+- ScopeManager: validation, education, custom scopes
+- ConfigCheckerModal: comparison logic, fix suggestions
+- DiscoveryModal: discovery flow, error handling
+- CredentialsModal: validation, save/cancel
 
 **Services:**
-- tokenDisplayServiceV8: decode, format, expiry
-- scopeEducationServiceV8: descriptions, validation
-- configCheckerServiceV8: comparison, suggestions
-- discoveryServiceV8: discovery, validation
+- tokenDisplayService: decode, format, expiry
+- scopeEducationService: descriptions, validation
+- configCheckerService: comparison, suggestions
+- discoveryService: discovery, validation
 
 ---
 
@@ -734,7 +734,7 @@ Each service needs:
 
 ## 11. Education System (NEW)
 
-### 11.1 educationServiceV8.ts
+### 11.1 educationService.ts
 
 **Purpose:** Centralized educational content for all V8 flows - tooltips, modals, explanations
 
@@ -747,7 +747,7 @@ Each service needs:
 
 **Architecture:**
 ```typescript
-class EducationServiceV8 {
+class EducationService {
   // Get tooltip content
   static getTooltip(key: string): TooltipContent
   
@@ -1186,7 +1186,7 @@ interface ConfigExportImportProps {
 
 ### 11.6 Integration with Existing Components
 
-**Update ComprehensiveCredentialsServiceV8:**
+**Update ComprehensiveCredentialsService:**
 ```tsx
 // Add tooltips to all fields
 <EducationTooltip contentKey="credential.environmentId">
@@ -1204,7 +1204,7 @@ interface ConfigExportImportProps {
 </Button>
 ```
 
-**Update ScopeManagerV8:**
+**Update ScopeManager:**
 ```tsx
 // Add expandable education for special scopes
 <EducationTooltip 
@@ -1232,16 +1232,16 @@ console.log('[📥 IMPORT-V8] Config imported', { valid, errors });
 ## 12. Updated Implementation Plan
 
 ### Phase 1: Foundation (Week 1)
-1. **EducationServiceV8** - Core service with all content
+1. **EducationService** - Core service with all content
 2. **EducationTooltip** - Reusable tooltip component
-3. **TokenDisplayV8** - With integrated tooltips
-4. **ScopeManagerV8** - With integrated education
+3. **TokenDisplay** - With integrated tooltips
+4. **ScopeManager** - With integrated education
 
 ### Phase 2: Advanced Features (Week 2)
 5. **QuickStartModal** - Preset selection
 6. **ConfigExportImport** - Export/import functionality
-7. **ConfigCheckerModalV8** - With tooltips
-8. **DiscoveryModalV8** - With education
+7. **ConfigCheckerModal** - With tooltips
+8. **DiscoveryModal** - With education
 
 ### Phase 3: Polish (Week 3)
 9. Integration testing
@@ -1276,10 +1276,10 @@ Based on code analysis, here are additional components that should be extracted 
 - Modal guards (preventing reopening) duplicated
 - Modal callbacks duplicated
 
-**Solution: modalManagerV8.ts**
+**Solution: modalManager.ts**
 
 ```typescript
-class ModalManagerV8 {
+class ModalManager {
   private static modals = new Map<string, ModalState>();
   
   // Register a modal
@@ -1350,10 +1350,10 @@ console.log('[🪟 MODAL-MANAGER-V8] Modal hidden', { id });
 - No centralized error categorization
 - No error recovery suggestions
 
-**Solution: errorHandlerV8.ts**
+**Solution: errorHandler.ts**
 
 ```typescript
-class ErrorHandlerV8 {
+class ErrorHandler {
   // Handle error with context
   static handleError(
     error: Error | string,
@@ -1438,7 +1438,7 @@ const ERROR_DEFINITIONS = {
 try {
   await exchangeTokens();
 } catch (error) {
-  ErrorHandlerV8.handleError(error, {
+  ErrorHandler.handleError(error, {
     flowType: 'authorization_code',
     step: 'token_exchange',
     action: 'exchange_code_for_tokens',
@@ -1467,10 +1467,10 @@ console.log('[🚨 ERROR-HANDLER-V8] Error handled', {
 - Inconsistent validation messages
 - No validation for common patterns (URLs, UUIDs, etc.)
 
-**Solution: validationServiceV8.ts**
+**Solution: validationService.ts**
 
 ```typescript
-class ValidationServiceV8 {
+class ValidationService {
   // Validate credentials
   static validateCredentials(
     credentials: Partial<StepCredentials>,
@@ -1557,7 +1557,7 @@ const VALIDATION_RULES = {
 
 **Usage:**
 ```tsx
-const result = ValidationServiceV8.validateCredentials(
+const result = ValidationService.validateCredentials(
   controller.credentials,
   flowType
 );
@@ -1580,10 +1580,10 @@ if (!result.valid) {
 - Hard to test
 - Inconsistent parameter handling
 
-**Solution: urlBuilderV8.ts**
+**Solution: urlBuilder.ts**
 
 ```typescript
-class UrlBuilderV8 {
+class UrlBuilder {
   // Build authorization URL
   static buildAuthorizationUrl(params: AuthUrlParams): string
   
@@ -1624,7 +1624,7 @@ interface CallbackParams {
 
 **Usage:**
 ```tsx
-const authUrl = UrlBuilderV8.buildAuthorizationUrl({
+const authUrl = UrlBuilder.buildAuthorizationUrl({
   authorizationEndpoint: endpoints.authorization_endpoint,
   clientId: credentials.clientId,
   redirectUri: credentials.redirectUri,
@@ -1648,10 +1648,10 @@ const authUrl = UrlBuilderV8.buildAuthorizationUrl({
 - No migration strategy
 - Inconsistent serialization
 
-**Solution: storageServiceV8.ts**
+**Solution: storageService.ts**
 
 ```typescript
-class StorageServiceV8 {
+class StorageService {
   // Save with versioning
   static save<T>(key: string, data: T, version: number): void
   
@@ -1710,10 +1710,10 @@ const STORAGE_KEYS = {
 - Inconsistent formatting
 - No request/response correlation
 
-**Solution: apiCallDisplayV8.ts**
+**Solution: apiCallDisplay.ts**
 
 ```typescript
-class ApiCallDisplayV8 {
+class ApiCallDisplay {
   // Log API call
   static logCall(call: ApiCall): string // Returns call ID
   
@@ -1761,33 +1761,33 @@ interface ApiCall {
 
 ```
 V8 Shared Services (Reusable across ALL flows)
-├── educationServiceV8.ts          [📚 EDUCATION-V8]
-├── modalManagerV8.ts               [🪟 MODAL-MANAGER-V8]
-├── errorHandlerV8.ts               [🚨 ERROR-HANDLER-V8]
-├── validationServiceV8.ts          [✅ VALIDATION-V8]
-├── urlBuilderV8.ts                 [🔗 URL-BUILDER-V8]
-├── storageServiceV8.ts             [💾 STORAGE-V8]
-├── apiCallDisplayV8.ts             [📡 API-CALL-V8]
-├── tokenDisplayServiceV8.ts        [🧪 TOKEN-DISPLAY-V8]
-├── scopeEducationServiceV8.ts      [🔑 SCOPE-EDUCATION-V8]
-├── configCheckerServiceV8.ts       [🔍 CONFIG-CHECKER-V8]
-└── discoveryServiceV8.ts           [📡 DISCOVERY-V8]
+├── educationService.ts          [📚 EDUCATION-V8]
+├── modalManager.ts               [🪟 MODAL-MANAGER-V8]
+├── errorHandler.ts               [🚨 ERROR-HANDLER-V8]
+├── validationService.ts          [✅ VALIDATION-V8]
+├── urlBuilder.ts                 [🔗 URL-BUILDER-V8]
+├── storageService.ts             [💾 STORAGE-V8]
+├── apiCallDisplay.ts             [📡 API-CALL-V8]
+├── tokenDisplayService.ts        [🧪 TOKEN-DISPLAY-V8]
+├── scopeEducationService.ts      [🔑 SCOPE-EDUCATION-V8]
+├── configCheckerService.ts       [🔍 CONFIG-CHECKER-V8]
+└── discoveryService.ts           [📡 DISCOVERY-V8]
 
 V8 Shared Components (Reusable across ALL flows)
 ├── EducationTooltip                (tooltips everywhere)
 ├── QuickStartModal                 (preset selection)
 ├── ConfigExportImport              (export/import configs)
-├── TokenDisplayV8                  (token display)
-├── ScopeManagerV8                  (scope selection)
-├── ConfigCheckerModalV8            (config comparison)
-├── DiscoveryModalV8                (OIDC discovery)
-├── CredentialsModalV8              (credential input)
+├── TokenDisplay                  (token display)
+├── ScopeManager                  (scope selection)
+├── ConfigCheckerModal            (config comparison)
+├── DiscoveryModal                (OIDC discovery)
+├── CredentialsModal              (credential input)
 └── ErrorDisplay                    (error messages with recovery)
 
 Flow-Specific Components
-├── OAuthAuthorizationCodeFlowV8
-├── ImplicitFlowV8
-└── [Future: DeviceCodeV8, ClientCredentialsV8, etc.]
+├── OAuthAuthorizationCodeFlow
+├── ImplicitFlow
+└── [Future: DeviceCode, ClientCredentials, etc.]
 ```
 
 ---
@@ -1824,21 +1824,21 @@ Flow-Specific Components
 ## 16. Implementation Priority
 
 ### Phase 1: Foundation (Week 1)
-1. **educationServiceV8** - Core education system
-2. **validationServiceV8** - Validation rules
-3. **errorHandlerV8** - Error handling
-4. **storageServiceV8** - Enhanced storage
+1. **educationService** - Core education system
+2. **validationService** - Validation rules
+3. **errorHandler** - Error handling
+4. **storageService** - Enhanced storage
 
 ### Phase 2: UI Services (Week 2)
-5. **modalManagerV8** - Modal management
-6. **tokenDisplayServiceV8** - Token display
-7. **scopeEducationServiceV8** - Scope education
-8. **urlBuilderV8** - URL building
+5. **modalManager** - Modal management
+6. **tokenDisplayService** - Token display
+7. **scopeEducationService** - Scope education
+8. **urlBuilder** - URL building
 
 ### Phase 3: Advanced (Week 3)
-9. **configCheckerServiceV8** - Config checking
-10. **discoveryServiceV8** - OIDC discovery
-11. **apiCallDisplayV8** - API call logging
+9. **configCheckerService** - Config checking
+10. **discoveryService** - OIDC discovery
+11. **apiCallDisplay** - API call logging
 
 ### Phase 4: Components (Week 4)
 12. All shared components
@@ -1873,35 +1873,35 @@ src/v8/
 ├── README.md                        # V8 architecture overview
 ├── components/                      # Reusable V8 components
 │   ├── __tests__/
-│   ├── TokenDisplayV8.tsx
-│   ├── ScopeManagerV8.tsx
+│   ├── TokenDisplay.tsx
+│   ├── ScopeManager.tsx
 │   ├── EducationTooltip.tsx
 │   ├── QuickStartModal.tsx
-│   ├── ConfigCheckerModalV8.tsx
-│   ├── DiscoveryModalV8.tsx
-│   ├── CredentialsModalV8.tsx
+│   ├── ConfigCheckerModal.tsx
+│   ├── DiscoveryModal.tsx
+│   ├── CredentialsModal.tsx
 │   └── ErrorDisplay.tsx
 │
 ├── services/                        # V8 business logic
 │   ├── __tests__/
-│   ├── educationServiceV8.ts
-│   ├── modalManagerV8.ts
-│   ├── errorHandlerV8.ts
-│   ├── validationServiceV8.ts
-│   ├── urlBuilderV8.ts
-│   ├── storageServiceV8.ts
-│   ├── apiCallDisplayV8.ts
-│   ├── tokenDisplayServiceV8.ts
-│   ├── scopeEducationServiceV8.ts
-│   ├── configCheckerServiceV8.ts
-│   └── discoveryServiceV8.ts
+│   ├── educationService.ts
+│   ├── modalManager.ts
+│   ├── errorHandler.ts
+│   ├── validationService.ts
+│   ├── urlBuilder.ts
+│   ├── storageService.ts
+│   ├── apiCallDisplay.ts
+│   ├── tokenDisplayService.ts
+│   ├── scopeEducationService.ts
+│   ├── configCheckerService.ts
+│   └── discoveryService.ts
 │
 ├── hooks/                           # V8 React hooks
 │   ├── __tests__/
-│   ├── useModalManagerV8.ts
-│   ├── useEducationV8.ts
-│   ├── useValidationV8.ts
-│   └── useStorageV8.ts
+│   ├── useModalManager.ts
+│   ├── useEducation.ts
+│   ├── useValidation.ts
+│   └── useStorage.ts
 │
 ├── types/                           # V8 TypeScript types
 │   ├── education.ts
@@ -1917,9 +1917,9 @@ src/v8/
 │   └── helpers.ts
 │
 └── flows/                           # V8 flow implementations
-    ├── OAuthAuthorizationCodeFlowV8.tsx
-    ├── ImplicitFlowV8.tsx
-    └── [future: DeviceCodeV8, ClientCredentialsV8, etc.]
+    ├── OAuthAuthorizationCodeFlow.tsx
+    ├── ImplicitFlow.tsx
+    └── [future: DeviceCode, ClientCredentials, etc.]
 ```
 
 ---
@@ -1934,8 +1934,8 @@ mkdir -p src/v8/{components,services,hooks,types,utils,flows}/__tests__
 **Phase 2: Move Existing V8 Flows**
 ```bash
 # Move flows to V8 directory
-mv src/pages/flows/OAuthAuthorizationCodeFlowV8.tsx src/v8/flows/
-mv src/pages/flows/ImplicitFlowV8.tsx src/v8/flows/
+mv src/pages/flows/OAuthAuthorizationCodeFlow.tsx src/v8/flows/
+mv src/pages/flows/ImplicitFlow.tsx src/v8/flows/
 
 # Update imports in App.tsx
 ```
@@ -1955,8 +1955,8 @@ mv src/pages/flows/ImplicitFlowV8.tsx src/v8/flows/
 **Phase 5: Update Routes**
 ```typescript
 // Update App.tsx to import from v8 directory
-const OAuthAuthorizationCodeFlowV8 = lazy(() => 
-  import('@/v8/flows/OAuthAuthorizationCodeFlowV8')
+const OAuthAuthorizationCodeFlow = lazy(() => 
+  import('@/v8/flows/OAuthAuthorizationCodeFlow')
 );
 ```
 
@@ -1979,11 +1979,11 @@ const OAuthAuthorizationCodeFlowV8 = lazy(() =>
 **Usage:**
 ```typescript
 // ✅ CORRECT - Clean imports
-import { EducationServiceV8 } from '@/v8/services/educationServiceV8';
-import { TokenDisplayV8 } from '@/v8/components/TokenDisplayV8';
+import { EducationService } from '@/v8/services/educationService';
+import { TokenDisplay } from '@/v8/components/TokenDisplay';
 
 // ❌ WRONG - Relative imports
-import { EducationServiceV8 } from '../../v8/services/educationServiceV8';
+import { EducationService } from '../../v8/services/educationService';
 ```
 
 ---
@@ -2012,10 +2012,10 @@ import { EducationServiceV8 } from '../../v8/services/educationServiceV8';
 **Day 1-2: Directory Setup & Core Services**
 - [x] Create `src/v8/` directory structure
 - [x] Create Kiro steering rules
-- [ ] Create `educationServiceV8.ts` with all content
-- [ ] Create `validationServiceV8.ts` with all rules
-- [ ] Create `errorHandlerV8.ts` with error definitions
-- [ ] Create `storageServiceV8.ts` with versioning
+- [ ] Create `educationService.ts` with all content
+- [ ] Create `validationService.ts` with all rules
+- [ ] Create `errorHandler.ts` with error definitions
+- [ ] Create `storageService.ts` with versioning
 
 **Day 3-4: Basic Components**
 - [ ] Create `EducationTooltip.tsx`
@@ -2031,14 +2031,14 @@ import { EducationServiceV8 } from '../../v8/services/educationServiceV8';
 
 ### Week 2: Token & Scope UX
 **Day 1-2: Token Display**
-- [ ] Create `tokenDisplayServiceV8.ts`
-- [ ] Create `TokenDisplayV8.tsx`
+- [ ] Create `tokenDisplayService.ts`
+- [ ] Create `TokenDisplay.tsx`
 - [ ] Integrate into Authorization Code V8
 - [ ] Test with OAuth and OIDC variants
 
 **Day 3-4: Scope Management**
-- [ ] Create `scopeEducationServiceV8.ts`
-- [ ] Create `ScopeManagerV8.tsx`
+- [ ] Create `scopeEducationService.ts`
+- [ ] Create `ScopeManager.tsx`
 - [ ] Add offline_access education
 - [ ] Integrate into flows
 
@@ -2049,14 +2049,14 @@ import { EducationServiceV8 } from '../../v8/services/educationServiceV8';
 
 ### Week 3: Advanced Features
 **Day 1-2: Config Checker**
-- [ ] Create `configCheckerServiceV8.ts`
-- [ ] Create `ConfigCheckerModalV8.tsx`
+- [ ] Create `configCheckerService.ts`
+- [ ] Create `ConfigCheckerModal.tsx`
 - [ ] Integrate into flows
 
 **Day 3-4: Discovery & Credentials**
-- [ ] Create `discoveryServiceV8.ts`
-- [ ] Create `DiscoveryModalV8.tsx`
-- [ ] Create `CredentialsModalV8.tsx`
+- [ ] Create `discoveryService.ts`
+- [ ] Create `DiscoveryModal.tsx`
+- [ ] Create `CredentialsModal.tsx`
 - [ ] Refactor credential management
 
 **Day 5: Polish**
@@ -2132,7 +2132,7 @@ import { EducationServiceV8 } from '../../v8/services/educationServiceV8';
 
 ---
 
-### 21.2 StepNavigationV8 Component
+### 21.2 StepNavigation Component
 
 **Purpose:** Unified step navigation with validation and progress tracking
 
@@ -2429,9 +2429,9 @@ interface StepValidationFeedbackProps {
 
 ### 21.7 Implementation in Flow Components
 
-**Update OAuthAuthorizationCodeFlowV8:**
+**Update OAuthAuthorizationCodeFlow:**
 ```tsx
-const OAuthAuthorizationCodeFlowV8: React.FC = () => {
+const OAuthAuthorizationCodeFlow: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   
   // Define steps with validation
@@ -2509,7 +2509,7 @@ const OAuthAuthorizationCodeFlowV8: React.FC = () => {
       />
       
       {/* Step Navigation */}
-      <StepNavigationV8
+      <StepNavigation
         currentStep={currentStep}
         totalSteps={steps.length}
         steps={steps}
@@ -2719,7 +2719,7 @@ useEffect(() => {
 ```typescript
 // Save step completion state
 const saveStepProgress = () => {
-  StorageServiceV8.save('step-progress', {
+  StorageService.save('step-progress', {
     flowKey: 'authz-code-v8',
     currentStep,
     completedSteps: steps.filter(s => s.completed).map(s => s.id),
@@ -2729,7 +2729,7 @@ const saveStepProgress = () => {
 
 // Load step progress
 const loadStepProgress = () => {
-  const progress = StorageServiceV8.load('step-progress');
+  const progress = StorageService.load('step-progress');
   if (progress && progress.flowKey === 'authz-code-v8') {
     setCurrentStep(progress.currentStep);
     // Restore completed steps
@@ -2768,7 +2768,7 @@ const loadStepProgress = () => {
 
 **Week 1: Foundation + Navigation**
 - Day 1-2: Core services (education, validation, error, storage)
-- Day 3: **StepNavigationV8 system** ⭐ NEW
+- Day 3: **StepNavigation system** ⭐ NEW
 - Day 4: Basic components (tooltips, error display)
 - Day 5: Integration testing
 

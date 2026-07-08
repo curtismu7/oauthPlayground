@@ -3,9 +3,9 @@
 ## Current Status
 
 The redirectless feature has been successfully implemented in:
-- ✅ `src/v8/services/redirectlessServiceV8.ts` - Core service
-- ✅ `src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx` - OAuth flow with redirectless
-- ✅ `src/v8/flows/ImplicitFlowV8.tsx` - Implicit flow with redirectless
+- ✅ `src/v8/services/redirectlessService.ts` - Core service
+- ✅ `src/v8/flows/OAuthAuthorizationCodeFlow.tsx` - OAuth flow with redirectless
+- ✅ `src/v8/flows/ImplicitFlow.tsx` - Implicit flow with redirectless
 
 ## To Test the Feature
 
@@ -14,12 +14,12 @@ The redirectless feature has been successfully implemented in:
 Add these routes to your `App.tsx` file:
 
 ```tsx
-import { OAuthAuthorizationCodeFlowV8 } from '@/v8/flows/OAuthAuthorizationCodeFlowV8';
-import { ImplicitFlowV8 } from '@/v8/flows/ImplicitFlowV8';
+import { OAuthAuthorizationCodeFlow } from '@/v8/flows/OAuthAuthorizationCodeFlow';
+import { ImplicitFlow } from '@/v8/flows/ImplicitFlow';
 
 // In your Routes section:
-<Route path="/v8/oauth-authz" element={<OAuthAuthorizationCodeFlowV8 />} />
-<Route path="/v8/implicit" element={<ImplicitFlowV8 />} />
+<Route path="/v8/oauth-authz" element={<OAuthAuthorizationCodeFlow />} />
+<Route path="/v8/implicit" element={<ImplicitFlow />} />
 ```
 
 Then navigate to:
@@ -33,10 +33,10 @@ Create a test page that renders the component directly:
 ```tsx
 // src/pages/TestRedirectless.tsx
 import React from 'react';
-import { OAuthAuthorizationCodeFlowV8 } from '@/v8/flows/OAuthAuthorizationCodeFlowV8';
+import { OAuthAuthorizationCodeFlow } from '@/v8/flows/OAuthAuthorizationCodeFlow';
 
 export const TestRedirectless: React.FC = () => {
-  return <OAuthAuthorizationCodeFlowV8 />;
+  return <OAuthAuthorizationCodeFlow />;
 };
 ```
 

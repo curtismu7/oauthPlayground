@@ -14,7 +14,7 @@
  */
 
 import { modernMessaging } from '@/platform/ModernMessagingService';
-import type { FlowType } from '@/mfa/services/specVersionServiceV8';
+import type { FlowType } from '@/mfa/services/specVersionService';
 import { unifiedFlowLoggerService as UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 
 export type ErrorCategory =

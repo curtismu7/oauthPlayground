@@ -1,12 +1,12 @@
 # AI SYSTEM INSTRUCTION HEADER (CURSOR & WINDSURF)
-# Cursor: this matrix is the contract between PingOne apidocs and the ImplicitFlowV8 UI.
+# Cursor: this matrix is the contract between PingOne apidocs and the ImplicitFlow UI.
 # Cursor: all validation and error handling must follow these rules.
 # Cursor: do NOT remove or relax these validations without explicit human approval.
 
 # PingOne Implicit Validation Matrix  
 ### apidocs → UI Components Mapping (V8)
 
-> This matrix connects PingOne API requirements (from apidocs) to your **UI fields, validation rules, and error states** in ImplicitFlowV8.
+> This matrix connects PingOne API requirements (from apidocs) to your **UI fields, validation rules, and error states** in ImplicitFlow.
 
 ---
 
@@ -39,10 +39,10 @@
 
 | Field         | Source            | UI Element                     | Validation Rules                                                                            | UX Behavior                                                                                  |
 |--------------|-------------------|--------------------------------|---------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
-| `id_token`   | From fragment     | TokenDisplayV8 (ID Token slot) | Must be a well-formed JWT (3 segments).                                                    | Button: Decode. Show header/payload JSON. Show error if malformed or missing.               |
-| `access_token`| From fragment    | TokenDisplayV8 (Access slot)   | Opaque or JWT depending on config; do not assume structure.                                | Copy-only. Optionally show “opaque token” explanation.                                      |
-| `expires_in` | From fragment     | TokenDisplayV8 meta info       | Should parse to integer (seconds).                                                         | Show remaining seconds; optionally convert to minutes in tooltip.                           |
-| `token_type` | From fragment     | TokenDisplayV8 meta info       | Typically `Bearer`.                                                                        | If missing, show default; if unexpected, show tooltip explaining uncommon token types.      |
+| `id_token`   | From fragment     | TokenDisplay (ID Token slot) | Must be a well-formed JWT (3 segments).                                                    | Button: Decode. Show header/payload JSON. Show error if malformed or missing.               |
+| `access_token`| From fragment    | TokenDisplay (Access slot)   | Opaque or JWT depending on config; do not assume structure.                                | Copy-only. Optionally show “opaque token” explanation.                                      |
+| `expires_in` | From fragment     | TokenDisplay meta info       | Should parse to integer (seconds).                                                         | Show remaining seconds; optionally convert to minutes in tooltip.                           |
+| `token_type` | From fragment     | TokenDisplay meta info       | Typically `Bearer`.                                                                        | If missing, show default; if unexpected, show tooltip explaining uncommon token types.      |
 | `state`      | From fragment     | Hidden / advanced debug panel  | Must match original state if provided.                                                     | If mismatch with stored state, show security warning; educational popover about CSRF.       |
 
 ---
@@ -55,8 +55,8 @@
 | Aspect              | UI / Service Component                        | Validation / Behavior                                                                                   |
 |---------------------|-----------------------------------------------|----------------------------------------------------------------------------------------------------------|
 | `envId`             | From App Config / Credential Store            | Must be non-empty and valid PingOne environment ID.                                                     |
-| Credentials         | CredentialStoreV8                             | Only retrieved when no valid worker token exists or expired.                                            |
-| Worker Token        | Stored in CredentialStoreV8                   | Must have expiry recorded (from token claims or TTL from response).                                     |
+| Credentials         | CredentialStore                             | Only retrieved when no valid worker token exists or expired.                                            |
+| Worker Token        | Stored in CredentialStore                   | Must have expiry recorded (from token claims or TTL from response).                                     |
 | Reuse Logic         | Shared across flows (Authz, PAR, Implicit)    | Always reuse until expiry; never prompt user again while valid.                                         |
 | Error Handling      | Show unobtrusive warnings on worker token failure | Educational tooltip: “Worker token is used for environment-level operations; not required for implicit itself.” |
 
@@ -72,7 +72,7 @@
 | Response Type Dropdown    | id_token / token / both                         | OIDC/OAuth authorization docs                               |
 | Response Mode Dropdown    | fragment / form_post                            | Authorization endpoint docs                                 |
 | Scopes Input              | scope parameter                                 | OIDC scopes & claims docs                                   |
-| TokenDisplayV8            | Show tokens from implicit                       | OIDC ID Token / Access Token docs                           |
+| TokenDisplay            | Show tokens from implicit                       | OIDC ID Token / Access Token docs                           |
 | LearnMoreSection          | Deep dive into flows & security                 | Conceptual sections (OIDC, OAuth, Implicit vs PKCE)         |
 
 Use this matrix to keep Cursor/Windsurf from drifting away from the **actual PingOne contract**.

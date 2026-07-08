@@ -371,7 +371,7 @@ Best for: Use case
 
 ### 1. Create Reusable Education Components
 
-**File:** `src/v8/components/ParameterEducationV8.tsx`
+**File:** `src/v8/components/ParameterEducation.tsx`
 
 Generic component that can explain any OAuth/OIDC parameter with:
 - Dropdown/input for value
@@ -441,7 +441,7 @@ Generic component that can explain any OAuth/OIDC parameter with:
 ## 🎯 Next Steps
 
 1. **Implement Phase 1 Parameters** (login_hint, max_age, resource)
-2. **Create ParameterEducationV8 component** (reusable pattern)
+2. **Create ParameterEducation component** (reusable pattern)
 3. **Add to CredentialsFormV8U** (with progressive disclosure)
 4. **Update integration services** (pass parameters to PingOne)
 5. **Add tests** (verify parameters work correctly)

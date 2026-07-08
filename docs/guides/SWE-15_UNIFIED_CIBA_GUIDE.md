@@ -62,8 +62,8 @@ grep -r "import.*CibaServiceV8Enhanced" src/v8/
 │  src/pages/flows/CIBAFlowV9.tsx                            │
 └─────────────────────────────────────────────────────────────┘
                             │
-                            ├──> MFAHeaderV8 (Header)
-                            ├──> WorkerTokenStatusDisplayV8 (Status)
+                            ├──> MFAHeader (Header)
+                            ├──> WorkerTokenStatusDisplay (Status)
                             ├──> Service Buttons (Get Token/Apps)
                             ├──> Configuration Checkboxes
                             ├──> API Display
@@ -92,7 +92,7 @@ CIBAFlowV9.tsx
     ├──> fetchApplications (pingOneApplicationService)
     │       └──> Application Discovery
     │
-    └──> CredentialsServiceV8
+    └──> CredentialsService
             └──> Unified Storage System
 ```
 
@@ -135,7 +135,7 @@ CIBAFlowV9.tsx
    - **Benefit:** Proper component structure
 
 7. **Import Corrections**
-   - **ApiDisplayCheckbox:** Fixed import from SuperSimpleApiDisplayV8
+   - **ApiDisplayCheckbox:** Fixed import from SuperSimpleApiDisplay
    - **Location:** Line 47
    - **Benefit:** Eliminates import errors
 
@@ -212,7 +212,7 @@ const handleGetWorkerToken = useCallback(async () => {
     const token = await unifiedWorkerTokenService.getToken();
     if (token) {
       setWorkerToken(token);
-      toastV8.success('Worker token retrieved successfully');
+      toast.success('Worker token retrieved successfully');
     } else {
       setShowWorkerTokenModal(true);
     }
@@ -241,10 +241,10 @@ const handleGetApps = useCallback(async () => {
       description: app.description || 'No description available',
     }));
     setApps(formattedApps);
-    toastV8.success(`Found ${formattedApps.length} applications`);
+    toast.success(`Found ${formattedApps.length} applications`);
   } catch (error) {
     console.error('Failed to get applications:', error);
-    toastV8.error('Failed to get applications');
+    toast.error('Failed to get applications');
   } finally {
     setIsLoadingApps(false);
   }
@@ -255,7 +255,7 @@ const handleGetApps = useCallback(async () => {
 ```typescript
 const handleSave = async () => {
   try {
-    await CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials, {
+    await CredentialsService.saveCredentials(FLOW_KEY, credentials, {
       flowKey: FLOW_KEY,
       flowType: 'oidc',
       includeClientSecret: true,
@@ -263,10 +263,10 @@ const handleSave = async () => {
       includeLogoutUri: false,
       includeScopes: true,
     });
-    toastV8.success('Configuration saved successfully');
+    toast.success('Configuration saved successfully');
   } catch (error) {
     console.error('Failed to save configuration:', error);
-    toastV8.error('Failed to save configuration');
+    toast.error('Failed to save configuration');
   }
 };
 ```
@@ -421,7 +421,7 @@ Generates a signed JWT for login_hint_token (demo purposes).
 
 ### Issue: Import error for toastV9
 **Cause:** Incorrect import path
-**Solution:** Use `import { toastV8 } from '@/v8/utils/toastNotificationsV8'`
+**Solution:** Use `import { toast } from '@/v8/utils/toastNotifications'`
 
 ### Issue: Missing header or worker token section
 **Cause:** Components not imported or rendered

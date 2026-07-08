@@ -19,9 +19,9 @@ Do all this **without redesigning the UI**: add fields, modals, or components in
 
 This applies to a TOTP‑specific flow like:
 
-- `TOTPFlowV8.tsx` (or equivalent)
-- `TOTPConfigurationPageV8.tsx` (if present)
-- Shared components in `MFAFlowBaseV8.tsx` and any `TOTPFlowController` / service files
+- `TOTPFlow.tsx` (or equivalent)
+- `TOTPConfigurationPage.tsx` (if present)
+- Shared components in `MFAFlowBase.tsx` and any `TOTPFlowController` / service files
 
 ---
 

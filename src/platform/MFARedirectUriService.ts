@@ -105,7 +105,7 @@ export const MFARedirectUriService = {
 
 	/**
 	 * Log a debug event for redirect-related operations.
-	 * Drop-in replacement for MFARedirectUriServiceV8.logDebugEvent().
+	 * Drop-in replacement for MFARedirectUriService.logDebugEvent().
 	 */
 	logDebugEvent(
 		category: string,

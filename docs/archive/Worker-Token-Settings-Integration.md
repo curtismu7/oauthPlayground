@@ -13,9 +13,9 @@ This document describes the integration of "Silent API Retrieval" and "Show Toke
 
 ## 🔧 Implementation Details
 
-### **1. Enhanced WorkerTokenStatusServiceV8**
+### **1. Enhanced WorkerTokenStatusService**
 
-**File**: `/src/v8/services/workerTokenStatusServiceV8.ts`
+**File**: `/src/v8/services/workerTokenStatusService.ts`
 
 **New Interfaces**:
 ```typescript
@@ -53,9 +53,9 @@ export const saveWorkerTokenSettings = (settings: Partial<WorkerTokenSettings>):
 - Includes settings in all TokenStatusInfo return values
 - Provides unified access to status + settings
 
-### **2. WorkerTokenSettingsV8 Component**
+### **2. WorkerTokenSettings Component**
 
-**File**: `/src/v8/components/WorkerTokenSettingsV8.tsx`
+**File**: `/src/v8/components/WorkerTokenSettings.tsx`
 
 **Features**:
 - ✅ **Silent API Retrieval** checkbox
@@ -66,7 +66,7 @@ export const saveWorkerTokenSettings = (settings: Partial<WorkerTokenSettings>):
 
 **Usage**:
 ```typescript
-<WorkerTokenSettingsV8
+<WorkerTokenSettings
   settings={workerTokenSettings}
   onSettingsChange={handleSettingsChange}
 />
@@ -88,7 +88,7 @@ const DEFAULT_WORKER_TOKEN_SETTINGS: WorkerTokenSettings = {
 ```
 User changes checkbox
         ↓
-WorkerTokenSettingsV8 component
+WorkerTokenSettings component
         ↓
 saveWorkerTokenSettings()
         ↓
@@ -158,7 +158,7 @@ interface TokenStatusInfo {
 ### **Use Case 1: Unified Settings Access**
 ```typescript
 // Any component can now access worker token settings
-const tokenStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+const tokenStatus = await WorkerTokenStatusService.checkWorkerTokenStatus();
 const { silentApiRetrieval, showTokenAtEnd } = tokenStatus.settings;
 
 // No need to import MFA configuration service
@@ -168,7 +168,7 @@ const { silentApiRetrieval, showTokenAtEnd } = tokenStatus.settings;
 ```typescript
 // Add settings to any worker token status display
 <WorkerTokenStatusDisplay>
-  <WorkerTokenSettingsV8
+  <WorkerTokenSettings
     settings={tokenStatus.settings}
     onSettingsChange={handleSettingsChange}
   />
@@ -179,7 +179,7 @@ const { silentApiRetrieval, showTokenAtEnd } = tokenStatus.settings;
 ```typescript
 // Settings automatically saved when changed
 const handleSettingsChange = (newSettings) => {
-  WorkerTokenStatusServiceV8.saveWorkerTokenSettings(newSettings);
+  WorkerTokenStatusService.saveWorkerTokenSettings(newSettings);
   // Settings persisted to localStorage automatically
 };
 ```
@@ -191,13 +191,13 @@ const handleSettingsChange = (newSettings) => {
 - [x] Added loadWorkerTokenSettings() function
 - [x] Added saveWorkerTokenSettings() function
 - [x] Updated checkWorkerTokenStatus() to include settings
-- [x] Created WorkerTokenSettingsV8 component
+- [x] Created WorkerTokenSettings component
 - [x] Updated service exports
 - [x] Added localStorage persistence
 - [x] Added default settings
 
 ### **🔄 Next Steps**
-- [ ] Integrate WorkerTokenSettingsV8 into existing worker token status displays
+- [ ] Integrate WorkerTokenSettings into existing worker token status displays
 - [ ] Update MFA flows to use new worker token settings service
 - [ ] Remove worker token settings from MFA configuration service
 - [ ] Add tests for new functionality
@@ -205,25 +205,25 @@ const handleSettingsChange = (newSettings) => {
 
 ## 🔍 API Reference
 
-### **WorkerTokenStatusServiceV8**
+### **WorkerTokenStatusService**
 
 ```typescript
 // Check worker token status (now includes settings)
-const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+const status = await WorkerTokenStatusService.checkWorkerTokenStatus();
 console.log(status.settings.silentApiRetrieval); // boolean
 console.log(status.settings.showTokenAtEnd);     // boolean
 
 // Load settings directly
-const settings = WorkerTokenStatusServiceV8.loadWorkerTokenSettings();
+const settings = WorkerTokenStatusService.loadWorkerTokenSettings();
 
 // Save settings
-WorkerTokenStatusServiceV8.saveWorkerTokenSettings({
+WorkerTokenStatusService.saveWorkerTokenSettings({
   silentApiRetrieval: true,
   showTokenAtEnd: false
 });
 ```
 
-### **WorkerTokenSettingsV8 Component**
+### **WorkerTokenSettings Component**
 
 ```typescript
 interface Props {

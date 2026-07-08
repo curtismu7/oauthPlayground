@@ -30,8 +30,8 @@ The OAuth 2.0 Implicit Flow V8 is a complete implementation of the implicit flow
 ### Component Structure
 
 ```
-ImplicitFlowV8
-├── StepNavigationV8 (Progress bar)
+ImplicitFlow
+├── StepNavigation (Progress bar)
 ├── Step 0: Configure Credentials
 │   ├── Environment ID input
 │   ├── Client ID input
@@ -44,20 +44,20 @@ ImplicitFlowV8
 │   ├── Access Token display
 │   ├── ID Token display
 │   └── Token metadata
-├── StepValidationFeedbackV8 (Errors/warnings)
-└── StepActionButtonsV8 (Navigation)
+├── StepValidationFeedback (Errors/warnings)
+└── StepActionButtons (Navigation)
 ```
 
 ### Service Integration
 
 ```
-ImplicitFlowV8
-├── ValidationServiceV8 (Validate credentials)
-├── EducationServiceV8 (Tooltips)
-├── StorageServiceV8 (Save credentials)
-├── FlowResetServiceV8 (Reset flow)
-├── ImplicitFlowIntegrationServiceV8 (OAuth integration)
-└── useStepNavigationV8 (State management)
+ImplicitFlow
+├── ValidationService (Validate credentials)
+├── EducationService (Tooltips)
+├── StorageService (Save credentials)
+├── FlowResetService (Reset flow)
+├── ImplicitFlowIntegrationService (OAuth integration)
+└── useStepNavigation (State management)
 ```
 
 ---
@@ -129,7 +129,7 @@ ImplicitFlowV8
 ```
 User Input (Step 0)
     ↓
-ValidationServiceV8.validateCredentials()
+ValidationService.validateCredentials()
     ↓
     ├─→ Valid? → Enable Next button
     └─→ Invalid? → Show errors, disable Next
@@ -156,10 +156,10 @@ User authenticates and gets redirected (Step 2)
 ### Basic Implementation
 
 ```typescript
-import ImplicitFlowV8 from '@/v8/flows/ImplicitFlowV8';
+import ImplicitFlow from '@/v8/flows/ImplicitFlow';
 
 export const MyApp: React.FC = () => {
-	return <ImplicitFlowV8 />;
+	return <ImplicitFlow />;
 };
 ```
 
@@ -167,7 +167,7 @@ export const MyApp: React.FC = () => {
 
 ```typescript
 <div className="custom-container">
-	<ImplicitFlowV8 />
+	<ImplicitFlow />
 </div>
 
 <style>{`
@@ -205,7 +205,7 @@ export const MyApp: React.FC = () => {
 npm test
 
 # Run flow tests only
-npm test ImplicitFlowV8
+npm test ImplicitFlow
 
 # Run with coverage
 npm test -- --coverage
@@ -282,46 +282,46 @@ Progress: 100% (3 of 3)
 
 ## 📚 Integration with Services
 
-### ValidationServiceV8
+### ValidationService
 
 ```typescript
-const result = ValidationServiceV8.validateCredentials(credentials, 'oauth');
+const result = ValidationService.validateCredentials(credentials, 'oauth');
 if (!result.valid) {
 	nav.setValidationErrors(result.errors.map(e => e.message));
 }
 ```
 
-### EducationServiceV8
+### EducationService
 
 ```typescript
-const tooltip = EducationServiceV8.getTooltip('credential.environmentId');
+const tooltip = EducationService.getTooltip('credential.environmentId');
 // Returns: { title, description, learnMore }
 ```
 
-### StorageServiceV8
+### StorageService
 
 ```typescript
 // Save credentials
-StorageServiceV8.saveCredentials('implicit-flow-v8', credentials);
+StorageService.saveCredentials('implicit-flow-v8', credentials);
 
 // Load credentials
-const stored = StorageServiceV8.getCredentials('implicit-flow-v8');
+const stored = StorageService.getCredentials('implicit-flow-v8');
 ```
 
-### ImplicitFlowIntegrationServiceV8
+### ImplicitFlowIntegrationService
 
 ```typescript
 // Generate authorization URL
-const result = ImplicitFlowIntegrationServiceV8.generateAuthorizationUrl(credentials);
+const result = ImplicitFlowIntegrationService.generateAuthorizationUrl(credentials);
 
 // Parse callback fragment
-const tokens = ImplicitFlowIntegrationServiceV8.parseCallbackFragment(callbackUrl, state);
+const tokens = ImplicitFlowIntegrationService.parseCallbackFragment(callbackUrl, state);
 
 // Decode token
-const decoded = ImplicitFlowIntegrationServiceV8.decodeToken(token);
+const decoded = ImplicitFlowIntegrationService.decodeToken(token);
 
 // Validate nonce
-const isValid = ImplicitFlowIntegrationServiceV8.validateNonce(idToken, nonce);
+const isValid = ImplicitFlowIntegrationService.validateNonce(idToken, nonce);
 ```
 
 ---

@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-Migrate toastV8 calls to V9 Modern Messaging (modernMessaging).
+Migrate toast calls to V9 Modern Messaging (modernMessaging).
 
 Mapping:
-  toastV8.success(msg)        → modernMessaging.showFooterMessage({ type: 'info', message: MSG, duration: 3000 })
-  toastV8.info(msg)           → modernMessaging.showFooterMessage({ type: 'info', message: MSG, duration: 3000 })
-  toastV8.error(msg)          → modernMessaging.showBanner({ type: 'error', title: 'Error', message: MSG, dismissible: true })
-  toastV8.warning(msg)        → modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: MSG, dismissible: true })
-  toastV8.warn(msg)           → same as warning
-  toastV8.formattedSuccess(…) → showFooterMessage
-  toastV8.formattedError(…)   → showBanner error
-  toastV8.formattedWarning(…) → showBanner warning
-  toastV8.formattedInfo(…)    → showFooterMessage
+  toast.success(msg)        → modernMessaging.showFooterMessage({ type: 'info', message: MSG, duration: 3000 })
+  toast.info(msg)           → modernMessaging.showFooterMessage({ type: 'info', message: MSG, duration: 3000 })
+  toast.error(msg)          → modernMessaging.showBanner({ type: 'error', title: 'Error', message: MSG, dismissible: true })
+  toast.warning(msg)        → modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: MSG, dismissible: true })
+  toast.warn(msg)           → same as warning
+  toast.formattedSuccess(…) → showFooterMessage
+  toast.formattedError(…)   → showBanner error
+  toast.formattedWarning(…) → showBanner warning
+  toast.formattedInfo(…)    → showFooterMessage
   zero-arg convenience methods → fixed messages
-  toastV8.stepCompleted(n)    → showFooterMessage with step number
+  toast.stepCompleted(n)    → showFooterMessage with step number
 """
 
 import re
@@ -64,7 +64,7 @@ ZERO_ARG_MAP = {
 
 # Import old → new
 OLD_IMPORT_RE = re.compile(
-    r"import\s*\{[^}]*\btoastV8\b[^}]*\}\s*from\s*['\"]@/v8/utils/toastNotificationsV8['\"];?",
+    r"import\s*\{[^}]*\btoast\b[^}]*\}\s*from\s*['\"]@/v8/utils/toastNotifications['\"];?",
 )
 NEW_IMPORT = "import { modernMessaging } from '@/platform/ModernMessagingService';"
 
@@ -123,10 +123,10 @@ def make_banner_info(msg_expr, title="Information"):
 
 
 def replace_toast_calls(content):
-    """Replace all toastV8.method(...) calls in content string."""
+    """Replace all toast.method(...) calls in content string."""
     result = []
     i = 0
-    pattern = re.compile(r'toastV8\.([a-zA-Z]+)\s*\(')
+    pattern = re.compile(r'toast\.([a-zA-Z]+)\s*\(')
     
     while i < len(content):
         m = pattern.search(content, i)
@@ -147,7 +147,7 @@ def replace_toast_calls(content):
         # ---- Core 4 methods ----
         if method == 'success':
             if args_stripped:
-                # May have second arg: toastV8.success('msg', { duration: N })
+                # May have second arg: toast.success('msg', { duration: N })
                 # Find first comma not inside strings/parens
                 first_arg = get_first_arg(args_content)
                 opts = args_content[len(first_arg):].strip().lstrip(',').strip()
@@ -306,14 +306,14 @@ def get_first_arg(args_content):
 
 
 def update_import(content):
-    """Replace toastV8 import with modernMessaging import."""
+    """Replace toast import with modernMessaging import."""
     # Already has modernMessaging import?
     has_modern = 'modernMessaging' in content and 'ModernMessagingService' in content
     has_toast_import = OLD_IMPORT_RE.search(content)
     
     if has_toast_import:
         if has_modern:
-            # Just remove the toastV8 import
+            # Just remove the toast import
             content = OLD_IMPORT_RE.sub('', content)
         else:
             # Replace with modernMessaging import
@@ -321,7 +321,7 @@ def update_import(content):
     
     # Handle relative import variants too
     content = re.sub(
-        r"import\s*\{[^}]*\btoastV8\b[^}]*\}\s*from\s*['\"][^'\"]*toastNotificationsV8['\"];?\n?",
+        r"import\s*\{[^}]*\btoast\b[^}]*\}\s*from\s*['\"][^'\"]*toastNotifications['\"];?\n?",
         NEW_IMPORT + "\n" if not has_modern else "",
         content
     )
@@ -342,8 +342,8 @@ def process_file(filepath):
     
     content = path.read_text(encoding='utf-8')
     
-    # Only process files that have toastV8 usage
-    if 'toastV8' not in content:
+    # Only process files that have toast usage
+    if 'toast' not in content:
         return False
     
     original = content

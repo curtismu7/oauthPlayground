@@ -61,7 +61,7 @@ flowchart TD
   - Device registration operations automatically use worker token even in user flows (see "User Token Handling" section below)
 
 ### Step: PingOne Authentication (User Flow Only)
-- **Modal:** User Login Modal (`UserLoginModalV8`)
+- **Modal:** User Login Modal (`UserLoginModal`)
 - **Purpose:** Authenticate user to get user token
 - **Process:**
   1. User clicks "Start Authentication"
@@ -72,7 +72,7 @@ flowchart TD
   6. User token is received and saved
 
 ### Step: Authentication Success Modal (User Flow Only)
-- **Component:** User Authentication Success Modal (`UserAuthenticationSuccessModalV8`)
+- **Component:** User Authentication Success Modal (`UserAuthenticationSuccessModal`)
 - **Display:** Modal overlay (fixed position, centered)
 - **Purpose:** Confirm successful authentication and display user data from PingOne
 - **Features:**
@@ -172,7 +172,7 @@ flowchart TD
   - Success message
   - Device details (ID, email, nickname, status)
   - "Start Again" button (returns to MFA Hub via `navigateToMfaHubWithCleanup`)
-  - API calls display (collapsible, via `SuperSimpleApiDisplayV8`)
+  - API calls display (collapsible, via `SuperSimpleApiDisplay`)
   - Documentation button (opens documentation modal)
 - **Navigation:**
   - After successful OTP validation, device status becomes ACTIVE
@@ -245,7 +245,7 @@ After successful OTP validation in Step 4, the device status becomes `ACTIVE` an
   - Before redirecting to PingOne for user authentication, the current page path (including query parameters) is stored in `sessionStorage` under the key `user_login_return_to_mfa`.
   - After successful PingOne authentication, the OAuth callback handler (`CallbackHandlerV8U`) retrieves the stored return path and redirects the user back to the exact page they were on (e.g., `/v8/mfa/register/email/device?step=1`).
   - The callback handler also sets a marker `mfa_oauth_callback_return` in `sessionStorage` to signal that state restoration should occur.
-  - `MFAFlowBaseV8` detects this marker and automatically advances the flow from Step 0 to Step 1 if a user token is present and Step 0 validation passes.
+  - `MFAFlowBase` detects this marker and automatically advances the flow from Step 0 to Step 1 if a user token is present and Step 0 validation passes.
   - This ensures users return to the exact step they were on (not the MFA Hub) and can seamlessly continue their device registration flow.
   - **Storage Keys Used:**
     - `user_login_return_to_mfa`: Stores the return path as a plain string (e.g., `/v8/mfa/register/email/device?step=2`)
@@ -253,7 +253,7 @@ After successful OTP validation in Step 4, the device status becomes `ACTIVE` an
   - **Note:** This state preservation mechanism only applies to User Flows that require PingOne authentication. Admin Flows (using worker tokens) do not require this mechanism.
 - **Email Auto-fill:** Email address is automatically fetched from PingOne user profile if available, otherwise user must enter it.
 - **Step 4 Conditional Rendering:** Step 4 uses conditional logic to show either OTP Validation Modal OR Success Page based on device status (`deviceRegisteredActive` state or `mfaState.deviceStatus`).
-- **Fallback Navigation:** All steps include "Next Step" buttons in the footer (via `StepActionButtonsV8` component) as a backup mechanism for manual progression, even when auto-advance is active. These buttons are enabled when step prerequisites are met (valid credentials, required fields filled, etc.). This ensures users can always progress manually if auto-advance fails or if they prefer manual control.
+- **Fallback Navigation:** All steps include "Next Step" buttons in the footer (via `StepActionButtons` component) as a backup mechanism for manual progression, even when auto-advance is active. These buttons are enabled when step prerequisites are met (valid credentials, required fields filled, etc.). This ensures users can always progress manually if auto-advance fails or if they prefer manual control.
 
 ## Security & Implementation Details
 

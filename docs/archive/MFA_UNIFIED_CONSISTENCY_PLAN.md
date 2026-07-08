@@ -16,7 +16,7 @@
 | **Navigation Style** | Separated buttons, colored outlines | Separated buttons, colored outlines | ✅ YES |
 | **Documentation Page** | Category cards, live tracking | Category cards, live tracking | ✅ YES |
 | **Component Pattern** | Container + Steps | Router + Factory + Controller | ❌ DIFFERENT |
-| **Main Component Size** | 13,832 lines (UnifiedFlowSteps) | 6,603 lines (MFAAuthenticationMainPageV8) | ⚠️ BOTH LARGE |
+| **Main Component Size** | 13,832 lines (UnifiedFlowSteps) | 6,603 lines (MFAAuthenticationMainPage) | ⚠️ BOTH LARGE |
 | **Service Layer** | Direct service calls | Controller layer → Services | ❌ DIFFERENT |
 | **State Management** | React state + URL params | React state + Controllers | ⚠️ SIMILAR |
 | **Storage Services** | Dedicated (PKCE, Credentials) | Generic (Credentials) | ⚠️ SIMILAR |
@@ -47,8 +47,8 @@ src/v8u/
 **MFA:**
 ```
 src/v8/flows/
-├── MFAAuthenticationMainPageV8.tsx (6.6k lines)
-├── MFAHubV8.tsx
+├── MFAAuthenticationMainPage.tsx (6.6k lines)
+├── MFAHub.tsx
 ├── factories/
 │   ├── MFAFlowComponentFactory.ts
 │   └── MFAFlowControllerFactory.ts
@@ -58,11 +58,11 @@ src/v8/flows/
 │   ├── EmailFlowController.ts
 │   └── [others]
 ├── types/
-│   ├── SMS specific (SMSFlowV8.tsx)
-│   ├── Email specific (EmailFlowV8.tsx)
+│   ├── SMS specific (SMSFlow.tsx)
+│   ├── Email specific (EmailFlow.tsx)
 │   └── [8 device types]
 └── shared/
-    └── MFAFlowBaseV8.tsx
+    └── MFAFlowBase.tsx
 ```
 
 ---
@@ -76,17 +76,17 @@ src/v8/flows/
 // Unified approach
 UnifiedFlowSteps (Component)
   → calls UnifiedFlowIntegrationV8U.generateAuthorizationUrl()
-    → delegates to OAuthIntegrationServiceV8
+    → delegates to OAuthIntegrationService
 ```
 
 **MFA:** Router → Factory → Controller → Service Pattern
 ```typescript
 // MFA approach
-MFAFlowV8 (Router)
+MFAFlow (Router)
   → MFAFlowComponentFactory.create('SMS')
-    → SMSFlowV8 (Component)
+    → SMSFlow (Component)
       → SMSFlowController (Controller)
-        → MFAServiceV8 (Service)
+        → MFAService (Service)
 ```
 
 **Impact:** MFA has an extra controller layer that Unified doesn't have.
@@ -133,10 +133,10 @@ UnifiedFlowErrorHandler.handleError(error, context, {
 ```typescript
 // Inline try-catch
 try {
-  const result = await MFAServiceV8.registerDevice(...);
+  const result = await MFAService.registerDevice(...);
 } catch (error) {
   console.error('Failed to register device', error);
-  toastV8.error(error.message);
+  toast.error(error.message);
   setError(error.message);
 }
 ```
@@ -176,13 +176,13 @@ console.error(`${MODULE_TAG} Registration failed`, error);
 
 1. **Extract MFA Integration Service (like Unified)**
    ```typescript
-   // Create: src/v8/services/mfaFlowIntegrationV8.ts
-   export class MFAFlowIntegrationV8 {
+   // Create: src/v8/services/mfaFlowIntegration.ts
+   export class MFAFlowIntegration {
      static async registerDevice(deviceType, credentials) {
        // Delegates to device-specific services
        switch (deviceType) {
-         case 'SMS': return SMSMFAServiceV8.registerDevice(credentials);
-         case 'EMAIL': return EmailMFAServiceV8.registerDevice(credentials);
+         case 'SMS': return SMSMFAService.registerDevice(credentials);
+         case 'EMAIL': return EmailMFAService.registerDevice(credentials);
          // ...
        }
      }
@@ -212,7 +212,7 @@ console.error(`${MODULE_TAG} Registration failed`, error);
    import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
    
    // Or rename to shared:
-   // src/v8/services/flowLoggerServiceV8.ts (used by both)
+   // src/v8/services/flowLoggerService.ts (used by both)
    ```
 
 **Effort:** 16-24 hours  
@@ -300,7 +300,7 @@ console.error(`${MODULE_TAG} Registration failed`, error);
 
 3. **Standardize Modal Components**
    - LoadingSpinnerModalV8U (already shared ✅)
-   - Create shared: ConfirmModalV8, SuccessModalV8, ErrorModalV8
+   - Create shared: ConfirmModal, SuccessModal, ErrorModal
 
 **Effort:** 12-16 hours  
 **Benefit:** Perfect visual consistency  
@@ -348,26 +348,26 @@ console.error(`${MODULE_TAG} Registration failed`, error);
    - ✅ Smooth animations (300ms)
    - ✅ Icon indicators (chevron rotation)
    - ✅ Keyboard accessible (Enter/Space)
-   - Component: `/src/v8/components/shared/CollapsibleSectionV8.tsx`
+   - Component: `/src/v8/components/shared/CollapsibleSection.tsx`
 
 2. ✅ **Create MessageBox Component** (2-3 hours) - COMPLETED
    - ✅ Success/Warning/Error/Info variants
    - ✅ Consistent color standards
    - ✅ Icon support, dismissible option
    - ✅ Accessible (role="alert", aria-live)
-   - Component: `/src/v8/components/shared/MessageBoxV8.tsx`
+   - Component: `/src/v8/components/shared/MessageBox.tsx`
 
 3. ✅ **Create UI Standards Constants** (1-2 hours) - COMPLETED
    - ✅ Button color semantics
    - ✅ Typography standards
    - ✅ Spacing and animation constants
-   - File: `/src/v8/constants/uiStandardsV8.ts`
+   - File: `/src/v8/constants/uiStandards.ts`
 
-4. ✅ **Update ActionButtonV8 with Loading States** (2-3 hours) - COMPLETED
+4. ✅ **Update ActionButton with Loading States** (2-3 hours) - COMPLETED
    - ✅ `isLoading` prop with spinner
    - ✅ Maintains button dimensions
    - ✅ "Loading..." text display
-   - Component: `/src/v8/components/shared/ActionButtonV8.tsx`
+   - Component: `/src/v8/components/shared/ActionButton.tsx`
 
 5. ⏳ **Implement Button State Management** (6-9 hours) - PENDING
    - Add `isActionInProgress` state to all flows
@@ -398,7 +398,7 @@ console.error(`${MODULE_TAG} Registration failed`, error);
 | Pattern | Unified | MFA | Suggested |
 |---------|---------|-----|-----------|
 | **Module Tags** | `[🎯 UNIFIED-OAUTH-FLOW-V8U]` | `[🔐 MFA-AUTHN-MAIN-V8]` | Keep distinct (for clarity) |
-| **Service Names** | `UnifiedFlowIntegrationV8U` | `MFAServiceV8` | Harmonize: `*IntegrationV8` |
+| **Service Names** | `UnifiedFlowIntegrationV8U` | `MFAService` | Harmonize: `*Integration` |
 | **File Naming** | `*V8U.tsx` | `*V8.tsx` | Keep (distinguishes v8 vs v8u) |
 | **Function Names** | `handleGenerateAuthUrl` | `handleStartMFA` | Align: `handle{Action}` ✅ |
 | **State Interfaces** | `UnifiedFlowCredentials` | `MFACredentials` | Align: `*Credentials` ✅ |
@@ -408,12 +408,12 @@ console.error(`${MODULE_TAG} Registration failed`, error);
 1. **Rename MFA Services to Match Pattern**
    ```typescript
    // Current
-   MFAServiceV8
-   MFAAuthenticationServiceV8
+   MFAService
+   MFAAuthenticationService
    
    // Suggested
-   MFAFlowIntegrationV8 (facade, like Unified)
-   MFAAuthenticationServiceV8 (keep specific services)
+   MFAFlowIntegration (facade, like Unified)
+   MFAAuthenticationService (keep specific services)
    ```
 
 2. **Align Handler Naming**
@@ -462,7 +462,7 @@ const [authState, setAuthState] = useState({
 });
 
 // Credentials from storage
-const credentials = CredentialsServiceV8.loadCredentials('mfa-v8', config);
+const credentials = CredentialsService.loadCredentials('mfa-v8', config);
 
 // Standard storage
 localStorage.setItem('mfa_state', JSON.stringify(authState));
@@ -484,8 +484,8 @@ localStorage.setItem('mfa_state', JSON.stringify(authState));
 
 2. **Implement Multi-Layer Storage for MFA**
    ```typescript
-   // Create: MFAStorageServiceV8 (similar to PKCEStorageServiceV8U)
-   export class MFAStorageServiceV8 {
+   // Create: MFAStorageService (similar to PKCEStorageServiceV8U)
+   export class MFAStorageService {
      static saveMFAState(deviceType: DeviceType, state: MFAState) {
        // Layer 1: Memory (React state)
        // Layer 2: localStorage (primary)
@@ -498,7 +498,7 @@ localStorage.setItem('mfa_state', JSON.stringify(authState));
 3. **Adopt FlowSettings Pattern for MFA**
    ```typescript
    // Similar to FlowSettingsServiceV8U
-   export class MFAFlowSettingsV8 {
+   export class MFAFlowSettings {
      static getDeviceType(): DeviceType { ... }
      static saveDeviceType(deviceType: DeviceType) { ... }
      static getLastUsedTimestamp(deviceType: DeviceType) { ... }
@@ -567,10 +567,10 @@ localStorage.setItem('mfa_state', JSON.stringify(authState));
 - [x] API Documentation page (category cards)
 - [x] API call tracking (same service)
 - [x] Loading spinners (LoadingSpinnerModalV8U)
-- [x] Toast notifications (toastV8)
+- [x] Toast notifications (toast)
 - [x] Handler naming (`handle{Action}`)
 - [x] Interface naming (`{Type}Credentials`, `{Type}State`)
-- [x] **Page header component (PageHeaderV8 - COMPLETED 2026-01-19)**
+- [x] **Page header component (PageHeader - COMPLETED 2026-01-19)**
 - [x] **Error handling in critical flows (COMPLETED 2026-01-19)**
 
 ### ⏳ Partially Aligned
@@ -603,7 +603,7 @@ localStorage.setItem('mfa_state', JSON.stringify(authState));
 ### Sprint 1: Service Layer Alignment (2 weeks)
 
 **Week 1:**
-1. Extract MFAFlowIntegrationV8 service (facade pattern)
+1. Extract MFAFlowIntegration service (facade pattern)
 2. Adopt UnifiedFlowErrorHandler in MFA
 3. Adopt UnifiedFlowLoggerService in MFA
 4. Update all MFA flows to use new services
@@ -615,7 +615,7 @@ localStorage.setItem('mfa_state', JSON.stringify(authState));
 8. Deploy and verify
 
 **Deliverables:**
-- `src/v8/services/mfaFlowIntegrationV8.ts`
+- `src/v8/services/mfaFlowIntegration.ts`
 - Updated MFA controllers to use error handler
 - Updated MFA flows to use logger
 - Test coverage report
@@ -626,8 +626,8 @@ localStorage.setItem('mfa_state', JSON.stringify(authState));
 
 **Week 1:**
 1. Implement URL-based routing for MFA: `/v8/mfa/{deviceType}/{step}`
-2. Create MFAStorageServiceV8 (multi-layer storage)
-3. Create MFAFlowSettingsV8 (device type preferences)
+2. Create MFAStorageService (multi-layer storage)
+3. Create MFAFlowSettings (device type preferences)
 4. Update MFA main page to use URL parameters
 
 **Week 2:**
@@ -651,7 +651,7 @@ localStorage.setItem('mfa_state', JSON.stringify(authState));
 1. Create shared UI components:
    - CollapsibleSection (expand/collapse with state persistence)
    - MessageBox (Success/Warning/Error/Info variants)
-   - Update ActionButtonV8 with loading states
+   - Update ActionButton with loading states
 
 2. Implement button state management:
    - Add `isActionInProgress` to all flows
@@ -680,7 +680,7 @@ localStorage.setItem('mfa_state', JSON.stringify(authState));
 **Deliverables:**
 - CollapsibleSection component
 - MessageBox component  
-- Updated ActionButtonV8 with loading states
+- Updated ActionButton with loading states
 - Button state management in all flows
 - Collapsible sections in all flows
 - Consistent button colors throughout
@@ -737,7 +737,7 @@ localStorage.setItem('mfa_state', JSON.stringify(authState));
 - [x] Same navigation styling
 - [x] Same page width
 - [x] Same documentation page layout
-- [x] Same page header styling (PageHeaderV8)
+- [x] Same page header styling (PageHeader)
 - [ ] Same button color semantics (standards defined, implementation pending)
 - [ ] Same button state management (standards defined, implementation pending)
 - [ ] Same message/alert colors (standards defined, implementation pending)
@@ -784,10 +784,10 @@ localStorage.setItem('mfa_state', JSON.stringify(authState));
 **Status:** COMPLETED 2026-01-19
 
 Implemented UnifiedFlowErrorHandler in MFA critical device flows:
-- ✅ SMSFlowV8.tsx - Device registration error handler updated
-- ✅ EmailFlowV8.tsx - Authentication initialization and device loading updated  
-- ✅ FIDO2FlowV8.tsx - Import already present
-- ✅ TOTPFlowV8.tsx - Import added
+- ✅ SMSFlow.tsx - Device registration error handler updated
+- ✅ EmailFlow.tsx - Authentication initialization and device loading updated  
+- ✅ FIDO2Flow.tsx - Import already present
+- ✅ TOTPFlow.tsx - Import added
 
 See: `/docs/QUICK_WIN_1_IMPLEMENTATION_STATUS.md` for full details.
 
@@ -796,12 +796,12 @@ See: `/docs/QUICK_WIN_1_IMPLEMENTATION_STATUS.md` for full details.
 
 **Progress:**
 - ✅ Created logger imports in all MFA device flows:
-  - SMSFlowV8.tsx
-  - EmailFlowV8.tsx
-  - FIDO2FlowV8.tsx
-  - TOTPFlowV8.tsx
-  - MFAAuthenticationMainPageV8.tsx
-- ✅ Replaced 9 critical console statements in MFAAuthenticationMainPageV8.tsx (16% of 56 total):
+  - SMSFlow.tsx
+  - EmailFlow.tsx
+  - FIDO2Flow.tsx
+  - TOTPFlow.tsx
+  - MFAAuthenticationMainPage.tsx
+- ✅ Replaced 9 critical console statements in MFAAuthenticationMainPage.tsx (16% of 56 total):
   - ✅ Environment ID auto-population (line ~228)
   - ✅ Environment ID from worker token (line ~561)
   - ✅ Invalid return path error (line ~178)
@@ -819,7 +819,7 @@ See: `/docs/QUICK_WIN_1_IMPLEMENTATION_STATUS.md` for full details.
 - ✅ Context-aware logging (operation, flowType, etc.) in place
 
 **Remaining Console Statements:**
-- 47 console statements in MFAAuthenticationMainPageV8.tsx (mostly device selection, OTP, FIDO2 modals)
+- 47 console statements in MFAAuthenticationMainPage.tsx (mostly device selection, OTP, FIDO2 modals)
 - Pattern is established - future replacements follow same approach:
   - console.log(...) → UnifiedFlowLoggerService.info(...)
   - console.error(...) → UnifiedFlowLoggerService.error(..., context, error)
@@ -830,11 +830,11 @@ See: `/docs/QUICK_WIN_1_IMPLEMENTATION_STATUS.md` for full details.
 ### 3. Extract Page Header Component (2 hours) ✅ COMPLETED
 **Status:** COMPLETED 2026-01-19
 
-Created shared `PageHeaderV8` component with consistent styling:
-- ✅ Created `/src/v8/components/shared/PageHeaderV8.tsx`
-- ✅ Updated `UnifiedOAuthFlowV8U.tsx` to use PageHeaderV8
-- ✅ Updated `MFAAuthenticationMainPageV8.tsx` to use PageHeaderV8
-- ✅ Updated `UnifiedFlowHelperPageV8U.tsx` to use PageHeaderV8
+Created shared `PageHeader` component with consistent styling:
+- ✅ Created `/src/v8/components/shared/PageHeader.tsx`
+- ✅ Updated `UnifiedOAuthFlowV8U.tsx` to use PageHeader
+- ✅ Updated `MFAAuthenticationMainPage.tsx` to use PageHeader
+- ✅ Updated `UnifiedFlowHelperPageV8U.tsx` to use PageHeader
 - ✅ Exported predefined gradient themes (`PageHeaderGradients`)
 - ✅ Exported predefined text colors (`PageHeaderTextColors`)
 
@@ -848,8 +848,8 @@ Created shared `PageHeaderV8` component with consistent styling:
 ### 4. Standardize Button Styles (2 hours) ✅ COMPLETED
 **Status:** COMPLETED (Component Created, Adoption Pending)
 
-Created shared `ActionButtonV8` component for consistent button styling:
-- ✅ Created `/src/v8/components/shared/ActionButtonV8.tsx`
+Created shared `ActionButton` component for consistent button styling:
+- ✅ Created `/src/v8/components/shared/ActionButton.tsx`
 - ✅ Implemented 9 button variants:
   - Primary (blue gradient)
   - Secondary (gray outline)
@@ -874,8 +874,8 @@ Created shared `ActionButtonV8` component for consistent button styling:
 - Reduced inline style duplication
 
 **Next Steps (Optional):**
-- Adopt ActionButtonV8 in place of inline styled buttons in:
-  - MFAAuthenticationMainPageV8.tsx (~20+ inline buttons)
+- Adopt ActionButton in place of inline styled buttons in:
+  - MFAAuthenticationMainPage.tsx (~20+ inline buttons)
   - UnifiedOAuthFlowV8U.tsx (~15+ inline buttons)
   - Device-specific flows (SMS, Email, FIDO2, TOTP)
 
@@ -888,9 +888,9 @@ Created shared `ActionButtonV8` component for consistent button styling:
   - ✅ Quick Win #4: ActionButton Component (COMPLETED - 23 buttons across 3 files)
 
 **Expanded Button Adoption (Beyond Quick Wins):**
-  - ✅ ImplicitFlowV8.tsx: 9 buttons replaced (~138 lines eliminated)
-  - ✅ OAuthAuthorizationCodeFlowV8.tsx: 10 buttons replaced (~150 lines eliminated)
-  - ✅ MFAAuthenticationMainPageV8.tsx: 4 buttons replaced
+  - ✅ ImplicitFlow.tsx: 9 buttons replaced (~138 lines eliminated)
+  - ✅ OAuthAuthorizationCodeFlow.tsx: 10 buttons replaced (~150 lines eliminated)
+  - ✅ MFAAuthenticationMainPage.tsx: 4 buttons replaced
   - **Total:** 23 buttons, ~670+ lines eliminated, 98% visual consistency achieved
 
 ---
@@ -1067,7 +1067,7 @@ const handleAction = async () => {
    - Wrap all major sections in CollapsibleSection
    - Set default states based on active step
    - Add localStorage persistence
-   - Apply to: UnifiedOAuthFlowV8U, MFAAuthenticationMainPageV8, all device flows
+   - Apply to: UnifiedOAuthFlowV8U, MFAAuthenticationMainPage, all device flows
 
 **Deliverables:**
 - `/src/v8/components/shared/CollapsibleSection.tsx`
@@ -1210,8 +1210,8 @@ UnifiedOAuthFlowV8U (Container)
 
 **MFA Flow:**
 ```
-MFAAuthenticationMainPageV8 (All-in-one)
-  ├── MFANavigationV8
+MFAAuthenticationMainPage (All-in-one)
+  ├── MFANavigation
   ├── Environment/Token/Policy Controls
   ├── Device Selection
   ├── Username Input
@@ -1221,9 +1221,9 @@ MFAAuthenticationMainPageV8 (All-in-one)
 
 OR (Device-specific flows):
 
-MFAFlowV8 (Router)
+MFAFlow (Router)
   └── Factory.create(deviceType)
-      └── SMSFlowV8 (Device Component)
+      └── SMSFlow (Device Component)
           ├── Configuration
           ├── Registration
           ├── Activation
@@ -1247,7 +1247,7 @@ MFAFlowV8 (Router)
 
 1. ✅ **Quick Win #1: UnifiedFlowErrorHandler in MFA** (4 hours → 2 hours actual)
    - Completed: 2026-01-19
-   - Files updated: SMSFlowV8.tsx, EmailFlowV8.tsx, FIDO2FlowV8.tsx, TOTPFlowV8.tsx
+   - Files updated: SMSFlow.tsx, EmailFlow.tsx, FIDO2Flow.tsx, TOTPFlow.tsx
    - Documentation: `QUICK_WIN_1_IMPLEMENTATION_STATUS.md`
 
 2. ✅ **Quick Win #2: Adopt Logger in MFA** (4 hours → 2 hours actual for foundation)
@@ -1258,15 +1258,15 @@ MFAFlowV8 (Router)
 
 3. ✅ **Quick Win #3: Extract PageHeader Component** (2 hours → 1.5 hours actual)
    - Completed: 2026-01-19
-   - Component created: `src/v8/components/shared/PageHeaderV8.tsx`
-   - Files updated: UnifiedOAuthFlowV8U.tsx, MFAAuthenticationMainPageV8.tsx, UnifiedFlowHelperPageV8U.tsx
+   - Component created: `src/v8/components/shared/PageHeader.tsx`
+   - Files updated: UnifiedOAuthFlowV8U.tsx, MFAAuthenticationMainPage.tsx, UnifiedFlowHelperPageV8U.tsx
    - Features: Predefined gradients, text colors, decorative patterns, children support
 
 4. ✅ **Quick Win #4: Standardize Button Styles** (2 hours → 2 hours actual)
    - Completed: 2026-01-19  
-   - Component created: `src/v8/components/shared/ActionButtonV8.tsx`
+   - Component created: `src/v8/components/shared/ActionButton.tsx`
    - Features: 9 variants, 3 sizes, hover states, icon support, convenience exports
-   - **Adopted in MFAAuthenticationMainPageV8.tsx**: 4 primary action buttons replaced
+   - **Adopted in MFAAuthenticationMainPage.tsx**: 4 primary action buttons replaced
      - Start Authentication button → PrimaryButton
      - Register Device button → SuccessButton
      - Use Passkey/FaceID button → SecondaryButton
@@ -1287,7 +1287,7 @@ MFAFlowV8 (Router)
   - ✅ Developer experience: Flows now share consistent patterns
 
 ### Next Steps
-1. (Optional) Complete OAuthAuthorizationCodeFlowV8.tsx button adoption (10 buttons, ~150 lines)
+1. (Optional) Complete OAuthAuthorizationCodeFlow.tsx button adoption (10 buttons, ~150 lines)
 2. (Optional) Expand to additional flow files (30-50 buttons estimated)
 3. (Optional) Complete remaining console statement replacements incrementally as code is touched
 4. Evaluate Phase 1 (Service Layer Alignment) based on quick wins success
@@ -1303,15 +1303,15 @@ MFAFlowV8 (Router)
 - **Time Efficiency:** 9 hours actual vs 12 estimated (25% under budget)
 
 ### Deliverables Created
-1. `/src/v8/components/shared/PageHeaderV8.tsx` - Shared header component (200 lines)
-2. `/src/v8/components/shared/ActionButtonV8.tsx` - Shared button component (220 lines)
+1. `/src/v8/components/shared/PageHeader.tsx` - Shared header component (200 lines)
+2. `/src/v8/components/shared/ActionButton.tsx` - Shared button component (220 lines)
 3. `/docs/QUICK_WIN_1_IMPLEMENTATION_STATUS.md` - Error handler implementation tracking
 4. Updated error handling in 4 MFA device flows
 5. Updated headers in 3 major flow files
 6. Logger imports + 9 critical replacements in 5 MFA files
 7. Logging pattern established for future development
-8. Adopted ActionButtonV8 in MFAAuthenticationMainPageV8.tsx (4 buttons, ~120 lines eliminated)
-9. **NEW**: Expanded button adoption in ImplicitFlowV8.tsx (9 buttons, ~138 lines eliminated)
+8. Adopted ActionButton in MFAAuthenticationMainPage.tsx (4 buttons, ~120 lines eliminated)
+9. **NEW**: Expanded button adoption in ImplicitFlow.tsx (9 buttons, ~138 lines eliminated)
 10. **NEW**: `/docs/BUTTON_ADOPTION_EXPANDED.md` - Comprehensive adoption report
 
 ---

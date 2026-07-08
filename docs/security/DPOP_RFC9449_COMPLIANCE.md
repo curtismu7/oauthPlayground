@@ -15,10 +15,10 @@
 #### **1. Direct RFC Mentions:**
 - **dpopService.ts** (Line 4): `RFC 9449 - OAuth 2.0 Demonstrating Proof of Possession (DPoP)`
 - **DPoPFlow.tsx** (Line 3): `RFC 9449 - OAuth 2.0 Demonstrating Proof of Possession (DPoP)`
-- **DpopAuthorizationCodeFlowV8.tsx** (Line 8): `Educational implementation of DPoP (RFC 9449)`
+- **DpopAuthorizationCodeFlow.tsx** (Line 8): `Educational implementation of DPoP (RFC 9449)`
 
 #### **2. Official Links to RFC 9449:**
-- **DpopAuthorizationCodeFlowV8.tsx** (Line 916):
+- **DpopAuthorizationCodeFlow.tsx** (Line 916):
   ```html
   <a href="https://www.rfc-editor.org/rfc/rfc9449.html" target="_blank" rel="noopener noreferrer">
     RFC 9449 - OAuth 2.0 Demonstrating Proof of Possession (DPoP)
@@ -207,7 +207,7 @@ static async addDPoPHeaders(
 
 #### **1. Mock Server Limitation:**
 ```typescript
-// DpopAuthorizationCodeFlowV8.tsx
+// DpopAuthorizationCodeFlow.tsx
 Purpose: Educational implementation of DPoP (RFC 9449) for learning OAuth 2.0 security enhancements.
 Since PingOne does not support DPoP natively, this implementation provides a mock DPoP server
 ```

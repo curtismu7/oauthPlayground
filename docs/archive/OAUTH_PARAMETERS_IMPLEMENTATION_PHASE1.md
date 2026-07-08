@@ -7,15 +7,15 @@
 
 ## Summary
 
-Created educational components for high-priority OAuth/OIDC parameters that were missing from the playground. These components follow the same pattern as `ResponseModeDropdownV8` with built-in education.
+Created educational components for high-priority OAuth/OIDC parameters that were missing from the playground. These components follow the same pattern as `ResponseModeDropdown` with built-in education.
 
 ---
 
 ## Components Created
 
-### 1. ✅ ResponseModeDropdownV8 (Already Integrated)
+### 1. ✅ ResponseModeDropdown (Already Integrated)
 
-**File:** `src/v8/components/ResponseModeDropdownV8.tsx`  
+**File:** `src/v8/components/ResponseModeDropdown.tsx`  
 **Parameter:** `response_mode`  
 **Status:** ✅ Complete and integrated into CredentialsFormV8U
 
@@ -27,9 +27,9 @@ Created educational components for high-priority OAuth/OIDC parameters that were
 
 ---
 
-### 2. ✅ LoginHintInputV8 (NEW)
+### 2. ✅ LoginHintInput (NEW)
 
-**File:** `src/v8/components/LoginHintInputV8.tsx`  
+**File:** `src/v8/components/LoginHintInput.tsx`  
 **Parameter:** `login_hint`  
 **Type:** String (email or username)  
 **Status:** ✅ Component created - needs integration
@@ -51,9 +51,9 @@ Pre-fills the username/email field in the login form for better UX.
 
 ---
 
-### 3. ✅ MaxAgeInputV8 (NEW)
+### 3. ✅ MaxAgeInput (NEW)
 
-**File:** `src/v8/components/MaxAgeInputV8.tsx`  
+**File:** `src/v8/components/MaxAgeInput.tsx`  
 **Parameter:** `max_age`  
 **Type:** Number (seconds)  
 **Status:** ✅ Component created - needs integration
@@ -81,9 +81,9 @@ Forces fresh authentication if user's session is older than specified time.
 
 ---
 
-### 4. ✅ DisplayModeDropdownV8 (NEW)
+### 4. ✅ DisplayModeDropdown (NEW)
 
-**File:** `src/v8/components/DisplayModeDropdownV8.tsx`  
+**File:** `src/v8/components/DisplayModeDropdown.tsx`  
 **Parameter:** `display`  
 **Type:** Enum ('page' | 'popup' | 'touch' | 'wap')  
 **Status:** ✅ Component created - needs integration
@@ -172,9 +172,9 @@ export interface UnifiedFlowCredentials {
 
 Add imports:
 ```typescript
-import { LoginHintInputV8 } from '@/v8/components/LoginHintInputV8';
-import { MaxAgeInputV8 } from '@/v8/components/MaxAgeInputV8';
-import { DisplayModeDropdownV8 } from '@/v8/components/DisplayModeDropdownV8';
+import { LoginHintInput } from '@/v8/components/LoginHintInput';
+import { MaxAgeInput } from '@/v8/components/MaxAgeInput';
+import { DisplayModeDropdown } from '@/v8/components/DisplayModeDropdown';
 ```
 
 Add state:
@@ -187,7 +187,7 @@ const [display, setDisplay] = useState<DisplayMode | undefined>(credentials.disp
 Add to form (in Advanced section):
 ```typescript
 {/* Login Hint */}
-<LoginHintInputV8
+<LoginHintInput
 	value={loginHint}
 	onChange={(value) => {
 		setLoginHint(value);
@@ -196,7 +196,7 @@ Add to form (in Advanced section):
 />
 
 {/* Max Age */}
-<MaxAgeInputV8
+<MaxAgeInput
 	value={maxAge}
 	onChange={(value) => {
 		setMaxAge(value);
@@ -205,7 +205,7 @@ Add to form (in Advanced section):
 />
 
 {/* Display Mode */}
-<DisplayModeDropdownV8
+<DisplayModeDropdown
 	value={display}
 	onChange={(value) => {
 		setDisplay(value);
@@ -218,9 +218,9 @@ Add to form (in Advanced section):
 
 **Files:**
 - `src/v8u/services/unifiedFlowIntegrationV8U.ts`
-- `src/v8/services/oauthIntegrationServiceV8.ts`
-- `src/v8/services/implicitFlowIntegrationServiceV8.ts`
-- `src/v8/services/hybridFlowIntegrationServiceV8.ts`
+- `src/v8/services/oauthIntegrationService.ts`
+- `src/v8/services/implicitFlowIntegrationService.ts`
+- `src/v8/services/hybridFlowIntegrationService.ts`
 
 Add parameters to authorization URL:
 ```typescript
@@ -256,9 +256,9 @@ display: credentials.display,
 ## Testing Checklist
 
 ### Component Testing
-- [ ] LoginHintInputV8 renders without errors
-- [ ] MaxAgeInputV8 renders without errors
-- [ ] DisplayModeDropdownV8 renders without errors
+- [ ] LoginHintInput renders without errors
+- [ ] MaxAgeInput renders without errors
+- [ ] DisplayModeDropdown renders without errors
 - [ ] Education panels expand/collapse
 - [ ] Values update credentials correctly
 - [ ] Accessibility (keyboard navigation, focus states)
@@ -353,10 +353,10 @@ display: credentials.display,
 
 ## Files Created
 
-1. ✅ `src/v8/components/ResponseModeDropdownV8.tsx` - Already integrated
-2. ✅ `src/v8/components/LoginHintInputV8.tsx` - NEW
-3. ✅ `src/v8/components/MaxAgeInputV8.tsx` - NEW
-4. ✅ `src/v8/components/DisplayModeDropdownV8.tsx` - NEW
+1. ✅ `src/v8/components/ResponseModeDropdown.tsx` - Already integrated
+2. ✅ `src/v8/components/LoginHintInput.tsx` - NEW
+3. ✅ `src/v8/components/MaxAgeInput.tsx` - NEW
+4. ✅ `src/v8/components/DisplayModeDropdown.tsx` - NEW
 5. ✅ `OAUTH_OIDC_SPEC_GAP_ANALYSIS.md` - Analysis document
 6. ✅ `OAUTH_PARAMETERS_IMPLEMENTATION_PHASE1.md` - This document
 

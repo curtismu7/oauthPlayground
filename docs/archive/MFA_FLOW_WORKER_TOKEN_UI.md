@@ -42,7 +42,7 @@ The MFA flow now includes a visible worker token management button with real-tim
 
 ## Services Integrated
 
-### WorkerTokenServiceV8
+### WorkerTokenService
 - **Global token storage** across all flows
 - **Storage layers:**
   - Memory cache (fast)
@@ -50,7 +50,7 @@ The MFA flow now includes a visible worker token management button with real-tim
   - IndexedDB (backup)
 - **Automatic token caching** with expiration
 
-### WorkerTokenStatusServiceV8
+### WorkerTokenStatusService
 - **Real-time status checking**
 - **Status types:**
   - `valid` - Token is active
@@ -105,7 +105,7 @@ The MFA flow now includes a visible worker token management button with real-tim
 ```typescript
 const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 const [tokenStatus, setTokenStatus] = useState(() =>
-  WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+  WorkerTokenStatusService.checkWorkerTokenStatus()
 );
 ```
 
@@ -113,7 +113,7 @@ const [tokenStatus, setTokenStatus] = useState(() =>
 ```typescript
 useEffect(() => {
   const checkStatus = () => {
-    const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+    const status = WorkerTokenStatusService.checkWorkerTokenStatus();
     setTokenStatus(status);
   };
 
@@ -138,9 +138,9 @@ const handleManageWorkerToken = () => {
   if (tokenStatus.isValid) {
     // Remove existing token
     if (confirm('Remove worker token?')) {
-      workerTokenServiceV8.clearToken();
+      workerTokenService.clearToken();
       window.dispatchEvent(new Event('workerTokenUpdated'));
-      toastV8.success('Worker token removed');
+      toast.success('Worker token removed');
     }
   } else {
     // Open modal to add token
@@ -214,7 +214,7 @@ const handleManageWorkerToken = () => {
 - ✅ **Consistent experience** - Same pattern across flows
 
 ### For Developers
-- ✅ **Reusable components** - WorkerTokenModalV8 used everywhere
+- ✅ **Reusable components** - WorkerTokenModal used everywhere
 - ✅ **Centralized service** - Single source of truth
 - ✅ **Event-driven updates** - Automatic status sync
 - ✅ **Type-safe** - Full TypeScript support
@@ -288,7 +288,7 @@ The two settings work together to provide flexible token management:
 
 ### Token-Only Mode
 
-When both settings are ON and a token is successfully retrieved silently, the `WorkerTokenModalV8` component enters **token-only mode**:
+When both settings are ON and a token is successfully retrieved silently, the `WorkerTokenModal` component enters **token-only mode**:
 
 **UI Elements Shown:**
 - ✅ Token display section with copy/decode buttons

@@ -7,9 +7,9 @@
 
 ## What Was Done
 
-### 1. Created AuthMethodServiceV8 ✅
+### 1. Created AuthMethodService ✅
 
-**Location:** `src/v8/services/authMethodServiceV8.ts`
+**Location:** `src/v8/services/authMethodService.ts`
 
 A comprehensive service for managing OAuth 2.0 Token Endpoint Authentication methods:
 
@@ -28,9 +28,9 @@ A comprehensive service for managing OAuth 2.0 Token Endpoint Authentication met
 - ✅ Validation for method/flow combinations
 - ✅ Recommended method suggestions
 
-### 2. Updated WorkerTokenModalV8 ✅
+### 2. Updated WorkerTokenModal ✅
 
-**Location:** `src/v8/components/WorkerTokenModalV8.tsx`
+**Location:** `src/v8/components/WorkerTokenModal.tsx`
 
 Added Token Endpoint Authentication dropdown:
 
@@ -49,19 +49,19 @@ Added Token Endpoint Authentication dropdown:
 
 ### Get All Methods
 ```typescript
-AuthMethodServiceV8.getAllMethodConfigs()
-// Returns: Record<AuthMethodV8, AuthMethodConfigV8>
+AuthMethodService.getAllMethodConfigs()
+// Returns: Record<AuthMethod, AuthMethodConfig>
 ```
 
 ### Get Available Methods for Flow
 ```typescript
-AuthMethodServiceV8.getAvailableMethodsForFlow('client-credentials')
+AuthMethodService.getAvailableMethodsForFlow('client-credentials')
 // Returns: ['client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt']
 ```
 
 ### Get Method Configuration
 ```typescript
-AuthMethodServiceV8.getMethodConfig('client_secret_basic')
+AuthMethodService.getMethodConfig('client_secret_basic')
 // Returns: {
 //   method: 'client_secret_basic',
 //   label: 'Client Secret Basic',
@@ -76,19 +76,19 @@ AuthMethodServiceV8.getMethodConfig('client_secret_basic')
 
 ### Get Display Label
 ```typescript
-AuthMethodServiceV8.getDisplayLabel('client_secret_basic')
+AuthMethodService.getDisplayLabel('client_secret_basic')
 // Returns: 'Client Secret Basic'
 ```
 
 ### Get Recommended Method
 ```typescript
-AuthMethodServiceV8.getRecommendedMethod('client-credentials')
+AuthMethodService.getRecommendedMethod('client-credentials')
 // Returns: 'client_secret_basic'
 ```
 
 ### Validate Method for Flow
 ```typescript
-AuthMethodServiceV8.validateMethodForFlow('none', 'client-credentials')
+AuthMethodService.validateMethodForFlow('none', 'client-credentials')
 // Returns: {
 //   valid: false,
 //   warning: 'Client Credentials flow requires client authentication'
@@ -176,7 +176,7 @@ The dropdown now appears in the Worker Token Modal:
 
 ## Status
 
-✅ **Complete** - AuthMethodServiceV8 created and integrated into WorkerTokenModalV8  
+✅ **Complete** - AuthMethodService created and integrated into WorkerTokenModal  
 ✅ **Tested** - No diagnostics errors  
 ✅ **Documented** - Full API documentation provided  
 🎯 **Ready** - Can be used in other V8 flows as needed

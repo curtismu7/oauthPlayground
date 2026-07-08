@@ -4,7 +4,7 @@
 When MFA authentication is initialized and returns `DEVICE_SELECTION_REQUIRED`, the device list is not being displayed to the user.
 
 ## Root Cause
-In `src/v8/flows/MFAAuthenticationMainPageV8.tsx`, around line 1387, when `needsDeviceSelection` is true, the code doesn't show any UI for device selection. It only handles OTP, Push, FIDO2, and Completed statuses.
+In `src/v8/flows/MFAAuthenticationMainPage.tsx`, around line 1387, when `needsDeviceSelection` is true, the code doesn't show any UI for device selection. It only handles OTP, Push, FIDO2, and Completed statuses.
 
 ## Solution
 
@@ -15,13 +15,13 @@ if (needsOTP) {
     setShowOTPModal(true);
 } else if (needsPush) {
     setShowPushModal(true);
-    toastV8.success('Please approve the sign-in on your phone.');
+    toast.success('Please approve the sign-in on your phone.');
 } else if (needsAssertion) {
     setShowFIDO2Modal(true);
 } else if (status === 'COMPLETED') {
-    toastV8.success('Authentication completed successfully!');
+    toast.success('Authentication completed successfully!');
 } else {
-    toastV8.success('Authentication started successfully');
+    toast.success('Authentication started successfully');
 }
 ```
 
@@ -31,18 +31,18 @@ if (needsOTP) {
 if (needsDeviceSelection) {
     // Device selection is needed - the UI will show the device list automatically
     // based on authState.showDeviceSelection being true
-    toastV8.success('Please select a device to continue');
+    toast.success('Please select a device to continue');
 } else if (needsOTP) {
     setShowOTPModal(true);
 } else if (needsPush) {
     setShowPushModal(true);
-    toastV8.success('Please approve the sign-in on your phone.');
+    toast.success('Please approve the sign-in on your phone.');
 } else if (needsAssertion) {
     setShowFIDO2Modal(true);
 } else if (status === 'COMPLETED') {
-    toastV8.success('Authentication completed successfully!');
+    toast.success('Authentication completed successfully!');
 } else {
-    toastV8.success('Authentication started successfully');
+    toast.success('Authentication started successfully');
 }
 ```
 
@@ -82,14 +82,14 @@ Find the section with `{/* Authentication Status */}` (around line 3670) and add
                     type="button"
                     onClick={async () => {
                         if (!authState.authenticationId || !authState.userId) {
-                            toastV8.error('Authentication session not found');
+                            toast.error('Authentication session not found');
                             return;
                         }
 
                         try {
                             setAuthState((prev) => ({ ...prev, isLoading: true }));
 
-                            const data = await MfaAuthenticationServiceV8.selectDeviceForAuthentication({
+                            const data = await MfaAuthenticationService.selectDeviceForAuthentication({
                                 environmentId: credentials.environmentId,
                                 username: usernameInput.trim(),
                                 userId: authState.userId,
@@ -116,17 +116,17 @@ Find the section with `{/* Authentication Status */}` (around line 3670) and add
                             // Handle next step
                             if (status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED') {
                                 setShowOTPModal(true);
-                                toastV8.success('OTP has been sent');
+                                toast.success('OTP has been sent');
                             } else if (status === 'ASSERTION_REQUIRED' || nextStep === 'ASSERTION_REQUIRED') {
                                 setShowFIDO2Modal(true);
                             } else if (status === 'PUSH_CONFIRMATION_REQUIRED') {
                                 setShowPushModal(true);
                             } else if (status === 'COMPLETED') {
-                                toastV8.success('Authentication completed!');
+                                toast.success('Authentication completed!');
                             }
                         } catch (error) {
                             console.error(`${MODULE_TAG} Failed to select device:`, error);
-                            toastV8.error(error instanceof Error ? error.message : 'Failed to select device');
+                            toast.error(error instanceof Error ? error.message : 'Failed to select device');
                             setAuthState((prev) => ({ ...prev, isLoading: false }));
                         }
                     }}

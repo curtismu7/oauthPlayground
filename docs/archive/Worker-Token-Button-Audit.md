@@ -6,22 +6,22 @@
 
 ## 🔍 Additional Flows Found
 
-### **1. MFAConfigurationStepV8.tsx**
-**File**: `/src/v8/flows/shared/MFAConfigurationStepV8.tsx`
+### **1. MFAConfigurationStep.tsx**
+**File**: `/src/v8/flows/shared/MFAConfigurationStep.tsx`
 
 **❌ Current State:**
-- Uses `WorkerTokenStatusDisplayV8` component
+- Uses `WorkerTokenStatusDisplay` component
 - Has custom worker token button with complex logic
 - Multiple worker token buttons for different scenarios
 
 **📍 Locations Found:**
-- Line ~816: `<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />`
+- Line ~816: `<WorkerTokenStatusDisplay mode="compact" showRefresh={true} />`
 - Line ~818: Custom button with `handleShowWorkerTokenModal`
 - Line ~1260: Optional worker token button for user token scenarios
 - Line ~1340: Additional worker token management buttons
 
-### **2. MFADeviceManagementFlowV8.tsx**
-**File**: `/src/v8/flows/MFADeviceManagementFlowV8.tsx`
+### **2. MFADeviceManagementFlow.tsx**
+**File**: `/src/v8/flows/MFADeviceManagementFlow.tsx`
 
 **❌ Current State:**
 - Custom worker token button with `handleManageWorkerToken`
@@ -48,17 +48,17 @@
 ## 📊 Summary of Implementation Status
 
 ### **✅ Successfully Updated**
-- ✅ **TokenStatusPageV8U.tsx** - Replaced with UnifiedWorkerTokenServiceV8
-- ✅ **CredentialsFormV8U.tsx** - Replaced with UnifiedWorkerTokenServiceV8
+- ✅ **TokenStatusPageV8U.tsx** - Replaced with UnifiedWorkerTokenService
+- ✅ **CredentialsFormV8U.tsx** - Replaced with UnifiedWorkerTokenService
 
 ### **❌ Still Need Updates**
-- ❌ **MFAConfigurationStepV8.tsx** - Multiple worker token buttons
-- ❌ **MFADeviceManagementFlowV8.tsx** - Custom worker token button
+- ❌ **MFAConfigurationStep.tsx** - Multiple worker token buttons
+- ❌ **MFADeviceManagementFlow.tsx** - Custom worker token button
 - ❌ **WorkerTokenUIService.tsx** - Legacy worker token UI components
 
 ## 🚀 Required Actions
 
-### **1. Fix MFAConfigurationStepV8.tsx**
+### **1. Fix MFAConfigurationStep.tsx**
 **Current Issues:**
 - File structure broken from previous edit attempt
 - Multiple worker token components need replacement
@@ -67,17 +67,17 @@
 **Required Changes:**
 ```typescript
 // Replace all worker token components with:
-<UnifiedWorkerTokenServiceV8 
+<UnifiedWorkerTokenService 
   mode="compact"
   showRefresh={true}
 />
 
 // Remove duplicated state and handlers
 // Remove custom button logic
-// Remove WorkerTokenStatusDisplayV8 imports
+// Remove WorkerTokenStatusDisplay imports
 ```
 
-### **2. Update MFADeviceManagementFlowV8.tsx**
+### **2. Update MFADeviceManagementFlow.tsx**
 **Current Issues:**
 - Custom worker token button with `handleManageWorkerToken`
 - Manual token status management
@@ -86,7 +86,7 @@
 **Required Changes:**
 ```typescript
 // Replace custom button with:
-<UnifiedWorkerTokenServiceV8 
+<UnifiedWorkerTokenService 
   mode="minimal"
   showRefresh={false}
 />
@@ -98,26 +98,26 @@
 ### **3. Deprecate WorkerTokenUIService.tsx**
 **Current Issues:**
 - Legacy worker token UI components
-- Duplicated functionality now in UnifiedWorkerTokenServiceV8
+- Duplicated functionality now in UnifiedWorkerTokenService
 - Used by other flows that need updating
 
 **Required Actions:**
 ```typescript
 // Mark as deprecated
 // Add migration notice
-// Update flows using this service to use UnifiedWorkerTokenServiceV8
+// Update flows using this service to use UnifiedWorkerTokenService
 ```
 
 ## 📋 Implementation Plan
 
 ### **Phase 1: Fix Broken File**
-- [ ] Fix MFAConfigurationStepV8.tsx structure
+- [ ] Fix MFAConfigurationStep.tsx structure
 - [ ] Restore file to working state
-- [ ] Add UnifiedWorkerTokenServiceV8 import
+- [ ] Add UnifiedWorkerTokenService import
 
 ### **Phase 2: Update Remaining Flows**
-- [ ] Replace worker token components in MFAConfigurationStepV8.tsx
-- [ ] Replace worker token button in MFADeviceManagementFlowV8.tsx
+- [ ] Replace worker token components in MFAConfigurationStep.tsx
+- [ ] Replace worker token button in MFADeviceManagementFlow.tsx
 - [ ] Remove duplicated state and handlers
 
 ### **Phase 3: Clean Up Legacy Code**
@@ -133,8 +133,8 @@
 ## 🎯 Estimated Impact
 
 **Additional Code Reduction:**
-- 🗑️ **MFAConfigurationStepV8.tsx**: ~150 lines of duplicated code
-- 🗑️ **MFADeviceManagementFlowV8.tsx**: ~50 lines of duplicated code
+- 🗑️ **MFAConfigurationStep.tsx**: ~150 lines of duplicated code
+- 🗑️ **MFADeviceManagementFlow.tsx**: ~50 lines of duplicated code
 - 🗑️ **WorkerTokenUIService.tsx**: ~200 lines (can be deprecated)
 - 🗑️ **Total Additional**: ~400 lines
 
@@ -146,7 +146,7 @@
 ## 📝 Notes
 
 ### **Complexity Considerations**
-- MFAConfigurationStepV8.tsx has complex conditional logic for different token types
+- MFAConfigurationStep.tsx has complex conditional logic for different token types
 - Some flows may need different display modes (compact vs minimal)
 - Need to preserve existing functionality while simplifying
 
@@ -156,8 +156,8 @@
 - Keep backward compatibility where possible during transition
 
 ### **Priority Order**
-1. **High**: Fix broken MFAConfigurationStepV8.tsx
-2. **Medium**: Update MFADeviceManagementFlowV8.tsx  
+1. **High**: Fix broken MFAConfigurationStep.tsx
+2. **Medium**: Update MFADeviceManagementFlow.tsx  
 3. **Low**: Deprecate WorkerTokenUIService.tsx (after other updates)
 
 ## 🎉 Conclusion
@@ -170,8 +170,8 @@ The current implementation status is:
 - 📊 **~400 additional lines** of duplicated code to remove
 
 **Next Steps:**
-1. Fix the broken MFAConfigurationStepV8.tsx file
-2. Update the remaining flows with UnifiedWorkerTokenServiceV8
+1. Fix the broken MFAConfigurationStep.tsx file
+2. Update the remaining flows with UnifiedWorkerTokenService
 3. Complete the migration to eliminate all worker token duplication
 
 **Status: PARTIALLY COMPLETE - More work needed!** 🚧

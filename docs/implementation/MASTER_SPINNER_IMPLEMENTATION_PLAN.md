@@ -275,16 +275,16 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
 
 #### **2.1 Device Management Spinners**
 ```typescript
-// MFADeviceManagerV8.tsx
+// MFADeviceManager.tsx
 const [processingDeviceId, setProcessingDeviceId] = useState<string | null>(null);
 
 const handleBlock = async (deviceId: string) => {
   setProcessingDeviceId(deviceId);
   try {
-    await MFAServiceV8.blockDevice({ deviceId, environmentId, userId });
-    toastV8.success('Device blocked successfully');
+    await MFAService.blockDevice({ deviceId, environmentId, userId });
+    toast.success('Device blocked successfully');
   } catch (error) {
-    toastV8.error('Failed to block device');
+    toast.error('Failed to block device');
   } finally {
     setProcessingDeviceId(null);
   }
@@ -310,7 +310,7 @@ const handleBlock = async (deviceId: string) => {
 
 #### **2.2 MFA Authentication Spinners**
 ```typescript
-// MFAAuthenticationMainPageV8.tsx
+// MFAAuthenticationMainPage.tsx
 const [isLoadingDevices, setIsLoadingDevices] = useState(false);
 const [isVerifyingOTP, setIsVerifyingOTP] = useState(false);
 
@@ -492,9 +492,9 @@ const [isRefreshingToken, setIsRefreshingToken] = useState(false);
 
 | Component | Status | Spinner Type | Priority | Notes |
 |-----------|---------|-------------|----------|-------|
-| **MFADeviceManagerV8** | ✅ COMPLETE | ButtonSpinner | High | Device operations |
-| **MFAAuthenticationMainPageV8** | ✅ COMPLETE | LoadingOverlay | High | Device loading |
-| **UnifiedFlowStepsV8** | ✅ COMPLETE | ButtonSpinner | High | Core flow operations |
+| **MFADeviceManager** | ✅ COMPLETE | ButtonSpinner | High | Device operations |
+| **MFAAuthenticationMainPage** | ✅ COMPLETE | LoadingOverlay | High | Device loading |
+| **UnifiedFlowSteps** | ✅ COMPLETE | ButtonSpinner | High | Core flow operations |
 | **UnifiedOAuthFlowV8U** | ✅ COMPLETE | LoadingOverlay | High | Credential loading |
 | **CredentialsFormV8U** | ✅ COMPLETE | ButtonSpinner | Medium | Form validation |
 | **WorkerTokenModalV8U** | ✅ COMPLETE | ButtonSpinner | High | Token operations |
@@ -658,7 +658,7 @@ describe('Spinner Components', () => {
 ```typescript
 describe('Spinner Integration', () => {
   test('Device blocking shows spinner during operation', async () => {
-    render(<MFADeviceManagerV8 />);
+    render(<MFADeviceManager />);
     
     const blockButton = screen.getByText('Block Device');
     fireEvent.click(blockButton);

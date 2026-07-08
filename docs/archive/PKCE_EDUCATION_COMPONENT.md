@@ -13,7 +13,7 @@ Created a comprehensive educational component for PKCE (Proof Key for Code Excha
 
 ## Component Details
 
-**File:** `src/v8/components/PKCEInputV8.tsx`  
+**File:** `src/v8/components/PKCEInput.tsx`  
 **Parameter:** PKCE (Proof Key for Code Exchange)  
 **Type:** Boolean (enabled) + Enforcement level
 
@@ -232,9 +232,9 @@ type PKCEEnforcement = 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED';
 ## Integration Example
 
 ```typescript
-import { PKCEInputV8 } from '@/v8/components/PKCEInputV8';
+import { PKCEInput } from '@/v8/components/PKCEInput';
 
-<PKCEInputV8
+<PKCEInput
   enabled={usePKCE}
   enforcement={pkceEnforcement}
   onEnabledChange={(enabled) => {
@@ -326,7 +326,7 @@ import { PKCEInputV8 } from '@/v8/components/PKCEInputV8';
 
 ### 1. Import Component
 ```typescript
-import { PKCEInputV8, type PKCEEnforcement } from '@/v8/components/PKCEInputV8';
+import { PKCEInput, type PKCEEnforcement } from '@/v8/components/PKCEInput';
 ```
 
 ### 2. Add State
@@ -339,13 +339,13 @@ const [pkceEnforcement, setPkceEnforcement] = useState<PKCEEnforcement>('REQUIRE
 Find the current PKCE checkbox in CredentialsFormV8U and replace with:
 
 ```typescript
-<PKCEInputV8
+<PKCEInput
   enabled={usePKCE}
   enforcement={pkceEnforcement}
   onEnabledChange={(enabled) => {
     setUsePKCE(enabled);
     handleChange('usePKCE', enabled);
-    toastV8.info(enabled ? 'PKCE enabled' : 'PKCE disabled');
+    toast.info(enabled ? 'PKCE enabled' : 'PKCE disabled');
   }}
   onEnforcementChange={(enforcement) => {
     setPkceEnforcement(enforcement);

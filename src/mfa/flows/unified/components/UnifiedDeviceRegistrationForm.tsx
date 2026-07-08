@@ -15,13 +15,13 @@ import { StandardizedCredentialExportImport } from '@/components/StandardizedCre
 import { modernMessaging } from '@/platform/ModernMessagingService';
 import { Button } from '@/mfa/components/Button';
 import { PageTransition } from '@/mfa/components/PageTransition';
-import type { SearchableDropdownOption } from '@/mfa/components/SearchableDropdownV8';
-import { SearchableDropdownV8 } from '@/mfa/components/SearchableDropdownV8';
+import type { SearchableDropdownOption } from '@/mfa/components/SearchableDropdown';
+import { SearchableDropdown } from '@/mfa/components/SearchableDropdown';
 import { getDeviceConfig } from '@/mfa/config/deviceFlowConfigs';
 import type { DeviceConfigKey } from '@/mfa/config/deviceFlowConfigTypes';
 import { useUserSearch } from '@/mfa/hooks/useUserSearch';
 import { useWorkerToken } from '@/mfa/hooks/useWorkerToken';
-import type { TokenStatusInfo } from '@/mfa/services/workerTokenStatusServiceV8';
+import type { TokenStatusInfo } from '@/mfa/services/workerTokenStatusService';
 import { colors, spacing } from '@/mfa/styles/designTokens';
 import { logger } from '../../../../utils/logger';
 import { APIComparisonModal } from './APIComparisonModal';
@@ -452,7 +452,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 						Username
 					</label>
 					{environmentId && tokenStatus.isValid ? (
-						<SearchableDropdownV8
+						<SearchableDropdown
 							id="username"
 							value={username || ''}
 							options={userOptions}

@@ -2,8 +2,8 @@
 
 ## Files Processed
 - `src/pages/flows/OAuthAuthorizationCodeFlowV7.tsx`
-- `src/pages/flows/OAuthAuthorizationCodeFlowV8.tsx`
-- `src/pages/flows/ImplicitFlowV8.tsx`
+- `src/pages/flows/OAuthAuthorizationCodeFlow.tsx`
+- `src/pages/flows/ImplicitFlow.tsx`
 
 ## Changes Applied
 
@@ -69,10 +69,10 @@ These don't affect functionality but could be addressed for better code quality.
 npx @biomejs/biome check --write --unsafe src/pages/flows/OAuthAuthorizationCodeFlowV7.tsx
 
 # V8 Flow
-npx @biomejs/biome check --write --unsafe src/pages/flows/OAuthAuthorizationCodeFlowV8.tsx
+npx @biomejs/biome check --write --unsafe src/pages/flows/OAuthAuthorizationCodeFlow.tsx
 
 # Implicit V8 Flow
-npx @biomejs/biome check --write --unsafe src/pages/flows/ImplicitFlowV8.tsx
+npx @biomejs/biome check --write --unsafe src/pages/flows/ImplicitFlow.tsx
 ```
 
 ## Result

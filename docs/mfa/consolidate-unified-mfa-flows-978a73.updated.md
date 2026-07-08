@@ -11,7 +11,7 @@ This plan consolidates the duplicate Unified MFA flows into a single, consistent
 ### Key Findings
 - **Both routes render the same underlying flow** (`UnifiedMFARegistrationFlowV8_Legacy`)
 - **`UnifiedMFAV8_Simple` is a thin wrapper** (minimal styling / indirection)
-- **Two separate `UnifiedMFARegistrationFlowV8*` files exist** but only `*_Legacy` is routed today
+- **Two separate `UnifiedMFARegistrationFlow*` files exist** but only `*_Legacy` is routed today
 - **Both sidebars have duplicate menu entries** with inconsistent styling and labels
 - **User confusion risk**: two URLs + two nav entries that appear to do the same thing
 
@@ -19,7 +19,7 @@ This plan consolidates the duplicate Unified MFA flows into a single, consistent
 - `src/App.tsx` (routing; currently has both `/v8/mfa-unified` and `/v8/unified-mfa`)
 - `src/locked/mfa-hub-v8/feature/UnifiedMFAV8_Simple.tsx` (wrapper)
 - `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` (main component)
-- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx` (unused duplicate)
+- `src/v8/flows/unified/UnifiedMFARegistrationFlow.tsx` (unused duplicate)
 - `src/components/Sidebar.tsx` (main sidebar)
 - `src/components/DragDropSidebar.tsx` (secondary sidebar)
 
@@ -61,7 +61,7 @@ Optional (recommended): add a lightweight telemetry/log line on the legacy route
 
 ### Phase 4: Code Cleanup (safe deletion)
 - Delete `UnifiedMFAV8_Simple.tsx` after routing is updated
-- Delete `UnifiedMFARegistrationFlowV8.tsx` **only after** confirming it’s truly unused (no dynamic import, feature flag, test, or documentation references)
+- Delete `UnifiedMFARegistrationFlow.tsx` **only after** confirming it’s truly unused (no dynamic import, feature flag, test, or documentation references)
 - Verify no other imports reference removed files
 
 ---
@@ -98,7 +98,7 @@ Optional (recommended): add a lightweight telemetry/log line on the legacy route
 3. **Remove the wrapper**
    - Delete `UnifiedMFAV8_Simple.tsx` once nothing references it
 4. **Confirm safe deletion of the duplicate flow file**
-   - Search for imports / dynamic imports / tests referencing `UnifiedMFARegistrationFlowV8.tsx`
+   - Search for imports / dynamic imports / tests referencing `UnifiedMFARegistrationFlow.tsx`
    - Delete only if truly unused
 5. **Testing checklist**
    - Direct navigation to `/v8/unified-mfa`

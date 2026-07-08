@@ -980,7 +980,7 @@ app.get('/api/health', (_req, res) => {
 		version: APP_VERSION,
 		versions: {
 			app: APP_VERSION,
-			mfaV8: MFA_V8_VERSION,
+			mfa: MFA_V8_VERSION,
 			unifiedV8u: UNIFIED_V8U_VERSION,
 		},
 		pid: process.pid,
@@ -1019,7 +1019,7 @@ app.get('/api/health', (_req, res) => {
 app.get('/api/version', (_req, res) => {
 	res.json({
 		app: APP_VERSION,
-		mfaV8: MFA_V8_VERSION,
+		mfa: MFA_V8_VERSION,
 		unifiedV8u: UNIFIED_V8U_VERSION,
 	});
 });
@@ -11483,7 +11483,7 @@ app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) => {
 
 // Validate OTP
 // DEPRECATED: This endpoint uses the wrong API (device activation endpoint instead of device authentication endpoint)
-// Use MfaAuthenticationServiceV8.validateOTP() which correctly uses auth.pingone.com/{envId}/deviceAuthentications/{authId}
+// Use MfaAuthenticationService.validateOTP() which correctly uses auth.pingone.com/{envId}/deviceAuthentications/{authId}
 // with Content-Type: application/vnd.pingidentity.otp.check+json
 // This endpoint is kept for backwards compatibility but should not be used
 app.post('/api/pingone/mfa/validate-otp', async (req, res) => {
@@ -17698,7 +17698,7 @@ let httpServer;
 httpServer = app.listen(PORT, '0.0.0.0', () => {
 	logger.info(`🚀 OAuth Playground Backend Server running on port ${PORT} (HTTP)`);
 	logger.info(
-		`🏷️  Versions: app=${APP_VERSION} mfaV8=${MFA_V8_VERSION} unifiedV8u=${UNIFIED_V8U_VERSION}`
+		`🏷️  Versions: app=${APP_VERSION} mfa=${MFA_V8_VERSION} unifiedV8u=${UNIFIED_V8U_VERSION}`
 	);
 	logger.info(`📡 Health check: http://localhost:${PORT}/api/health`);
 	logger.info(`🏷️  Version metadata: http://localhost:${PORT}/api/version`);

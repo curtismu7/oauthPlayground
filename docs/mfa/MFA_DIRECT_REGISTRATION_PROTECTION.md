@@ -103,7 +103,7 @@ if (deviceType === 'EMAIL') {
 ### ✅ CORRECT: Direct registration
 ```typescript
 if (DIRECT_REGISTRATION_DEVICES.includes(deviceType)) {
-    await MFAServiceV8.registerDevice(params);
+    await MFAService.registerDevice(params);
     // Handle routing based on status
 }
 ```
@@ -174,9 +174,9 @@ src/v8/flows/unified/components/UnifiedConfigurationStep.modern.tsx
 ```
 
 **Related Files**:
-- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`
+- `src/v8/flows/unified/UnifiedMFARegistrationFlow.tsx`
 - `src/v8/flows/unified/components/UnifiedActivationStep.tsx`
-- `src/v8/services/mfaServiceV8.ts`
+- `src/v8/services/mfaService.ts`
 
 ---
 

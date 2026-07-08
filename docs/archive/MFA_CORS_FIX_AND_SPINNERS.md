@@ -112,7 +112,7 @@ const [isLoading, setIsLoading] = useState(false);
 // In button onClick
 setIsLoading(true);
 try {
-  await MFAServiceV8.registerDevice(...);
+  await MFAService.registerDevice(...);
   // Success handling
 } catch (error) {
   // Error handling

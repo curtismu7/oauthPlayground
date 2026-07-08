@@ -6,9 +6,9 @@ This documentation provides comprehensive guides for all Phase 5 and Phase 6 com
 
 ## 📋 Table of Contents
 
-1. [FlowProgressTrackerV8](#flowprogresstrackerv8)
-2. [LazyLoadWrapperV8](#lazyloadwrapperv8)
-3. [ComponentTestSuiteV8](#componenttestsuitev8)
+1. [FlowProgressTracker](#flowprogresstrackerv8)
+2. [LazyLoadWrapper](#lazyloadwrapperv8)
+3. [ComponentTestSuite](#componenttestsuitev8)
 4. [Integration Examples](#integration-examples)
 5. [Performance Monitoring](#performance-monitoring)
 6. [Deployment Guide](#deployment-guide)
@@ -16,7 +16,7 @@ This documentation provides comprehensive guides for all Phase 5 and Phase 6 com
 
 ---
 
-## 📊 FlowProgressTrackerV8
+## 📊 FlowProgressTracker
 
 ### Overview
 Enhanced flow visualization component with multiple variants and interactive features.
@@ -48,7 +48,7 @@ interface FlowStep {
 
 #### Basic Usage
 ```tsx
-import { FlowProgressTrackerV8 } from '@/v8/components/shared/FlowProgressTrackerV8';
+import { FlowProgressTracker } from '@/v8/components/shared/FlowProgressTracker';
 
 const steps = [
   { id: 1, label: 'Configure', status: 'completed', description: 'Set up credentials' },
@@ -56,7 +56,7 @@ const steps = [
   { id: 3, label: 'Register', status: 'pending', description: 'Register device' },
 ];
 
-<FlowProgressTrackerV8
+<FlowProgressTracker
   steps={steps}
   currentStep={2}
   showProgress={true}
@@ -66,7 +66,7 @@ const steps = [
 
 #### Interactive Navigation
 ```tsx
-<FlowProgressTrackerV8
+<FlowProgressTracker
   steps={steps}
   currentStep={currentStep}
   onStepClick={(stepId) => {
@@ -83,7 +83,7 @@ const steps = [
 
 #### Horizontal (Default)
 ```tsx
-<FlowProgressTrackerV8
+<FlowProgressTracker
   steps={steps}
   currentStep={currentStep}
   variant="horizontal"
@@ -92,7 +92,7 @@ const steps = [
 
 #### Vertical
 ```tsx
-<FlowProgressTrackerV8
+<FlowProgressTracker
   steps={steps}
   currentStep={currentStep}
   variant="vertical"
@@ -102,7 +102,7 @@ const steps = [
 
 #### Compact
 ```tsx
-<FlowProgressTrackerV8
+<FlowProgressTracker
   steps={steps}
   currentStep={currentStep}
   variant="compact"
@@ -111,7 +111,7 @@ const steps = [
 
 ---
 
-## ⚡ LazyLoadWrapperV8
+## ⚡ LazyLoadWrapper
 
 ### Overview
 Performance optimization component for lazy loading with Intersection Observer API.
@@ -137,9 +137,9 @@ interface LazyLoadWrapperV8Props {
 
 #### Basic Lazy Loading
 ```tsx
-import { LazyLoadWrapperV8 } from '@/v8/components/shared/LazyLoadWrapperV8';
+import { LazyLoadWrapper } from '@/v8/components/shared/LazyLoadWrapper';
 
-<LazyLoadWrapperV8
+<LazyLoadWrapper
   loader={() => import('./HeavyComponent').then(mod => ({ default: mod.HeavyComponent }))}
   fallback={<div>Loading...</div>}
   delay={200}
@@ -148,12 +148,12 @@ import { LazyLoadWrapperV8 } from '@/v8/components/shared/LazyLoadWrapperV8';
   onError={(error) => console.error('Load failed:', error)}
 >
   <div>This content will be lazy loaded</div>
-</LazyLoadWrapperV8>
+</LazyLoadWrapper>
 ```
 
 #### With HOC Wrapper
 ```tsx
-import { withLazyLoad } from '@/v8/components/shared/LazyLoadWrapperV8';
+import { withLazyLoad } from '@/v8/components/shared/LazyLoadWrapper';
 
 const LazyHeavyComponent = withLazyLoad(
   () => import('./HeavyComponent'),
@@ -165,7 +165,7 @@ const LazyHeavyComponent = withLazyLoad(
 
 #### Preloading
 ```tsx
-import { ComponentPreloader } from '@/v8/components/shared/LazyLoadWrapperV8';
+import { ComponentPreloader } from '@/v8/components/shared/LazyLoadWrapper';
 
 // Preload components for better performance
 ComponentPreloader.preload('heavy-component', () => import('./HeavyComponent'));
@@ -190,7 +190,7 @@ ComponentPreloader.preloadMultiple({
 
 ---
 
-## 🧪 ComponentTestSuiteV8
+## 🧪 ComponentTestSuite
 
 ### Overview
 Comprehensive testing framework for React components with automated test execution.
@@ -219,11 +219,11 @@ interface TestResult {
 
 #### Basic Test Suite
 ```tsx
-import { ComponentTestSuiteV8 } from '@/v8/components/shared/ComponentTestSuiteV8';
+import { ComponentTestSuite } from '@/v8/components/shared/ComponentTestSuite';
 
-const components = ['FlowProgressTrackerV8', 'LazyLoadWrapperV8', 'ComponentTestSuiteV8'];
+const components = ['FlowProgressTracker', 'LazyLoadWrapper', 'ComponentTestSuite'];
 
-<ComponentTestSuiteV8
+<ComponentTestSuite
   components={components}
   autoRun={true}
   showDetails={true}
@@ -237,7 +237,7 @@ const components = ['FlowProgressTrackerV8', 'LazyLoadWrapperV8', 'ComponentTest
 
 #### Custom Test Configuration
 ```tsx
-<ComponentTestSuiteV8
+<ComponentTestSuite
   components={['MyComponent', 'AnotherComponent']}
   autoRun={false}
   showDetails={true}
@@ -263,8 +263,8 @@ The test suite automatically runs these tests for each component:
 
 #### Enhanced Progress Tracking
 ```tsx
-// src/v8/flows/types/SMSFlowV8.tsx
-import { FlowProgressTrackerV8 } from '@/v8/components/shared/FlowProgressTrackerV8';
+// src/v8/flows/types/SMSFlow.tsx
+import { FlowProgressTracker } from '@/v8/components/shared/FlowProgressTracker';
 
 const steps = [
   { id: 1, label: 'Configure', status: nav.currentStep >= 1 ? 'completed' : 'pending', description: 'Set up credentials' },
@@ -273,7 +273,7 @@ const steps = [
   { id: 4, label: 'Validate', status: nav.currentStep >= 4 ? 'completed' : nav.currentStep === 4 ? 'active' : 'pending', description: 'Validate OTP' }
 ];
 
-<FlowProgressTrackerV8
+<FlowProgressTracker
   steps={steps}
   currentStep={nav.currentStep}
   showProgress={true}
@@ -289,25 +289,25 @@ const steps = [
 
 #### Lazy Loading Components
 ```tsx
-// src/v8/flows/types/SMSFlowV8.tsx
-import { LazyLoadWrapperV8 } from '@/v8/components/shared/LazyLoadWrapperV8';
+// src/v8/flows/types/SMSFlow.tsx
+import { LazyLoadWrapper } from '@/v8/components/shared/LazyLoadWrapper';
 
-<LazyLoadWrapperV8
-  loader={() => import('./components/SMSDeviceSelectorV8').then(mod => ({ default: mod.SMSDeviceSelectorV8 }))}
+<LazyLoadWrapper
+  loader={() => import('./components/SMSDeviceSelector').then(mod => ({ default: mod.SMSDeviceSelector }))}
   fallback={<div>Loading device selector...</div>}
   delay={300}
   threshold={0.2}
 >
   <div>Device selector will load when needed</div>
-</LazyLoadWrapperV8>
+</LazyLoadWrapper>
 ```
 
 ### WhatsApp Flow Integration
 
 #### Progress Tracking
 ```tsx
-// src/v8/flows/types/WhatsAppFlowV8.tsx
-import { FlowProgressTrackerV8 } from '@/v8/components/shared/FlowProgressTrackerV8';
+// src/v8/flows/types/WhatsAppFlow.tsx
+import { FlowProgressTracker } from '@/v8/components/shared/FlowProgressTracker';
 
 const whatsappSteps = [
   { id: 1, label: 'Configure', status: 'completed', description: 'Set up WhatsApp credentials' },
@@ -317,7 +317,7 @@ const whatsappSteps = [
   { id: 5, label: 'Validate', status: 'pending', description: 'Validate OTP code' }
 ];
 
-<FlowProgressTrackerV8
+<FlowProgressTracker
   steps={whatsappSteps}
   currentStep={nav.currentStep}
   variant="vertical"
@@ -333,10 +333,10 @@ const whatsappSteps = [
 
 #### Component Performance Metrics
 ```tsx
-import { ComponentTestSuiteV8 } from '@/v8/components/shared/ComponentTestSuiteV8';
+import { ComponentTestSuite } from '@/v8/components/shared/ComponentTestSuite';
 
-<ComponentTestSuiteV8
-  components={['FlowProgressTrackerV8', 'LazyLoadWrapperV8']}
+<ComponentTestSuite
+  components={['FlowProgressTracker', 'LazyLoadWrapper']}
   onTestComplete={(results) => {
     // Analyze performance metrics
     const avgDuration = results.reduce((sum, r) => sum + (r.duration || 0), 0) / results.length;
@@ -350,7 +350,7 @@ import { ComponentTestSuiteV8 } from '@/v8/components/shared/ComponentTestSuiteV
 
 #### Memory Usage Monitoring
 ```tsx
-import { ComponentPreloader } from '@/v8/components/shared/LazyLoadWrapperV8';
+import { ComponentPreloader } from '@/v8/components/shared/LazyLoadWrapper';
 
 // Monitor cache size
 console.log('Preload Cache Size:', ComponentPreloader.preloadCache.size);
@@ -393,9 +393,9 @@ export default defineConfig({
         manualChunks: {
           'vendor': ['react', 'react-dom'],
           'components': [
-            './src/v8/components/shared/FlowProgressTrackerV8',
-            './src/v8/components/shared/LazyLoadWrapperV8',
-            './src/v8/components/shared/ComponentTestSuiteV8',
+            './src/v8/components/shared/FlowProgressTracker',
+            './src/v8/components/shared/LazyLoadWrapper',
+            './src/v8/components/shared/ComponentTestSuite',
           ],
         },
       },
@@ -417,13 +417,13 @@ VITE_PERFORMANCE_MONITORING=true
 #### Component Preloading
 ```tsx
 // public/preload-components.js
-import { ComponentPreloader } from './src/v8/components/shared/LazyLoadWrapperV8';
+import { ComponentPreloader } from './src/v8/components/shared/LazyLoadWrapper';
 
 // Preload critical components
 ComponentPreloader.preloadMultiple({
-  'flow-progress': () => import('./src/v8/components/shared/FlowProgressTrackerV8'),
-  'lazy-load-wrapper': () => import('./src/v8/components/shared/LazyLoadWrapperV8'),
-  'test-suite': () => import('./src/v8/components/shared/ComponentTestSuiteV8'),
+  'flow-progress': () => import('./src/v8/components/shared/FlowProgressTracker'),
+  'lazy-load-wrapper': () => import('./src/v8/components/shared/LazyLoadWrapper'),
+  'test-suite': () => import('./src/v8/components/shared/ComponentTestSuite'),
 });
 ```
 
@@ -493,7 +493,7 @@ import { ErrorBoundary } from 'react';
     console.error('Component Error:', error, errorInfo);
   }}
 >
-  <LazyLoadWrapperV8 loader={loader} />
+  <LazyLoadWrapper loader={loader} />
 </ErrorBoundary>
 ```
 
@@ -523,7 +523,7 @@ const useIntersectionObserver = (callback: IntersectionObserverCallback) => {
 
 ## 📚 API Reference
 
-### FlowProgressTrackerV8
+### FlowProgressTracker
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
@@ -534,7 +534,7 @@ const useIntersectionObserver = (callback: IntersectionObserverCallback) => {
 | `variant` | `string` | `'horizontal'` | Display variant |
 | `onStepClick` | `function` | `undefined` | Step click handler |
 
-### LazyLoadWrapperV8
+### LazyLoadWrapper
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
@@ -547,7 +547,7 @@ const useIntersectionObserver = (callback: IntersectionObserverCallback) => {
 | `onLoad` | `function` | `undefined` | Load callback |
 | `onError` | `function` | `undefined` | Error callback |
 
-### ComponentTestSuiteV8
+### ComponentTestSuite
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
@@ -578,7 +578,7 @@ const useIntersectionObserver = (callback: IntersectionObserverCallback) => {
 
 ### Testing Strategy
 
-1. **Automated Testing** with ComponentTestSuiteV8
+1. **Automated Testing** with ComponentTestSuite
 2. **Manual Testing** in different browsers
 3. **Performance Testing** with real data
 4. **Accessibility Testing** with screen readers
@@ -599,4 +599,4 @@ For additional help or questions:
 
 *Last Updated: Phase 6 Documentation*  
 *Version: 8.6.0*  
-*Components: FlowProgressTrackerV8, LazyLoadWrapperV8, ComponentTestSuiteV8*
+*Components: FlowProgressTracker, LazyLoadWrapper, ComponentTestSuite*

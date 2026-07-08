@@ -58,8 +58,8 @@ import {
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 	type FlowType,
 	type SpecVersion,
-	SpecVersionServiceV8,
-} from '@/v8/services/specVersionServiceV8';
+	SpecVersionService,
+} from '@/v8/services/specVersionService';
 ```
 
 **Root Cause**: Line 12 starts a multi-line import but line 13 is a complete import statement, causing syntax chaos.
@@ -134,7 +134,7 @@ Total TypeScript Errors: 50+
 
 ### Largest Components
 1. `src/v8u/components/UnifiedFlowSteps.tsx` - **8,316 lines** ⚠️
-2. `src/v8/flows/MFAAuthenticationMainPageV8.tsx` - **13,832 lines** 🚨
+2. `src/v8/flows/MFAAuthenticationMainPage.tsx` - **13,832 lines** 🚨
 3. `src/services/postmanCollectionGeneratorV8.ts` - **5,000+ lines** ⚠️
 
 ---
@@ -153,7 +153,7 @@ Total TypeScript Errors: 50+
 ### 2. **Monolithic Components**
 
 **Issue**: Some components are excessively large:
-- **MFAAuthenticationMainPageV8.tsx**: 13,832 lines (single file)
+- **MFAAuthenticationMainPage.tsx**: 13,832 lines (single file)
 - **UnifiedFlowSteps.tsx**: 8,316 lines (single file)
 
 **Problems**:
@@ -204,7 +204,7 @@ Option 'baseUrl' is deprecated and will stop functioning in TypeScript 7.0
 - `flowContextService.ts` - Flow state management
 - `authMethodService.tsx` - Auth method selection
 - `parService.ts` - Pushed Authorization Requests
-- `mfaServiceV8.ts` - MFA orchestration
+- `mfaService.ts` - MFA orchestration
 
 **Issues**:
 - Some services are large (1000+ lines)
@@ -355,7 +355,7 @@ Option 'baseUrl' is deprecated and will stop functioning in TypeScript 7.0
    - Complex state management
    - Recommendation: Break into smaller components
 
-2. **MFAAuthenticationMainPageV8.tsx** (13,832 lines)
+2. **MFAAuthenticationMainPage.tsx** (13,832 lines)
    - Monolithic component
    - Handles all MFA device types
    - Recommendation: Extract device-specific components
@@ -408,7 +408,7 @@ The project is designed as an **interactive learning platform**:
 
 ### Priority 2: HIGH (This Sprint)
 1. **Refactor Large Components**
-   - Break down MFAAuthenticationMainPageV8.tsx (13,832 lines)
+   - Break down MFAAuthenticationMainPage.tsx (13,832 lines)
    - Refactor UnifiedFlowSteps.tsx (8,316 lines)
    - Estimated time: 4-8 hours
 
@@ -491,7 +491,7 @@ The project is designed as an **interactive learning platform**:
 1. `/src/v8u/utils/flowTypeManager.ts` - **BROKEN** ⚠️
 2. `/src/v8u/pages/SecurityDashboardPage.tsx` - **BROKEN** ⚠️
 3. `/src/v8u/flows/UnifiedOAuthFlowV8U.tsx` - Main component
-4. `/src/v8/services/mfaServiceV8.ts` - Core MFA service
+4. `/src/v8/services/mfaService.ts` - Core MFA service
 5. `/src/services/v8StorageService.ts` - Token storage
 
 ### Architecture Overview

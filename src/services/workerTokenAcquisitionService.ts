@@ -3,7 +3,7 @@
  * @description Self-contained Client Credentials worker-token acquisition.
  *   Endpoint resolution + auth-method header/body construction + POST +
  *   auth-method auto-retry + token/credential persistence. Extracted faithfully
- *   from WorkerTokenModalV8 so the canonical <WorkerTokenCredentials> dialog and
+ *   from WorkerTokenModal so the canonical <WorkerTokenCredentials> dialog and
  *   (later) every other call-site share one generation path.
  */
 import { environmentService } from './environmentService';
@@ -114,7 +114,7 @@ function isAuthMethodMismatch(message: string): boolean {
 /**
  * Acquire a worker token via the OAuth 2.0 Client Credentials grant.
  * Persists credentials + token and updates the global environment service,
- * mirroring WorkerTokenModalV8's execute path. Throws on failure with a
+ * mirroring WorkerTokenModal's execute path. Throws on failure with a
  * user-presentable message.
  */
 export async function acquireWorkerToken(

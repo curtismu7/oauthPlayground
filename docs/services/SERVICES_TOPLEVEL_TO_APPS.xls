@@ -40,7 +40,7 @@
     <tr><td>credentialGuardService</td><td>src/services/credentialGuardService.ts</td><td></td></tr>
     <tr><td>credentialMigrationService</td><td>src/services/credentialMigrationService.ts</td><td></td></tr>
     <tr><td>credentialStorageManager</td><td>src/services/credentialStorageManager.ts</td><td></td></tr>
-    <tr><td>credentialStoreV8</td><td>src/services/credentialStoreV8.ts</td><td></td></tr>
+    <tr><td>credentialStore</td><td>src/services/credentialStore.ts</td><td></td></tr>
     <tr><td>credentialSyncService</td><td>src/services/credentialSyncService.ts</td><td></td></tr>
     <tr><td>credentialsValidationService</td><td>src/services/credentialsValidationService.ts</td><td></td></tr>
     <tr><td>deviceDisplayTemplateService</td><td>src/services/deviceDisplayTemplateService.tsx</td><td></td></tr>

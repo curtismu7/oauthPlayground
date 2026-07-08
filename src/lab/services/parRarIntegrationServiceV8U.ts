@@ -13,7 +13,7 @@
  */
 
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
-import type { FlowType, SpecVersion } from '@/mfa/services/specVersionServiceV8';
+import type { FlowType, SpecVersion } from '@/mfa/services/specVersionService';
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 import { unifiedFlowLoggerService as UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 

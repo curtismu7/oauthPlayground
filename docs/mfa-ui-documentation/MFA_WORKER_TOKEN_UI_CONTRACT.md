@@ -15,10 +15,10 @@ This document defines the UI contract for worker token management and configurat
 ## Scope
 
 **Applies To:**
-- ✅ Worker Token Modal (`WorkerTokenModalV8`)
-- ✅ MFA Configuration Page (`MFAConfigurationPageV8`)
+- ✅ Worker Token Modal (`WorkerTokenModal`)
+- ✅ MFA Configuration Page (`MFAConfigurationPage`)
 - ✅ All MFA flows that use worker tokens
-- ✅ Worker Token Helper Functions (`workerTokenModalHelperV8`)
+- ✅ Worker Token Helper Functions (`workerTokenModalHelper`)
 
 ---
 
@@ -26,7 +26,7 @@ This document defines the UI contract for worker token management and configurat
 
 ### 1. Worker Token Modal
 
-**Component:** `WorkerTokenModalV8.tsx`  
+**Component:** `WorkerTokenModal.tsx`  
 **Location:** Used across all MFA flows
 
 #### Standard Mode (Full Modal)
@@ -100,7 +100,7 @@ This document defines the UI contract for worker token management and configurat
 
 ### 2. MFA Configuration Page
 
-**Component:** `MFAConfigurationPageV8.tsx`  
+**Component:** `MFAConfigurationPage.tsx`  
 **Route:** `/v8/mfa-config`
 
 #### Worker Token Settings Section
@@ -146,7 +146,7 @@ This document defines the UI contract for worker token management and configurat
 
 #### State Management
 
-- Settings must be saved to `localStorage` via `MFAConfigurationServiceV8`
+- Settings must be saved to `localStorage` via `MFAConfigurationService`
 - Settings must be loaded on page mount
 - Changes must be persisted immediately
 - Settings must be respected by all worker token modal invocations
@@ -155,17 +155,17 @@ This document defines the UI contract for worker token management and configurat
 
 ### 3. Worker Token Helper Function
 
-**Component:** `workerTokenModalHelperV8.ts`  
+**Component:** `workerTokenModalHelper.ts`  
 **Function:** `handleShowWorkerTokenModal()`
 
 #### Contract Requirements
 
 1. **Token Status Check**
-   - Must check current token status using `WorkerTokenStatusServiceV8.checkWorkerTokenStatus()`
+   - Must check current token status using `WorkerTokenStatusService.checkWorkerTokenStatus()`
    - Must handle all status types: `valid`, `expiring-soon`, `expired`, `missing`
 
 2. **Configuration Check**
-   - Must load configuration using `MFAConfigurationServiceV8.loadConfiguration()`
+   - Must load configuration using `MFAConfigurationService.loadConfiguration()`
    - Must respect both `silentApiRetrieval` and `showTokenAtEnd` settings
 
 3. **Silent Retrieval Logic**
@@ -300,7 +300,7 @@ interface WorkerTokenModalV8Props {
 ```typescript
 export async function handleShowWorkerTokenModal(
   setShowModal: (show: boolean) => void,
-  setTokenStatus?: (status: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>) => void
+  setTokenStatus?: (status: ReturnType<typeof WorkerTokenStatusService.checkWorkerTokenStatus>) => void
 ): Promise<void>
 ```
 

@@ -32,7 +32,7 @@
 - **37.5% fewer total actions** (8 → 5)
 
 **Files Modified:**
-- `src/v8/flows/MFAFlowV8.tsx`
+- `src/v8/flows/MFAFlow.tsx`
 - `MFA_ENHANCEMENTS_IMPLEMENTED.md`
 - `MFA_FIDO2_STREAMLINING_COMPLETE.md`
 - `FIDO2_STREAMLINING_SUMMARY.md`
@@ -101,7 +101,7 @@ if (testMode) {
 - **Loading text:** "🧪 Creating Test Device..." in test mode
 
 **Files Modified:**
-- `src/v8/flows/MFAFlowV8.tsx`
+- `src/v8/flows/MFAFlow.tsx`
 - `MFA_TEST_MODE_FIX.md`
 - `TEST_MODE_IMPROVEMENTS_SUMMARY.md`
 
@@ -119,7 +119,7 @@ setTimeout(() => {
   nav.goToNext();
   setTimeout(() => {
     nav.goToNext();
-    toastV8.info('🔐 Ready to verify your FIDO2 device');
+    toast.info('🔐 Ready to verify your FIDO2 device');
   }, 300);
 }, 500);
 
@@ -165,7 +165,7 @@ const response = await global.fetch(otpEndpoint, {
 });
 ```
 
-**Frontend (mfaServiceV8.ts):**
+**Frontend (mfaService.ts):**
 ```typescript
 const response = await fetch('/api/pingone/mfa/send-otp', {
   method: 'POST',
@@ -204,7 +204,7 @@ if (testMode) {
     updatedAt: new Date().toISOString(),
   });
   
-  toastV8.success(`✅ Test device registered: ${credentials.deviceName}`);
+  toast.success(`✅ Test device registered: ${credentials.deviceName}`);
   nav.markStepComplete();
   setIsLoading(false);
   return;
@@ -298,7 +298,7 @@ console.log(`${MODULE_TAG} Real mode - proceeding with actual API call`);
 8. `COMPLETE_SESSION_SUMMARY.md` - This document
 
 ### Modified (2 files):
-1. `src/v8/flows/MFAFlowV8.tsx` - FIDO2 streamlining + test mode improvements
+1. `src/v8/flows/MFAFlow.tsx` - FIDO2 streamlining + test mode improvements
 2. `MFA_ENHANCEMENTS_IMPLEMENTED.md` - Updated with all completions
 
 ---

@@ -21,7 +21,7 @@ Based on the PDF structure analysis, the document contains these key sections:
 - ✅ PingOne JWKS integration
 
 ### 2. Common Token Exchange Use Case ✅
-**Implementation Location**: `TokenExchangeFlowV7.tsx`, `TokenExchangeFlowV8.tsx`, `V8MTokenExchange.tsx`
+**Implementation Location**: `TokenExchangeFlowV7.tsx`, `TokenExchangeFlow.tsx`, `V8MTokenExchange.tsx`
 - ✅ RFC 8693 compliant token exchange
 - ✅ PingOne token endpoint integration
 - ✅ Multiple authentication methods

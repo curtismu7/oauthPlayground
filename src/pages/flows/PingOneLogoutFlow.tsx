@@ -25,8 +25,8 @@ import { pingOneLogoutService } from '../../services/pingOneLogoutService';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import { modernMessaging } from '../../platform/ModernMessagingService';
 import { buildPingOneLogoutUrl, generateState } from '../../utils/pingone-url-builders';
-import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
-import WorkerTokenStatusDisplayV8 from '../../mfa/components/WorkerTokenStatusDisplayV8';
+import type { DiscoveredApp } from '../../mfa/components/AppPicker';
+import WorkerTokenStatusDisplay from '../../mfa/components/WorkerTokenStatusDisplay';
 import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
 
 const FlowContainer = styled.div`
@@ -630,7 +630,7 @@ if (idToken) {
 						Get Worker Token
 					</button>
 				</div>
-				<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
+				<WorkerTokenStatusDisplay mode="compact" showRefresh={true} />
 				<div style={{ marginTop: '1rem' }}>
 					<CompactAppPickerV8U
 						onAppSelected={handleAppSelected}

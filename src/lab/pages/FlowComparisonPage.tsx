@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
-import { type FlowType, SpecVersionServiceV8 } from '../../mfa/services/specVersionServiceV8';
+import { type FlowType, SpecVersionService } from '../../mfa/services/specVersionService';
 import { FlowComparisonTool, type SpecFilterOption } from '../components/FlowComparisonTool';
 
 const OuterWrapper = styled.div`
@@ -415,7 +415,7 @@ export const FlowComparisonPage: React.FC = () => {
 
 	const availableFlowsForSpec = useMemo(() => {
 		if (specFilter === 'all') return null;
-		return SpecVersionServiceV8.getAvailableFlows(specFilter);
+		return SpecVersionService.getAvailableFlows(specFilter);
 	}, [specFilter]);
 
 	// When spec filter narrows, restrict selected flows to those available in the spec

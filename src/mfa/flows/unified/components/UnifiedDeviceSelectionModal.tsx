@@ -10,7 +10,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { MFAServiceV8 } from '@/mfa/services/mfaServiceV8';
+import { MFAService } from '@/mfa/services/mfaService';
 import { colors, spacing } from '@/mfa/styles/designTokens';
 
 import { logger } from '../../../../utils/logger';
@@ -95,7 +95,7 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 		if (isOpen && username && environmentId) {
 			const fetchDevices = async () => {
 				try {
-					const allDevices = await MFAServiceV8.getAllDevices({
+					const allDevices = await MFAService.getAllDevices({
 						environmentId,
 						username,
 					});

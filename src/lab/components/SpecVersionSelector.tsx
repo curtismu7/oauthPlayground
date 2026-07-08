@@ -9,7 +9,7 @@ import { COLORS } from '../../platform/ColorStandards';
  */
 
 import React, { useState } from 'react';
-import { type SpecVersion, SpecVersionServiceV8 } from '@/mfa/services/specVersionServiceV8';
+import { type SpecVersion, SpecVersionService } from '@/mfa/services/specVersionService';
 import { FiHelpCircle } from '../../icons';
 
 import { logger } from '../../utils/logger';
@@ -255,7 +255,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 						}}
 					>
 						<strong style={{ color: COLORS.TEXT.GRAY_DARK }}>
-							 {SpecVersionServiceV8.getSpecLabel(selectedGuidance)} Guidance
+							 {SpecVersionService.getSpecLabel(selectedGuidance)} Guidance
 						</strong>
 						<button
 							type="button"

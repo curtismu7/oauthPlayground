@@ -2,7 +2,7 @@
 
 ## 🔍 **Issue Identified**
 
-**MFAReportingFlowV8.tsx** has duplicate `pollReportResults` function declarations:
+**MFAReportingFlow.tsx** has duplicate `pollReportResults` function declarations:
 - Line ~575: First declaration (end of previous function)
 - Line ~666: Second declaration (duplicate)
 
@@ -14,7 +14,7 @@
 
 ### **Step 1: Remove Duplicate Function**
 
-**Location**: Lines 575-580 in MFAReportingFlowV8.tsx
+**Location**: Lines 575-580 in MFAReportingFlow.tsx
 
 **Action**: Delete the entire duplicate function block:
 
@@ -32,7 +32,7 @@
 **Action**: Run TypeScript check to confirm error is resolved
 
 ```bash
-npx tsc --noEmit --skipLibCheck src/v8/flows/MFAReportingFlowV8.tsx 2>&1 | head -5
+npx tsc --noEmit --skipLibCheck src/v8/flows/MFAReportingFlow.tsx 2>&1 | head -5
 ```
 
 ---
@@ -41,7 +41,7 @@ npx tsc --noEmit --skipLibCheck src/v8/flows/MFAReportingFlowV8.tsx 2>&1 | head 
 
 After removing the duplicate function declaration:
 - ✅ **TypeScript compilation succeeds**
-- ✅ **MFAReportingFlowV8.tsx builds correctly**
+- ✅ **MFAReportingFlow.tsx builds correctly**
 - ✅ **Modal spinner implementation works properly**
 
 ---

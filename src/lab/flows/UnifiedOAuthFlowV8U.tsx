@@ -25,26 +25,26 @@ import {
 } from '@/services/postmanCollectionGeneratorV8';
 import { modernMessaging } from '@/platform/ModernMessagingService';
 import PlatformFlowHeader from '@/platform/platformFlowHeaderService';
-import { ShowTokenConfigCheckboxV8 } from '@/mfa/components/ShowTokenConfigCheckboxV8';
-import { SilentApiConfigCheckboxV8 } from '@/mfa/components/SilentApiConfigCheckboxV8';
-import { SuperSimpleApiDisplayV8 } from '@/mfa/components/SuperSimpleApiDisplayV8';
+import { ShowTokenConfigCheckbox } from '@/mfa/components/ShowTokenConfigCheckbox';
+import { SilentApiConfigCheckbox } from '@/mfa/components/SilentApiConfigCheckbox';
+import { SuperSimpleApiDisplay } from '@/mfa/components/SuperSimpleApiDisplay';
 import { WorkerTokenModal } from '@/components/WorkerTokenModal';
-import WorkerTokenStatusDisplayV8 from '@/mfa/components/WorkerTokenStatusDisplayV8';
-import { ConfigCheckerServiceV8 } from '@/mfa/services/configCheckerServiceV8';
-import { CredentialsServiceV8 } from '@/mfa/services/credentialsServiceV8';
-import { EnvironmentIdServiceV8 } from '@/mfa/services/environmentIdServiceV8';
-import { SharedCredentialsServiceV8 } from '@/mfa/services/sharedCredentialsServiceV8';
-import { SpecUrlServiceV8 } from '@/mfa/services/specUrlServiceV8';
+import WorkerTokenStatusDisplay from '@/mfa/components/WorkerTokenStatusDisplay';
+import { ConfigCheckerService } from '@/mfa/services/configCheckerService';
+import { CredentialsService } from '@/mfa/services/credentialsService';
+import { EnvironmentIdService } from '@/mfa/services/environmentIdService';
+import { SharedCredentialsService } from '@/mfa/services/sharedCredentialsService';
+import { SpecUrlService } from '@/mfa/services/specUrlService';
 import {
 	type FlowType,
 	type SpecVersion,
-	SpecVersionServiceV8,
-} from '@/mfa/services/specVersionServiceV8';
-import { uiNotificationServiceV8 } from '@/mfa/services/uiNotificationServiceV8';
+	SpecVersionService,
+} from '@/mfa/services/specVersionService';
+import { uiNotificationService } from '@/mfa/services/uiNotificationService';
 import {
 	type TokenStatusInfo,
-	WorkerTokenStatusServiceV8,
-} from '@/mfa/services/workerTokenStatusServiceV8';
+	WorkerTokenStatusService,
+} from '@/mfa/services/workerTokenStatusService';
 import { reloadCredentialsAfterReset } from '@/lab/services/credentialReloadServiceV8U';
 import { logger } from '@/lab/services/unifiedFlowLoggerServiceV8U';
 import { AdvancedOAuthFeatures } from '../components/AdvancedOAuthFeatures';
@@ -87,7 +87,7 @@ const safeLogAnalytics = async (
 	hypothesisId?: string
 ): Promise<void> => {
 	try {
-		const { log } = await import('@/mfa/utils/analyticsHelperV8');
+		const { log } = await import('@/mfa/utils/analyticsHelper');
 		await log(location, message, data, sessionId, runId, hypothesisId);
 	} catch (_error) {
 		// Silently fail - analytics not available
@@ -138,7 +138,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// #region agent log - Use safe analytics fetch
 		(async () => {
 			try {
-				const { log } = await import('@/mfa/utils/analyticsHelperV8');
+				const { log } = await import('@/mfa/utils/analyticsHelper');
 				await log(
 					'UnifiedOAuthFlowV8U.tsx:97',
 					'Parsing currentStep from URL',
@@ -165,7 +165,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				// #region agent log - Use safe analytics fetch
 				(async () => {
 					try {
-						const { log } = await import('@/mfa/utils/analyticsHelperV8');
+						const { log } = await import('@/mfa/utils/analyticsHelper');
 						await log(
 							'UnifiedOAuthFlowV8U.tsx:102',
 							'Step parsed successfully',
@@ -186,7 +186,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// #region agent log - Use safe analytics fetch
 		(async () => {
 			try {
-				const { log } = await import('@/mfa/utils/analyticsHelperV8');
+				const { log } = await import('@/mfa/utils/analyticsHelper');
 				await log(
 					'UnifiedOAuthFlowV8U.tsx:106',
 					'Defaulting to step 0',
@@ -539,7 +539,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const [workerTokenWarning, setWorkerTokenWarning] = useState<TokenStatusInfo | null>(null);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
-	// Worker token configuration is handled internally by SilentApiConfigCheckboxV8 and ShowTokenConfigCheckboxV8
+	// Worker token configuration is handled internally by SilentApiConfigCheckbox and ShowTokenConfigCheckbox
 
 	// Advanced features state
 	const [advancedFeatures, setAdvancedFeatures] = useState<string[]>([]);
@@ -599,7 +599,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	const [credentials, setCredentials] = useState<UnifiedFlowCredentials>(() => {
 		try {
-			const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+			const storedEnvId = EnvironmentIdService.getEnvironmentId();
 
 			// Try worker token credentials as fallback
 			let workerTokenEnvId = '';
@@ -616,7 +616,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			const initialFlowKey = getInitialFlowKey();
 
 			// Load flow-specific credentials synchronously (from localStorage)
-			const config = CredentialsServiceV8.getFlowConfig(initialFlowKey) || {
+			const config = CredentialsService.getFlowConfig(initialFlowKey) || {
 				flowKey: initialFlowKey,
 				flowType: 'oauth' as const,
 				includeClientSecret: true,
@@ -624,10 +624,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				includeRedirectUri: true,
 				includeLogoutUri: false,
 			};
-			const flowSpecific = CredentialsServiceV8.loadCredentials(initialFlowKey, config);
+			const flowSpecific = CredentialsService.loadCredentials(initialFlowKey, config);
 
 			// Load shared credentials synchronously (from localStorage)
-			const shared = SharedCredentialsServiceV8.loadSharedCredentialsSync();
+			const shared = SharedCredentialsService.loadSharedCredentialsSync();
 
 			// Merge credentials for initial state
 			// Priority: flow-specific > shared credentials > stored > worker token > defaults
@@ -693,7 +693,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			return initial;
 		} catch (err) {
 			logger.error(`Error loading initial credentials (using defaults):`, err);
-			const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+			const storedEnvId = EnvironmentIdService.getEnvironmentId();
 
 			// Try worker token credentials as fallback
 			let workerTokenEnvId = '';
@@ -758,7 +758,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			setWorkerTokenWarning(null);
 
 			try {
-				const config = await ConfigCheckerServiceV8.fetchAppConfig(
+				const config = await ConfigCheckerService.fetchAppConfig(
 					credentials.environmentId,
 					credentials.clientId,
 					token
@@ -803,7 +803,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Listen for environment ID updates
 	useEffect(() => {
 		const handleEnvIdUpdate = () => {
-			const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+			const storedEnvId = EnvironmentIdService.getEnvironmentId();
 			if (storedEnvId && storedEnvId !== credentials.environmentId) {
 				setCredentials((prev) => ({ ...prev, environmentId: storedEnvId }));
 			}
@@ -838,7 +838,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Proactively check worker token status on mount and every 60s
 	useEffect(() => {
 		const checkAndSetWarning = () => {
-			const s = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+			const s = WorkerTokenStatusService.checkWorkerTokenStatusSync();
 			if (!s.isValid) {
 				setWorkerTokenWarning(s);
 			} else {
@@ -862,7 +862,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			});
 
 			// Re-check status — clear warning if the new token is valid
-			const refreshedStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+			const refreshedStatus = WorkerTokenStatusService.checkWorkerTokenStatusSync();
 			if (refreshedStatus.isValid) {
 				setWorkerTokenWarning(null);
 			}
@@ -948,7 +948,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const flowKey = useMemo(() => {
 		const key = getFlowKey(specVersion, effectiveFlowType);
 		// #region agent log
-		import('@/mfa/utils/analyticsV8')
+		import('@/mfa/utils/analytics')
 			.then(({ analytics }) => {
 				analytics.log({
 					location: 'UnifiedOAuthFlowV8U.tsx:509',
@@ -1073,7 +1073,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			lastLoadedFlowKeyRef.current = flowKey;
 
 			try {
-				const config = CredentialsServiceV8.getFlowConfig(flowKey) || {
+				const config = CredentialsService.getFlowConfig(flowKey) || {
 					flowKey,
 					flowType: 'oauth' as const,
 					includeClientSecret: true,
@@ -1084,7 +1084,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 				// Load flow-specific credentials with SQLite backup (does not depend on worker token)
 				// Enhanced 4-layer storage: Memory → localStorage → IndexedDB → SQLite backup
-				const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
+				const environmentId = EnvironmentIdService.getEnvironmentId();
 				const flowSpecific =
 					(await UnifiedOAuthCredentialsServiceV8U.loadCredentials(flowKey, {
 						environmentId,
@@ -1092,7 +1092,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					}).catch((err) => {
 						logger.warn(`Error loading flow-specific credentials with SQLite backup`, err);
 						// Fallback to existing service
-						return CredentialsServiceV8.loadCredentialsWithBackup(flowKey, config);
+						return CredentialsService.loadCredentialsWithBackup(flowKey, config);
 					})) ?? {};
 
 				// Load shared credentials with SQLite backup (environmentId, clientId, clientSecret, etc.)
@@ -1103,13 +1103,13 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					}).catch((err) => {
 						logger.warn(`Error loading shared credentials with SQLite backup`, err);
 						// Fallback to existing service
-						return SharedCredentialsServiceV8.loadSharedCredentials();
+						return SharedCredentialsService.loadSharedCredentials();
 					})) ||
-					SharedCredentialsServiceV8.loadSharedCredentialsSync() ||
+					SharedCredentialsService.loadSharedCredentialsSync() ||
 					{};
 
 				// Get stored environment ID from global service
-				const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+				const storedEnvId = EnvironmentIdService.getEnvironmentId();
 
 				// Try worker token credentials as fallback
 				let workerTokenEnvId = '';
@@ -1128,7 +1128,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				// Use explicit trimming and fallback logic
 				// IMPORTANT: Load ALL fields from UnifiedFlowCredentials to ensure nothing is lost
 				// #region agent log
-				import('@/mfa/utils/analyticsV8')
+				import('@/mfa/utils/analytics')
 					.then(({ analytics }) => {
 						analytics.log({
 							location: 'UnifiedOAuthFlowV8U.tsx:650',
@@ -1221,7 +1221,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					...(flowSpecific.privateKey ? { privateKey: flowSpecific.privateKey } : {}),
 				};
 				// #region agent log
-				import('@/mfa/utils/analyticsV8')
+				import('@/mfa/utils/analytics')
 					.then(({ analytics }) => {
 						analytics.log({
 							location: 'UnifiedOAuthFlowV8U.tsx:698',
@@ -1287,7 +1287,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						return prev; // Preserve existing credentials
 					} else {
 						// No data anywhere - use defaults (first time load)
-						const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+						const storedEnvId = EnvironmentIdService.getEnvironmentId();
 						return {
 							environmentId: storedEnvId || '',
 							clientId: '',
@@ -1406,7 +1406,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 					// Save flow-specific credentials with SQLite backup (redirectUri, scopes, responseType, etc.)
 					// Enhanced 4-layer storage: Memory → localStorage → IndexedDB → SQLite backup
-					const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
+					const environmentId = EnvironmentIdService.getEnvironmentId();
 					const credsForSave = credentials as unknown as UnifiedOAuthCredentials;
 
 					// Save with SQLite backup if environment is available
@@ -1418,13 +1418,13 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						logger.warn(`SQLite backup save failed, using fallback`, err);
 						// Fallback to existing service
 						const fallbackCreds = credentials as unknown as Parameters<
-							typeof CredentialsServiceV8.saveCredentials
+							typeof CredentialsService.saveCredentials
 						>[1];
-						CredentialsServiceV8.saveCredentials(flowKey, fallbackCreds);
+						CredentialsService.saveCredentials(flowKey, fallbackCreds);
 					});
 
 					// Save shared credentials with SQLite backup (environmentId, clientId, clientSecret, etc.)
-					const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(
+					const sharedCreds = SharedCredentialsService.extractSharedCredentials(
 						credentials as unknown as Record<string, unknown>
 					) as SharedOAuthCredentials;
 
@@ -1440,7 +1440,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						}).catch((err) => {
 							logger.warn(`SQLite shared backup save failed, using fallback`, err);
 							// Fallback to existing service
-							SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
+							SharedCredentialsService.saveSharedCredentials(sharedCreds);
 						});
 					}
 				}
@@ -1491,12 +1491,12 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			if (credentials.environmentId || credentials.clientId || credentials.clientSecret) {
 				// Save flow-specific credentials
 				const credsForSave = credentials as unknown as Parameters<
-					typeof CredentialsServiceV8.saveCredentials
+					typeof CredentialsService.saveCredentials
 				>[1];
-				CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+				CredentialsService.saveCredentials(flowKey, credsForSave);
 
 				// Save shared credentials
-				const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(
+				const sharedCreds = SharedCredentialsService.extractSharedCredentials(
 					credentials as unknown as Record<string, unknown>
 				);
 				if (
@@ -1504,7 +1504,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					sharedCreds.clientId ||
 					sharedCreds.clientSecret !== undefined
 				) {
-					await SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
+					await SharedCredentialsService.saveSharedCredentials(sharedCreds);
 				}
 
 				// Update last saved reference to prevent duplicate saves
@@ -1687,7 +1687,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 		// If there are API calls, ask for confirmation before clearing
 		if (hasApiCalls) {
-			const confirmed = await uiNotificationServiceV8.confirm({
+			const confirmed = await uiNotificationService.confirm({
 				title: 'Clear API Calls?',
 				message: `Changing the flow type will clear all ${apiCalls.length} API call${apiCalls.length !== 1 ? 's' : ''} from the display. This action cannot be undone.`,
 				confirmText: 'Clear and Change Flow',
@@ -1745,7 +1745,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const getApiDocsUrl = (flow: FlowType): string => {
 		const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
 		// #region agent log
-		import('@/mfa/utils/analyticsV8')
+		import('@/mfa/utils/analytics')
 			.then(({ analytics }) => {
 				analytics.log({
 					location: 'UnifiedOAuthFlowV8U.tsx:1103',
@@ -1781,7 +1781,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		}
 
 		// #region agent log
-		import('@/mfa/utils/analyticsV8')
+		import('@/mfa/utils/analytics')
 			.then(({ analytics }) => {
 				analytics.log({
 					location: 'UnifiedOAuthFlowV8U.tsx:1125',
@@ -1861,7 +1861,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									duration: 3000,
 								});
 								const { handleShowWorkerTokenModal } = await import(
-									'@/mfa/utils/workerTokenModalHelperV8'
+									'@/mfa/utils/workerTokenModalHelper'
 								);
 								await handleShowWorkerTokenModal(
 									setShowWorkerTokenModal,
@@ -2022,7 +2022,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					<button
 						type="button"
 						onClick={() => {
-							const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
+							const mfaCreds = CredentialsService.loadCredentials('mfa-v8', {
 								flowKey: 'mfa-v8',
 								flowType: 'oauth' as const,
 								includeClientSecret: false,
@@ -2227,16 +2227,16 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									fontWeight: '500',
 								}}
 							>
-								View PingOne API Docs for {SpecVersionServiceV8.getFlowLabel(effectiveFlowType)}
+								View PingOne API Docs for {SpecVersionService.getFlowLabel(effectiveFlowType)}
 							</a>
 						</span>
 					</div>
 
 					{/* OAuth/OIDC Specification Links */}
 					{(() => {
-						const specUrls = SpecUrlServiceV8.getCombinedSpecUrls(specVersion, effectiveFlowType);
+						const specUrls = SpecUrlService.getCombinedSpecUrls(specVersion, effectiveFlowType);
 						// #region agent log
-						import('@/mfa/utils/analyticsV8')
+						import('@/mfa/utils/analytics')
 							.then(({ analytics }) => {
 								analytics.log({
 									location: 'UnifiedOAuthFlowV8U.tsx:1369',
@@ -2597,8 +2597,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								credentials as unknown as Parameters<typeof CredentialsFormV8U>[0]['credentials']
 							}
 							onChange={handleCredentialsChange}
-							title={`${SpecVersionServiceV8.getSpecLabel(specVersion)} - ${SpecVersionServiceV8.getFlowLabel(effectiveFlowType)}`}
-							subtitle={SpecVersionServiceV8.getSpecDescription(specVersion)}
+							title={`${SpecVersionService.getSpecLabel(specVersion)} - ${SpecVersionService.getFlowLabel(effectiveFlowType)}`}
+							subtitle={SpecVersionService.getSpecDescription(specVersion)}
 							onAppTypeChange={(appType, suggestedFlowType) => {
 								logger.debug(`App type changed`, { appType, suggestedFlowType });
 
@@ -2760,7 +2760,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								type="button"
 								onClick={async () => {
 									const { handleShowWorkerTokenModal } = await import(
-										'@/mfa/utils/workerTokenModalHelperV8'
+										'@/mfa/utils/workerTokenModalHelper'
 									);
 									await handleShowWorkerTokenModal(
 										() => {}, // setShowModal - not needed here
@@ -2809,13 +2809,13 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								}}
 							>
 								{/* Silent API Retrieval Checkbox - Centralized Component */}
-								<SilentApiConfigCheckboxV8
+								<SilentApiConfigCheckbox
 									onChange={async (newValue) => {
 										// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 										if (newValue) {
 											try {
 												const { handleShowWorkerTokenModal } = await import(
-													'@/mfa/utils/workerTokenModalHelperV8'
+													'@/mfa/utils/workerTokenModalHelper'
 												);
 												// Attempt silent retrieval (will show modal if credentials are missing)
 												await handleShowWorkerTokenModal(
@@ -2834,7 +2834,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								/>
 
 								{/* Show Token at End Checkbox - Centralized Component */}
-								<ShowTokenConfigCheckboxV8
+								<ShowTokenConfigCheckbox
 									onChange={async (newValue) => {
 										// Configuration is handled automatically by the centralized component
 										logger.info('Show token at end setting changed to:', newValue);
@@ -2844,7 +2844,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							</div>
 						</div>
 
-						<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
+						<WorkerTokenStatusDisplay mode="detailed" showRefresh={true} />
 					</div>
 				)}
 			</div>
@@ -2898,7 +2898,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			)}
 
 			{/* Super Simple API Display - Toggleable, hidden by default - Only shows Unified flow calls */}
-			<SuperSimpleApiDisplayV8 flowFilter="unified" reserveSpace />
+			<SuperSimpleApiDisplay flowFilter="unified" reserveSpace />
 
 			{showWorkerTokenModal && (
 				<WorkerTokenModal

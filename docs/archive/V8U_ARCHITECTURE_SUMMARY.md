@@ -34,20 +34,20 @@ This ensures:
 src/
 ├── v8/
 │   ├── services/              # Business Logic (SHARED) ✅
-│   │   ├── oauthIntegrationServiceV8.ts
-│   │   ├── specVersionServiceV8.ts
-│   │   ├── validationServiceV8.ts
-│   │   ├── credentialsServiceV8.ts
+│   │   ├── oauthIntegrationService.ts
+│   │   ├── specVersionService.ts
+│   │   ├── validationService.ts
+│   │   ├── credentialsService.ts
 │   │   └── ... (all integration services)
 │   │
 │   ├── components/            # V8 UI Components (SEPARATE) ✅
-│   │   ├── CredentialsFormV8.tsx
-│   │   ├── StepNavigationV8.tsx
-│   │   ├── StepActionButtonsV8.tsx
+│   │   ├── CredentialsForm.tsx
+│   │   ├── StepNavigation.tsx
+│   │   ├── StepActionButtons.tsx
 │   │   └── ...
 │   │
 │   └── hooks/                 # V8 Hooks (SEPARATE) ✅
-│       └── useStepNavigationV8.ts
+│       └── useStepNavigation.ts
 │
 └── v8u/
     ├── services/              # V8U-Specific Services
@@ -80,20 +80,20 @@ V8U imports and uses these **V8 services directly** (business logic layer):
 
 ```typescript
 // Spec & Flow Management
-import { SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
-import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
+import { SpecVersionService } from '@/v8/services/specVersionService';
+import { UnifiedFlowOptionsService } from '@/v8/services/unifiedFlowOptionsService';
 
 // OAuth Integration Services (Real PingOne API Calls)
-import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
-import { ImplicitFlowIntegrationServiceV8 } from '@/v8/services/implicitFlowIntegrationServiceV8';
-import { ClientCredentialsIntegrationServiceV8 } from '@/v8/services/clientCredentialsIntegrationServiceV8';
-import { DeviceCodeIntegrationServiceV8 } from '@/v8/services/deviceCodeIntegrationServiceV8';
-import { ROPCIntegrationServiceV8 } from '@/v8/services/ropcIntegrationServiceV8';
-import { HybridFlowIntegrationServiceV8 } from '@/v8/services/hybridFlowIntegrationServiceV8';
+import { OAuthIntegrationService } from '@/v8/services/oauthIntegrationService';
+import { ImplicitFlowIntegrationService } from '@/v8/services/implicitFlowIntegrationService';
+import { ClientCredentialsIntegrationService } from '@/v8/services/clientCredentialsIntegrationService';
+import { DeviceCodeIntegrationService } from '@/v8/services/deviceCodeIntegrationService';
+import { ROPCIntegrationService } from '@/v8/services/ropcIntegrationService';
+import { HybridFlowIntegrationService } from '@/v8/services/hybridFlowIntegrationService';
 
 // Validation & Credentials
-import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { ValidationService } from '@/v8/services/validationService';
+import { CredentialsService } from '@/v8/services/credentialsService';
 ```
 
 **Why Shared?**
@@ -126,12 +126,12 @@ All UI components are **copied to V8U** with `V8U` suffix:
 
 | V8 Component | V8U Component | Status |
 |-------------|---------------|--------|
-| `CredentialsFormV8.tsx` | `CredentialsFormV8U.tsx` | ✅ Isolated |
-| `StepNavigationV8.tsx` | `StepNavigationV8U.tsx` | ✅ Isolated |
-| `StepActionButtonsV8.tsx` | `StepActionButtonsV8U.tsx` | ✅ Isolated |
-| `StepValidationFeedbackV8.tsx` | `StepValidationFeedbackV8U.tsx` | ✅ Isolated |
-| `StepProgressBarV8.tsx` | `StepProgressBarV8U.tsx` | ✅ Isolated |
-| `useStepNavigationV8.ts` | `useStepNavigationV8U.ts` | ✅ Isolated |
+| `CredentialsForm.tsx` | `CredentialsFormV8U.tsx` | ✅ Isolated |
+| `StepNavigation.tsx` | `StepNavigationV8U.tsx` | ✅ Isolated |
+| `StepActionButtons.tsx` | `StepActionButtonsV8U.tsx` | ✅ Isolated |
+| `StepValidationFeedback.tsx` | `StepValidationFeedbackV8U.tsx` | ✅ Isolated |
+| `StepProgressBar.tsx` | `StepProgressBarV8U.tsx` | ✅ Isolated |
+| `useStepNavigation.ts` | `useStepNavigationV8U.ts` | ✅ Isolated |
 
 **V8U-Specific UI Components:**
 - `SpecVersionSelector.tsx` - OAuth 2.0/2.1/OIDC selector
@@ -153,9 +153,9 @@ All UI components are **copied to V8U** with `V8U` suffix:
 
 ```typescript
 // ✅ Shared Services (from V8)
-import { SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
-import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
-import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
+import { SpecVersionService } from '@/v8/services/specVersionService';
+import { OAuthIntegrationService } from '@/v8/services/oauthIntegrationService';
+import { ValidationService } from '@/v8/services/validationService';
 
 // ✅ Isolated UI (from V8U)
 import CredentialsFormV8U from '../components/CredentialsFormV8U';
@@ -179,13 +179,13 @@ import { FlowTypeSelector } from '../components/FlowTypeSelector';
 
 ### 1. **UI Changes Don't Break Services**
 
-**Scenario**: V8 UI team updates `StepNavigationV8.tsx` styling
+**Scenario**: V8 UI team updates `StepNavigation.tsx` styling
 - ✅ V8U continues working (uses its own `StepNavigationV8U.tsx`)
 - ✅ Services remain unchanged (business logic untouched)
 
 ### 2. **Service Updates Benefit Both**
 
-**Scenario**: Bug fix in `OAuthIntegrationServiceV8.ts`
+**Scenario**: Bug fix in `OAuthIntegrationService.ts`
 - ✅ Both V8 and V8U automatically benefit
 - ✅ Single source of truth for API logic
 
@@ -212,7 +212,7 @@ V8U imports **type definitions** from V8 (these are contracts, not implementatio
 
 ```typescript
 // Types (contracts, not implementation)
-import type { SpecVersion, FlowType } from '@/v8/services/specVersionServiceV8';
+import type { SpecVersion, FlowType } from '@/v8/services/specVersionService';
 import type { StepNavigationV8Props } from '@/v8/types/stepNavigation';
 import type { StepProgressBarProps } from '@/v8/types/stepNavigation';
 ```
@@ -273,19 +273,19 @@ src/v8u/
 
 ### Example: Changing Step Navigation
 
-**Changing V8 StepNavigationV8.tsx:**
+**Changing V8 StepNavigation.tsx:**
 ```typescript
-// In src/v8/components/StepNavigationV8.tsx
-export const StepNavigationV8: React.FC<...> = ({ ... }) => {
+// In src/v8/components/StepNavigation.tsx
+export const StepNavigation: React.FC<...> = ({ ... }) => {
   // Change styling, add features, etc.
 }
 ```
 - ✅ V8 flows affected
 - ✅ V8U flows **NOT** affected (uses `StepNavigationV8U.tsx`)
 
-**Changing V8 ValidationServiceV8.ts:**
+**Changing V8 ValidationService.ts:**
 ```typescript
-// In src/v8/services/validationServiceV8.ts
+// In src/v8/services/validationService.ts
 static validateCredentials(credentials, flowType) {
   // Fix validation bug, add new rules
 }

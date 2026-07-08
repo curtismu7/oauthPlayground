@@ -69,26 +69,26 @@
 ## 📦 Current V8 Foundation (Week 1, Day 1+)
 
 ### Services Built (7 total)
-1. ✅ **ValidationServiceV8** - Field validation (24 tests)
-2. ✅ **EducationServiceV8** - Tooltips & explanations (28 tests)
-3. ✅ **ErrorHandlerV8** - User-friendly errors (20 tests)
-4. ✅ **StorageServiceV8** - Versioned storage (25 tests)
-5. ✅ **FlowResetServiceV8** - Reset flow (15 tests)
-6. ✅ **ConfigCheckerServiceV8** - Config validation (24 tests)
-7. ✅ **AppDiscoveryServiceV8** - App discovery (20 tests)
+1. ✅ **ValidationService** - Field validation (24 tests)
+2. ✅ **EducationService** - Tooltips & explanations (28 tests)
+3. ✅ **ErrorHandler** - User-friendly errors (20 tests)
+4. ✅ **StorageService** - Versioned storage (25 tests)
+5. ✅ **FlowResetService** - Reset flow (15 tests)
+6. ✅ **ConfigCheckerService** - Config validation (24 tests)
+7. ✅ **AppDiscoveryService** - App discovery (20 tests)
 
 **Total Service Tests: 176 ✅**
 
 ### Components Built (4 total)
-1. ✅ **StepNavigationV8** - Main navigation
-2. ✅ **StepProgressBarV8** - Progress indicator
-3. ✅ **StepActionButtonsV8** - Navigation buttons
-4. ✅ **StepValidationFeedbackV8** - Error/warning display
+1. ✅ **StepNavigation** - Main navigation
+2. ✅ **StepProgressBar** - Progress indicator
+3. ✅ **StepActionButtons** - Navigation buttons
+4. ✅ **StepValidationFeedback** - Error/warning display
 
 **Total Component Tests: 70 ✅**
 
 ### Hooks Built (1 total)
-1. ✅ **useStepNavigationV8** - Navigation state management
+1. ✅ **useStepNavigation** - Navigation state management
 
 **Total Hook Tests: 35 ✅**
 
@@ -107,12 +107,12 @@
 ```
 User Input
     ↓
-useStepNavigationV8 Hook
+useStepNavigation Hook
     ↓
-    ├─→ Validate with ValidationServiceV8
-    ├─→ Show errors with StepValidationFeedbackV8
-    ├─→ Update button state in StepActionButtonsV8
-    └─→ Update progress in StepProgressBarV8
+    ├─→ Validate with ValidationService
+    ├─→ Show errors with StepValidationFeedback
+    ├─→ Update button state in StepActionButtons
+    └─→ Update progress in StepProgressBar
     ↓
 User sees:
 - Disabled "Next" button with tooltip
@@ -126,16 +126,16 @@ User sees:
 ```
 Form Input
     ↓
-ValidationServiceV8.validateCredentials()
+ValidationService.validateCredentials()
     ↓
     ├─→ Check required fields
     ├─→ Validate format (UUID, URL, etc.)
     ├─→ Check OIDC-specific rules
     └─→ Return errors & warnings
     ↓
-useStepNavigationV8.setValidationErrors()
+useStepNavigation.setValidationErrors()
     ↓
-StepActionButtonsV8 updates button state
+StepActionButtons updates button state
     ↓
 User sees feedback
 ```
@@ -146,7 +146,7 @@ User sees feedback
 
 ### Ready to Integrate Into:
 
-#### 1. OAuthAuthorizationCodeFlowV8
+#### 1. OAuthAuthorizationCodeFlow
 ```
 Step 0: Configure Credentials
   ├─ Environment ID (required)
@@ -172,7 +172,7 @@ Step 3: Exchange for Tokens
   └─ Display refresh token
 ```
 
-#### 2. ImplicitFlowV8
+#### 2. ImplicitFlow
 ```
 Step 0: Configure Credentials
   ├─ Environment ID
@@ -200,17 +200,17 @@ Step 2: Handle Callback
 
 | Layer | Component | Tests | Status |
 |-------|-----------|-------|--------|
-| **Services** | ValidationServiceV8 | 24 | ✅ |
-| | EducationServiceV8 | 28 | ✅ |
-| | ErrorHandlerV8 | 20 | ✅ |
-| | StorageServiceV8 | 25 | ✅ |
-| | FlowResetServiceV8 | 15 | ✅ |
-| | ConfigCheckerServiceV8 | 24 | ✅ |
-| | AppDiscoveryServiceV8 | 20 | ✅ |
-| **Components** | StepProgressBarV8 | 15 | ✅ |
-| | StepActionButtonsV8 | 25 | ✅ |
-| | StepValidationFeedbackV8 | 30 | ✅ |
-| **Hooks** | useStepNavigationV8 | 35 | ✅ |
+| **Services** | ValidationService | 24 | ✅ |
+| | EducationService | 28 | ✅ |
+| | ErrorHandler | 20 | ✅ |
+| | StorageService | 25 | ✅ |
+| | FlowResetService | 15 | ✅ |
+| | ConfigCheckerService | 24 | ✅ |
+| | AppDiscoveryService | 20 | ✅ |
+| **Components** | StepProgressBar | 15 | ✅ |
+| | StepActionButtons | 25 | ✅ |
+| | StepValidationFeedback | 30 | ✅ |
+| **Hooks** | useStepNavigation | 35 | ✅ |
 | **TOTAL** | | **281** | **✅** |
 
 ---
@@ -225,17 +225,17 @@ Step 2: Handle Callback
 - [x] 281 tests, 100% coverage
 
 ### Phase 2: Authorization Code Flow (Next)
-- [ ] Create OAuthAuthorizationCodeFlowV8.tsx
+- [ ] Create OAuthAuthorizationCodeFlow.tsx
 - [ ] Integrate all services
 - [ ] Add education tooltips
 - [ ] Test complete flow
 - [ ] Add to routing
 
 ### Phase 3: Other Flows
-- [ ] ImplicitFlowV8
-- [ ] DeviceCodeFlowV8
-- [ ] ClientCredentialsFlowV8
-- [ ] OIDCDiscoveryFlowV8
+- [ ] ImplicitFlow
+- [ ] DeviceCodeFlow
+- [ ] ClientCredentialsFlow
+- [ ] OIDCDiscoveryFlow
 
 ### Phase 4: Polish & Optimization
 - [ ] Performance optimization

@@ -6,9 +6,9 @@ Instead of hiding options that don't apply to a flow, we now show ALL authentica
 
 ## Changes Made
 
-### 1. Enhanced TokenEndpointAuthMethodServiceV8
+### 1. Enhanced TokenEndpointAuthMethodService
 
-**File:** `src/v8/services/tokenEndpointAuthMethodServiceV8.ts`
+**File:** `src/v8/services/tokenEndpointAuthMethodService.ts`
 
 Added new method: `getAllAuthMethodsWithStatus()`
 

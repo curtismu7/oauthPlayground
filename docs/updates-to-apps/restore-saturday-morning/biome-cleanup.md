@@ -19,7 +19,7 @@
 
 | File | Issues fixed |
 | --- | --- |
-| `src/pages/PasskeyManager.tsx` | Removed unused `EnvironmentIdServiceV8` import; added `htmlFor`+`id` to 3 labels; added `type="button"` |
+| `src/pages/PasskeyManager.tsx` | Removed unused `EnvironmentIdService` import; added `htmlFor`+`id` to 3 labels; added `type="button"` |
 | `src/pages/PingOneWebhookViewer.tsx` | Replaced 6× `as any` with typed casts; added `type="button"`; added `htmlFor`+`id` to env ID label |
 | `src/pages/PingOneAuditActivities.tsx` | Import order fixed (auto) |
 | `src/pages/PingOneUserProfile.tsx` | Import order fixed (auto) |
@@ -34,9 +34,9 @@
 - `src/components/AutoEnvironmentIdInput.tsx`
 - `src/pages/PingOneUserProfile.tsx`
 - `src/pages/PingOneAuditActivities.tsx`
-- `src/v8/pages/DeleteAllDevicesUtilityV8.tsx`
-- `src/v8/pages/MFADeviceCreateDemoV8.tsx`
-- `src/v8/flows/EmailMFASignOnFlowV8.tsx`
+- `src/v8/pages/DeleteAllDevicesUtility.tsx`
+- `src/v8/pages/MFADeviceCreateDemo.tsx`
+- `src/v8/flows/EmailMFASignOnFlow.tsx`
 - `src/services/comprehensiveFlowDataService.ts`
 
 ### Remaining warnings (suppressed, not errors)

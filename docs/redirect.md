@@ -6,9 +6,9 @@ This document describes how redirect URIs and callback URLs are defined and used
 
 ## 1. Overview
 
-- **Single source of truth for paths and base URL:** `RedirectUriServiceV8` (`src/v8/services/redirectUriServiceV8.ts`) holds the canonical mapping of flow keys to callback paths and provides `getBaseUrl()` (custom domain–aware).
-- **Unified OAuth (V8U):** `UnifiedRedirectUriServiceV8U` (`src/v8u/services/unifiedRedirectUriServiceV8U.ts`) is the single entry point for V8U flows. It uses `RedirectUriServiceV8` under the hood and adds support for **pi.flow** (redirectless).
-- **MFA flows:** `MFARedirectUriServiceV8` (`src/v8/services/mfaRedirectUriServiceV8.ts`) uses **the same service**: it calls `RedirectUriServiceV8.getRedirectUriForFlow(flowType)` first, then falls back to `flowRedirectUriMapping` only when the flow is not in the V8 mapping.
+- **Single source of truth for paths and base URL:** `RedirectUriService` (`src/v8/services/redirectUriService.ts`) holds the canonical mapping of flow keys to callback paths and provides `getBaseUrl()` (custom domain–aware).
+- **Unified OAuth (V8U):** `UnifiedRedirectUriServiceV8U` (`src/v8u/services/unifiedRedirectUriServiceV8U.ts`) is the single entry point for V8U flows. It uses `RedirectUriService` under the hood and adds support for **pi.flow** (redirectless).
+- **MFA flows:** `MFARedirectUriService` (`src/v8/services/mfaRedirectUriService.ts`) uses **the same service**: it calls `RedirectUriService.getRedirectUriForFlow(flowType)` first, then falls back to `flowRedirectUriMapping` only when the flow is not in the V8 mapping.
 
 Result: one service for “what redirect URI for this flow”; only the redirect URI value differs by flow type.
 
@@ -16,7 +16,7 @@ Result: one service for “what redirect URI for this flow”; only the redirect
 
 ## 2. Services and Roles
 
-### 2.1 RedirectUriServiceV8 (`src/v8/services/redirectUriServiceV8.ts`)
+### 2.1 RedirectUriService (`src/v8/services/redirectUriService.ts`)
 
 - **Role:** Canonical mapping of flow keys to callback **paths** and **base URL**.
 - **Data:** `FLOW_REDIRECT_URI_MAPPING_V8`: flow key → `{ callbackPath, requiresRedirectUri, ... }`.
@@ -48,7 +48,7 @@ Result: one service for “what redirect URI for this flow”; only the redirect
 ### 2.2 UnifiedRedirectUriServiceV8U (`src/v8u/services/unifiedRedirectUriServiceV8U.ts`)
 
 - **Role:** Single place for **Unified OAuth** redirect URIs; only the redirect URI differs by flow type. Adds **pi.flow** (redirectless) support.
-- **Uses:** `RedirectUriServiceV8.getRedirectUriForFlow(flowKey)` with flow key `{flowType}-v8u`.
+- **Uses:** `RedirectUriService.getRedirectUriForFlow(flowKey)` with flow key `{flowType}-v8u`.
 - **API:**
   - `getRedirectUriForUnifiedFlow(flowType)` → default redirect URI for that flow (authz/hybrid → authz-callback, implicit → oauth-implicit-callback).
   - `getRedirectUriForAuthorize(flowType, { useRedirectless?, configuredRedirectUri? })`:
@@ -56,19 +56,19 @@ Result: one service for “what redirect URI for this flow”; only the redirect
     - Else → `configuredRedirectUri` if set, else `getRedirectUriForUnifiedFlow(flowType)`.
   - `REDIRECTLESS_URI` constant for pi.flow.
   - `flowUsesRedirectUri(flowType)`, `getFlowKeyForRedirect(flowType)`.
-  - Re-exports `getBaseUrl`, `getRedirectUriForFlow` from RedirectUriServiceV8.
+  - Re-exports `getBaseUrl`, `getRedirectUriForFlow` from RedirectUriService.
 
 **Consumers:** `AuthorizationUrlBuilderServiceV8U`, `UnifiedFlowIntegrationV8U`, `UnifiedFlowSteps` (and snapshot) for placeholder/fallback redirect URI.
 
 ---
 
-### 2.3 MFARedirectUriServiceV8 (`src/v8/services/mfaRedirectUriServiceV8.ts`)
+### 2.3 MFARedirectUriService (`src/v8/services/mfaRedirectUriService.ts`)
 
 - **Role:** MFA-specific helpers (logging, validation, migration) while **using the same redirect URI source** as the rest of the app.
-- **Change (2026-03):** `getRedirectUri(flowType)` now calls **`RedirectUriServiceV8.getRedirectUriForFlow(flowType)` first**. If that returns a non-empty string, that value is used. Otherwise it falls back to `generateRedirectUriForFlow(flowType)` from `flowRedirectUriMapping` for any flow types not in the V8 mapping.
+- **Change (2026-03):** `getRedirectUri(flowType)` now calls **`RedirectUriService.getRedirectUriForFlow(flowType)` first**. If that returns a non-empty string, that value is used. Otherwise it falls back to `generateRedirectUriForFlow(flowType)` from `flowRedirectUriMapping` for any flow types not in the V8 mapping.
 - **API:** `getRedirectUri(flowType)`, `getUnifiedMFARedirectUri()`, `getV8UOAuthRedirectUri()`, `getMFAHubRedirectUri()`, `needsMigration(uri)`, `migrateCredentials(credentials, flowType)`, `logDebugEvent`, etc.
 
-So MFA user flow redirect uses the same service as Unified OAuth: **RedirectUriServiceV8** for the actual URI; only the flow type (and thus the redirect URI) differs.
+So MFA user flow redirect uses the same service as Unified OAuth: **RedirectUriService** for the actual URI; only the flow type (and thus the redirect URI) differs.
 
 ---
 
@@ -76,7 +76,7 @@ So MFA user flow redirect uses the same service as Unified OAuth: **RedirectUriS
 
 - **File:** `src/utils/flowRedirectUriMapping.ts`.
 - **Role:** Broader catalog of flow types (V9, V8, V8U, MFA, etc.); used for discovery and for flows not yet in `FLOW_REDIRECT_URI_MAPPING_V8`.
-- **Used by:** `MFARedirectUriServiceV8` only as **fallback** when `RedirectUriServiceV8.getRedirectUriForFlow(flowType)` returns empty. All V8/V8U and MFA flows that are in `RedirectUriServiceV8` now go through that service first.
+- **Used by:** `MFARedirectUriService` only as **fallback** when `RedirectUriService.getRedirectUriForFlow(flowType)` returns empty. All V8/V8U and MFA flows that are in `RedirectUriService` now go through that service first.
 
 ---
 
@@ -92,13 +92,13 @@ Redirectless mode is specified with the **`response_mode`** request parameter se
 
 ## 5. Summary of “what we did” for redirects
 
-1. **V8U callback paths in RedirectUriServiceV8**
+1. **V8U callback paths in RedirectUriService**
    - `oauth-authz-v8u` and `hybrid-v8u` → `authz-callback`.
    - `implicit-v8u` → `oauth-implicit-callback` (so ImplicitCallback runs, then forwards to the unified handler with fragment).
 
 2. **UnifiedRedirectUriServiceV8U**
    - New single entry point for Unified OAuth redirect URIs.
-   - Uses `RedirectUriServiceV8` for defaults; adds `getRedirectUriForAuthorize` with pi.flow support.
+   - Uses `RedirectUriService` for defaults; adds `getRedirectUriForAuthorize` with pi.flow support.
 
 3. **Authorization and integration**
    - `AuthorizationUrlBuilderServiceV8U` and `UnifiedFlowIntegrationV8U` use `UnifiedRedirectUriServiceV8U.getRedirectUriForAuthorize()` so redirect and redirectless (pi.flow) both use the same logic.
@@ -107,7 +107,7 @@ Redirectless mode is specified with the **`response_mode`** request parameter se
    - Replaced hardcoded `origin/authz-callback` fallback with `getRedirectUriForUnifiedFlow(flowType)` (with final fallback to `origin/authz-callback` only if needed).
 
 5. **MFA user flow redirect**
-   - `MFARedirectUriServiceV8.getRedirectUri(flowType)` now prefers `RedirectUriServiceV8.getRedirectUriForFlow(flowType)` so MFA uses the same service and same base URL/paths as the rest of the app; fallback to `flowRedirectUriMapping` only when the flow is not in the V8 mapping.
+   - `MFARedirectUriService.getRedirectUri(flowType)` now prefers `RedirectUriService.getRedirectUriForFlow(flowType)` so MFA uses the same service and same base URL/paths as the rest of the app; fallback to `flowRedirectUriMapping` only when the flow is not in the V8 mapping.
 
 ---
 
@@ -115,4 +115,4 @@ Redirectless mode is specified with the **`response_mode`** request parameter se
 
 - **Unified OAuth (authz / implicit / hybrid):** Run each flow; after PingOne redirect, callback should hit the correct path (authz-callback or oauth-implicit-callback) and the correct handler.
 - **pi.flow:** Enable redirectless; authorize request must use **`response_mode=pi.flow`** (see [PingOne Response mode values](https://docs.pingidentity.com/pingone/applications/p1_response_mode_values.html)). No browser redirect for that step; PingOne returns the result in a JSON response.
-- **MFA:** Run unified MFA or MFA Hub; redirect back to the app should use the URI from `RedirectUriServiceV8` (e.g. `.../v8/unified-mfa-callback` or `.../mfa-hub-callback`) and custom domain when configured.
+- **MFA:** Run unified MFA or MFA Hub; redirect back to the app should use the URI from `RedirectUriService` (e.g. `.../v8/unified-mfa-callback` or `.../mfa-hub-callback`) and custom domain when configured.

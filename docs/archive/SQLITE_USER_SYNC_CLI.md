@@ -99,7 +99,7 @@ The script follows PingOne’s `_links.next.href` for the next page instead of b
 
 ## Code Changes
 
-### Fixed: UnifiedMFARegistrationFlowV8.tsx
+### Fixed: UnifiedMFARegistrationFlow.tsx
 
 **Before (WRONG):**
 ```typescript
@@ -114,7 +114,7 @@ const userId = user.id;
 **After (CORRECT):**
 ```typescript
 // Get userId from PingOne API (not cache) by searching for username
-const userLookupResult = await UserServiceV8.listUsers(environmentId, {
+const userLookupResult = await UserService.listUsers(environmentId, {
 	search: username,
 	limit: 10,
 });
@@ -139,7 +139,7 @@ const userId = user.id;
    - Fetches all users with pagination
    - Saves to SQLite via `/api/users/bulk-insert`
 
-2. **`src/v8/services/sqliteStatsServiceV8.ts`**
+2. **`src/v8/services/sqliteStatsService.ts`**
    - Fetch SQLite user count
    - Fetch sync metadata
    - 30-second cache for performance
@@ -148,7 +148,7 @@ const userId = user.id;
    - React hook for SQLite stats
    - Auto-refresh support
 
-4. **`src/v8/components/SQLiteStatsDisplayV8.tsx`**
+4. **`src/v8/components/SQLiteStatsDisplay.tsx`**
    - UI component to show SQLite stats
    - Compact and full view modes
 
@@ -160,12 +160,12 @@ const userId = user.id;
 2. **`src/server/routes/userApiRoutes.js`**
    - Added `/api/users/bulk-insert` endpoint
 
-3. **`src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`**
+3. **`src/v8/flows/unified/UnifiedMFARegistrationFlow.tsx`**
    - Fixed user lookup to use PingOne API (not cache)
    - Added SQLite stats display
    - Removed IndexedDB cache component
 
-4. **`src/v8/pages/UserCacheSyncUtilityV8.tsx`**
+4. **`src/v8/pages/UserCacheSyncUtility.tsx`**
    - Added prominent SQLite stats section
    - Demoted IndexedDB to "legacy" section
 

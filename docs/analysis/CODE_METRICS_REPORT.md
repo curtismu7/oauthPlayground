@@ -65,7 +65,7 @@ Size Range      Files    Percentage    Status
 
 | File | Lines | Module | Status |
 |------|-------|--------|--------|
-| MFAAuthenticationMainPageV8.tsx | 13,832 | v8 | 🔴 REFACTOR |
+| MFAAuthenticationMainPage.tsx | 13,832 | v8 | 🔴 REFACTOR |
 | UnifiedFlowSteps.tsx | 8,316 | v8u | 🔴 REFACTOR |
 | postmanCollectionGeneratorV8.ts | 5,200 | services | 🟡 COMPLEX |
 | UnifiedOAuthFlowV8U.tsx | 1,867 | v8u | 🟡 LARGE |
@@ -258,7 +258,7 @@ npm run test:e2e:headed      E2E with browser
 
 | Component | Complexity | Assessment |
 |-----------|-----------|-----------|
-| MFAAuthenticationMainPageV8.tsx | Very High | 🔴 REFACTOR |
+| MFAAuthenticationMainPage.tsx | Very High | 🔴 REFACTOR |
 | UnifiedFlowSteps.tsx | Very High | 🔴 REFACTOR |
 | postmanCollectionGeneratorV8.ts | High | 🟠 DOCUMENT |
 | UnifiedOAuthFlowV8U.tsx | Medium-High | 🟡 REVIEW |

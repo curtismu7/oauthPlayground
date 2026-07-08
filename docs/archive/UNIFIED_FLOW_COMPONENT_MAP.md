@@ -34,11 +34,11 @@
                   ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                    V8 Services                              │
-│  • OAuthIntegrationServiceV8                               │
-│  • ClientCredentialsIntegrationServiceV8                   │
-│  • ImplicitFlowIntegrationServiceV8                         │
-│  • DeviceCodeIntegrationServiceV8                           │
-│  • HybridFlowIntegrationServiceV8                           │
+│  • OAuthIntegrationService                               │
+│  • ClientCredentialsIntegrationService                   │
+│  • ImplicitFlowIntegrationService                         │
+│  • DeviceCodeIntegrationService                           │
+│  • HybridFlowIntegrationService                           │
 └─────────────────┬───────────────────────────────────────────┘
                   │
                   ▼
@@ -54,7 +54,7 @@
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│ SpecVersionSrvV8 │────│ UnifiedFlowOpts │────│ ComplianceRules │
+│ SpecVersionSrv │────│ UnifiedFlowOpts │────│ ComplianceRules │
 │                 │    │      V8         │    │                 │
 │ • Flow Matrix   │    │ • Field Vis     │    │ • PKCE Required │
 │ • Validation    │    │ • Checkbox Av   │    │ • HTTPS Only    │
@@ -69,7 +69,7 @@
                                  │
                                  ▼
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│ CredentialsSrvV8│────│ FlowSettingsV8U │────│ PKCEStorageV8U  │
+│ CredentialsSrv│────│ FlowSettingsV8U │────│ PKCEStorageV8U  │
 │                 │    │                 │    │                 │
 │ • Persistence   │    │ • User Prefs    │    │ • Code Gen      │
 │ • Env ID Share  │    │ • Last Spec     │    │ • Challenge     │
@@ -82,11 +82,11 @@
 ```
 Flow Type Selection → UnifiedFlowIntegrationV8U → V8 Service
 ──────────────────────────────────────────────────────────────
-oauth-authz      → OAuthIntegrationServiceV8      → /oauth/authz
-implicit         → ImplicitFlowIntegrationServiceV8 → /oauth/implicit
-client-credentials→ ClientCredentialsIntegrationServiceV8 → /oauth/token
-device-code      → DeviceCodeIntegrationServiceV8   → /oauth/device
-hybrid           → HybridFlowIntegrationServiceV8    → /oauth/hybrid
+oauth-authz      → OAuthIntegrationService      → /oauth/authz
+implicit         → ImplicitFlowIntegrationService → /oauth/implicit
+client-credentials→ ClientCredentialsIntegrationService → /oauth/token
+device-code      → DeviceCodeIntegrationService   → /oauth/device
+hybrid           → HybridFlowIntegrationService    → /oauth/hybrid
 ```
 
 ## State Management Flow
@@ -102,7 +102,7 @@ User Input
     │
     ▼
 ┌─────────────────┐
-│ SpecVersionSrvV8│ ←── Validate Flow Availability
+│ SpecVersionSrv│ ←── Validate Flow Availability
 │                 │
 └─────────────────┘
     │
@@ -135,7 +135,7 @@ User Input
 
 ```
 ┌─────────────────┐
-│ MFANavigationV8  │
+│ MFANavigation  │
 │                 │
 │ • MFA Hub        │
 │ • Device Reg     │
@@ -159,7 +159,7 @@ User Input
 ```
 ┌─────────────────┐
 │ SuperSimpleApi   │
-│    DisplayV8     │
+│    Display     │
 │                 │
 │ • Call Tracking  │
 │ • Response Display│
@@ -183,7 +183,7 @@ Error Occurs
     │
     ▼
 ┌─────────────────┐
-│ Validation       │ ←── SpecVersionServiceV8
+│ Validation       │ ←── SpecVersionService
 │                 │
 └─────────────────┘
     │

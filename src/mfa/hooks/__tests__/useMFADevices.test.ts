@@ -7,11 +7,11 @@
 
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MFAServiceV8 } from '@/mfa/services/mfaServiceV8';
+import { MFAService } from '@/mfa/services/mfaService';
 import { useMFADevices } from '../useMFADevices';
 
 // Mock the service
-vi.mock('@/mfa/services/mfaServiceV8');
+vi.mock('@/mfa/services/mfaService');
 
 describe('useMFADevices', () => {
 	const mockDevices = [
@@ -49,11 +49,11 @@ describe('useMFADevices', () => {
 				})
 			);
 
-			expect(MFAServiceV8.getAllDevices).not.toHaveBeenCalled();
+			expect(MFAService.getAllDevices).not.toHaveBeenCalled();
 		});
 
 		it('should auto-load devices when all required params are provided', async () => {
-			vi.mocked(MFAServiceV8.getAllDevices).mockResolvedValue(mockDevices);
+			vi.mocked(MFAService.getAllDevices).mockResolvedValue(mockDevices);
 
 			renderHook(() =>
 				useMFADevices({
@@ -66,7 +66,7 @@ describe('useMFADevices', () => {
 			);
 
 			await waitFor(() => {
-				expect(MFAServiceV8.getAllDevices).toHaveBeenCalledWith({
+				expect(MFAService.getAllDevices).toHaveBeenCalledWith({
 					environmentId: 'env123',
 					username: 'testuser',
 				});
@@ -76,7 +76,7 @@ describe('useMFADevices', () => {
 
 	describe('Loading Devices', () => {
 		it('should load devices successfully', async () => {
-			vi.mocked(MFAServiceV8.getAllDevices).mockResolvedValue(mockDevices);
+			vi.mocked(MFAService.getAllDevices).mockResolvedValue(mockDevices);
 
 			const { result } = renderHook(() =>
 				useMFADevices({
@@ -98,7 +98,7 @@ describe('useMFADevices', () => {
 		});
 
 		it('should set loading state during device fetch', async () => {
-			vi.mocked(MFAServiceV8.getAllDevices).mockImplementation(
+			vi.mocked(MFAService.getAllDevices).mockImplementation(
 				() => new Promise((resolve) => setTimeout(() => resolve(mockDevices), 100))
 			);
 
@@ -136,7 +136,7 @@ describe('useMFADevices', () => {
 				await result.current.loadDevices();
 			});
 
-			expect(MFAServiceV8.getAllDevices).not.toHaveBeenCalled();
+			expect(MFAService.getAllDevices).not.toHaveBeenCalled();
 			expect(result.current.devices).toEqual([]);
 		});
 
@@ -154,13 +154,13 @@ describe('useMFADevices', () => {
 				await result.current.loadDevices();
 			});
 
-			expect(MFAServiceV8.getAllDevices).not.toHaveBeenCalled();
+			expect(MFAService.getAllDevices).not.toHaveBeenCalled();
 		});
 	});
 
 	describe('Debouncing', () => {
 		it('should debounce device loading', async () => {
-			vi.mocked(MFAServiceV8.getAllDevices).mockResolvedValue(mockDevices);
+			vi.mocked(MFAService.getAllDevices).mockResolvedValue(mockDevices);
 
 			renderHook(() =>
 				useMFADevices({
@@ -173,7 +173,7 @@ describe('useMFADevices', () => {
 			);
 
 			// Should not call immediately
-			expect(MFAServiceV8.getAllDevices).not.toHaveBeenCalled();
+			expect(MFAService.getAllDevices).not.toHaveBeenCalled();
 
 			// Fast-forward time
 			await act(async () => {
@@ -181,14 +181,14 @@ describe('useMFADevices', () => {
 			});
 
 			await waitFor(() => {
-				expect(MFAServiceV8.getAllDevices).toHaveBeenCalledTimes(1);
+				expect(MFAService.getAllDevices).toHaveBeenCalledTimes(1);
 			});
 		});
 	});
 
 	describe('Caching and Duplicate Prevention', () => {
 		it('should not reload devices for same username/environment', async () => {
-			vi.mocked(MFAServiceV8.getAllDevices).mockResolvedValue(mockDevices);
+			vi.mocked(MFAService.getAllDevices).mockResolvedValue(mockDevices);
 
 			const { result } = renderHook(() =>
 				useMFADevices({
@@ -204,18 +204,18 @@ describe('useMFADevices', () => {
 				await result.current.loadDevices();
 			});
 
-			expect(MFAServiceV8.getAllDevices).toHaveBeenCalledTimes(1);
+			expect(MFAService.getAllDevices).toHaveBeenCalledTimes(1);
 
 			// Second load with same params - should skip
 			await act(async () => {
 				await result.current.loadDevices();
 			});
 
-			expect(MFAServiceV8.getAllDevices).toHaveBeenCalledTimes(1); // Still 1
+			expect(MFAService.getAllDevices).toHaveBeenCalledTimes(1); // Still 1
 		});
 
 		it('should reload devices when username changes', async () => {
-			vi.mocked(MFAServiceV8.getAllDevices).mockResolvedValue(mockDevices);
+			vi.mocked(MFAService.getAllDevices).mockResolvedValue(mockDevices);
 
 			const { result, rerender } = renderHook(
 				({ username }) =>
@@ -233,7 +233,7 @@ describe('useMFADevices', () => {
 				await result.current.loadDevices();
 			});
 
-			expect(MFAServiceV8.getAllDevices).toHaveBeenCalledTimes(1);
+			expect(MFAService.getAllDevices).toHaveBeenCalledTimes(1);
 
 			// Change username
 			rerender({ username: 'user2' });
@@ -243,13 +243,13 @@ describe('useMFADevices', () => {
 				await result.current.loadDevices();
 			});
 
-			expect(MFAServiceV8.getAllDevices).toHaveBeenCalledTimes(2);
+			expect(MFAService.getAllDevices).toHaveBeenCalledTimes(2);
 		});
 	});
 
 	describe('Refresh Devices', () => {
 		it('should force reload devices when refreshDevices is called', async () => {
-			vi.mocked(MFAServiceV8.getAllDevices).mockResolvedValue(mockDevices);
+			vi.mocked(MFAService.getAllDevices).mockResolvedValue(mockDevices);
 
 			const { result } = renderHook(() =>
 				useMFADevices({
@@ -265,20 +265,20 @@ describe('useMFADevices', () => {
 				await result.current.loadDevices();
 			});
 
-			expect(MFAServiceV8.getAllDevices).toHaveBeenCalledTimes(1);
+			expect(MFAService.getAllDevices).toHaveBeenCalledTimes(1);
 
 			// Refresh should force reload
 			await act(async () => {
 				await result.current.refreshDevices();
 			});
 
-			expect(MFAServiceV8.getAllDevices).toHaveBeenCalledTimes(2);
+			expect(MFAService.getAllDevices).toHaveBeenCalledTimes(2);
 		});
 	});
 
 	describe('Device Selection', () => {
 		it('should select a device', async () => {
-			vi.mocked(MFAServiceV8.getAllDevices).mockResolvedValue(mockDevices);
+			vi.mocked(MFAService.getAllDevices).mockResolvedValue(mockDevices);
 
 			const { result } = renderHook(() =>
 				useMFADevices({
@@ -301,7 +301,7 @@ describe('useMFADevices', () => {
 		});
 
 		it('should clear selected device', async () => {
-			vi.mocked(MFAServiceV8.getAllDevices).mockResolvedValue(mockDevices);
+			vi.mocked(MFAService.getAllDevices).mockResolvedValue(mockDevices);
 
 			const { result } = renderHook(() =>
 				useMFADevices({
@@ -332,7 +332,7 @@ describe('useMFADevices', () => {
 
 	describe('Clear Devices', () => {
 		it('should clear all devices and selection', async () => {
-			vi.mocked(MFAServiceV8.getAllDevices).mockResolvedValue(mockDevices);
+			vi.mocked(MFAService.getAllDevices).mockResolvedValue(mockDevices);
 
 			const { result } = renderHook(() =>
 				useMFADevices({
@@ -366,7 +366,7 @@ describe('useMFADevices', () => {
 	describe('Error Handling', () => {
 		it('should handle API errors', async () => {
 			const errorMessage = 'Failed to fetch devices';
-			vi.mocked(MFAServiceV8.getAllDevices).mockRejectedValue(new Error(errorMessage));
+			vi.mocked(MFAService.getAllDevices).mockRejectedValue(new Error(errorMessage));
 
 			const { result } = renderHook(() =>
 				useMFADevices({
@@ -387,7 +387,7 @@ describe('useMFADevices', () => {
 		});
 
 		it('should detect server connection errors', async () => {
-			vi.mocked(MFAServiceV8.getAllDevices).mockRejectedValue(
+			vi.mocked(MFAService.getAllDevices).mockRejectedValue(
 				new Error('Failed to connect to server')
 			);
 
@@ -408,7 +408,7 @@ describe('useMFADevices', () => {
 		});
 
 		it('should clear error when clearError is called', async () => {
-			vi.mocked(MFAServiceV8.getAllDevices).mockRejectedValue(new Error('Test error'));
+			vi.mocked(MFAService.getAllDevices).mockRejectedValue(new Error('Test error'));
 
 			const { result } = renderHook(() =>
 				useMFADevices({
@@ -435,7 +435,7 @@ describe('useMFADevices', () => {
 
 	describe('Computed Values', () => {
 		it('should compute hasDevices correctly', async () => {
-			vi.mocked(MFAServiceV8.getAllDevices).mockResolvedValue(mockDevices);
+			vi.mocked(MFAService.getAllDevices).mockResolvedValue(mockDevices);
 
 			const { result } = renderHook(() =>
 				useMFADevices({
@@ -456,7 +456,7 @@ describe('useMFADevices', () => {
 		});
 
 		it('should compute deviceCount correctly', async () => {
-			vi.mocked(MFAServiceV8.getAllDevices).mockResolvedValue(mockDevices);
+			vi.mocked(MFAService.getAllDevices).mockResolvedValue(mockDevices);
 
 			const { result } = renderHook(() =>
 				useMFADevices({

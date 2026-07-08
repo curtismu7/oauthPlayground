@@ -15,7 +15,7 @@ Changed the MFA info buttons from icon-only (ℹ️) to "What is this?" text but
 ## Changes Made
 
 ### File Modified
-- ✅ `src/v8/components/MFAInfoButtonV8.tsx`
+- ✅ `src/v8/components/MFAInfoButton.tsx`
 
 ### Style Changes
 
@@ -150,7 +150,7 @@ The updated button style now appears on:
 ## V8 Development Rules Compliance ✅
 
 ### Naming Convention
-- ✅ Component: `MFAInfoButtonV8.tsx` (V8 suffix)
+- ✅ Component: `MFAInfoButton.tsx` (V8 suffix)
 - ✅ Module tag: `[ℹ️ MFA-INFO-BUTTON-V8]`
 
 ### Documentation
@@ -218,15 +218,15 @@ The updated button style now appears on:
 ## Related Files
 
 ### Component
-- `src/v8/components/MFAInfoButtonV8.tsx` - Updated button component
+- `src/v8/components/MFAInfoButton.tsx` - Updated button component
 
 ### Service
-- `src/v8/services/mfaEducationServiceV8.ts` - Education content (unchanged)
+- `src/v8/services/mfaEducationService.ts` - Education content (unchanged)
 
 ### Flows Using This Component
-- `src/v8/flows/MFAFlowV8.tsx`
-- `src/v8/flows/MFADeviceManagementFlowV8.tsx`
-- `src/v8/flows/MFAReportingFlowV8.tsx`
+- `src/v8/flows/MFAFlow.tsx`
+- `src/v8/flows/MFADeviceManagementFlow.tsx`
+- `src/v8/flows/MFAReportingFlow.tsx`
 
 ### Reference Implementation
 - `src/v8u/components/CredentialsFormV8U.tsx` - Unified flow style reference

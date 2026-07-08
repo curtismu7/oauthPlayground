@@ -1,7 +1,7 @@
-"""Fix EmailFlowV8.tsx: remove dead code, fix any types."""
+"""Fix EmailFlow.tsx: remove dead code, fix any types."""
 import re
 
-path = '/Users/cmuir/P1Import-apps/oauth-playground/src/mfa/flows/types/EmailFlowV8.tsx'
+path = '/Users/cmuir/P1Import-apps/oauth-playground/src/mfa/flows/types/EmailFlow.tsx'
 with open(path) as f:
     src = f.read()
 

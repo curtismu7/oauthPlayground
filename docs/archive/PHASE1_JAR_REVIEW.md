@@ -11,9 +11,9 @@ This document provides a comprehensive review of Phase 1 implementation of JAR (
 
 ## ✅ What Was Implemented
 
-### 1. Core Service (`jarRequestObjectServiceV8.ts`)
+### 1. Core Service (`jarRequestObjectService.ts`)
 
-**File**: `src/v8/services/jarRequestObjectServiceV8.ts` (462 lines)
+**File**: `src/v8/services/jarRequestObjectService.ts` (462 lines)
 
 #### **Interfaces & Types**
 - ✅ `OAuthAuthorizationParams` - Comprehensive interface for all OAuth/OIDC parameters
@@ -38,9 +38,9 @@ This document provides a comprehensive review of Phase 1 implementation of JAR (
 - ✅ Debug logging for troubleshooting
 - ✅ JWT header decoding for debugging
 
-### 2. Unit Tests (`jarRequestObjectServiceV8.test.ts`)
+### 2. Unit Tests (`jarRequestObjectService.test.ts`)
 
-**File**: `src/v8/services/__tests__/jarRequestObjectServiceV8.test.ts` (401 lines)
+**File**: `src/v8/services/__tests__/jarRequestObjectService.test.ts` (401 lines)
 
 #### **Test Coverage**
 - ✅ **12 tests passing**:

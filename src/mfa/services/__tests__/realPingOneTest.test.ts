@@ -15,8 +15,8 @@ import {
 	logCredentialsStatus,
 	validateTestCredentials,
 } from '../../config/testCredentials';
-import { ImplicitFlowIntegrationServiceV8 } from '../implicitFlowIntegrationServiceV8';
-import { OAuthIntegrationServiceV8 } from '../oauthIntegrationServiceV8';
+import { ImplicitFlowIntegrationService } from '../implicitFlowIntegrationService';
+import { OAuthIntegrationService } from '../oauthIntegrationService';
 
 const MODULE_TAG = '[🧪 REAL-PINGONE-TEST]';
 
@@ -50,7 +50,7 @@ describe('Real PingOne API Testing', () => {
 		it('should generate valid authorization URL for Authorization Code flow', async () => {
 			const credentials = getTestCredentials();
 
-			const result = await OAuthIntegrationServiceV8.generateAuthorizationUrl({
+			const result = await OAuthIntegrationService.generateAuthorizationUrl({
 				environmentId: credentials.environmentId,
 				clientId: 'test-client-id', // Will be replaced with real client ID
 				redirectUri: 'http://localhost:3000/authz-callback',
@@ -69,7 +69,7 @@ describe('Real PingOne API Testing', () => {
 		});
 
 		it('should generate PKCE codes correctly', async () => {
-			const pkce = await OAuthIntegrationServiceV8.generatePKCECodes();
+			const pkce = await OAuthIntegrationService.generatePKCECodes();
 
 			expect(pkce.codeVerifier).toBeDefined();
 			expect(pkce.codeVerifier.length).toBeGreaterThanOrEqual(43);
@@ -81,14 +81,14 @@ describe('Real PingOne API Testing', () => {
 		it('should generate unique state parameters', async () => {
 			const credentials = getTestCredentials();
 
-			const result1 = await OAuthIntegrationServiceV8.generateAuthorizationUrl({
+			const result1 = await OAuthIntegrationService.generateAuthorizationUrl({
 				environmentId: credentials.environmentId,
 				clientId: 'test-client-id',
 				redirectUri: 'http://localhost:3000/authz-callback',
 				scopes: 'openid profile email',
 			});
 
-			const result2 = await OAuthIntegrationServiceV8.generateAuthorizationUrl({
+			const result2 = await OAuthIntegrationService.generateAuthorizationUrl({
 				environmentId: credentials.environmentId,
 				clientId: 'test-client-id',
 				redirectUri: 'http://localhost:3000/authz-callback',
@@ -103,7 +103,7 @@ describe('Real PingOne API Testing', () => {
 		it('should generate valid authorization URL for Implicit flow', () => {
 			const credentials = getTestCredentials();
 
-			const result = ImplicitFlowIntegrationServiceV8.generateAuthorizationUrl({
+			const result = ImplicitFlowIntegrationService.generateAuthorizationUrl({
 				environmentId: credentials.environmentId,
 				clientId: 'test-client-id', // Will be replaced with real client ID
 				redirectUri: 'http://localhost:3000/implicit-callback',
@@ -122,14 +122,14 @@ describe('Real PingOne API Testing', () => {
 		it('should generate unique nonce parameters', () => {
 			const credentials = getTestCredentials();
 
-			const result1 = ImplicitFlowIntegrationServiceV8.generateAuthorizationUrl({
+			const result1 = ImplicitFlowIntegrationService.generateAuthorizationUrl({
 				environmentId: credentials.environmentId,
 				clientId: 'test-client-id',
 				redirectUri: 'http://localhost:3000/implicit-callback',
 				scopes: 'openid profile email',
 			});
 
-			const result2 = ImplicitFlowIntegrationServiceV8.generateAuthorizationUrl({
+			const result2 = ImplicitFlowIntegrationService.generateAuthorizationUrl({
 				environmentId: credentials.environmentId,
 				clientId: 'test-client-id',
 				redirectUri: 'http://localhost:3000/implicit-callback',
@@ -145,7 +145,7 @@ describe('Real PingOne API Testing', () => {
 			const credentials = getTestCredentials();
 			const expectedEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
 
-			const result = await OAuthIntegrationServiceV8.generateAuthorizationUrl({
+			const result = await OAuthIntegrationService.generateAuthorizationUrl({
 				environmentId: credentials.environmentId,
 				clientId: 'test-client-id',
 				redirectUri: 'http://localhost:3000/authz-callback',
@@ -156,14 +156,14 @@ describe('Real PingOne API Testing', () => {
 		});
 
 		it('should support PKCE with S256 method', async () => {
-			const pkce = await OAuthIntegrationServiceV8.generatePKCECodes();
+			const pkce = await OAuthIntegrationService.generatePKCECodes();
 			expect(pkce.codeChallengeMethod).toBe('S256');
 		});
 
 		it('should support OIDC with nonce parameter', () => {
 			const credentials = getTestCredentials();
 
-			const result = ImplicitFlowIntegrationServiceV8.generateAuthorizationUrl({
+			const result = ImplicitFlowIntegrationService.generateAuthorizationUrl({
 				environmentId: credentials.environmentId,
 				clientId: 'test-client-id',
 				redirectUri: 'http://localhost:3000/implicit-callback',
@@ -181,7 +181,7 @@ describe('Real PingOne API Testing', () => {
 			const states = new Set();
 
 			for (let i = 0; i < 100; i++) {
-				const result = await OAuthIntegrationServiceV8.generateAuthorizationUrl({
+				const result = await OAuthIntegrationService.generateAuthorizationUrl({
 					environmentId: credentials.environmentId,
 					clientId: 'test-client-id',
 					redirectUri: 'http://localhost:3000/authz-callback',
@@ -199,7 +199,7 @@ describe('Real PingOne API Testing', () => {
 			const nonces = new Set();
 
 			for (let i = 0; i < 100; i++) {
-				const result = ImplicitFlowIntegrationServiceV8.generateAuthorizationUrl({
+				const result = ImplicitFlowIntegrationService.generateAuthorizationUrl({
 					environmentId: credentials.environmentId,
 					clientId: 'test-client-id',
 					redirectUri: 'http://localhost:3000/implicit-callback',
@@ -215,7 +215,7 @@ describe('Real PingOne API Testing', () => {
 		it('should use HTTPS for PingOne endpoints', async () => {
 			const credentials = getTestCredentials();
 
-			const result = await OAuthIntegrationServiceV8.generateAuthorizationUrl({
+			const result = await OAuthIntegrationService.generateAuthorizationUrl({
 				environmentId: credentials.environmentId,
 				clientId: 'test-client-id',
 				redirectUri: 'http://localhost:3000/authz-callback',
@@ -232,7 +232,7 @@ describe('Real PingOne API Testing', () => {
 			const token =
 				'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.signature';
 
-			const decoded = OAuthIntegrationServiceV8.decodeToken(token);
+			const decoded = OAuthIntegrationService.decodeToken(token);
 
 			expect(decoded.header).toBeDefined();
 			expect(decoded.header.alg).toBe('RS256');
@@ -247,7 +247,7 @@ describe('Real PingOne API Testing', () => {
 			const payload = Buffer.from(JSON.stringify({ exp: futureExp })).toString('base64');
 			const token = `header.${payload}.signature`;
 
-			const isValid = OAuthIntegrationServiceV8.isTokenValid(token);
+			const isValid = OAuthIntegrationService.isTokenValid(token);
 			expect(isValid).toBe(true);
 		});
 
@@ -257,7 +257,7 @@ describe('Real PingOne API Testing', () => {
 			const payload = Buffer.from(JSON.stringify({ exp: pastExp })).toString('base64');
 			const token = `header.${payload}.signature`;
 
-			const isValid = OAuthIntegrationServiceV8.isTokenValid(token);
+			const isValid = OAuthIntegrationService.isTokenValid(token);
 			expect(isValid).toBe(false);
 		});
 	});

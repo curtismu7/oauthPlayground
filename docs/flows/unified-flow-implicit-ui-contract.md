@@ -92,7 +92,7 @@ const isValid =
 
 Before generating the authorization URL, the system performs comprehensive pre-flight validation:
 
-**Service:** `PreFlightValidationServiceV8.validateBeforeAuthUrl()`
+**Service:** `PreFlightValidationService.validateBeforeAuthUrl()`
 
 **Validation Checks:**
 - ✅ Redirect URI matches PingOne configuration
@@ -395,7 +395,7 @@ Before generating the authorization URL, the system performs comprehensive pre-f
 
 **Feature:** Local ID Token Validation Modal  
 **Component:** `IDTokenValidationModalV8U`  
-**Service:** `IDTokenValidationServiceV8`
+**Service:** `IDTokenValidationService`
 
 **Trigger:**
 - Button: "🔐 Validate ID Token Locally"

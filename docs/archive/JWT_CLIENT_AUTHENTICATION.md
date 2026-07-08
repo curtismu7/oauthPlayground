@@ -86,7 +86,7 @@ const tokenRequest = {
 
 ### 1. UI Configuration
 
-The `TokenEndpointAuthMethodDropdownV8` component provides:
+The `TokenEndpointAuthMethodDropdown` component provides:
 - Selection of authentication methods
 - Security level indicators
 - Appropriate input fields
@@ -107,7 +107,7 @@ The `createClientAssertion` function handles:
 
 ### 4. API Integration
 
-The integration services (e.g., `ClientCredentialsIntegrationServiceV8`) handle:
+The integration services (e.g., `ClientCredentialsIntegrationService`) handle:
 - Calling the JWT generation function
 - Adding assertions to token requests
 - Error handling and validation

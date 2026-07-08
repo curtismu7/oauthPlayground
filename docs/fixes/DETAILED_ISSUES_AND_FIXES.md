@@ -18,8 +18,8 @@ import {
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 	type FlowType,
 	type SpecVersion,
-	SpecVersionServiceV8,
-} from '@/v8/services/specVersionServiceV8';
+	SpecVersionService,
+} from '@/v8/services/specVersionService';
 ```
 
 #### Issues
@@ -34,8 +34,8 @@ import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import {
 	type FlowType,
 	type SpecVersion,
-	SpecVersionServiceV8,
-} from '@/v8/services/specVersionServiceV8';
+	SpecVersionService,
+} from '@/v8/services/specVersionService';
 ```
 
 #### Error Messages
@@ -270,8 +270,8 @@ import {
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 	type FlowType,
 	type SpecVersion,
-	SpecVersionServiceV8,
-} from '@/v8/services/specVersionServiceV8';
+	SpecVersionService,
+} from '@/v8/services/specVersionService';
 ```
 
 **After**:
@@ -280,8 +280,8 @@ import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import {
 	type FlowType,
 	type SpecVersion,
-	SpecVersionServiceV8,
-} from '@/v8/services/specVersionServiceV8';
+	SpecVersionService,
+} from '@/v8/services/specVersionService';
 ```
 
 ---
@@ -438,7 +438,7 @@ Once syntax errors are fixed, consider:
 
 2. **Component Refactoring** (Priority)
    - Break down UnifiedFlowSteps.tsx (8,316 lines)
-   - Refactor MFAAuthenticationMainPageV8.tsx (13,832 lines)
+   - Refactor MFAAuthenticationMainPage.tsx (13,832 lines)
    - Extract shared component logic
 
 3. **Testing** (Important)
@@ -485,7 +485,7 @@ A: Once syntax errors are fixed, the project should build. Then focus on:
 **Impact**: Migration plan violation, potential runtime errors, non-standard messaging
 
 #### Root Issue
-Custom `v9MessagingService` was created and used instead of the mandated Modern Messaging system `toastNotificationsV8`. This violated the V9 migration plan and introduced a non-standard messaging pattern.
+Custom `v9MessagingService` was created and used instead of the mandated Modern Messaging system `toastNotifications`. This violated the V9 migration plan and introduced a non-standard messaging pattern.
 
 #### Affected Files
 - `src/services/v9/V9MessagingService.ts` (DELETED - custom service)
@@ -501,7 +501,7 @@ Custom `v9MessagingService` was created and used instead of the mandated Modern 
 - `src/pages/flows/JWTBearerTokenFlowV7.tsx` (REVERTED to proper V7 messaging)
 
 #### Issues Caused
-1. **Migration Plan Violation**: V9 services should use `toastNotificationsV8`, not custom services
+1. **Migration Plan Violation**: V9 services should use `toastNotifications`, not custom services
 2. **API Inconsistency**: Custom service used `showSuccess()` while standard uses `success()`
 3. **V7 Flow Contamination**: V7 flow incorrectly imported V9 messaging
 4. **Runtime Errors**: Deleted custom service caused broken imports
@@ -511,12 +511,12 @@ Custom `v9MessagingService` was created and used instead of the mandated Modern 
 1. **Created True Modern Messaging System**: Built complete non-toast messaging system:
    - `src/services/v9/ModernMessagingService.ts` - State-based messaging service
    - `src/components/ModernMessagingComponents.tsx` - UI components (WaitScreen, Banner, CriticalError, FooterMessage)
-2. **Updated JWTBearerTokenFlowV9**: Replaced all `toastV8` calls with Modern Messaging:
-   - `toastV8.warning()` → `messaging.showBanner()` (for warnings/validation)
-   - `toastV8.success()` → `messaging.showFooterMessage()` (for success/info)
-   - `toastV8.error()` → `messaging.showCriticalError()` (for system failures)
-   - `toastV8.info()` → `messaging.showFooterMessage()` (for informational messages)
-3. **Updated All V9 Services**: Migrated 8 V9 wrapper services from toastV8 to Modern Messaging:
+2. **Updated JWTBearerTokenFlowV9**: Replaced all `toast` calls with Modern Messaging:
+   - `toast.warning()` → `messaging.showBanner()` (for warnings/validation)
+   - `toast.success()` → `messaging.showFooterMessage()` (for success/info)
+   - `toast.error()` → `messaging.showCriticalError()` (for system failures)
+   - `toast.info()` → `messaging.showFooterMessage()` (for informational messages)
+3. **Updated All V9 Services**: Migrated 8 V9 wrapper services from toast to Modern Messaging:
    - `v9ModalPresentationService.tsx` - Modal operations
    - `v9FlowCompletionService.tsx` - Flow completion actions
    - `v9ComprehensiveCredentialsService.tsx` - Credential operations
@@ -526,7 +526,7 @@ Custom `v9MessagingService` was created and used instead of the mandated Modern 
    - `v9FlowHeaderService.tsx` - Header rendering
    - `v9FlowUIService.tsx` - UI component loading
 4. **Added Provider Pattern**: Wrapped components with `ModernMessagingProvider`
-5. **Verified Complete Migration**: Confirmed zero toastV8 usage in V9 codebase
+5. **Verified Complete Migration**: Confirmed zero toast usage in V9 codebase
 
 #### Compliance Requirements Established
 - **MUST** use Modern Messaging system for all V9 messaging

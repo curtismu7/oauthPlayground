@@ -9,10 +9,10 @@
  * This controller reuses SMS patterns but uses WHATSAPP device type.
  */
 
-import type { useStepNavigationV8 } from '@/mfa/hooks/useStepNavigationV8';
-import type { RegisterDeviceParams } from '@/mfa/services/mfaServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/mfa/services/workerTokenStatusServiceV8';
-import { validateAndNormalizePhone } from '@/mfa/utils/phoneValidationV8';
+import type { useStepNavigation } from '@/mfa/hooks/useStepNavigation';
+import type { RegisterDeviceParams } from '@/mfa/services/mfaService';
+import { WorkerTokenStatusService } from '@/mfa/services/workerTokenStatusService';
+import { validateAndNormalizePhone } from '@/mfa/utils/phoneValidation';
 import { logger } from '../../../utils/logger';
 import type { MFACredentials } from '../shared/MFATypes';
 import { type FlowControllerCallbacks, MFAFlowController } from './MFAFlowController';
@@ -58,8 +58,8 @@ export class WhatsAppFlowController extends MFAFlowController {
 
 	validateCredentials(
 		credentials: MFACredentials,
-		tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
-		nav: ReturnType<typeof useStepNavigationV8>
+		tokenStatus: ReturnType<typeof WorkerTokenStatusService.checkWorkerTokenStatus>,
+		nav: ReturnType<typeof useStepNavigation>
 	): boolean {
 		const errors: string[] = [];
 

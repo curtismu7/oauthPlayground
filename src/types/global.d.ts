@@ -17,11 +17,11 @@ declare global {
 
 		// Global Service References (for debugging)
 		UnifiedOAuthCredentialsServiceV8U?: unknown;
-		MFADeviceManagerV8?: unknown;
+		MFADeviceManager?: unknown;
 		TokenMonitoringServiceV8U?: unknown;
 
 		// Debug Utilities
-		debugLogViewerPopoutHelperV8?: {
+		debugLogViewerPopoutHelper?: {
 			isPopoutWindow(): boolean;
 		};
 		debugLogViewerPopoutHelperV9?: {

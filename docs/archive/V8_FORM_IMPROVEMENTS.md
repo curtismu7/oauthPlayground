@@ -23,7 +23,7 @@
   - 🔑 **Manage Token** (blue) - when token is stored
 - Prompts user to add token if missing
 - Allows removing stored token
-- Uses shared storage from `AppDiscoveryServiceV8`
+- Uses shared storage from `AppDiscoveryService`
 
 ### 4. ✅ Subtle Color Coding
 Each section now has its own subtle color for better visual separation:
@@ -77,9 +77,9 @@ Each section now has its own subtle color for better visual separation:
 ## Technical Details
 
 ### Components Modified:
-- `CredentialsFormV8.tsx` - Main form with reordered sections and color coding
-- `AppPickerV8.tsx` - Added worker token management
-- `OidcDiscoveryModalV8.tsx` - Modal for discovery results (unchanged)
+- `CredentialsForm.tsx` - Main form with reordered sections and color coding
+- `AppPicker.tsx` - Added worker token management
+- `OidcDiscoveryModal.tsx` - Modal for discovery results (unchanged)
 
 ### CSS Changes:
 - Added `data-section` attributes to all sections
@@ -88,7 +88,7 @@ Each section now has its own subtle color for better visual separation:
 - Better visual separation
 
 ### Storage:
-- Worker token stored via `AppDiscoveryServiceV8`
+- Worker token stored via `AppDiscoveryService`
 - Shared across all V8 flows
 - Persists in localStorage
 

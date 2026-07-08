@@ -13,9 +13,9 @@ Implemented proper scope defaults and validation for all OAuth/OIDC flows to pre
 ### 1. User Authentication Flows (OAuth/OIDC)
 
 **Flows Updated**:
-- Authorization Code Flow (`oauthIntegrationServiceV8.ts`)
-- Implicit Flow (`implicitFlowIntegrationServiceV8.ts`)
-- Hybrid Flow (`hybridFlowIntegrationServiceV8.ts`)
+- Authorization Code Flow (`oauthIntegrationService.ts`)
+- Implicit Flow (`implicitFlowIntegrationService.ts`)
+- Hybrid Flow (`hybridFlowIntegrationService.ts`)
 
 **Default Scopes**: `openid profile email`
 
@@ -48,7 +48,7 @@ credentials.scopes = 'openid profile email address';
 
 ### 2. Machine-to-Machine Flow (Client Credentials)
 
-**Flow Updated**: Client Credentials (`clientCredentialsIntegrationServiceV8.ts`)
+**Flow Updated**: Client Credentials (`clientCredentialsIntegrationService.ts`)
 
 **Default Scopes**: **NONE** (scopes are required but no default)
 
@@ -213,10 +213,10 @@ credentials.scopes = 'p1:read:user p1:read:environment'; // Correct scopes
 
 ## Files Modified
 
-1. `src/v8/services/oauthIntegrationServiceV8.ts` - Authorization Code Flow
-2. `src/v8/services/implicitFlowIntegrationServiceV8.ts` - Implicit Flow
-3. `src/v8/services/hybridFlowIntegrationServiceV8.ts` - Hybrid Flow
-4. `src/v8/services/clientCredentialsIntegrationServiceV8.ts` - Client Credentials
+1. `src/v8/services/oauthIntegrationService.ts` - Authorization Code Flow
+2. `src/v8/services/implicitFlowIntegrationService.ts` - Implicit Flow
+3. `src/v8/services/hybridFlowIntegrationService.ts` - Hybrid Flow
+4. `src/v8/services/clientCredentialsIntegrationService.ts` - Client Credentials
 
 ---
 

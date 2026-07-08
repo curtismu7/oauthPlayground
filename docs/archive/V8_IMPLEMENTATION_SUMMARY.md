@@ -20,42 +20,42 @@ A complete redesign of OAuth/OIDC flows with:
 ```
 src/v8/
 ├── services/              # 11 reusable services
-│   ├── educationServiceV8.ts          ✅ Started
-│   ├── validationServiceV8.ts         📝 Next
-│   ├── errorHandlerV8.ts              📝 Next
-│   ├── storageServiceV8.ts            📝 Next
-│   ├── modalManagerV8.ts
-│   ├── tokenDisplayServiceV8.ts
-│   ├── scopeEducationServiceV8.ts
-│   ├── urlBuilderV8.ts
-│   ├── configCheckerServiceV8.ts
-│   ├── discoveryServiceV8.ts
-│   └── apiCallDisplayV8.ts
+│   ├── educationService.ts          ✅ Started
+│   ├── validationService.ts         📝 Next
+│   ├── errorHandler.ts              📝 Next
+│   ├── storageService.ts            📝 Next
+│   ├── modalManager.ts
+│   ├── tokenDisplayService.ts
+│   ├── scopeEducationService.ts
+│   ├── urlBuilder.ts
+│   ├── configCheckerService.ts
+│   ├── discoveryService.ts
+│   └── apiCallDisplay.ts
 │
 ├── components/            # 10 reusable components
-│   ├── StepNavigationV8.tsx           ⭐ NEW - Critical!
+│   ├── StepNavigation.tsx           ⭐ NEW - Critical!
 │   ├── StepProgressBar.tsx            ⭐ NEW - Critical!
 │   ├── StepActionButtons.tsx          ⭐ NEW - Critical!
 │   ├── StepValidationFeedback.tsx     ⭐ NEW - Critical!
 │   ├── EducationTooltip.tsx
-│   ├── TokenDisplayV8.tsx
-│   ├── ScopeManagerV8.tsx
-│   ├── ConfigCheckerModalV8.tsx
-│   ├── DiscoveryModalV8.tsx
-│   ├── CredentialsModalV8.tsx
+│   ├── TokenDisplay.tsx
+│   ├── ScopeManager.tsx
+│   ├── ConfigCheckerModal.tsx
+│   ├── DiscoveryModal.tsx
+│   ├── CredentialsModal.tsx
 │   ├── QuickStartModal.tsx
 │   ├── ConfigExportImport.tsx
 │   └── ErrorDisplay.tsx
 │
 ├── flows/                 # V8 flow implementations
-│   ├── OAuthAuthorizationCodeFlowV8.tsx
-│   └── ImplicitFlowV8.tsx
+│   ├── OAuthAuthorizationCodeFlow.tsx
+│   └── ImplicitFlow.tsx
 │
 ├── hooks/                 # React hooks
-│   ├── useModalManagerV8.ts
-│   ├── useEducationV8.ts
-│   ├── useValidationV8.ts
-│   └── useStorageV8.ts
+│   ├── useModalManager.ts
+│   ├── useEducation.ts
+│   ├── useValidation.ts
+│   └── useStorage.ts
 │
 ├── types/                 # TypeScript types
 │   ├── education.ts
@@ -216,13 +216,13 @@ Click "Learn more" opens modal with:
 
 ### Week 1: Foundation (Days 1-5)
 **Day 1-2: Core Services**
-- ✅ educationServiceV8.ts (started)
-- 📝 validationServiceV8.ts
-- 📝 errorHandlerV8.ts
-- 📝 storageServiceV8.ts
+- ✅ educationService.ts (started)
+- 📝 validationService.ts
+- 📝 errorHandler.ts
+- 📝 storageService.ts
 
 **Day 3: Step Navigation** ⭐ CRITICAL
-- 📝 StepNavigationV8.tsx
+- 📝 StepNavigation.tsx
 - 📝 StepProgressBar.tsx
 - 📝 StepActionButtons.tsx
 - 📝 StepValidationFeedback.tsx
@@ -232,7 +232,7 @@ Click "Learn more" opens modal with:
 - 📝 ErrorDisplay.tsx
 
 **Day 5: Integration**
-- 📝 Update OAuthAuthorizationCodeFlowV8
+- 📝 Update OAuthAuthorizationCodeFlow
 - 📝 Add step navigation
 - 📝 Test validation flow
 
@@ -240,12 +240,12 @@ Click "Learn more" opens modal with:
 
 ### Week 2: Token & Scope UX (Days 6-10)
 **Day 6-7: Token Display**
-- tokenDisplayServiceV8.ts
-- TokenDisplayV8.tsx
+- tokenDisplayService.ts
+- TokenDisplay.tsx
 
 **Day 8-9: Scope Management**
-- scopeEducationServiceV8.ts
-- ScopeManagerV8.tsx
+- scopeEducationService.ts
+- ScopeManager.tsx
 
 **Day 10: Testing**
 - Unit tests
@@ -255,13 +255,13 @@ Click "Learn more" opens modal with:
 
 ### Week 3: Advanced Features (Days 11-15)
 **Day 11-12: Config Checker**
-- configCheckerServiceV8.ts
-- ConfigCheckerModalV8.tsx
+- configCheckerService.ts
+- ConfigCheckerModal.tsx
 
 **Day 13-14: Discovery & Credentials**
-- discoveryServiceV8.ts
-- DiscoveryModalV8.tsx
-- CredentialsModalV8.tsx
+- discoveryService.ts
+- DiscoveryModal.tsx
+- CredentialsModal.tsx
 
 **Day 15: Polish**
 - QuickStartModal.tsx
@@ -312,10 +312,10 @@ Click "Learn more" opens modal with:
 ## 🎯 Starting Point
 
 **We begin with:**
-1. Complete `educationServiceV8.ts` (already started)
-2. Create `validationServiceV8.ts` (critical for step navigation)
-3. Create `errorHandlerV8.ts` (user-friendly errors)
-4. Create `storageServiceV8.ts` (save progress)
+1. Complete `educationService.ts` (already started)
+2. Create `validationService.ts` (critical for step navigation)
+3. Create `errorHandler.ts` (user-friendly errors)
+4. Create `storageService.ts` (save progress)
 5. Create **Step Navigation System** (the key UX improvement!)
 
 **First deliverable:** Working step navigation with validation in Authorization Code V8

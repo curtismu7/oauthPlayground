@@ -46,10 +46,10 @@ This OAuth Playground is a **production-quality educational platform** that demo
                              │
           ┌──────────────────▼──────────────────┐
           │      Service Layer (Shared)          │
-          │  • SpecVersionServiceV8              │
-          │  • OAuthIntegrationServiceV8          │
-          │  • PreFlightValidationServiceV8      │
-          │  • CredentialsServiceV8              │
+          │  • SpecVersionService              │
+          │  • OAuthIntegrationService          │
+          │  • PreFlightValidationService      │
+          │  • CredentialsService              │
           └──────────────────┬───────────────────┘
                              │
           ┌──────────────────▼──────────────────┐
@@ -80,8 +80,8 @@ This OAuth Playground is a **production-quality educational platform** that demo
 1. **Facade Pattern**: `UnifiedFlowIntegrationV8U` simplifies complex service interactions
 2. **Strategy Pattern**: Different flow types use different integration strategies
 3. **Service Layer Pattern**: Business logic separated from UI components
-4. **Repository Pattern**: `CredentialsServiceV8` abstracts storage operations
-5. **Factory Pattern**: `SpecVersionServiceV8` creates flow configurations based on spec version
+4. **Repository Pattern**: `CredentialsService` abstracts storage operations
+5. **Factory Pattern**: `SpecVersionService` creates flow configurations based on spec version
 
 ### 1.2 Code Organization
 
@@ -181,7 +181,7 @@ src/
 
 2. **HTTPS Enforcement**
    - ✅ HTTPS required for all redirect URIs (except localhost)
-   - ✅ Validation in `PreFlightValidationServiceV8`
+   - ✅ Validation in `PreFlightValidationService`
    - ✅ Clear error messages when HTTP is used
 
 3. **Deprecated Flow Removal**
@@ -331,7 +331,7 @@ if (urlState !== storedState) {
 
 **Implementation Quality:** Excellent
 
-The `PreFlightValidationServiceV8` performs comprehensive checks before making authorization requests:
+The `PreFlightValidationService` performs comprehensive checks before making authorization requests:
 
 - ✅ Redirect URI validation against PingOne configuration
 - ✅ PKCE requirement checking (spec version + PingOne config)
@@ -502,10 +502,10 @@ export interface UnifiedFlowCredentials {
 **File Structure Quality:**
 ```
 src/v8/services/
-├── specVersionServiceV8.ts        # Spec version management
-├── preFlightValidationServiceV8.ts # Pre-flight checks
-├── oauthIntegrationServiceV8.ts    # OAuth integration
-├── credentialsServiceV8.ts         # Credential management
+├── specVersionService.ts        # Spec version management
+├── preFlightValidationService.ts # Pre-flight checks
+├── oauthIntegrationService.ts    # OAuth integration
+├── credentialsService.ts         # Credential management
 └── ...
 ```
 
@@ -532,9 +532,9 @@ src/v8/services/
  * Generate authorization URL for OAuth/OIDC flows
  *
  * This is a unified entry point that delegates to flow-specific services:
- * - Implicit flow → ImplicitFlowIntegrationServiceV8
- * - Authorization Code flow → OAuthIntegrationServiceV8
- * - Hybrid flow → HybridFlowIntegrationServiceV8
+ * - Implicit flow → ImplicitFlowIntegrationService
+ * - Authorization Code flow → OAuthIntegrationService
+ * - Hybrid flow → HybridFlowIntegrationService
  *
  * CRITICAL: State prefixing for callback handling
  * All flows prefix the state parameter with their flow type (e.g., "v8u-oauth-authz-{state}").
@@ -796,8 +796,8 @@ class IDTokenValidationService {
 **Current State:** ✅ Excellent (Enhanced)
 
 **Implemented Improvements:**
-- ✅ Cache discovery documents (`discoveryCacheServiceV8.ts`) - 24-hour TTL
-- ✅ Cache JWKS (`jwksCacheServiceV8.ts`) - 24-hour TTL
+- ✅ Cache discovery documents (`discoveryCacheService.ts`) - 24-hour TTL
+- ✅ Cache JWKS (`jwksCacheService.ts`) - 24-hour TTL
 - ✅ IndexedDB primary storage for credentials (persists across restarts)
 - ⏳ Optimize re-renders (can be further optimized)
 
@@ -929,7 +929,7 @@ k
 ### 12.1 High Priority
 
 1. **Add Comprehensive ID Token Validation** ✅ **IMPLEMENTED**
-   - ✅ Implemented JWKS-based signature verification (`idTokenValidationServiceV8.ts`)
+   - ✅ Implemented JWKS-based signature verification (`idTokenValidationService.ts`)
    - ✅ Added full claim validation per OIDC Section 3.1.3.7
    - ✅ Educational value: Teaches cryptographic verification
    - **Status:** Complete - Service created with full validation logic
@@ -949,13 +949,13 @@ k
 ### 12.2 Medium Priority
 
 1. **Cache Discovery Documents** ✅ **IMPLEMENTED**
-   - ✅ Implemented caching in IndexedDB (`discoveryCacheServiceV8.ts`)
+   - ✅ Implemented caching in IndexedDB (`discoveryCacheService.ts`)
    - ✅ 24-hour TTL with auto-refresh
-   - ✅ Integrated into `oidcDiscoveryServiceV8.ts`
+   - ✅ Integrated into `oidcDiscoveryService.ts`
    - **Status:** Complete
 
 2. **Cache JWKS** ✅ **IMPLEMENTED**
-   - ✅ Implemented caching in IndexedDB (`jwksCacheServiceV8.ts`)
+   - ✅ Implemented caching in IndexedDB (`jwksCacheService.ts`)
    - ✅ 24-hour TTL with auto-refresh
    - ✅ Integrated into ID token validation service
    - **Status:** Complete
@@ -994,15 +994,15 @@ k
    - ✅ Auto-fix functionality updated
    - ✅ Error messages clarified to reflect PingOne requirement
    - **Files Updated:**
-     - `src/v8/services/preFlightValidationServiceV8.ts`
-     - `src/v8/services/credentialsServiceV8.ts`
+     - `src/v8/services/preFlightValidationService.ts`
+     - `src/v8/services/credentialsService.ts`
 
 2. **IndexedDB Primary Storage** ✅ **IMPLEMENTED**
    - ✅ Changed storage priority: IndexedDB → localStorage → server backup
    - ✅ Credentials now persist across browser restarts
    - ✅ Automatic migration from localStorage to IndexedDB
    - **Files Updated:**
-     - `src/v8/services/credentialsServiceV8.ts`
+     - `src/v8/services/credentialsService.ts`
      - `src/v8u/services/indexedDBBackupServiceV8U.ts` (already existed, now primary)
 
 ---
@@ -1092,7 +1092,7 @@ const codeChallenge = base64url(sha256(codeVerifier));
 
 ### 14.2 Pre-Flight Validation Analysis
 
-**Location:** `src/v8/services/preFlightValidationServiceV8.ts`
+**Location:** `src/v8/services/preFlightValidationService.ts`
 
 **Implementation Quality:** ⭐⭐⭐⭐⭐
 
@@ -1131,7 +1131,7 @@ const codeChallenge = base64url(sha256(codeVerifier));
 
 ### 14.4 Error Handling Analysis
 
-**Location:** `src/v8/services/oauthIntegrationServiceV8.ts` and others
+**Location:** `src/v8/services/oauthIntegrationService.ts` and others
 
 **Pattern:** Structured error handling with OAuth-specific parsing
 

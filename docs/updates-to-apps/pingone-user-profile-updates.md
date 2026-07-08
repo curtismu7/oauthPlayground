@@ -114,7 +114,7 @@ unifiedWorkerTokenService.clearToken();
 + unifiedWorkerTokenService.clearToken();
 ```
 
-**5. WorkerTokenModalV8 environmentId Prop (Lines 1930-1937)**
+**5. WorkerTokenModal environmentId Prop (Lines 1930-1937)**
 ```diff
 - const stored = localStorage.getItem('unified_worker_token');
 - if (stored) {
@@ -158,7 +158,7 @@ unifiedWorkerTokenService.clearToken();
 
 2. **Token Generation:**
    - [ ] Click "Get Worker Token" button
-   - [ ] Verify WorkerTokenModalV8 opens
+   - [ ] Verify WorkerTokenModal opens
    - [ ] Generate a worker token
    - [ ] Verify token status updates automatically
    - [ ] Check DevTools → Application → IndexedDB → verify token stored
@@ -355,7 +355,7 @@ const getTokenData = () => {
 - ✅ Updated `getWorkerTokenMeta()` function to use service
 - ✅ Updated environment ID sync effect to use service
 - ✅ Updated clear token button to use `clearToken()` method
-- ✅ Updated WorkerTokenModalV8 environment ID derivation
+- ✅ Updated WorkerTokenModal environment ID derivation
 - ✅ Removed 4 unnecessary `JSON.parse()` calls
 - ✅ Updated comments to reference unified storage
 
@@ -481,7 +481,7 @@ No functional impact — layout only.
 - Three storage/effects cascading updates to `workerTokenMeta`
 - Three-way AlertBanner conditional rendering based on `workerTokenMeta` fields
 
-All other V9 pages use the standard `useGlobalWorkerToken()` hook + `WorkerTokenModalV8` pattern.
+All other V9 pages use the standard `useGlobalWorkerToken()` hook + `WorkerTokenModal` pattern.
 
 ### Changes
 

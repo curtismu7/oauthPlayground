@@ -62,7 +62,7 @@ This guide documents the collapsible sections implementation across both Unified
 ### MFA Hub Page - All Sections Collapsible
 
 #### ✅ MFA Features Section
-- **Location**: `src/v8/flows/MFAHubV8.tsx`
+- **Location**: `src/v8/flows/MFAHub.tsx`
 - **Purpose**: Main navigation to MFA features
 - **Features**:
   - Device Registration
@@ -72,7 +72,7 @@ This guide documents the collapsible sections implementation across both Unified
 - **Toggle**: 48px blue chevron icon with gradient background
 
 #### ✅ About PingOne MFA Section
-- **Location**: `src/v8/flows/MFAHubV8.tsx`
+- **Location**: `src/v8/flows/MFAHub.tsx`
 - **Purpose**: Educational information about MFA capabilities
 - **Features**:
   - Security overview
@@ -84,7 +84,7 @@ This guide documents the collapsible sections implementation across both Unified
 ### MFA Documentation Page - Already Collapsible
 
 #### ✅ API Documentation Sections
-- **Location**: `src/v8/components/MFADocumentationPageV8.tsx`
+- **Location**: `src/v8/components/MFADocumentationPage.tsx`
 - **Purpose**: Detailed API call documentation
 - **Features**:
   - MFA Flow API calls

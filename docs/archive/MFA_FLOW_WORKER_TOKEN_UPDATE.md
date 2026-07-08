@@ -2,17 +2,17 @@
 
 ## Changes Made
 
-### 1. Updated MFA Service (`src/v8/services/mfaServiceV8.ts`)
+### 1. Updated MFA Service (`src/v8/services/mfaService.ts`)
 
 **Key Changes:**
-- ✅ Now uses `WorkerTokenServiceV8` for authentication instead of requiring client credentials per flow
+- ✅ Now uses `WorkerTokenService` for authentication instead of requiring client credentials per flow
 - ✅ Changed from `userId` to `username` - service now looks up users by username
 - ✅ Added `lookupUserByUsername()` method to search for users via PingOne Management API
 - ✅ Worker token is cached and reused across all MFA operations
 - ✅ Automatic token refresh when expired
 
 **New Flow:**
-1. Get worker token from `WorkerTokenServiceV8` (cached or fetch new)
+1. Get worker token from `WorkerTokenService` (cached or fetch new)
 2. Look up user by username using Management API filter: `username eq "john.doe"`
 3. Use the resolved user ID for device registration and OTP operations
 
@@ -35,7 +35,7 @@ POST /v1/environments/{envId}/users/{userId}/devices/{deviceId}/otp/check
 Authorization: Bearer {worker_token}
 ```
 
-### 2. Updated MFA Flow UI (`src/v8/flows/MFAFlowV8.tsx`)
+### 2. Updated MFA Flow UI (`src/v8/flows/MFAFlow.tsx`)
 
 **Key Changes:**
 - ✅ Removed client ID and client secret fields (now uses worker token)
@@ -69,11 +69,11 @@ interface Credentials {
 ### 3. Storage Integration
 
 **Credentials Storage:**
-- Uses `CredentialsServiceV8` for flow-specific credentials (environment, username, phone)
+- Uses `CredentialsService` for flow-specific credentials (environment, username, phone)
 - Credentials are saved to localStorage with key: `v8_credentials_mfa-flow-v8`
 
 **Worker Token Storage:**
-- Uses `WorkerTokenServiceV8` for global worker token credentials
+- Uses `WorkerTokenService` for global worker token credentials
 - Worker token is stored in:
   - Memory cache (fast)
   - localStorage: `v8:worker_token` (primary)
@@ -138,7 +138,7 @@ Users must configure their worker token credentials before using the MFA flow:
 [📱 MFA-FLOW-V8] Credentials changed, validating and saving
 [📱 MFA-FLOW-V8] Credentials saved to localStorage
 [📱 MFA-FLOW-V8] Registering SMS device
-[🔑 WORKER-TOKEN-V8] Getting worker token from WorkerTokenServiceV8
+[🔑 WORKER-TOKEN-V8] Getting worker token from WorkerTokenService
 [🔑 WORKER-TOKEN-V8] Using cached worker token
 [📱 MFA-SERVICE-V8] Looking up user by username { username: 'john.doe' }
 [📱 MFA-SERVICE-V8] User found { userId: 'xxx-xxx-xxx', username: 'john.doe' }
@@ -178,4 +178,4 @@ The old MFA service interface is completely replaced. Any code calling the old s
 
 **Last Updated:** 2024-11-19  
 **Version:** 8.0.0  
-**Status:** Active - MFA flow now uses WorkerTokenServiceV8
+**Status:** Active - MFA flow now uses WorkerTokenService

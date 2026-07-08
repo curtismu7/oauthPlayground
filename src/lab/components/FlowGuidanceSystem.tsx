@@ -6,7 +6,7 @@ import {
 	UnifiedFlowCollapsibleTitle,
 	UnifiedFlowCollapsibleToggleIcon,
 } from '@/services/collapsibleHeaderService';
-import { type FlowType, type SpecVersion } from '@/mfa/services/specVersionServiceV8';
+import { type FlowType, type SpecVersion } from '@/mfa/services/specVersionService';
 import { FiBook, FiCheck } from '../../icons';
 
 const GuidanceContainer = styled.div`

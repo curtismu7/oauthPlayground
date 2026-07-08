@@ -1,16 +1,16 @@
 /**
  * @file WorkerTokenSectionV9.tsx
  * @module components
- * @description V9 worker token section — migrated from WorkerTokenSectionV8
+ * @description V9 worker token section — migrated from WorkerTokenSection
  * @version 9.0.0
  * @since 2026-03-06
  *
  * Migration notes:
- * - WorkerTokenModalV8 → WorkerTokenModalV9Styled
- * - WorkerTokenStatusServiceV8 → checkWorkerTokenStatus
- * - toastV8 → modernMessaging (migration complete)
+ * - WorkerTokenModal → WorkerTokenModalV9Styled
+ * - WorkerTokenStatusService → checkWorkerTokenStatus
+ * - toast → modernMessaging (migration complete)
  * - Inline styles → styled-components with V9 blue palette
- * - WorkerTokenStatusDisplayV8 → inline status block (no V9 component exists)
+ * - WorkerTokenStatusDisplay → inline status block (no V9 component exists)
  */
 
 import React, { useCallback, useEffect, useState } from 'react';

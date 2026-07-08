@@ -20,7 +20,7 @@ All Priority 3 (Nice to Have) improvements from the MFA Configuration Page Revie
   - How they interact with other sync effects
 
 **Files Modified:**
-- `src/v8/flows/shared/MFAConfigurationStepV8.tsx`
+- `src/v8/flows/shared/MFAConfigurationStep.tsx`
   - Added JSDoc comments to `isUpdatingCredentialsRef` (line ~108)
   - Added JSDoc comments to auth context sync effect (line ~232)
   - Added JSDoc comments to credentials → local state sync effect (line ~270)
@@ -41,7 +41,7 @@ All Priority 3 (Nice to Have) improvements from the MFA Configuration Page Revie
 - Spinner appears next to "Refreshing…" text when `isLoadingPolicies` is true
 
 **Files Modified:**
-- `src/v8/flows/shared/MFAConfigurationStepV8.tsx`
+- `src/v8/flows/shared/MFAConfigurationStep.tsx`
   - Added CSS keyframes animation (lines ~484-489)
   - Added spinner element to refresh button (lines ~1103-1111)
   - Enhanced button styling with flex layout for proper icon alignment

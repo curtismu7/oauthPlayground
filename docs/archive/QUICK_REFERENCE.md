@@ -56,7 +56,7 @@ Button: Normal blue styling
 
 ## 📁 Key Files
 
-- `src/v8/flows/MFAFlowV8.tsx` - Main implementation
+- `src/v8/flows/MFAFlow.tsx` - Main implementation
 - `MFA_FIDO2_STREAMLINING_COMPLETE.md` - FIDO2 details
 - `MFA_TEST_MODE_FIX.md` - Test mode details
 - `MFA_OTP_SEND_TEST_RESULTS.md` - OTP verification

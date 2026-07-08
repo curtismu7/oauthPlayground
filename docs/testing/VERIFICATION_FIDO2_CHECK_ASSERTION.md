@@ -56,11 +56,11 @@ https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-check-assertion-fido-d
 ## Implementation Locations
 
 ### 1. `/api/pingone/mfa/check-fido2-assertion` (server.js:10806)
-- Used by: `MfaAuthenticationServiceV8.checkFIDO2Assertion()`
+- Used by: `MfaAuthenticationService.checkFIDO2Assertion()`
 - Status: ✅ Verified and matches PingOne API spec
 
 ### 2. `/api/auth/passkey/verify-authentication` (server.js:13621)
-- Used by: `PasskeyServiceV8.authenticateUsernameless()`
+- Used by: `PasskeyService.authenticateUsernameless()`
 - Status: ✅ Verified and matches PingOne API spec
 
 ## Enhancements Added

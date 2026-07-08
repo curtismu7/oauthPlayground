@@ -64,7 +64,7 @@ This document provides a comprehensive reference for TOTP (Time-based One-Time P
 
 #### Step 0: Configuration
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx` → `TOTPConfigureStep`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx` → `TOTPConfigureStep`
 
 **Purpose:** User enters required credentials for TOTP registration.
 
@@ -84,7 +84,7 @@ This document provides a comprehensive reference for TOTP (Time-based One-Time P
 
 #### Step 1: Device Selection
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx` → `renderStep1WithSelection`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx` → `renderStep1WithSelection`
 
 **Critical:** During registration flow, Step 1 is **completely skipped**. Device selection is only shown during authentication flows.
 
@@ -105,14 +105,14 @@ if (isConfiguredValue) {
 
 #### Step 2: Register Device
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx` → `renderStep2Register`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx` → `renderStep2Register`
 
 **Purpose:** User provides device name and registers TOTP device with PingOne.
 
 **Process:**
 1. User enters device name (optional - defaults to "TOTP Device - {username}")
 2. Click "Register Device" button
-3. System calls `MFAServiceV8.registerDevice()` with TOTP-specific parameters
+3. System calls `MFAService.registerDevice()` with TOTP-specific parameters
 4. PingOne creates device and returns `secret` and `keyUri` in `properties` object
 5. Navigate to Step 3 (QR code display)
 
@@ -128,7 +128,7 @@ const handleRegisterDevice = async () => {
     );
 
     // Register device with PingOne
-    const result = await MFAServiceV8.registerDevice({
+    const result = await MFAService.registerDevice({
       ...credentials,
       ...registrationParams,
       type: 'TOTP',
@@ -194,7 +194,7 @@ const handleRegisterDevice = async () => {
 
 #### Step 3: Scan QR Code & Activate
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx` → `renderStep3QrCode`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx` → `renderStep3QrCode`
 
 **Purpose:** Display QR code for user to scan with authenticator app, and provide button to open separate activation modal if `ACTIVATION_REQUIRED`.
 
@@ -204,7 +204,7 @@ const handleRegisterDevice = async () => {
 3. If `ACTIVATION_REQUIRED`, show "Activate Device with OTP" button (opens separate activation modal)
 4. User clicks button to open activation modal
 5. In activation modal, user enters 6-digit code from authenticator app
-6. System calls `MFAServiceV8.activateTOTPDevice()` to activate device
+6. System calls `MFAService.activateTOTPDevice()` to activate device
 7. Both modals close and success page is shown
 
 **Critical Code:**
@@ -234,7 +234,7 @@ const activationPropsRef = React.useRef<{
   credentials: MFACredentials;
   mfaState: MFAState;
   setMfaState: (state: Partial<MFAState> | ((prev: MFAState) => MFAState)) => void;
-  nav: ReturnType<typeof useStepNavigationV8>;
+  nav: ReturnType<typeof useStepNavigation>;
   setIsLoading: (loading: boolean) => void;
 } | null>(null);
 
@@ -259,7 +259,7 @@ const handleActivateDevice = useCallback(async () => {
   setActivationError(null);
 
   try {
-    const activationResult = await MFAServiceV8.activateTOTPDevice({
+    const activationResult = await MFAService.activateTOTPDevice({
       environmentId: props.credentials.environmentId,
       username: props.credentials.username,
       deviceId: props.mfaState.deviceId,
@@ -300,7 +300,7 @@ const handleActivateDevice = useCallback(async () => {
     props.nav.markStepComplete();
     props.nav.goToStep(4);
     
-    toastV8.success('TOTP device activated successfully!');
+    toast.success('TOTP device activated successfully!');
     
     // Success page will render automatically when:
     // 1. deviceStatus is ACTIVE
@@ -324,7 +324,7 @@ const handleActivateDevice = useCallback(async () => {
         : errorMessage;
     
     setActivationError(normalizedError);
-    toastV8.error(`Activation failed: ${normalizedError}`);
+    toast.error(`Activation failed: ${normalizedError}`);
     
     // Clear OTP input so user can try again
     setActivationOtp('');
@@ -422,7 +422,7 @@ const handleActivateDevice = useCallback(async () => {
         type="button"
         onClick={async () => {
           // Delete device logic
-          const confirmed = await uiNotificationServiceV8.confirm({
+          const confirmed = await uiNotificationService.confirm({
             title: 'Delete Device',
             message: 'Are you sure you want to delete this device? This will return you to the hub to start over.',
             confirmText: 'Delete Device',
@@ -433,12 +433,12 @@ const handleActivateDevice = useCallback(async () => {
           
           setIsLoading(true);
           try {
-            await MFAServiceV8.deleteDevice({
+            await MFAService.deleteDevice({
               environmentId: credentials.environmentId,
               username: credentials.username,
               deviceId: mfaState.deviceId,
             });
-            toastV8.success('Device deleted successfully. You can now register a new device.');
+            toast.success('Device deleted successfully. You can now register a new device.');
             
             // Clear device state to allow new registration
             setMfaState((prev) => ({
@@ -464,7 +464,7 @@ const handleActivateDevice = useCallback(async () => {
             setShowQrModal(false);
             nav.goToStep(2);
           } catch (error) {
-            toastV8.error(`Failed to delete device: ${error.message}`);
+            toast.error(`Failed to delete device: ${error.message}`);
           } finally {
             setIsLoading(false);
           }
@@ -522,14 +522,14 @@ const handleActivateDevice = useCallback(async () => {
 - **Expiration Check:** Secret/keyUri expire after 30 minutes. Check `createdAt` timestamp and show expired modal if needed
 - **Auto-Open Modal:** Modal automatically opens when navigating to Step 3
 - **Stuck Device Warning:** Automatically appears when device is in ACTIVATION_REQUIRED status, provides recovery options
-- **Delete Device:** Uses `MFAServiceV8.deleteDevice()` with confirmation modal, clears state and navigates to Step 2 to register new device (continues flow, does NOT return to hub)
+- **Delete Device:** Uses `MFAService.deleteDevice()` with confirmation modal, clears state and navigates to Step 2 to register new device (continues flow, does NOT return to hub)
 - **Delete All Devices:** Navigates to `/v8/delete-all-devices` with pre-filled state (environmentId, username, deviceType: 'TOTP', deviceStatus: 'ACTIVATION_REQUIRED')
 
 ---
 
 #### Step 4: Validate OTP (Authentication)
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx` → `renderStep4Validate`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx` → `renderStep4Validate`
 
 **Purpose:** Validate OTP code from authenticator app during authentication flow (after device is already activated).
 
@@ -560,7 +560,7 @@ const handleActivateDevice = useCallback(async () => {
 
 #### Step 1: Initialize Device Authentication
 
-**Location:** `src/v8/services/mfaAuthenticationServiceV8.ts` → `initializeDeviceAuthentication()`
+**Location:** `src/v8/services/mfaAuthenticationService.ts` → `initializeDeviceAuthentication()`
 
 **Process:**
 1. Call PingOne to initialize device authentication
@@ -588,12 +588,12 @@ setMfaState((prev) => ({
 
 #### Step 2: Select Device (if required)
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx` → `renderStep1WithSelection`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx` → `renderStep1WithSelection`
 
 **Process:**
 1. Show list of available TOTP devices
 2. User selects device
-3. Call `MfaAuthenticationServiceV8.selectDeviceForAuthentication()`
+3. Call `MfaAuthenticationService.selectDeviceForAuthentication()`
 4. Navigate to OTP validation
 
 **Critical:** Only shown during authentication flow, never during registration.
@@ -602,7 +602,7 @@ setMfaState((prev) => ({
 
 #### Step 3: Validate OTP
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx` → `renderStep4Validate`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx` → `renderStep4Validate`
 
 **Process:**
 1. User enters 6-digit code
@@ -855,7 +855,7 @@ React.useEffect(() => {
 }, [showQrModal]);
 ```
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx` → Component level `useEffect`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx` → Component level `useEffect`
 
 **Fixed:** QR modal now automatically opens when navigating to Step 3.
 
@@ -877,7 +877,7 @@ if (isConfiguredValue) {
 }
 ```
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx` → `renderStep1WithSelection`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx` → `renderStep1WithSelection`
 
 **Fixed:** Device selection is now completely skipped during registration flow. Registration and authentication flows are completely separate.
 
@@ -917,7 +917,7 @@ React.useEffect(() => {
 }, [currentStepForExpiration, mfaStateForExpiration]);
 ```
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx` → Component level `useEffect`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx` → Component level `useEffect`
 
 **Fixed:** System now checks for secret/keyUri expiration and shows expired modal if 30 minutes have passed.
 
@@ -947,7 +947,7 @@ React.useEffect(() => {
 }, [showQrModal]);
 ```
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx`
 
 **Fixed:** All state updates moved to `useEffect` hooks. Refs used to bridge render and effect phases.
 
@@ -980,8 +980,8 @@ catch (error) {
 ```
 
 **Location:** 
-- `src/v8/services/mfaAuthenticationServiceV8.ts` → `selectDeviceForAuthentication()`
-- `src/v8/flows/types/TOTPFlowV8.tsx` → Error handling in `handleUseSelectedDevice()`
+- `src/v8/services/mfaAuthenticationService.ts` → `selectDeviceForAuthentication()`
+- `src/v8/flows/types/TOTPFlow.tsx` → Error handling in `handleUseSelectedDevice()`
 
 **Fixed:** LIMIT_EXCEEDED errors now show a user-friendly modal with cooldown information.
 
@@ -1004,7 +1004,7 @@ React.useEffect(() => {
 }, [showModal]);
 ```
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx` → Component level `useEffect`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx` → Component level `useEffect`
 
 **Fixed:** Step 2 modal now automatically opens when navigating to Step 2.
 
@@ -1028,7 +1028,7 @@ Promise.resolve().then(() => {
 });
 ```
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx` → `handleRegisterDevice()`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx` → `handleRegisterDevice()`
 
 **Fixed:** Modal transitions now work correctly with proper state management.
 
@@ -1039,22 +1039,22 @@ Promise.resolve().then(() => {
 ### Frontend Files
 
 **Flow Components:**
-- `src/v8/flows/types/TOTPFlowV8.tsx` - Main TOTP registration and authentication flow
-- `src/v8/flows/TOTPConfigurationPageV8.tsx` - TOTP configuration page
-- `src/v8/flows/MFAAuthenticationMainPageV8.tsx` - TOTP authentication page
+- `src/v8/flows/types/TOTPFlow.tsx` - Main TOTP registration and authentication flow
+- `src/v8/flows/TOTPConfigurationPage.tsx` - TOTP configuration page
+- `src/v8/flows/MFAAuthenticationMainPage.tsx` - TOTP authentication page
 
 **UI Components:**
-- `src/v8/components/TOTPExpiredModalV8.tsx` - Modal for expired secret/keyUri
+- `src/v8/components/TOTPExpiredModal.tsx` - Modal for expired secret/keyUri
 - `src/v8/components/MFADeviceSelector.tsx` - Device selection component (authentication only)
 - `src/v8/components/MFAOTPInput.tsx` - 6-digit OTP input component
 
 **Services:**
-- `src/v8/services/mfaServiceV8.ts` - TOTP device registration and activation
-- `src/v8/services/mfaAuthenticationServiceV8.ts` - TOTP authentication and OTP validation
+- `src/v8/services/mfaService.ts` - TOTP device registration and activation
+- `src/v8/services/mfaAuthenticationService.ts` - TOTP authentication and OTP validation
 - `src/v8/flows/controllers/TOTPFlowController.ts` - TOTP flow controller
 
 **Configuration:**
-- `src/v8/services/mfaConfigurationServiceV8.ts` - TOTP configuration storage
+- `src/v8/services/mfaConfigurationService.ts` - TOTP configuration storage
 
 ### Backend Files
 

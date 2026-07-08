@@ -36,7 +36,7 @@ This document defines the UI contract for Email device registration and authenti
 
 ### 1. Email Configuration Page
 
-**Component:** `EmailOTPConfigurationPageV8.tsx`  
+**Component:** `EmailOTPConfigurationPage.tsx`  
 **Route:** `/v8/mfa/register/email`
 
 #### Required UI Elements
@@ -66,7 +66,7 @@ This document defines the UI contract for Email device registration and authenti
 
 #### State Management
 
-- Configuration must be saved to `localStorage` via `CredentialsServiceV8`
+- Configuration must be saved to `localStorage` via `CredentialsService`
 - Configuration must be loaded on page mount
 - Changes must be persisted immediately
 
@@ -82,7 +82,7 @@ This document defines the UI contract for Email device registration and authenti
 
 ### 2. Email Registration Flow
 
-**Component:** `EmailFlowV8.tsx`  
+**Component:** `EmailFlow.tsx`  
 **Route:** `/v8/mfa/register/email/device`
 
 #### Step 0: Configuration
@@ -97,8 +97,8 @@ This document defines the UI contract for Email device registration and authenti
 
 **State:**
 - Credentials stored in `credentials` state
-- Token status checked via `WorkerTokenStatusServiceV8`
-- Policies loaded from `MFAServiceV8.listDeviceAuthenticationPolicies()`
+- Token status checked via `WorkerTokenStatusService`
+- Policies loaded from `MFAService.listDeviceAuthenticationPolicies()`
 
 #### Step 1: Device Selection
 
@@ -161,7 +161,7 @@ This document defines the UI contract for Email device registration and authenti
 
 ### 3. Email Authentication Flow
 
-**Component:** `MFAAuthenticationMainPageV8.tsx`  
+**Component:** `MFAAuthenticationMainPage.tsx`  
 **Route:** `/v8/mfa/auth`
 
 #### Device Selection
@@ -196,7 +196,7 @@ This document defines the UI contract for Email device registration and authenti
 ### Error Types
 
 1. **LIMIT_EXCEEDED**
-   - Must display `MFACooldownModalV8` with cooldown duration
+   - Must display `MFACooldownModal` with cooldown duration
    - Must show toast notification
    - Must prevent further attempts during cooldown
 

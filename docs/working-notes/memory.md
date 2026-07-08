@@ -27,7 +27,7 @@
 ### **2026-03-02: CRITICAL - V9 Messaging Migration Compliance Fix**
 **Decision**: Enforced mandatory Modern Messaging usage for all V9 services
 **Impact**: Prevented migration plan violation and established compliance standards
-**Root Issue**: Custom `v9MessagingService` created instead of using established `toastNotificationsV8`
+**Root Issue**: Custom `v9MessagingService` created instead of using established `toastNotifications`
 **Resolution Applied**:
 - ✅ Removed custom V9 messaging service
 - ✅ Updated 7+ V9 services to use proper Modern Messaging
@@ -35,7 +35,7 @@
 - ✅ Reverted V7 flow to use proper `v4ToastManager`
 - ✅ Added comprehensive documentation to prevent recurrence
 **Compliance Requirements**:
-- **MUST** use `src/v8/utils/toastNotificationsV8` for all V9 messaging
+- **MUST** use `src/v8/utils/toastNotifications` for all V9 messaging
 - **MUST** consult migration documentation before creating new services
 - **NEVER** create custom V9 messaging services
 **Files Affected**: All V9 wrapper services, JWTBearerTokenFlowV9.tsx, V7_V9_MIGRATION_ISSUE_TRACKING.md
@@ -251,7 +251,7 @@ project/
 - Granular memory approach needed for large app
 - **Modern Messaging system successfully implemented for V9**
 - **True non-toast messaging with wait screens, banners, critical errors, footer messages**
-- **All V9 services migrated from toastV8 to Modern Messaging**
+- **All V9 services migrated from toast to Modern Messaging**
 - **Complete test coverage for Modern Messaging system**
 - **Updated documentation reflects proper Modern Messaging implementation**
 - **Migration compliance requires strict adherence to established patterns**

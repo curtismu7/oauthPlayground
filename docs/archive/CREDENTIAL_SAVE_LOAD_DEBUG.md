@@ -16,7 +16,7 @@ The storage key format is: `v8_credentials_${flowKey}`
 
 ### 1. When User Changes Credentials (CredentialsFormV8U.tsx)
 - `handleChange` is called
-- Entire `updated` credentials object is saved via `CredentialsServiceV8.saveCredentials(flowKey, updated)`
+- Entire `updated` credentials object is saved via `CredentialsService.saveCredentials(flowKey, updated)`
 - This saves to:
   - localStorage: `v8_credentials_${flowKey}`
   - IndexedDB: backup
@@ -26,7 +26,7 @@ The storage key format is: `v8_credentials_${flowKey}`
 - `handleAppSelected` is called
 - Extracts `redirectUri` from `redirectUris[0]`
 - Extracts `tokenEndpointAuthMethod` and sets as `clientAuthMethod`
-- Saves entire credentials object via `CredentialsServiceV8.saveCredentials(flowKey, updated)`
+- Saves entire credentials object via `CredentialsService.saveCredentials(flowKey, updated)`
 
 ## Load Process
 

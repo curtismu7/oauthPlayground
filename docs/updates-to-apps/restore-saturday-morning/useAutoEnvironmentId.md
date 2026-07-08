@@ -14,7 +14,7 @@ in priority order, and stays reactive to updates dispatched by other flows.
 
 | Priority | Key | Source |
 | --- | --- | --- |
-| 1 | `v8:global_environment_id` | `EnvironmentIdServiceV8` — canonical store |
+| 1 | `v8:global_environment_id` | `EnvironmentIdService` — canonical store |
 | 2 | `unified_worker_token` → `.credentials.environmentId` | Worker token service |
 | 3 | `pingone_shared_environment` → `.environmentId` | `comprehensiveFlowDataService` |
 | 4 | `pingone_environment_id_persistence` → `.environmentId` | `environmentIdPersistenceService` |
@@ -36,7 +36,7 @@ React hook. Returns `{ environmentId, setEnvironmentId, refresh }`.
 - Initialises from `readBestEnvironmentId()`
 - Listens for `environmentIdUpdated` window events and `storage` events
 - When `setEnvironmentId(id)` is called and `saveOnChange=true` (default),
-  also writes to `EnvironmentIdServiceV8` so other pages update reactively
+  also writes to `EnvironmentIdService` so other pages update reactively
 
 ## Usage patterns
 

@@ -23,8 +23,8 @@ Added `useEffect` hooks to all V8 modals that:
 - Discover PingOne applications modal
 - Already had scroll lock added
 
-### 2. ✅ WorkerTokenModalV8
-**File:** `src/v8/components/WorkerTokenModalV8.tsx`
+### 2. ✅ WorkerTokenModal
+**File:** `src/v8/components/WorkerTokenModal.tsx`
 - Worker token credential management
 - Main modal for generating worker tokens
 
@@ -33,28 +33,28 @@ Added `useEffect` hooks to all V8 modals that:
 - Educational modal for token endpoint authentication methods
 - Shows all 5 auth methods with examples
 
-### 4. ✅ OidcDiscoveryModalV8
-**File:** `src/v8/components/OidcDiscoveryModalV8.tsx`
+### 4. ✅ OidcDiscoveryModal
+**File:** `src/v8/components/OidcDiscoveryModal.tsx`
 - OIDC discovery results display
 - Shows discovered endpoints and configuration
 
-### 5. ✅ MFASettingsModalV8
-**File:** `src/v8/components/MFASettingsModalV8.tsx`
+### 5. ✅ MFASettingsModal
+**File:** `src/v8/components/MFASettingsModal.tsx`
 - MFA settings configuration
 - Used in MFA flows
 
-### 6. ✅ MFADeviceLimitModalV8
-**File:** `src/v8/components/MFADeviceLimitModalV8.tsx`
+### 6. ✅ MFADeviceLimitModal
+**File:** `src/v8/components/MFADeviceLimitModal.tsx`
 - Device limit exceeded error display
 - Shows when MFA device limit is reached
 
-### 7. ✅ ConfirmModalV8
-**File:** `src/v8/components/ConfirmModalV8.tsx`
+### 7. ✅ ConfirmModal
+**File:** `src/v8/components/ConfirmModal.tsx`
 - Generic confirmation dialog
 - Used for delete/remove confirmations
 
-### 8. ✅ WorkerTokenRequestModalV8
-**File:** `src/v8/components/WorkerTokenRequestModalV8.tsx`
+### 8. ✅ WorkerTokenRequestModal
+**File:** `src/v8/components/WorkerTokenRequestModal.tsx`
 - Educational modal showing worker token API request
 - Displays curl commands and request details
 
@@ -63,7 +63,7 @@ Added `useEffect` hooks to all V8 modals that:
 All modals now follow this pattern:
 
 ```typescript
-export const SomeModalV8: React.FC<Props> = ({ isOpen, onClose }) => {
+export const SomeModal: React.FC<Props> = ({ isOpen, onClose }) => {
   // Lock body scroll when modal is open
   React.useEffect(() => {
     if (isOpen) {
@@ -229,7 +229,7 @@ When creating new V8 modals:
 ### Code Example
 ```typescript
 // Template for new V8 modals
-export const NewModalV8: React.FC<Props> = ({ isOpen, onClose }) => {
+export const NewModal: React.FC<Props> = ({ isOpen, onClose }) => {
   // Lock body scroll when modal is open
   React.useEffect(() => {
     if (isOpen) {

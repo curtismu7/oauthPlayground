@@ -23,7 +23,7 @@
   - Copy-to-clipboard functionality
 
 #### "What is this?" Educational Buttons
-- **Location**: `/src/v8/components/TokenEndpointAuthMethodDropdownV8.tsx`
+- **Location**: `/src/v8/components/TokenEndpointAuthMethodDropdown.tsx`
 - **Features**:
   - Context-sensitive help throughout the UI
   - Educational panel with method comparisons
@@ -219,7 +219,7 @@ const tokenRequest = {
 
 ### Modified Files
 - `/src/components/JWTConfigV8.tsx` - Added generation buttons and handlers
-- `/src/v8/components/TokenEndpointAuthMethodDropdownV8.tsx` - Enhanced educational content
+- `/src/v8/components/TokenEndpointAuthMethodDropdown.tsx` - Enhanced educational content
 - `/src/v8u/components/CredentialsFormV8U.tsx` - Modal integration (already existed)
 
 ## 🚀 Build Status

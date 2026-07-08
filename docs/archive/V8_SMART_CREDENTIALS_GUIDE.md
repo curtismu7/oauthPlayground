@@ -62,7 +62,7 @@ Automatically pulls values from app configuration:
 
 ```typescript
 // Load with app discovery
-const creds = CredentialsServiceV8.loadWithAppDiscovery('oauth-authz-v8', appConfig);
+const creds = CredentialsService.loadWithAppDiscovery('oauth-authz-v8', appConfig);
 
 // Result:
 // - clientId: from app config
@@ -77,7 +77,7 @@ Automatically detects when URIs don't match app config:
 
 ```typescript
 // Check if redirect URI needs app update
-const needsUpdate = CredentialsServiceV8.needsRedirectUriUpdate(
+const needsUpdate = CredentialsService.needsRedirectUriUpdate(
   'oauth-authz-v8',
   'http://localhost:3000/new-callback',
   ['http://localhost:3000/callback']  // registered URIs
@@ -118,12 +118,12 @@ Space-separated list of requested permissions
 ### Basic Setup (Automatic)
 
 ```typescript
-import CredentialsFormV8 from '@/v8/components/CredentialsFormV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import CredentialsForm from '@/v8/components/CredentialsForm';
+import { CredentialsService } from '@/v8/services/credentialsService';
 
 // Load smart defaults
 const [credentials, setCredentials] = useState(() => {
-  return CredentialsServiceV8.loadCredentials('oauth-authz-v8', {
+  return CredentialsService.loadCredentials('oauth-authz-v8', {
     flowKey: 'oauth-authz-v8',
     flowType: 'oauth',
     includeClientSecret: true,
@@ -136,7 +136,7 @@ const [credentials, setCredentials] = useState(() => {
 });
 
 // Render - fields automatically shown/hidden
-<CredentialsFormV8
+<CredentialsForm
   flowKey="oauth-authz-v8"
   credentials={credentials}
   onChange={setCredentials}
@@ -153,11 +153,11 @@ const appConfig = await fetchAppConfig(environmentId, clientId, workerToken);
 
 // Load credentials with app values
 const [credentials, setCredentials] = useState(() => {
-  return CredentialsServiceV8.loadWithAppDiscovery('oauth-authz-v8', appConfig);
+  return CredentialsService.loadWithAppDiscovery('oauth-authz-v8', appConfig);
 });
 
 // Render with app config
-<CredentialsFormV8
+<CredentialsForm
   flowKey="oauth-authz-v8"
   credentials={credentials}
   onChange={setCredentials}
@@ -174,7 +174,7 @@ const [credentials, setCredentials] = useState(() => {
 
 ```typescript
 // Get pre-configured defaults for a flow
-const defaults = CredentialsServiceV8.getSmartDefaults('oauth-authz-v8');
+const defaults = CredentialsService.getSmartDefaults('oauth-authz-v8');
 // Returns:
 // {
 //   environmentId: '',
@@ -185,7 +185,7 @@ const defaults = CredentialsServiceV8.getSmartDefaults('oauth-authz-v8');
 // }
 
 // Reset to defaults
-setCredentials(CredentialsServiceV8.getSmartDefaults('oauth-authz-v8'));
+setCredentials(CredentialsService.getSmartDefaults('oauth-authz-v8'));
 ```
 
 ## Service API
@@ -195,7 +195,7 @@ setCredentials(CredentialsServiceV8.getSmartDefaults('oauth-authz-v8'));
 Get pre-configured defaults for a flow type.
 
 ```typescript
-const defaults = CredentialsServiceV8.getSmartDefaults('oauth-authz-v8');
+const defaults = CredentialsService.getSmartDefaults('oauth-authz-v8');
 ```
 
 **Returns:** Credentials object with smart defaults
@@ -207,7 +207,7 @@ const defaults = CredentialsServiceV8.getSmartDefaults('oauth-authz-v8');
 Get the configuration for a flow type.
 
 ```typescript
-const config = CredentialsServiceV8.getFlowConfig('oauth-authz-v8');
+const config = CredentialsService.getFlowConfig('oauth-authz-v8');
 // {
 //   flowKey: 'oauth-authz-v8',
 //   flowType: 'oauth',
@@ -229,7 +229,7 @@ const config = CredentialsServiceV8.getFlowConfig('oauth-authz-v8');
 Load credentials with values from app configuration.
 
 ```typescript
-const creds = CredentialsServiceV8.loadWithAppDiscovery('oauth-authz-v8', {
+const creds = CredentialsService.loadWithAppDiscovery('oauth-authz-v8', {
   clientId: 'app-client-id',
   redirectUris: ['http://localhost:3000/callback', 'https://example.com/callback'],
   logoutUris: ['http://localhost:3000/logout'],
@@ -246,7 +246,7 @@ const creds = CredentialsServiceV8.loadWithAppDiscovery('oauth-authz-v8', {
 Check if redirect URI needs to be updated in app.
 
 ```typescript
-const needsUpdate = CredentialsServiceV8.needsRedirectUriUpdate(
+const needsUpdate = CredentialsService.needsRedirectUriUpdate(
   'oauth-authz-v8',
   'http://localhost:3000/new-callback',
   ['http://localhost:3000/callback']
@@ -263,7 +263,7 @@ const needsUpdate = CredentialsServiceV8.needsRedirectUriUpdate(
 Check if logout URI needs to be updated in app.
 
 ```typescript
-const needsUpdate = CredentialsServiceV8.needsLogoutUriUpdate(
+const needsUpdate = CredentialsService.needsLogoutUriUpdate(
   'hybrid-v8',
   'http://localhost:3000/new-logout',
   ['http://localhost:3000/logout']
@@ -280,7 +280,7 @@ const needsUpdate = CredentialsServiceV8.needsLogoutUriUpdate(
 Load credentials from storage or return defaults.
 
 ```typescript
-const creds = CredentialsServiceV8.loadCredentials('oauth-authz-v8', config);
+const creds = CredentialsService.loadCredentials('oauth-authz-v8', config);
 ```
 
 **Returns:** Credentials
@@ -292,7 +292,7 @@ const creds = CredentialsServiceV8.loadCredentials('oauth-authz-v8', config);
 Save credentials to localStorage.
 
 ```typescript
-CredentialsServiceV8.saveCredentials('oauth-authz-v8', credentials);
+CredentialsService.saveCredentials('oauth-authz-v8', credentials);
 ```
 
 ---
@@ -302,7 +302,7 @@ CredentialsServiceV8.saveCredentials('oauth-authz-v8', credentials);
 Clear credentials from storage.
 
 ```typescript
-CredentialsServiceV8.clearCredentials('oauth-authz-v8');
+CredentialsService.clearCredentials('oauth-authz-v8');
 ```
 
 ---
@@ -312,7 +312,7 @@ CredentialsServiceV8.clearCredentials('oauth-authz-v8');
 Validate credentials with flow-specific rules.
 
 ```typescript
-const result = CredentialsServiceV8.validateCredentials(credentials, config);
+const result = CredentialsService.validateCredentials(credentials, config);
 // {
 //   errors: ['Environment ID is required'],
 //   warnings: ['Client Secret is recommended for this flow']
@@ -325,7 +325,7 @@ const result = CredentialsServiceV8.validateCredentials(credentials, config);
 
 ## Component Props
 
-### CredentialsFormV8
+### CredentialsForm
 
 ```typescript
 interface CredentialsFormV8Props {
@@ -455,13 +455,13 @@ interface CredentialsFormV8Props {
 ### Example 1: Authorization Code Flow with App Discovery
 
 ```typescript
-export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
+export const OAuthAuthorizationCodeFlow: React.FC = () => {
   const [appConfig, setAppConfig] = useState<AppConfig | null>(null);
   const [credentials, setCredentials] = useState(() => {
     if (appConfig) {
-      return CredentialsServiceV8.loadWithAppDiscovery('oauth-authz-v8', appConfig);
+      return CredentialsService.loadWithAppDiscovery('oauth-authz-v8', appConfig);
     }
-    return CredentialsServiceV8.getSmartDefaults('oauth-authz-v8');
+    return CredentialsService.getSmartDefaults('oauth-authz-v8');
   });
 
   const handleRedirectUriChange = (needsUpdate: boolean) => {
@@ -471,7 +471,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
   };
 
   return (
-    <CredentialsFormV8
+    <CredentialsForm
       flowKey="oauth-authz-v8"
       credentials={credentials}
       onChange={setCredentials}
@@ -487,13 +487,13 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 ### Example 2: Client Credentials Flow (No Redirect URI)
 
 ```typescript
-export const ClientCredentialsFlowV8: React.FC = () => {
+export const ClientCredentialsFlow: React.FC = () => {
   const [credentials, setCredentials] = useState(() => {
-    return CredentialsServiceV8.getSmartDefaults('client-credentials-v8');
+    return CredentialsService.getSmartDefaults('client-credentials-v8');
   });
 
   return (
-    <CredentialsFormV8
+    <CredentialsForm
       flowKey="client-credentials-v8"
       credentials={credentials}
       onChange={setCredentials}
@@ -507,9 +507,9 @@ export const ClientCredentialsFlowV8: React.FC = () => {
 ### Example 3: Hybrid Flow with Logout URI
 
 ```typescript
-export const HybridFlowV8: React.FC = () => {
+export const HybridFlow: React.FC = () => {
   const [credentials, setCredentials] = useState(() => {
-    return CredentialsServiceV8.getSmartDefaults('hybrid-v8');
+    return CredentialsService.getSmartDefaults('hybrid-v8');
   });
 
   const handleLogoutUriChange = (needsUpdate: boolean) => {
@@ -519,7 +519,7 @@ export const HybridFlowV8: React.FC = () => {
   };
 
   return (
-    <CredentialsFormV8
+    <CredentialsForm
       flowKey="hybrid-v8"
       credentials={credentials}
       onChange={setCredentials}

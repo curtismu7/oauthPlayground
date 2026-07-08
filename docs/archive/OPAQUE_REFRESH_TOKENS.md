@@ -23,7 +23,7 @@ Added support for PingOne's Opaque Refresh Tokens feature to the Unified OAuth F
 
 ### New Component
 
-**`RefreshTokenTypeDropdownV8`** (`src/v8/components/RefreshTokenTypeDropdownV8.tsx`)
+**`RefreshTokenTypeDropdown`** (`src/v8/components/RefreshTokenTypeDropdown.tsx`)
 - Dropdown component for selecting refresh token type
 - Options: JWT (Default) or Opaque (More Secure)
 - Educational tooltips explaining each option
@@ -45,7 +45,7 @@ interface UnifiedFlowCredentials {
 
 1. **CredentialsFormV8U** (`src/v8u/components/CredentialsFormV8U.tsx`)
    - Added `refreshTokenType` state
-   - Added `RefreshTokenTypeDropdownV8` component
+   - Added `RefreshTokenTypeDropdown` component
    - Dropdown appears below "Enable Refresh Token" checkbox
    - Only visible when refresh tokens are enabled
    - Persists selection to localStorage
@@ -119,7 +119,7 @@ To use opaque refresh tokens, the PingOne application must be configured to supp
 
 ## Related Files
 
-- `src/v8/components/RefreshTokenTypeDropdownV8.tsx` - New dropdown component
+- `src/v8/components/RefreshTokenTypeDropdown.tsx` - New dropdown component
 - `src/v8u/components/CredentialsFormV8U.tsx` - Updated credentials form
 - `src/v8u/services/unifiedFlowIntegrationV8U.ts` - Updated interface
 - `src/v8u/flows/UnifiedOAuthFlowV8U.tsx` - Updated flow

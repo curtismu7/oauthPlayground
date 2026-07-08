@@ -54,13 +54,13 @@ The Unified Flow (V8U) is the primary OAuth/OIDC flow implementation. To ensure 
 The Unified Flow depends on these shared services that could be modified by other flows:
 
 #### **Critical Dependencies** (Must be protected)
-1. `@/v8/services/oauthIntegrationServiceV8.ts` - OAuth flow logic
-2. `@/v8/services/implicitFlowIntegrationServiceV8.ts` - Implicit flow logic
-3. `@/v8/services/hybridFlowIntegrationServiceV8.ts` - Hybrid flow logic
-4. `@/v8/services/clientCredentialsIntegrationServiceV8.ts` - Client credentials
-5. `@/v8/services/deviceCodeIntegrationServiceV8.ts` - Device code flow
-6. `@/v8/services/specVersionServiceV8.ts` - Spec version logic
-7. `@/v8/services/unifiedFlowOptionsServiceV8.ts` - Flow options
+1. `@/v8/services/oauthIntegrationService.ts` - OAuth flow logic
+2. `@/v8/services/implicitFlowIntegrationService.ts` - Implicit flow logic
+3. `@/v8/services/hybridFlowIntegrationService.ts` - Hybrid flow logic
+4. `@/v8/services/clientCredentialsIntegrationService.ts` - Client credentials
+5. `@/v8/services/deviceCodeIntegrationService.ts` - Device code flow
+6. `@/v8/services/specVersionService.ts` - Spec version logic
+7. `@/v8/services/unifiedFlowOptionsService.ts` - Flow options
 
 #### **Shared Utilities** (Lower risk, but should be monitored)
 1. `@/services/apiCallTrackerService.ts` - API call tracking
@@ -79,7 +79,7 @@ Create V8U-specific wrappers that:
 **Example:**
 ```typescript
 // src/v8u/services/protected/oauthIntegrationWrapperV8U.ts
-import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
+import { OAuthIntegrationService } from '@/v8/services/oauthIntegrationService';
 
 /**
  * PROTECTED: Unified Flow OAuth Integration Wrapper

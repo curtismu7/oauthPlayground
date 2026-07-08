@@ -17,9 +17,9 @@ import {
 	downloadPostmanCollectionWithEnvironment,
 	generatePostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
-import { SpecUrlServiceV8 } from '@/mfa/services/specUrlServiceV8';
-import type { FlowType, SpecVersion } from '@/mfa/services/specVersionServiceV8';
-import { SpecVersionServiceV8 } from '@/mfa/services/specVersionServiceV8';
+import { SpecUrlService } from '@/mfa/services/specUrlService';
+import type { FlowType, SpecVersion } from '@/mfa/services/specVersionService';
+import { SpecVersionService } from '@/mfa/services/specVersionService';
 import type { UnifiedFlowCredentials } from '../services/unifiedFlowIntegrationV8U';
 
 interface UnifiedFlowDocumentationPageV8UProps {
@@ -131,7 +131,7 @@ const getApiDocsUrlForFlow = (flowType: FlowType): string => {
 	const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
 
 	// #region agent log
-	import('@/mfa/utils/analyticsV8')
+	import('@/mfa/utils/analytics')
 		.then(({ analytics }) => {
 			analytics.log({
 				location: 'UnifiedFlowDocumentationPageV8U.tsx:132',
@@ -167,7 +167,7 @@ const getApiDocsUrlForFlow = (flowType: FlowType): string => {
 	}
 
 	// #region agent log
-	import('@/mfa/utils/analyticsV8')
+	import('@/mfa/utils/analytics')
 		.then(({ analytics }) => {
 			analytics.log({
 				location: 'UnifiedFlowDocumentationPageV8U.tsx:153',
@@ -206,7 +206,7 @@ export const generateUnifiedFlowMarkdown = (
 		'device-code': 'Device Code',
 	};
 
-	const title = `PingOne OAuth 2.0 - ${flowTypeLabels[flowType]} Flow (${SpecVersionServiceV8.getSpecLabel(specVersion)})`;
+	const title = `PingOne OAuth 2.0 - ${flowTypeLabels[flowType]} Flow (${SpecVersionService.getSpecLabel(specVersion)})`;
 
 	const generatedDate = new Date().toLocaleString('en-US', {
 		year: 'numeric',
@@ -220,7 +220,7 @@ export const generateUnifiedFlowMarkdown = (
 	let md = `# ${title}\n\n`;
 	md += `**Generated:** ${generatedDate}\n\n`;
 	md += `## Overview\n\n`;
-	md += `This document describes the PingOne OAuth 2.0 API calls required for the ${flowTypeLabels[flowType]} flow using ${SpecVersionServiceV8.getSpecLabel(specVersion)}.\n\n`;
+	md += `This document describes the PingOne OAuth 2.0 API calls required for the ${flowTypeLabels[flowType]} flow using ${SpecVersionService.getSpecLabel(specVersion)}.\n\n`;
 
 	if (credentials) {
 		md += `## Configuration\n\n`;
@@ -272,12 +272,12 @@ export const generateUnifiedFlowMarkdown = (
 	md += `## References\n\n`;
 
 	// Get flow-specific specification links
-	const flowSpecs = SpecUrlServiceV8.getFlowSpecInfo(flowType);
-	const specUrls = SpecUrlServiceV8.getCombinedSpecUrls(specVersion, flowType);
-	const versionSpecs = SpecUrlServiceV8.getSpecUrls(specVersion);
+	const flowSpecs = SpecUrlService.getFlowSpecInfo(flowType);
+	const specUrls = SpecUrlService.getCombinedSpecUrls(specVersion, flowType);
+	const versionSpecs = SpecUrlService.getSpecUrls(specVersion);
 
 	// #region agent log
-	import('@/mfa/utils/analyticsV8')
+	import('@/mfa/utils/analytics')
 		.then(({ analytics }) => {
 			analytics.log({
 				location: 'UnifiedFlowDocumentationPageV8U.tsx:231',
@@ -325,7 +325,7 @@ export const generateUnifiedFlowMarkdown = (
 	const apiDocsUrl = getApiDocsUrlForFlow(flowType);
 
 	// #region agent log
-	import('@/mfa/utils/analyticsV8')
+	import('@/mfa/utils/analytics')
 		.then(({ analytics }) => {
 			analytics.log({
 				location: 'UnifiedFlowDocumentationPageV8U.tsx:257',
@@ -503,7 +503,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 			'client-credentials': 'Client Credentials',
 			'device-code': 'Device Code',
 		};
-		const title = `PingOne OAuth 2.0 - ${flowTypeLabels[flowType]} Flow (${SpecVersionServiceV8.getSpecLabel(specVersion)})`;
+		const title = `PingOne OAuth 2.0 - ${flowTypeLabels[flowType]} Flow (${SpecVersionService.getSpecLabel(specVersion)})`;
 		downloadAsPDF(markdown, title);
 	};
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Find JSX components used but not defined/imported in pages
-SKIP="React|Fragment|Suspense|StrictMode|Router|Route|Routes|BrowserRouter|Link|NavLink|Navigate|ThemeProvider|ErrorBoundary|Provider|Redirect|FlowHeader|CollapsibleHeader|WorkerTokenSectionV8|MDIIcon|CodeBlockWithCopy|StrictMode|PingOneApplicationConfig|ConfigurationURIChecker"
+SKIP="React|Fragment|Suspense|StrictMode|Router|Route|Routes|BrowserRouter|Link|NavLink|Navigate|ThemeProvider|ErrorBoundary|Provider|Redirect|FlowHeader|CollapsibleHeader|WorkerTokenSection|MDIIcon|CodeBlockWithCopy|StrictMode|PingOneApplicationConfig|ConfigurationURIChecker"
 
 for f in src/pages/*.tsx; do
   fname=$(basename "$f")

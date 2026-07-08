@@ -1,8 +1,8 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { MFANavigationV8 } from '@/mfa/components/MFANavigationV8';
-import { SuperSimpleApiDisplayV8 } from '@/mfa/components/SuperSimpleApiDisplayV8';
+import { MFANavigation } from '@/mfa/components/MFANavigation';
+import { SuperSimpleApiDisplay } from '@/mfa/components/SuperSimpleApiDisplay';
 import TokenDisplayV8U, { type TokenDisplayV8UProps } from '@/lab/components/TokenDisplayV8U';
 
 const PageContainer = styled.div`
@@ -143,7 +143,7 @@ const SpiffeSpireTokenDisplayV8U: React.FC = () => {
 			</Header>
 
 			{/* Navigation */}
-			<MFANavigationV8 currentPage="hub" showRestartFlow={false} showBackToMain={true} />
+			<MFANavigation currentPage="hub" showRestartFlow={false} showBackToMain={true} />
 
 			{normalizedTokens ? (
 				<Card>
@@ -202,7 +202,7 @@ const SpiffeSpireTokenDisplayV8U: React.FC = () => {
 				</Card>
 			)}
 			{/* Shared bottom-docked API history (same as V8 MFA and SPIFFE/SPIRE lab) */}
-			<SuperSimpleApiDisplayV8 />
+			<SuperSimpleApiDisplay />
 
 			{/* Start Over Button at Bottom */}
 			<div

@@ -113,11 +113,17 @@ Constants: `src/config/canonicalRoutes.ts`
 - Symbols: `V9ModernMessagingService` → `ModernMessagingService`, `V9CredentialStorageService` → `CredentialStorageService`, etc.
 - `V9LoggingService` export → `PlatformLoggingService` (file `LoggingService.ts`)
 
-## Phase 8 remaining (8c–8d)
+## Phase 8c (done)
+
+- `mfa/`: 185 `*V8*` files renamed (strip `V8` from filenames)
+- Symbols: `*V8` suffix removed from exports/imports (~843 files touched)
+- Collision fix: `MFAFlowV8` router → `MFARouterFlow.tsx` (pages `MFAFlow.tsx` unchanged)
+- Singleton fix: `workerTokenConfigService` export (class `WorkerTokenConfigService`)
+
+## Phase 8 remaining (8d)
 
 | Batch | Scope |
 |-------|--------|
-| **8c** | `mfa/`: `*V8` components, services, filenames |
 | **8d** | `lab/`: `*V8U` components/services; specialty flow `*V9` filenames; canonical routes for `/flows/*-v9` |
 
 ## Next phases

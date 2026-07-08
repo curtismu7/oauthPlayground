@@ -10,7 +10,7 @@
 
 ### 1. Service Layer Methods (Ready to Add)
 
-Three new methods have been designed for `src/v8/services/mfaServiceV8.ts`:
+Three new methods have been designed for `src/v8/services/mfaService.ts`:
 
 #### A. `activateFIDO2Device()`
 - **Endpoint:** `POST /environments/{envId}/users/{userId}/devices/{deviceId}/fido2/activate`
@@ -80,7 +80,7 @@ Radio button group in Step 1:
 
 ### Step 1: Add Service Methods
 
-**File:** `src/v8/services/mfaServiceV8.ts`
+**File:** `src/v8/services/mfaService.ts`
 
 Add three methods before the closing `}` of the class:
 1. `activateFIDO2Device()`
@@ -102,7 +102,7 @@ Add three new endpoints:
 
 ### Step 3: Add UI Components
 
-**File:** `src/v8/flows/MFAFlowV8.tsx`
+**File:** `src/v8/flows/MFAFlow.tsx`
 
 #### A. Add State Variables
 ```typescript
@@ -130,7 +130,7 @@ Modify device registration to check `activationMode` and branch accordingly.
 ## 🔍 Key Features
 
 ### 1. Educational Focus
-- All API calls visible in SuperSimpleApiDisplayV8
+- All API calls visible in SuperSimpleApiDisplay
 - Request/response JSON displayed
 - Educational help text for each mode
 - Clear labeling of demo vs production flows
@@ -252,7 +252,7 @@ docs/
 
 ### Immediate (Service Layer)
 1. Copy service methods from implementation doc
-2. Add to `mfaServiceV8.ts` before closing brace
+2. Add to `mfaService.ts` before closing brace
 3. Test TypeScript compilation
 
 ### Short Term (Backend)
@@ -261,7 +261,7 @@ docs/
 3. Verify PingOne API integration
 
 ### Medium Term (UI)
-1. Add state variables to MFAFlowV8
+1. Add state variables to MFAFlow
 2. Add mode selector component
 3. Update registration logic
 4. Add authentication flow (Step 4)

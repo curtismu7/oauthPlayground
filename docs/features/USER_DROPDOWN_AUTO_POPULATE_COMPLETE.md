@@ -1,9 +1,9 @@
-# UserSearchDropdownV8 Auto-Populate Feature - COMPLETE
+# UserSearchDropdown Auto-Populate Feature - COMPLETE
 
 ## 🎯 **Feature Added: February 28, 2026**
 
 ### **Summary:**
-Successfully enhanced the UserSearchDropdownV8 component to automatically populate users when the environment ID is available, eliminating the need for user input to trigger the initial user load.
+Successfully enhanced the UserSearchDropdown component to automatically populate users when the environment ID is available, eliminating the need for user input to trigger the initial user load.
 
 ---
 
@@ -47,7 +47,7 @@ useEffect(() => {
 
 **Updated Component Usage:**
 ```typescript
-<UserSearchDropdownV8
+<UserSearchDropdown
   environmentId={environmentId}
   value={userIdentifier}
   onChange={(value) => setUserIdentifier(value)}
@@ -91,7 +91,7 @@ useEffect(() => {
 - **📦 Performance**: Maintains efficient loading with pagination
 
 ### **Service Integration:**
-- **🌐 API Efficiency**: Uses existing MFAServiceV8.listUsers API
+- **🌐 API Efficiency**: Uses existing MFAService.listUsers API
 - **💾 Storage Service**: Leverages unifiedWorkerTokenService for environment ID
 - **🔐 Security**: Maintains existing authentication and authorization
 - **🛡️ Error Handling**: Preserves existing error states and messages
@@ -142,13 +142,13 @@ useEffect(() => {
 - ✅ **Auto-Load**: Working correctly
 
 ### **Component Integration:**
-- ✅ **UserSearchDropdownV8**: Enhanced with auto-load capability
+- ✅ **UserSearchDropdown**: Enhanced with auto-load capability
 - ✅ **PingOneUserProfile**: Updated to use auto-load feature
 - ✅ **Backward Compatibility**: Existing implementations unaffected
 - ✅ **Configurable**: Can be controlled via `autoLoad` prop
 
 ### **API Integration:**
-- ✅ **MFAServiceV8**: Leverages existing listUsers API
+- ✅ **MFAService**: Leverages existing listUsers API
 - ✅ **Environment Service**: Uses stored environment ID
 - ✅ **Authentication**: Maintains existing auth patterns
 - ✅ **Error Handling**: Preserved error display functionality
@@ -157,7 +157,7 @@ useEffect(() => {
 
 ## 🎉 **Final Result**
 
-The UserSearchDropdownV8 component now features:
+The UserSearchDropdown component now features:
 
 1. **🔄 Auto-Population**: Automatically loads users when environment ID is available
 2. **🎛️ Configurable**: Can be controlled with `autoLoad` prop

@@ -1,14 +1,14 @@
-# ActionButtonV8 Expanded Adoption Report
+# ActionButton Expanded Adoption Report
 
 ## Overview
-Expanded adoption of ActionButtonV8 components to replace CSS-based buttons across OAuth flow files.
+Expanded adoption of ActionButton components to replace CSS-based buttons across OAuth flow files.
 
 ## Session Results (January 19, 2026)
 
 ### Files Analyzed
-- **ImplicitFlowV8.tsx**: 9 buttons found ✅ COMPLETED
-- **OAuthAuthorizationCodeFlowV8.tsx**: 10 buttons found ✅ COMPLETED  
-- **MFAAuthenticationMainPageV8.tsx**: 4 buttons (already completed in previous session)
+- **ImplicitFlow.tsx**: 9 buttons found ✅ COMPLETED
+- **OAuthAuthorizationCodeFlow.tsx**: 10 buttons found ✅ COMPLETED  
+- **MFAAuthenticationMainPage.tsx**: 4 buttons (already completed in previous session)
 
 ### Total Buttons Replaced
 **23 buttons** across 3 major flow files:
@@ -19,15 +19,15 @@ Expanded adoption of ActionButtonV8 components to replace CSS-based buttons acro
 
 ### Code Elimination
 **~670+ lines eliminated** through component adoption:
-- ImplicitFlowV8.tsx: ~138 lines eliminated (988 → 850 lines)
-- OAuthAuthorizationCodeFlowV8.tsx: ~150 lines eliminated (1180 → 1030 lines)
-- MFAAuthenticationMainPageV8.tsx: ~382 lines eliminated (6987 → 6605 lines)
+- ImplicitFlow.tsx: ~138 lines eliminated (988 → 850 lines)
+- OAuthAuthorizationCodeFlow.tsx: ~150 lines eliminated (1180 → 1030 lines)
+- MFAAuthenticationMainPage.tsx: ~382 lines eliminated (6987 → 6605 lines)
 
 ## Completed Work
 
-### ImplicitFlowV8.tsx (9 buttons replaced)
+### ImplicitFlow.tsx (9 buttons replaced)
 
-**File**: `/src/v8/flows/ImplicitFlowV8.tsx`  
+**File**: `/src/v8/flows/ImplicitFlow.tsx`  
 **Status**: ✅ All 9 buttons replaced  
 **Lines reduced**: ~138 lines eliminated (988 → 850 lines estimated)
 
@@ -70,14 +70,14 @@ Expanded adoption of ActionButtonV8 components to replace CSS-based buttons acro
 
 **Impact**:
 - Eliminated ~138 lines of duplicate button styling  
-- All buttons now use consistent ActionButtonV8 components
+- All buttons now use consistent ActionButton components
 - Improved maintainability (one place to update button styles)
 
 ## In Progress
 
-### OAuthAuthorizationCodeFlowV8.tsx (10 buttons identified)
+### OAuthAuthorizationCodeFlow.tsx (10 buttons identified)
 
-**File**: `/src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx`  
+**File**: `/src/v8/flows/OAuthAuthorizationCodeFlow.tsx`  
 **Status**: ⚠️ Import added, replacements in progress  
 **Estimated lines to eliminate**: ~150 lines
 
@@ -90,14 +90,14 @@ Expanded adoption of ActionButtonV8 components to replace CSS-based buttons acro
 11. Reset Flow (btn-reset)
 
 **Next Steps**:
-1. Continue systematic replacement of buttons in OAuthAuthorizationCodeFlowV8.tsx
+1. Continue systematic replacement of buttons in OAuthAuthorizationCodeFlow.tsx
 2. Test both flows to ensure buttons work correctly
 3. Document any behavior differences
 
 ## Benefits Achieved
 
 ### Code Quality
-- **Lines Eliminated**: ~138 lines in ImplicitFlowV8.tsx
+- **Lines Eliminated**: ~138 lines in ImplicitFlow.tsx
 - **Consistency**: All buttons use same component architecture
 - **Maintainability**: Single source of truth for button styles
 
@@ -109,7 +109,7 @@ Expanded adoption of ActionButtonV8 components to replace CSS-based buttons acro
 ### User Experience
 - Consistent button appearance across flows
 - Predictable button behavior (hover states, disabled states)
-- Accessible by default (proper ARIA attributes in ActionButtonV8)
+- Accessible by default (proper ARIA attributes in ActionButton)
 
 ## Button Replacement Pattern
 
@@ -131,7 +131,7 @@ Expanded adoption of ActionButtonV8 components to replace CSS-based buttons acro
 </button>
 ```
 
-### After (ActionButtonV8)
+### After (ActionButton)
 ```tsx
 <PrimaryButton
     onClick={() => handleClick()}
@@ -145,11 +145,11 @@ Expanded adoption of ActionButtonV8 components to replace CSS-based buttons acro
 
 ### Other Flow Files (Future Work)
 Based on initial search, these files likely have similar CSS-based buttons:
-- MFADeviceOrderingFlowV8.tsx
-- MFADeviceManagementFlowV8.tsx  
-- MFAConfigurationPageV8.tsx
-- ResourcesAPIFlowV8.tsx
-- PingOneProtectFlowV8.tsx
+- MFADeviceOrderingFlow.tsx
+- MFADeviceManagementFlow.tsx  
+- MFAConfigurationPage.tsx
+- ResourcesAPIFlow.tsx
+- PingOneProtectFlow.tsx
 
 **Estimated total**: 30-50 additional buttons across all flow files
 
@@ -159,7 +159,7 @@ Based on initial search, these files likely have similar CSS-based buttons:
 
 1. **Add Import**
    ```tsx
-   import { PrimaryButton, SecondaryButton, DangerButton } from '@/v8/components/shared/ActionButtonV8';
+   import { PrimaryButton, SecondaryButton, DangerButton } from '@/v8/components/shared/ActionButton';
    ```
 
 2. **Identify Button Type**
@@ -189,26 +189,26 @@ Based on initial search, these files likely have similar CSS-based buttons:
 ### Session Summary
 - **Time Invested**: ~2 hours
 - **Files Modified**: 2 files
-- **Buttons Replaced**: 9 (ImplicitFlowV8) + Import added (OAuthAuthorizationCodeFlowV8)
+- **Buttons Replaced**: 9 (ImplicitFlow) + Import added (OAuthAuthorizationCodeFlow)
 - **Lines Eliminated**: ~138 lines
 - **Import Statements Added**: 2
 
 ### Cumulative (All Sessions)
 - **Quick Wins Completed**: 4 of 4 (100%)
 - **Total Lines Eliminated**: ~520+ lines (400 Quick Wins + 120 expanded adoption)
-- **Components Created**: 2 (PageHeaderV8, ActionButtonV8)
+- **Components Created**: 2 (PageHeader, ActionButton)
 - **Buttons Replaced**: 13 total (4 MFA + 9 Implicit)
 - **Files with Shared Components**: 5 files
 
 ## Next Actions
 
-1. **Complete OAuthAuthorizationCodeFlowV8.tsx**
+1. **Complete OAuthAuthorizationCodeFlow.tsx**
    - Finish replacing remaining 10 buttons
    - Test Authorization Code flow end-to-end
 
 2. **Expand to Other Flows**  
-   - MFADeviceOrderingFlowV8.tsx
-   - MFADeviceManagementFlowV8.tsx
+   - MFADeviceOrderingFlow.tsx
+   - MFADeviceManagementFlow.tsx
    - Other flow files with CSS buttons
 
 3. **Create Migration Script**
@@ -217,7 +217,7 @@ Based on initial search, these files likely have similar CSS-based buttons:
    - Validates closing tag matches
 
 4. **Update Design System Docs**
-   - Document ActionButtonV8 adoption rate
+   - Document ActionButton adoption rate
    - Create migration guide for remaining files
    - Add visual examples to component library
 
@@ -242,4 +242,4 @@ Based on initial search, these files likely have similar CSS-based buttons:
 **Created**: January 19, 2026  
 **Last Updated**: January 19, 2026  
 **Status**: Active Development  
-**Next Review**: After completing OAuthAuthorizationCodeFlowV8.tsx
+**Next Review**: After completing OAuthAuthorizationCodeFlow.tsx

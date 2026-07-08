@@ -3,7 +3,7 @@
 **Version:** 1.0  
 **Last Updated:** 2025-01-27  
 **Utility Type:** Delete All Users Utility  
-**Component:** `DeleteAllUsersUtilityV8` (to be implemented)
+**Component:** `DeleteAllUsersUtility` (to be implemented)
 
 ## Overview
 

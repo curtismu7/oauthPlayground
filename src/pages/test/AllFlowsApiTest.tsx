@@ -16,7 +16,7 @@ import {
 } from '../../platform/AppDiscoveryService';
 import { CredentialStorageService } from '../../platform/CredentialStorageService';
 import { logger } from '../../utils/logger';
-import WorkerTokenStatusDisplayV8 from '../../mfa/components/WorkerTokenStatusDisplayV8';
+import WorkerTokenStatusDisplay from '../../mfa/components/WorkerTokenStatusDisplay';
 
 // Test Configuration for all flow types
 interface AllFlowsTestConfig {
@@ -1002,7 +1002,7 @@ const AllFlowsApiTest: React.FC = () => {
 					Hybrid, Device Code, Client Credentials, MFA Registration, MFA Authentication
 				</Subtitle>
 				<div style={{ marginTop: '1rem' }}>
-					<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
+					<WorkerTokenStatusDisplay mode="detailed" showRefresh={true} />
 				</div>
 			</Header>
 

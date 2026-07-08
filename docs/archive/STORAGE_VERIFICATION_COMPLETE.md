@@ -15,8 +15,8 @@ Verified that all new OAuth/OIDC parameters are properly saved to and loaded fro
 
 ### 1. Save Process
 
-**Service:** `CredentialsServiceV8.saveCredentials()`  
-**Location:** `src/v8/services/credentialsServiceV8.ts`
+**Service:** `CredentialsService.saveCredentials()`  
+**Location:** `src/v8/services/credentialsService.ts`
 
 ```typescript
 static saveCredentials(flowKey: string, credentials: Credentials): void {
@@ -39,7 +39,7 @@ static saveCredentials(flowKey: string, credentials: Credentials): void {
 
 ```typescript
 // Load from localStorage
-const flowSpecific = CredentialsServiceV8.loadCredentials(flowKey);
+const flowSpecific = CredentialsService.loadCredentials(flowKey);
 
 // Merge with shared credentials
 const merged = {
@@ -70,7 +70,7 @@ const merged = {
 
 ### ✅ Credentials Interface Updated
 
-**File:** `src/v8/services/credentialsServiceV8.ts`
+**File:** `src/v8/services/credentialsService.ts`
 
 ```typescript
 export interface Credentials {
@@ -141,7 +141,7 @@ export interface Credentials {
 const handleChange = (field: string, value: string | boolean) => {
   const updated = { ...credentials, [field]: value };
   onChange(updated);
-  CredentialsServiceV8.saveCredentials(flowKey, updated);
+  CredentialsService.saveCredentials(flowKey, updated);
 };
 ```
 
@@ -152,7 +152,7 @@ const handleChange = (field: string, value: string | boolean) => {
 useEffect(() => {
   // Debounced auto-save (100ms)
   const saveTimeout = setTimeout(() => {
-    CredentialsServiceV8.saveCredentials(flowKey, credentials);
+    CredentialsService.saveCredentials(flowKey, credentials);
   }, 100);
   
   return () => clearTimeout(saveTimeout);
@@ -164,8 +164,8 @@ useEffect(() => {
 
 ```typescript
 const handleManualSaveCredentials = () => {
-  CredentialsServiceV8.saveCredentials(flowKey, credentials);
-  toastV8.success('Credentials saved!');
+  CredentialsService.saveCredentials(flowKey, credentials);
+  toast.success('Credentials saved!');
 };
 ```
 

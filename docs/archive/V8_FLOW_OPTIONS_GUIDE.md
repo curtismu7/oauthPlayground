@@ -17,10 +17,10 @@ The V8 credentials form implements **smart, flow-aware field and option filterin
 
 ## How It Works
 
-The `FlowOptionsServiceV8` determines which options are valid for each flow type:
+The `FlowOptionsService` determines which options are valid for each flow type:
 
 ```typescript
-const flowOptions = FlowOptionsServiceV8.getOptionsForFlow('oauth-authz-v8');
+const flowOptions = FlowOptionsService.getOptionsForFlow('oauth-authz-v8');
 // Returns: {
 //   responseTypes: ['code'],
 //   authMethods: ['client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt'],
@@ -120,7 +120,7 @@ const flowOptions = FlowOptionsServiceV8.getOptionsForFlow('oauth-authz-v8');
   <select>
     {flowOptions.responseTypes.map((type) => (
       <option key={type} value={type}>
-        {FlowOptionsServiceV8.getResponseTypeLabel(type)}
+        {FlowOptionsService.getResponseTypeLabel(type)}
       </option>
     ))}
   </select>
@@ -131,11 +131,11 @@ const flowOptions = FlowOptionsServiceV8.getOptionsForFlow('oauth-authz-v8');
 ```typescript
 // Shows all methods but disables invalid ones
 <select>
-  {FlowOptionsServiceV8.getAllAuthMethods().map((method) => {
+  {FlowOptionsService.getAllAuthMethods().map((method) => {
     const isAvailable = flowOptions.authMethods.includes(method);
     return (
       <option disabled={!isAvailable}>
-        {FlowOptionsServiceV8.getAuthMethodLabel(method)}
+        {FlowOptionsService.getAuthMethodLabel(method)}
         {!isAvailable ? ' (not available for this flow)' : ''}
       </option>
     );
@@ -148,7 +148,7 @@ const flowOptions = FlowOptionsServiceV8.getOptionsForFlow('oauth-authz-v8');
 // Shows PKCE enforcement level
 {flowOptions.responseTypes.length > 0 && (
   <div>
-    <strong>{FlowOptionsServiceV8.getPKCELabel(flowOptions.pkceEnforcement)}</strong>
+    <strong>{FlowOptionsService.getPKCELabel(flowOptions.pkceEnforcement)}</strong>
     <small>
       {flowOptions.pkceEnforcement === 'REQUIRED' && 'PKCE is required for this flow'}
       {flowOptions.pkceEnforcement === 'OPTIONAL' && 'PKCE is optional but recommended'}
@@ -162,13 +162,13 @@ const flowOptions = FlowOptionsServiceV8.getOptionsForFlow('oauth-authz-v8');
 
 ### Check if Option is Available
 ```typescript
-const isAvailable = FlowOptionsServiceV8.isAuthMethodAvailable(
+const isAvailable = FlowOptionsService.isAuthMethodAvailable(
   'oauth-authz-v8',
   'client_secret_basic'
 );
 // Returns: true
 
-const isAvailable = FlowOptionsServiceV8.isAuthMethodAvailable(
+const isAvailable = FlowOptionsService.isAuthMethodAvailable(
   'implicit-flow-v8',
   'client_secret_basic'
 );
@@ -177,20 +177,20 @@ const isAvailable = FlowOptionsServiceV8.isAuthMethodAvailable(
 
 ### Get Default Values
 ```typescript
-const options = FlowOptionsServiceV8.getOptionsForFlow('oauth-authz-v8');
+const options = FlowOptionsService.getOptionsForFlow('oauth-authz-v8');
 console.log(options.defaultResponseType);    // 'code'
 console.log(options.defaultAuthMethod);      // 'client_secret_post'
 ```
 
 ### Get Human-Readable Labels
 ```typescript
-FlowOptionsServiceV8.getAuthMethodLabel('client_secret_basic');
+FlowOptionsService.getAuthMethodLabel('client_secret_basic');
 // Returns: 'Client Secret Basic'
 
-FlowOptionsServiceV8.getResponseTypeLabel('code token id_token');
+FlowOptionsService.getResponseTypeLabel('code token id_token');
 // Returns: 'Code token id_token'
 
-FlowOptionsServiceV8.getPKCELabel('REQUIRED');
+FlowOptionsService.getPKCELabel('REQUIRED');
 // Returns: 'Required'
 ```
 
@@ -232,18 +232,18 @@ Test that options are correctly filtered:
 
 ```typescript
 // Test Authorization Code Flow
-const authzOptions = FlowOptionsServiceV8.getOptionsForFlow('oauth-authz-v8');
+const authzOptions = FlowOptionsService.getOptionsForFlow('oauth-authz-v8');
 expect(authzOptions.responseTypes).toEqual(['code']);
 expect(authzOptions.authMethods).toContain('client_secret_basic');
 expect(authzOptions.authMethods).not.toContain('none');
 
 // Test Implicit Flow
-const implicitOptions = FlowOptionsServiceV8.getOptionsForFlow('implicit-flow-v8');
+const implicitOptions = FlowOptionsService.getOptionsForFlow('implicit-flow-v8');
 expect(implicitOptions.responseTypes).toContain('token');
 expect(implicitOptions.authMethods).toEqual(['none']);
 
 // Test Client Credentials
-const ccOptions = FlowOptionsServiceV8.getOptionsForFlow('client-credentials-v8');
+const ccOptions = FlowOptionsService.getOptionsForFlow('client-credentials-v8');
 expect(ccOptions.responseTypes).toEqual([]);
 expect(ccOptions.requiresClientSecret).toBe(true);
 ```

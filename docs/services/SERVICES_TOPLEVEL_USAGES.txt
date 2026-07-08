@@ -65,7 +65,7 @@ SERVICE: commonImportsService
 
 SERVICE: comprehensiveCredentialsService
 
-SERVICE: comprehensiveCredentialsServiceV8
+SERVICE: comprehensiveCredentialsService
 
 SERVICE: comprehensiveDiscoveryService
 
@@ -95,7 +95,7 @@ SERVICE: credentialMigrationService
 
 SERVICE: credentialStorageManager
 
-SERVICE: credentialStoreV8
+SERVICE: credentialStore
 
 SERVICE: credentialSyncService
 

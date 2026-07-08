@@ -4,7 +4,7 @@
 
 **All three OTP flows (SMS, Email, WhatsApp) use the same unified architecture:**
 - ✅ Same hook: `useUnifiedOTPFlow`
-- ✅ Same services: `MFAServiceV8`
+- ✅ Same services: `MFAService`
 - ✅ Same API paths: All use the same PingOne MFA endpoints
 - ✅ Same base controller: `MFAFlowController`
 - ✅ **Only difference:** The `deviceType` field (`'SMS'`, `'EMAIL'`, or `'WHATSAPP'`)
@@ -17,7 +17,7 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Flow Components                               │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐        │
-│  │ SMSFlowV8    │  │ EmailFlowV8  │  │ WhatsAppFlowV8│        │
+│  │ SMSFlow    │  │ EmailFlow  │  │ WhatsAppFlow│        │
 │  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘        │
 │         │                 │                 │                 │
 │         └─────────────────┼─────────────────┘                 │
@@ -51,7 +51,7 @@
 │                           │                                     │
 │                           ▼                                     │
 │              ┌────────────────────────┐                        │
-│              │    MFAServiceV8        │                        │
+│              │    MFAService        │                        │
 │              │  (PingOne API Calls)   │                        │
 │              └────────────────────────┘                        │
 └─────────────────────────────────────────────────────────────────┘
@@ -65,7 +65,7 @@
 
 **SMS Flow:**
 ```typescript
-// src/v8/flows/types/SMSFlowV8.tsx:582
+// src/v8/flows/types/SMSFlow.tsx:582
 const flow = useUnifiedOTPFlow({
     deviceType: 'SMS',
     configPageRoute: '/v8/mfa/register/sms',
@@ -74,7 +74,7 @@ const flow = useUnifiedOTPFlow({
 
 **Email Flow:**
 ```typescript
-// src/v8/flows/types/EmailFlowV8.tsx:267
+// src/v8/flows/types/EmailFlow.tsx:267
 const flow = useUnifiedOTPFlow({
     deviceType: 'EMAIL',
     configPageRoute: '/v8/mfa/register/email',
@@ -83,7 +83,7 @@ const flow = useUnifiedOTPFlow({
 
 **WhatsApp Flow:**
 ```typescript
-// src/v8/flows/types/WhatsAppFlowV8.tsx:529
+// src/v8/flows/types/WhatsAppFlow.tsx:529
 const flow = useUnifiedOTPFlow({
     deviceType: 'WHATSAPP',
     configPageRoute: '/v8/mfa/register/whatsapp',
@@ -148,20 +148,20 @@ export class WhatsAppFlowController extends MFAFlowController {
 
 ```typescript
 // src/v8/flows/controllers/MFAFlowController.ts
-// All API calls go through MFAServiceV8:
+// All API calls go through MFAService:
 
 // Register device
-const result = await MFAServiceV8.registerDevice(params);
+const result = await MFAService.registerDevice(params);
 // params.type = 'SMS' | 'EMAIL' | 'WHATSAPP' (the only difference!)
 
 // Send OTP
-const { deviceAuthId, otpCheckUrl } = await MFAServiceV8.sendOTP({...});
+const { deviceAuthId, otpCheckUrl } = await MFAService.sendOTP({...});
 
 // Validate OTP
-const result = await MFAServiceV8.validateOTP({...});
+const result = await MFAService.validateOTP({...});
 
 // Get devices
-const devices = await MFAServiceV8.getAllDevices({...});
+const devices = await MFAService.getAllDevices({...});
 ```
 
 ---
@@ -234,5 +234,5 @@ The separate controller files exist only for:
 But the core API calls, state management, and flow logic are **100% shared** through:
 - `useUnifiedOTPFlow` hook
 - `MFAFlowController` base class
-- `MFAServiceV8` service
+- `MFAService` service
 

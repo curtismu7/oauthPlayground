@@ -4,7 +4,7 @@
 
 Added a beautiful country code picker with flag emojis that integrates seamlessly with the phone number input field.
 
-## Component: CountryCodePickerV8
+## Component: CountryCodePicker
 
 ### Features
 - **47 countries** supported with flag emojis
@@ -82,7 +82,7 @@ interface CountryCodePickerV8Props {
 
 ### Usage in MFA Flow
 ```typescript
-<CountryCodePickerV8
+<CountryCodePicker
   value={credentials.countryCode}
   onChange={(code) => setCredentials({ ...credentials, countryCode: code })}
 />
@@ -174,7 +174,7 @@ const getFullPhoneNumber = (): string => {
 
 // Usage in API call
 const fullPhone = getFullPhoneNumber(); // "+12345678900"
-await MFAServiceV8.registerDevice({
+await MFAService.registerDevice({
   environmentId: credentials.environmentId,
   username: credentials.username,
   type: 'SMS',

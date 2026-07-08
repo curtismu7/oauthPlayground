@@ -20,12 +20,12 @@ const { execSync } = require('child_process');
 const CONFIG = {
 	criticalFiles: [
 		'src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx',
-		'src/mfa/services/sqliteStatsServiceV8.ts',
-		'src/mfa/components/WorkerTokenModalV8.tsx',
+		'src/mfa/services/sqliteStatsService.ts',
+		'src/mfa/components/WorkerTokenModal.tsx',
 		'src/services/unifiedWorkerTokenService.ts',
 		'src/utils/fileStorageUtil.ts',
 		'src/services/credentialExportImportService.ts',
-		'src/mfa/services/preFlightValidationServiceV8.ts'
+		'src/mfa/services/preFlightValidationService.ts'
 	],
 	swe15Patterns: {
 		singleResponsibility: [
@@ -33,7 +33,7 @@ const CONFIG = {
 			/services.*\.ts.*should.*have.*single.*purpose/
 		],
 		openClosed: [
-			/MFAFlowBaseV8.*should.*not.*be.*modified/,
+			/MFAFlowBase.*should.*not.*be.*modified/,
 			/base.*step.*structure.*should.*not.*change/
 		],
 		interfaceSegregation: [
@@ -105,7 +105,7 @@ class RegressionDetector {
 
 		// Check Open/Closed Principle
 		await this.runCommand(
-			'grep -r "MFAFlowBaseV8.*extends" src/mfa/flows/unified/ | wc -l',
+			'grep -r "MFAFlowBase.*extends" src/mfa/flows/unified/ | wc -l',
 			'Open/Closed: Base classes should not be modified'
 		);
 
@@ -143,7 +143,7 @@ class RegressionDetector {
 
 		// Issue 23: SQLite Resource Exhaustion
 		await this.runCommand(
-			'grep -n "activeConnections\|circuitBreakerOpen" src/mfa/services/sqliteStatsServiceV8.ts | wc -l',
+			'grep -n "activeConnections\|circuitBreakerOpen" src/mfa/services/sqliteStatsService.ts | wc -l',
 			'Issue 23: SQLite connection monitoring'
 		);
 
@@ -155,7 +155,7 @@ class RegressionDetector {
 
 		// Issue 81: OIDC Scopes Validation
 		await this.runCommand(
-			'grep -n "Invalid OIDC Scopes" src/mfa/services/preFlightValidationServiceV8.ts | wc -l',
+			'grep -n "Invalid OIDC Scopes" src/mfa/services/preFlightValidationService.ts | wc -l',
 			'Issue 81: Client credentials scope validation'
 		);
 

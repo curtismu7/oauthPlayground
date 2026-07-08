@@ -1,14 +1,14 @@
 # SMS Template Update Plan
 
 ## Goal
-Update SMSFlowV8.tsx to follow a clean, template-based pattern that can be reused for EMAIL, WhatsApp, MOBILE, Voice, and TOTP flows.
+Update SMSFlow.tsx to follow a clean, template-based pattern that can be reused for EMAIL, WhatsApp, MOBILE, Voice, and TOTP flows.
 
 ## Current State
 - SMS flow has working implementation with device registration
 - Needs to incorporate the patterns from UnifiedOTPActivationTemplate
 - Should use default values: `name: 'SMS'`, `nickname: 'MyKnickName'`
 
-## Template Pattern (from UnifiedMFARegistrationFlowV8)
+## Template Pattern (from UnifiedMFARegistrationFlow)
 
 ### 1. Default Field Values
 ```typescript
@@ -43,7 +43,7 @@ const initialFields: Record<DeviceConfigKey, Record<string, string>> = {
 />
 ```
 
-## Changes Needed for SMSFlowV8.tsx
+## Changes Needed for SMSFlow.tsx
 
 ### 1. Add Default Name/Nickname
 - Update device registration to include default `name: 'SMS'` and `nickname: 'MyKnickName'`
@@ -66,7 +66,7 @@ Replace custom OTP input UI with:
   instructions="Enter the 6-digit code sent to +1.5125551234"
   contextText="Didn't receive the code? Check your message app or request a new code."
   onValidateOtp={async (otp) => {
-    await MFAServiceV8.activateDevice({
+    await MFAService.activateDevice({
       environmentId,
       username,
       deviceId: mfaState.deviceId,
@@ -74,7 +74,7 @@ Replace custom OTP input UI with:
     });
   }}
   onResendOtp={async () => {
-    await MFAServiceV8.sendOTP({
+    await MFAService.sendOTP({
       environmentId,
       username,
       deviceId: mfaState.deviceId,
@@ -90,11 +90,11 @@ Replace custom OTP input UI with:
 ### 4. Worker Token Integration
 - Use `useWorkerToken` hook consistently
 - Pass `tokenStatus` to child components
-- Remove old `MFATokenManagerV8` references
+- Remove old `MFATokenManager` references
 
 ### 5. Success Page Pattern
 ```typescript
-<MFASuccessPageV8
+<MFASuccessPage
   data={buildSuccessPageData({
     deviceType: 'SMS',
     deviceId: mfaState.deviceId,
@@ -142,12 +142,12 @@ Replace custom OTP input UI with:
 ## Implementation Order
 
 1. ✅ Add default name/nickname to UnifiedDeviceRegistrationForm
-2. ⏭️ Update SMSFlowV8.tsx to use UnifiedOTPActivationTemplate
+2. ⏭️ Update SMSFlow.tsx to use UnifiedOTPActivationTemplate
 3. ⏭️ Extract common patterns into reusable components
-4. ⏭️ Apply same pattern to EmailFlowV8.tsx
-5. ⏭️ Apply same pattern to WhatsAppFlowV8.tsx
-6. ⏭️ Apply same pattern to TOTPFlowV8.tsx
-7. ⏭️ Apply same pattern to MobileFlowV8.tsx
+4. ⏭️ Apply same pattern to EmailFlow.tsx
+5. ⏭️ Apply same pattern to WhatsAppFlow.tsx
+6. ⏭️ Apply same pattern to TOTPFlow.tsx
+7. ⏭️ Apply same pattern to MobileFlow.tsx
 
 ## Benefits
 
@@ -160,11 +160,11 @@ Replace custom OTP input UI with:
 ## Files to Update
 
 - ✅ `src/v8/flows/unified/components/UnifiedDeviceRegistrationForm.tsx` (done)
-- ⏭️ `src/v8/flows/types/SMSFlowV8.tsx`
-- ⏭️ `src/v8/flows/types/EmailFlowV8.tsx`
-- ⏭️ `src/v8/flows/types/WhatsAppFlowV8.tsx`
-- ⏭️ `src/v8/flows/types/TOTPFlowV8.tsx`
-- ⏭️ `src/v8/flows/types/MobileFlowV8.tsx`
+- ⏭️ `src/v8/flows/types/SMSFlow.tsx`
+- ⏭️ `src/v8/flows/types/EmailFlow.tsx`
+- ⏭️ `src/v8/flows/types/WhatsAppFlow.tsx`
+- ⏭️ `src/v8/flows/types/TOTPFlow.tsx`
+- ⏭️ `src/v8/flows/types/MobileFlow.tsx`
 
 ## Testing Checklist
 
@@ -182,7 +182,7 @@ Replace custom OTP input UI with:
 ## Next Steps
 
 1. Review this plan
-2. Update SMSFlowV8.tsx as the template
+2. Update SMSFlow.tsx as the template
 3. Test SMS flow end-to-end
 4. Apply pattern to other device types
 5. Update documentation

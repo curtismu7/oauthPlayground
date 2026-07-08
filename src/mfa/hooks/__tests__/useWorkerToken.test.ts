@@ -7,13 +7,13 @@
 
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { MFAConfigurationServiceV8 } from '@/mfa/services/mfaConfigurationServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/mfa/services/workerTokenStatusServiceV8';
+import { MFAConfigurationService } from '@/mfa/services/mfaConfigurationService';
+import { WorkerTokenStatusService } from '@/mfa/services/workerTokenStatusService';
 import { useWorkerToken } from '../useWorkerToken';
 
 // Mock the services
-vi.mock('@/mfa/services/workerTokenStatusServiceV8');
-vi.mock('@/mfa/services/mfaConfigurationServiceV8');
+vi.mock('@/mfa/services/workerTokenStatusService');
+vi.mock('@/mfa/services/mfaConfigurationService');
 
 describe('useWorkerToken', () => {
 	beforeEach(() => {
@@ -38,7 +38,7 @@ describe('useWorkerToken', () => {
 				minutesRemaining: 60,
 			};
 
-			vi.mocked(WorkerTokenStatusServiceV8.checkWorkerTokenStatus).mockResolvedValue(mockStatus);
+			vi.mocked(WorkerTokenStatusService.checkWorkerTokenStatus).mockResolvedValue(mockStatus);
 
 			const { result } = renderHook(() => useWorkerToken());
 
@@ -58,7 +58,7 @@ describe('useWorkerToken', () => {
 				},
 			};
 
-			vi.mocked(MFAConfigurationServiceV8.loadConfiguration).mockReturnValue(mockConfig as any);
+			vi.mocked(MFAConfigurationService.loadConfiguration).mockReturnValue(mockConfig as any);
 
 			const { result } = renderHook(() => useWorkerToken());
 
@@ -81,7 +81,7 @@ describe('useWorkerToken', () => {
 				isValid: true,
 			};
 
-			vi.mocked(WorkerTokenStatusServiceV8.checkWorkerTokenStatus)
+			vi.mocked(WorkerTokenStatusService.checkWorkerTokenStatus)
 				.mockResolvedValueOnce(initialStatus)
 				.mockResolvedValueOnce(updatedStatus);
 
@@ -108,7 +108,7 @@ describe('useWorkerToken', () => {
 					isValid: true,
 				};
 
-				vi.mocked(WorkerTokenStatusServiceV8.checkWorkerTokenStatus).mockResolvedValue(mockStatus);
+				vi.mocked(WorkerTokenStatusService.checkWorkerTokenStatus).mockResolvedValue(mockStatus);
 
 				renderHook(() => useWorkerToken({ refreshInterval: 5000 }));
 
@@ -122,7 +122,7 @@ describe('useWorkerToken', () => {
 					await vi.advanceTimersByTimeAsync(5100);
 				});
 
-				expect(WorkerTokenStatusServiceV8.checkWorkerTokenStatus).toHaveBeenCalledTimes(2); // Initial + interval
+				expect(WorkerTokenStatusService.checkWorkerTokenStatus).toHaveBeenCalledTimes(2); // Initial + interval
 			} finally {
 				vi.useRealTimers();
 			}
@@ -200,10 +200,10 @@ describe('useWorkerToken', () => {
 				},
 			};
 
-			vi.mocked(WorkerTokenStatusServiceV8.checkWorkerTokenStatus).mockResolvedValue(
+			vi.mocked(WorkerTokenStatusService.checkWorkerTokenStatus).mockResolvedValue(
 				expiringStatus
 			);
-			vi.mocked(MFAConfigurationServiceV8.loadConfiguration).mockReturnValue(mockConfig as any);
+			vi.mocked(MFAConfigurationService.loadConfiguration).mockReturnValue(mockConfig as any);
 
 			const { result } = renderHook(() => useWorkerToken({ enableAutoRefresh: true }));
 
@@ -248,8 +248,8 @@ describe('useWorkerToken', () => {
 				isValid: true,
 			};
 
-			vi.mocked(MFAConfigurationServiceV8.loadConfiguration).mockReturnValue(mockConfig as any);
-			vi.mocked(WorkerTokenStatusServiceV8.checkWorkerTokenStatus).mockResolvedValue(mockStatus);
+			vi.mocked(MFAConfigurationService.loadConfiguration).mockReturnValue(mockConfig as any);
+			vi.mocked(WorkerTokenStatusService.checkWorkerTokenStatus).mockResolvedValue(mockStatus);
 
 			const { result } = renderHook(() => useWorkerToken());
 
@@ -264,7 +264,7 @@ describe('useWorkerToken', () => {
 
 	describe('Error Handling', () => {
 		it('should handle token status check errors gracefully', async () => {
-			vi.mocked(WorkerTokenStatusServiceV8.checkWorkerTokenStatus).mockRejectedValue(
+			vi.mocked(WorkerTokenStatusService.checkWorkerTokenStatus).mockRejectedValue(
 				new Error('Network error')
 			);
 
@@ -276,7 +276,7 @@ describe('useWorkerToken', () => {
 		});
 
 		it('should handle configuration load errors gracefully', () => {
-			vi.mocked(MFAConfigurationServiceV8.loadConfiguration).mockImplementation(() => {
+			vi.mocked(MFAConfigurationService.loadConfiguration).mockImplementation(() => {
 				throw new Error('Config error');
 			});
 
@@ -296,7 +296,7 @@ describe('useWorkerToken', () => {
 				isValid: true,
 			};
 
-			vi.mocked(WorkerTokenStatusServiceV8.checkWorkerTokenStatus).mockResolvedValue(mockStatus);
+			vi.mocked(WorkerTokenStatusService.checkWorkerTokenStatus).mockResolvedValue(mockStatus);
 
 			renderHook(() => useWorkerToken());
 
@@ -306,7 +306,7 @@ describe('useWorkerToken', () => {
 			});
 
 			await waitFor(() => {
-				expect(WorkerTokenStatusServiceV8.checkWorkerTokenStatus).toHaveBeenCalled();
+				expect(WorkerTokenStatusService.checkWorkerTokenStatus).toHaveBeenCalled();
 			});
 		});
 
@@ -317,13 +317,13 @@ describe('useWorkerToken', () => {
 				isValid: true,
 			};
 
-			vi.mocked(WorkerTokenStatusServiceV8.checkWorkerTokenStatus).mockResolvedValue(mockStatus);
+			vi.mocked(WorkerTokenStatusService.checkWorkerTokenStatus).mockResolvedValue(mockStatus);
 
 			renderHook(() => useWorkerToken());
 
 			// Wait for initial mount call
 			await waitFor(() => {
-				expect(WorkerTokenStatusServiceV8.checkWorkerTokenStatus).toHaveBeenCalled();
+				expect(WorkerTokenStatusService.checkWorkerTokenStatus).toHaveBeenCalled();
 			});
 
 			vi.clearAllMocks();
@@ -334,7 +334,7 @@ describe('useWorkerToken', () => {
 			});
 
 			await waitFor(() => {
-				expect(WorkerTokenStatusServiceV8.checkWorkerTokenStatus).toHaveBeenCalled();
+				expect(WorkerTokenStatusService.checkWorkerTokenStatus).toHaveBeenCalled();
 			});
 		});
 	});

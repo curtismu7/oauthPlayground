@@ -3,7 +3,7 @@ import type React from 'react';
 // lint-file-disable: json-parse-no-try
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { WorkerTokenExpiryBannerV8 } from '@/mfa/components/WorkerTokenExpiryBannerV8';
+import { WorkerTokenExpiryBanner } from '@/mfa/components/WorkerTokenExpiryBanner';
 import { CredentialsImportExport } from '../../components/CredentialsImportExport';
 import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
@@ -631,7 +631,7 @@ cleanupAfterRevocation(revocationResult);`,
 
 	return (
 		<FlowContainer>
-			<WorkerTokenExpiryBannerV8
+			<WorkerTokenExpiryBanner
 				onFixToken={() => setShowWorkerTokenModal(true)}
 				marginBottom="24px"
 			/>

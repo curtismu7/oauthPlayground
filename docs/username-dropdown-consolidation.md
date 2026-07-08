@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the successful implementation of username dropdown consolidation across the OAuth Playground application, replacing manual username input fields with the centralized `UserSearchDropdownV8` component.
+This document describes the successful implementation of username dropdown consolidation across the OAuth Playground application, replacing manual username input fields with the centralized `UserSearchDropdown` component.
 
 ## Implementation Summary
 
@@ -17,7 +17,7 @@ This document describes the successful implementation of username dropdown conso
 - **Components Updated**: 6 major components
 - **Files Modified**: 6 TypeScript React components
 - **Code Reduction**: -163 lines (removed duplicate implementations)
-- **Code Addition**: +79 lines (UserSearchDropdownV8 integration)
+- **Code Addition**: +79 lines (UserSearchDropdown integration)
 - **Net Improvement**: -84 lines of code
 
 ## Phase-by-Phase Implementation
@@ -26,20 +26,20 @@ This document describes the successful implementation of username dropdown conso
 
 #### Components Updated:
 1. **BaseLoginForm.tsx** (`src/pages/protect-portal/components/BaseLoginForm.tsx`)
-   - Replaced manual username input with `UserSearchDropdownV8`
+   - Replaced manual username input with `UserSearchDropdown`
    - Added environmentId dependency
    - Updated `handleInputChange` to only handle password field
    - Removed unused styled components (`InputWrapper`, `InputIcon`)
 
 2. **DropdownLogin.tsx** (`src/pages/protect-portal/components/LoginPatterns/DropdownLogin.tsx`)
    - Added `environmentId` prop to component interface
-   - Replaced manual input with `UserSearchDropdownV8`
+   - Replaced manual input with `UserSearchDropdown`
    - Updated `handleInputChange` to exclude username field
    - Maintained dropdown styling and branding
 
 3. **EmbeddedLogin.tsx** (`src/pages/protect-portal/components/LoginPatterns/EmbeddedLogin.tsx`)
    - Added `environmentId` prop to component interface
-   - Replaced manual input with `UserSearchDropdownV8`
+   - Replaced manual input with `UserSearchDropdown`
    - Updated `handleInputChange` to exclude username field
    - Preserved banking website styling
 
@@ -47,7 +47,7 @@ This document describes the successful implementation of username dropdown conso
 
 #### Components Updated:
 1. **UserLookupForm.tsx** (`src/components/password-reset/shared/UserLookupForm.tsx`)
-   - Replaced manual `Input` field with `UserSearchDropdownV8`
+   - Replaced manual `Input` field with `UserSearchDropdown`
    - Removed unused imports (`FiSearch`, `Input`, `SpinningIcon`)
    - Simplified onChange handler to work with dropdown selection
    - Maintained existing user lookup functionality
@@ -56,7 +56,7 @@ This document describes the successful implementation of username dropdown conso
 
 #### Components Updated:
 1. **RedirectlessFlowV9_Real.tsx** (`src/pages/flows/RedirectlessFlowV9_Real.tsx`)
-   - Replaced disabled username input with `UserSearchDropdownV8`
+   - Replaced disabled username input with `UserSearchDropdown`
    - Integrated with `controller.credentials.environmentId`
    - Updated login credentials handling
    - Maintained V9 flow functionality
@@ -68,19 +68,19 @@ This document describes the successful implementation of username dropdown conso
 
 #### Components Updated:
 1. **UserManagementPage.tsx** (`src/v8u/pages/UserManagementPage.tsx`)
-   - Replaced `UserSearchDropdown` with `UserSearchDropdownV8`
-   - Added `EnvironmentIdServiceV8` integration
+   - Replaced `UserSearchDropdown` with `UserSearchDropdown`
+   - Added `EnvironmentIdService` integration
    - Updated search functionality for new dropdown interface
    - Maintained user management features
 
 ## Technical Implementation Details
 
-### UserSearchDropdownV8 Integration Pattern
+### UserSearchDropdown Integration Pattern
 
 All updated components follow this consistent pattern:
 
 ```tsx
-import { UserSearchDropdownV8 } from '../../../v8/components/UserSearchDropdownV8';
+import { UserSearchDropdown } from '../../../v8/components/UserSearchDropdown';
 
 // In component state
 const [username, setUsername] = useState('');
@@ -92,7 +92,7 @@ const { environmentId } = props;
 
 // Method 2: From service
 useEffect(() => {
-  const envId = EnvironmentIdServiceV8.getEnvironmentId();
+  const envId = EnvironmentIdService.getEnvironmentId();
   setEnvironmentId(envId || '');
 }, []);
 
@@ -100,7 +100,7 @@ useEffect(() => {
 const environmentId = controller.credentials.environmentId;
 
 // In JSX
-<UserSearchDropdownV8
+<UserSearchDropdown
   id="username"
   environmentId={environmentId}
   value={username}
@@ -120,7 +120,7 @@ const environmentId = controller.credentials.environmentId;
 ### Environment ID Integration Methods
 
 1. **Props-based**: Passed directly from parent components
-2. **Service-based**: Retrieved using `EnvironmentIdServiceV8.getEnvironmentId()`
+2. **Service-based**: Retrieved using `EnvironmentIdService.getEnvironmentId()`
 3. **Controller-based**: Extracted from flow controller credentials
 
 ### Error Handling Patterns
@@ -144,7 +144,7 @@ interface ComponentProps {
 }
 ```
 
-### After (UserSearchDropdownV8)
+### After (UserSearchDropdown)
 ```tsx
 interface ComponentProps {
   onSubmit: (credentials: { username: string; password: string }) => void;
@@ -157,9 +157,9 @@ interface ComponentProps {
 
 When adding new components that require username input:
 
-1. **Import UserSearchDropdownV8**:
+1. **Import UserSearchDropdown**:
    ```tsx
-   import { UserSearchDropdownV8 } from '../../../v8/components/UserSearchDropdownV8';
+   import { UserSearchDropdown } from '../../../v8/components/UserSearchDropdown';
    ```
 
 2. **Add environmentId to props interface**:
@@ -170,9 +170,9 @@ When adding new components that require username input:
    }
    ```
 
-3. **Use UserSearchDropdownV8 in JSX**:
+3. **Use UserSearchDropdown in JSX**:
    ```tsx
-   <UserSearchDropdownV8
+   <UserSearchDropdown
      environmentId={environmentId}
      value={username}
      onChange={setUsername}
@@ -215,13 +215,13 @@ When adding new components that require username input:
 ### Unit Testing
 ```tsx
 import { render, screen, fireEvent } from '@testing-library/react';
-import { UserSearchDropdownV8 } from '../../../v8/components/UserSearchDropdownV8';
+import { UserSearchDropdown } from '../../../v8/components/UserSearchDropdown';
 
-describe('UserSearchDropdownV8 Integration', () => {
+describe('UserSearchDropdown Integration', () => {
   test('should handle user selection', () => {
     const mockOnChange = jest.fn();
     render(
-      <UserSearchDropdownV8
+      <UserSearchDropdown
         environmentId="test-env"
         value=""
         onChange={mockOnChange}
@@ -262,4 +262,4 @@ describe('UserSearchDropdownV8 Integration', () => {
 
 The username dropdown consolidation has been successfully implemented across all major components in the OAuth Playground application. The implementation provides a consistent, accessible, and maintainable solution for username input while reducing code duplication and improving the overall user experience.
 
-The centralized `UserSearchDropdownV8` component now serves as the single source of truth for all username input functionality, making future enhancements and maintenance significantly easier.
+The centralized `UserSearchDropdown` component now serves as the single source of truth for all username input functionality, making future enhancements and maintenance significantly easier.

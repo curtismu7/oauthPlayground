@@ -194,7 +194,7 @@ Completed: All 10 critical API calls verified and validated
 - ✅ Content-Type matches PingOne API specification ✅
 
 **Verification Evidence:**
-- `mfaServiceV8.ts` line 3694-3695: "CRITICAL: Device activation ALWAYS uses worker tokens"
+- `mfaService.ts` line 3694-3695: "CRITICAL: Device activation ALWAYS uses worker tokens"
 - `server.js` line 13187-13200: Backend endpoint requires `workerToken`
 - Consistent with device creation which also uses `{{workerToken}}`
 

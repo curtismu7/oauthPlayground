@@ -10,11 +10,11 @@
 
 ### 1. Service Layer Implementation
 
-All three MFA API endpoints have been successfully implemented in `src/v8/services/mfaServiceV8.ts`:
+All three MFA API endpoints have been successfully implemented in `src/v8/services/mfaService.ts`:
 
 #### A. Activate TOTP Device
 ```typescript
-MFAServiceV8.activateTOTPDevice(params: SendOTPParams): Promise<Record<string, unknown>>
+MFAService.activateTOTPDevice(params: SendOTPParams): Promise<Record<string, unknown>>
 ```
 - **Endpoint:** `POST /environments/{environmentId}/users/{userId}/devices/{deviceId}`
 - **Body:** `{ status: 'ACTIVE' }`
@@ -22,7 +22,7 @@ MFAServiceV8.activateTOTPDevice(params: SendOTPParams): Promise<Record<string, u
 
 #### B. Resend Pairing Code
 ```typescript
-MFAServiceV8.resendPairingCode(params: SendOTPParams): Promise<void>
+MFAService.resendPairingCode(params: SendOTPParams): Promise<void>
 ```
 - **Endpoint:** `POST /environments/{environmentId}/users/{userId}/devices/{deviceId}/otp`
 - **Status:** ✅ Complete - Service method ready, backend proxy exists
@@ -42,7 +42,7 @@ MFAServiceV8.resendPairingCode(params: SendOTPParams): Promise<void>
 - ✅ All endpoints include full API call tracking
 - ✅ Token redaction in logs
 - ✅ Performance timing
-- ✅ Integration with SuperSimpleApiDisplayV8
+- ✅ Integration with SuperSimpleApiDisplay
 
 ---
 
@@ -87,7 +87,7 @@ Add checkbox before "Register Device" button:
 if (skipValidation && (deviceType === 'SMS' || deviceType === 'EMAIL')) {
   try {
     // Activate device immediately
-    await MFAServiceV8.activateTOTPDevice({
+    await MFAService.activateTOTPDevice({
       environmentId,
       username,
       deviceId: result.deviceId,
@@ -110,13 +110,13 @@ if (skipValidation && (deviceType === 'SMS' || deviceType === 'EMAIL')) {
     setTimeout(() => {
       nav.markStepComplete(); // Step 2
       nav.goToNext(); // Go to Step 3
-      toastV8.info('✓ Skipped OTP validation - device is active');
+      toast.info('✓ Skipped OTP validation - device is active');
     }, 500);
     
     return; // Exit early
   } catch (error) {
     // If activation fails, continue to normal OTP validation flow
-    toastV8.warning('Activation failed. Please validate with OTP.');
+    toast.warning('Activation failed. Please validate with OTP.');
   }
 }
 ```
@@ -136,14 +136,14 @@ Add "Resend Pairing Code" button for SMS/EMAIL:
       onClick={async () => {
         setIsLoading(true);
         try {
-          await MFAServiceV8.resendPairingCode({
+          await MFAService.resendPairingCode({
             environmentId,
             username,
             deviceId: mfaState.deviceId,
           });
-          toastV8.success(`📨 Code resent to your ${deviceType}!`);
+          toast.success(`📨 Code resent to your ${deviceType}!`);
         } catch (error) {
-          toastV8.error(`Failed to resend: ${error.message}`);
+          toast.error(`Failed to resend: ${error.message}`);
         } finally {
           setIsLoading(false);
         }
@@ -241,7 +241,7 @@ This helps users make informed decisions.
 ## Code Locations
 
 ### Service Layer
-- **File:** `src/v8/services/mfaServiceV8.ts`
+- **File:** `src/v8/services/mfaService.ts`
 - **Methods:** `activateTOTPDevice()`, `resendPairingCode()`
 - **Lines:** ~1260-1420
 
@@ -251,7 +251,7 @@ This helps users make informed decisions.
 - **Line:** ~7218
 
 ### UI (To be modified)
-- **File:** `src/v8/flows/MFAFlowV8.tsx`
+- **File:** `src/v8/flows/MFAFlow.tsx`
 - **Sections:** Step 1 (device registration), Step 2 (OTP validation)
 
 ---

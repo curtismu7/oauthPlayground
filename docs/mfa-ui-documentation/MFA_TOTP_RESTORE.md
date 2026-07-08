@@ -17,23 +17,23 @@
 
 ## Overview
 
-This document provides implementation details, code snippets, and restoration guidance for the TOTP MFA flow (`TOTPFlowV8.tsx` and `TOTPConfigurationPageV8.tsx`).
+This document provides implementation details, code snippets, and restoration guidance for the TOTP MFA flow (`TOTPFlow.tsx` and `TOTPConfigurationPage.tsx`).
 
 ---
 
 ## File Locations
 
 **Components:**
-- `src/v8/flows/types/TOTPFlowV8.tsx` - Main TOTP flow component
-- `src/v8/flows/types/TOTPConfigurationPageV8.tsx` - TOTP configuration page
-- `src/v8/pages/TOTPRegistrationDocsPageV8.tsx` - TOTP documentation page
+- `src/v8/flows/types/TOTPFlow.tsx` - Main TOTP flow component
+- `src/v8/flows/types/TOTPConfigurationPage.tsx` - TOTP configuration page
+- `src/v8/pages/TOTPRegistrationDocsPage.tsx` - TOTP documentation page
 
 **Controllers:**
 - `src/v8/flows/controllers/TOTPFlowController.ts` - TOTP flow business logic
 
 **Services:**
-- `src/v8/services/mfaServiceV8.ts` - MFA API calls
-- `src/v8/services/mfaAuthenticationServiceV8.ts` - MFA authentication calls
+- `src/v8/services/mfaService.ts` - MFA API calls
+- `src/v8/services/mfaAuthenticationService.ts` - MFA authentication calls
 
 ---
 
@@ -117,7 +117,7 @@ The generated environment file includes all variables with pre-filled values fro
 
 **Correct Implementation:**
 ```typescript
-// In TOTPConfigurationPageV8.tsx, after Shared Configuration Step
+// In TOTPConfigurationPage.tsx, after Shared Configuration Step
 import { FiBook } from 'react-icons/fi';
 
 {/* Education Section */}
@@ -183,7 +183,7 @@ import { FiBook } from 'react-icons/fi';
 
 **Correct Implementation:**
 ```typescript
-// In TOTPFlowV8.tsx
+// In TOTPFlow.tsx
 React.useEffect(() => {
     // Skip device loading during registration flow (when coming from config page)
     if (isConfigured) {
@@ -212,12 +212,12 @@ if (isConfiguredValue) {
 
 **Correct Implementation:**
 ```typescript
-// In TOTPFlowV8.tsx
+// In TOTPFlow.tsx
 const renderStep3QrCode = useCallback(() => {
     // Always show QR code modal, regardless of device status
     if (!qrCodeUrl && !totpSecret) {
         // Handle expired secret
-        return <TOTPExpiredModalV8 ... />;
+        return <TOTPExpiredModal ... />;
     }
     
     return (
@@ -272,7 +272,7 @@ const isSecretExpired = useMemo(() => {
 
 // Check expiration before displaying QR code
 if (isSecretExpired) {
-    return <TOTPExpiredModalV8 ... />;
+    return <TOTPExpiredModal ... />;
 }
 ```
 
@@ -284,7 +284,7 @@ if (isSecretExpired) {
 
 **Correct Implementation:**
 ```typescript
-// In MFAFlowBaseV8.tsx onNext handler
+// In MFAFlowBase.tsx onNext handler
 if (nav.currentStep === 3 && deviceType === 'TOTP') {
     const isConfigured = (location.state as { configured?: boolean })?.configured === true;
     if (isConfigured) {
@@ -335,12 +335,12 @@ nav.goToNext();
         type="button"
         onClick={async () => {
           if (!mfaState.deviceId || !credentials.username || !credentials.environmentId) {
-            toastV8.error('Missing device information. Cannot delete device.');
+            toast.error('Missing device information. Cannot delete device.');
             return;
           }
 
-          const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
-          const confirmed = await uiNotificationServiceV8.confirm({
+          const { uiNotificationService } = await import('@/v8/services/uiNotificationService');
+          const confirmed = await uiNotificationService.confirm({
             title: 'Delete Device',
             message: 'Are you sure you want to delete this device? You can then register a new device.',
             confirmText: 'Delete Device',
@@ -352,13 +352,13 @@ nav.goToNext();
 
           setIsLoading(true);
           try {
-            await MFAServiceV8.deleteDevice({
+            await MFAService.deleteDevice({
               environmentId: credentials.environmentId,
               username: credentials.username,
               deviceId: mfaState.deviceId,
             });
 
-            toastV8.success('Device deleted successfully. You can now register a new device.');
+            toast.success('Device deleted successfully. You can now register a new device.');
             
             // Clear device state to allow new registration
             setMfaState((prev) => ({
@@ -385,7 +385,7 @@ nav.goToNext();
             nav.goToStep(2);
           } catch (error) {
             console.error(`${MODULE_TAG} Failed to delete device:`, error);
-            toastV8.error(
+            toast.error(
               `Failed to delete device: ${error instanceof Error ? error.message : 'Unknown error'}`
             );
           } finally {
@@ -466,9 +466,9 @@ nav.goToNext();
 **Critical Notes:**
 - Warning section only appears when `deviceStatus === 'ACTIVATION_REQUIRED'` AND `deviceId` exists AND `!currentQrCodeUrl && !currentTotpSecret`
 - After device deletion, warning automatically disappears since `deviceId` is cleared from state
-- Delete Device button uses `MFAServiceV8.deleteDevice()` with confirmation modal
+- Delete Device button uses `MFAService.deleteDevice()` with confirmation modal
 - Delete All Devices button navigates to `/v8/delete-all-devices` with pre-filled state
-- DeleteAllDevicesUtilityV8 page must read from `location.state` to pre-populate filters
+- DeleteAllDevicesUtility page must read from `location.state` to pre-populate filters
 
 ---
 
@@ -519,7 +519,7 @@ const policy = credentials.deviceAuthenticationPolicyId
 ```typescript
 // Check expiration and show expired modal
 if (isSecretExpired) {
-    return <TOTPExpiredModalV8 ... />;
+    return <TOTPExpiredModal ... />;
 }
 ```
 
@@ -576,7 +576,7 @@ if (nav.currentStep === 3 && !showQrModal && mfaState.deviceStatus !== 'ACTIVE')
 - [ ] Stuck device warning automatically disappears after device deletion (deviceId is cleared)
 - [ ] Delete Device button deletes device, clears state, and navigates to Step 2 to continue registration (does NOT return to hub)
 - [ ] Delete All Devices button navigates to delete-all-devices page with pre-filled state
-- [ ] DeleteAllDevicesUtilityV8 page reads from location.state to pre-populate filters
+- [ ] DeleteAllDevicesUtility page reads from location.state to pre-populate filters
 - [ ] After successful OTP activation, QR modal does NOT reopen (userClosedQrModalRef is set to true)
 - [ ] After successful OTP activation, success page is shown (deviceStatus === 'ACTIVE' && !showQrModal)
 - [ ] QR modal auto-open logic checks deviceStatus !== 'ACTIVE' before reopening

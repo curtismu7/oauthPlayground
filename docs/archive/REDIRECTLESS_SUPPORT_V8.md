@@ -10,7 +10,7 @@ Added redirectless authentication support for V8 OAuth flows using PingOne's `re
 ## Flows Updated
 
 ### 1. OAuth Authorization Code Flow V8
-- **File**: `src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx`
+- **File**: `src/v8/flows/OAuthAuthorizationCodeFlow.tsx`
 - **Flow Key**: `oauth-authz-v8`
 - **Features**:
   - Checkbox to enable redirectless mode
@@ -20,7 +20,7 @@ Added redirectless authentication support for V8 OAuth flows using PingOne's `re
   - Auto-advance to next step after successful authentication
 
 ### 2. Implicit Flow V8
-- **File**: `src/v8/flows/ImplicitFlowV8.tsx`
+- **File**: `src/v8/flows/ImplicitFlow.tsx`
 - **Flow Key**: `implicit-flow-v8`
 - **Features**:
   - Checkbox to enable redirectless mode
@@ -34,8 +34,8 @@ Added redirectless authentication support for V8 OAuth flows using PingOne's `re
 
 ## New Service
 
-### RedirectlessServiceV8
-- **File**: `src/v8/services/redirectlessServiceV8.ts`
+### RedirectlessService
+- **File**: `src/v8/services/redirectlessService.ts`
 - **Module Tag**: `[🔄 REDIRECTLESS-V8]`
 - **Purpose**: Centralized service for handling PingOne redirectless authentication flows
 
@@ -224,9 +224,9 @@ Per flow, the following keys are used:
 
 ## Related Files
 
-- `src/v8/services/redirectlessServiceV8.ts` - Main service
-- `src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx` - OAuth flow with redirectless
-- `src/v8/flows/ImplicitFlowV8.tsx` - Implicit flow with redirectless
+- `src/v8/services/redirectlessService.ts` - Main service
+- `src/v8/flows/OAuthAuthorizationCodeFlow.tsx` - OAuth flow with redirectless
+- `src/v8/flows/ImplicitFlow.tsx` - Implicit flow with redirectless
 - `src/services/redirectlessAuthService.ts` - V7 redirectless service (reference)
 
 ## Migration Notes

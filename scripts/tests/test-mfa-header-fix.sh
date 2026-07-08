@@ -3,19 +3,19 @@
 echo "🧪 MFA Header Fix Verification"
 echo "============================="
 
-# Test 1: Check if MFAHeaderV8 is imported
-echo "📋 Checking MFAHeaderV8 import..."
-if grep -q "import.*MFAHeaderV8.*from.*@/v8/components/MFAHeaderV8" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
-    echo "✅ MFAHeaderV8 is properly imported"
+# Test 1: Check if MFAHeader is imported
+echo "📋 Checking MFAHeader import..."
+if grep -q "import.*MFAHeader.*from.*@/v8/components/MFAHeader" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
+    echo "✅ MFAHeader is properly imported"
 else
-    echo "❌ MFAHeaderV8 not imported"
+    echo "❌ MFAHeader not imported"
     exit 1
 fi
 
 # Test 2: Check if header is used in device selection (no device type)
 echo ""
 echo "📋 Checking header in device selection..."
-if grep -A 10 "if (!selectedDeviceType)" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx | grep -q "MFAHeaderV8"; then
+if grep -A 10 "if (!selectedDeviceType)" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx | grep -q "MFAHeader"; then
     echo "✅ Header shown when no device type selected"
 else
     echo "❌ Header missing in device selection"
@@ -25,7 +25,7 @@ fi
 # Test 3: Check if header is used in content component (device type selected)
 echo ""
 echo "📋 Checking header in content component..."
-if grep -A 5 "return (" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx | grep -q "MFAHeaderV8"; then
+if grep -A 5 "return (" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx | grep -q "MFAHeader"; then
     echo "✅ Header shown when device type selected"
 else
     echo "❌ Header missing in content component"

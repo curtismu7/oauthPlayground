@@ -30,34 +30,34 @@
 
 These should be created in V8 (not V8U) so they can be shared:
 
-1. **TokenDisplayV8** Component
+1. **TokenDisplay** Component
    - V8-specific token display
    - Uses V8 styling and patterns
    - Integrates with V8 education system
-   - **Location:** `src/v8/components/TokenDisplayV8.tsx`
+   - **Location:** `src/v8/components/TokenDisplay.tsx`
    - **Status:** ❌ Does not exist
 
-2. **URIDisplayV8** Component
+2. **URIDisplay** Component
    - Colored URL/URI display
    - Syntax highlighting for query parameters
    - Copy button
    - Expand/collapse for long URLs
-   - **Location:** `src/v8/components/URIDisplayV8.tsx`
+   - **Location:** `src/v8/components/URIDisplay.tsx`
    - **Status:** ❌ Does not exist
 
-3. **JSONDisplayV8** Component
+3. **JSONDisplay** Component
    - Colored JSON display
    - Syntax highlighting
    - Copy button
    - Expand/collapse
-   - **Location:** `src/v8/components/JSONDisplayV8.tsx`
+   - **Location:** `src/v8/components/JSONDisplay.tsx`
    - **Status:** ❌ Does not exist
 
-4. **CodeDisplayV8** Component
+4. **CodeDisplay** Component
    - Generic code display with syntax highlighting
    - Multiple language support
    - Copy button
-   - **Location:** `src/v8/components/CodeDisplayV8.tsx`
+   - **Location:** `src/v8/components/CodeDisplay.tsx`
    - **Status:** ❌ Does not exist
 
 ### 🔄 V8U-Specific Components Needed
@@ -84,7 +84,7 @@ Home > V8U Unified Flow > OAuth 2.0 > Authorization Code > Step 2: Generate Auth
 
 Create these in V8 so they can be shared by both V8 and V8U:
 
-1. **TokenDisplayV8.tsx**
+1. **TokenDisplay.tsx**
    ```typescript
    interface TokenDisplayV8Props {
      tokens: TokenSet;
@@ -95,7 +95,7 @@ Create these in V8 so they can be shared by both V8 and V8U:
    }
    ```
 
-2. **URIDisplayV8.tsx**
+2. **URIDisplay.tsx**
    ```typescript
    interface URIDisplayV8Props {
      uri: string;
@@ -105,7 +105,7 @@ Create these in V8 so they can be shared by both V8 and V8U:
    }
    ```
 
-3. **JSONDisplayV8.tsx**
+3. **JSONDisplay.tsx**
    ```typescript
    interface JSONDisplayV8Props {
      data: object;
@@ -119,9 +119,9 @@ Create these in V8 so they can be shared by both V8 and V8U:
 
 Import and use V8 display components in V8U:
 ```typescript
-import { TokenDisplayV8 } from '@/v8/components/TokenDisplayV8';
-import { URIDisplayV8 } from '@/v8/components/URIDisplayV8';
-import { JSONDisplayV8 } from '@/v8/components/JSONDisplayV8';
+import { TokenDisplay } from '@/v8/components/TokenDisplay';
+import { URIDisplay } from '@/v8/components/URIDisplay';
+import { JSONDisplay } from '@/v8/components/JSONDisplay';
 ```
 
 ---
@@ -141,19 +141,19 @@ But these should be replaced with V8 components once created.
 ## Priority Order
 
 1. **🔥 HIGH: Breadcrumbs** - Add to V8U header now
-2. **🔥 HIGH: TokenDisplayV8** - Most commonly needed
-3. **🟡 MEDIUM: URIDisplayV8** - Needed for auth URLs
-4. **🟡 MEDIUM: JSONDisplayV8** - Needed for response display
-5. **🟢 LOW: CodeDisplayV8** - Nice to have for examples
+2. **🔥 HIGH: TokenDisplay** - Most commonly needed
+3. **🟡 MEDIUM: URIDisplay** - Needed for auth URLs
+4. **🟡 MEDIUM: JSONDisplay** - Needed for response display
+5. **🟢 LOW: CodeDisplay** - Nice to have for examples
 
 ---
 
 ## Next Steps
 
 1. ✅ Add breadcrumbs to V8U header (do now)
-2. Create TokenDisplayV8 component in V8
-3. Create URIDisplayV8 component in V8
-4. Create JSONDisplayV8 component in V8
+2. Create TokenDisplay component in V8
+3. Create URIDisplay component in V8
+4. Create JSONDisplay component in V8
 5. Update V8U to use V8 display components
 6. Remove dependency on V7 display components
 

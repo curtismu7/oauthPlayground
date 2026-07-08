@@ -158,7 +158,7 @@ curl -X POST http://localhost:3001/api/pingone/userinfo \
 
 ### OIDC Discovery Service
 
-The frontend `OidcDiscoveryServiceV8` now uses this endpoint:
+The frontend `OidcDiscoveryService` now uses this endpoint:
 
 ```typescript
 // Before (CORS error):
@@ -333,7 +333,7 @@ The CORS issues are now resolved! You can:
 - `server.js` - Main server file with new endpoints (lines ~4600-4720)
 
 **Frontend**:
-- `src/v8/services/oidcDiscoveryServiceV8.ts` - Uses OIDC discovery proxy
+- `src/v8/services/oidcDiscoveryService.ts` - Uses OIDC discovery proxy
 - `src/v8u/components/UnifiedFlowSteps.tsx` - Uses UserInfo proxy
 
 **Documentation**:

@@ -109,7 +109,7 @@ if (v7mEnabled) {
 - **Path aliases used consistently**: `@/v8/*` → `src/v8/*`
 
 ### ✅ V8 Storage Keys
-- Uses `v8:` prefix (via `StorageServiceV8`)
+- Uses `v8:` prefix (via `StorageService`)
 - **No conflicts** with V7, V7M, or V7RM
 
 ### ✅ V8 Directory Structure
@@ -122,8 +122,8 @@ if (v7mEnabled) {
 
 ### ⚠️ V8 Files in Wrong Location
 **Issue Found:**
-- `src/pages/flows/ImplicitFlowV8.tsx` - Should be in `src/v8/flows/`
-- `src/pages/flows/PingOnePARFlowV8/` - Should be in `src/v8/flows/`
+- `src/pages/flows/ImplicitFlow.tsx` - Should be in `src/v8/flows/`
+- `src/pages/flows/PingOnePARFlow/` - Should be in `src/v8/flows/`
 
 **Status:** ⚠️ **NEEDS FIXING**
 - These files import V8 services correctly
@@ -162,7 +162,7 @@ if (v7mEnabled) {
 | V7 | `{flowKey}-credentials` | `oauth-authorization-code-v7-credentials` | ✅ Unique |
 | V7M | `v7m:*` | `v7m:state`, `v7m:credentials`, `v7m:mode` | ✅ Unique |
 | V7RM | `v7rm:*` | `v7rm:oidc-rop-{flowKey}-credentials` | ✅ Unique |
-| V8 | `v8:*` | Via `StorageServiceV8` | ✅ Unique |
+| V8 | `v8:*` | Via `StorageService` | ✅ Unique |
 
 **No conflicts detected** between any version's storage keys.
 
@@ -177,7 +177,7 @@ if (v7mEnabled) {
 | V7 | No prefix (legacy) | `Credentials`, `Tokens` |
 | V7M | `V7M*` | `V7MTokenSuccess`, `V7MUserInfo`, `V7MStateStore` |
 | V7RM | `V7RM*` | `V7RMCredentials`, `V7RMTokens`, `V7RMUserInfo` |
-| V8 | `*V8` | `CredentialsServiceV8`, `OAuthIntegrationServiceV8` |
+| V8 | `*V8` | `CredentialsService`, `OAuthIntegrationService` |
 
 **No type conflicts detected.**
 
@@ -187,10 +187,10 @@ if (v7mEnabled) {
 
 ### ⚠️ Issue 1: V8 Files in Wrong Directory
 **Files:**
-- `src/pages/flows/ImplicitFlowV8.tsx` - Uses V8 naming but in wrong directory
-- `src/pages/flows/PingOnePARFlowV8/PingOnePARFlowV8.tsx` - Uses V8 naming but in wrong directory
-- `src/hooks/useCredentialStoreV8.ts` - V8 hook in shared directory
-- `src/services/credentialStoreV8.ts` - V8 service in shared directory
+- `src/pages/flows/ImplicitFlow.tsx` - Uses V8 naming but in wrong directory
+- `src/pages/flows/PingOnePARFlow/PingOnePARFlow.tsx` - Uses V8 naming but in wrong directory
+- `src/hooks/useCredentialStore.ts` - V8 hook in shared directory
+- `src/services/credentialStore.ts` - V8 service in shared directory
 - `src/services/v8StorageService.ts` - V8 service in shared directory
 
 **Impact:** Low - files work correctly and don't violate isolation, but break directory structure convention

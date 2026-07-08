@@ -13,7 +13,7 @@ Created a comprehensive educational component for the `response_type` parameter 
 
 ## Component Details
 
-**File:** `src/v8/components/ResponseTypeDropdownV8.tsx`  
+**File:** `src/v8/components/ResponseTypeDropdown.tsx`  
 **Parameter:** `response_type`  
 **Type:** String (various combinations)
 
@@ -151,9 +151,9 @@ Shows for selected type:
 ## Integration Example
 
 ```typescript
-import { ResponseTypeDropdownV8 } from '@/v8/components/ResponseTypeDropdownV8';
+import { ResponseTypeDropdown } from '@/v8/components/ResponseTypeDropdown';
 
-<ResponseTypeDropdownV8
+<ResponseTypeDropdown
   value={responseType}
   onChange={(type) => {
     setResponseType(type);
@@ -305,18 +305,18 @@ Token Request:
 
 ### 1. Import Component
 ```typescript
-import { ResponseTypeDropdownV8 } from '@/v8/components/ResponseTypeDropdownV8';
+import { ResponseTypeDropdown } from '@/v8/components/ResponseTypeDropdown';
 ```
 
 ### 2. Add to Form
 Replace existing response type dropdown with educational version:
 
 ```typescript
-<ResponseTypeDropdownV8
+<ResponseTypeDropdown
   value={credentials.responseType || 'code'}
   onChange={(type) => {
     handleChange('responseType', type);
-    toastV8.info(`Response type set to: ${type}`);
+    toast.info(`Response type set to: ${type}`);
   }}
   flowType={flowType}
   specVersion={specVersion}

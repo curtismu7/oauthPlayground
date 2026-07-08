@@ -192,8 +192,8 @@ describe('V9 Services Modern Messaging Integration', () => {
 	});
 
 	describe('Migration Compliance', () => {
-		it('should have no toastV8 imports in V9 services', async () => {
-			// This test ensures no V9 service imports toastV8
+		it('should have no toast imports in V9 services', async () => {
+			// This test ensures no V9 service imports toast
 			const v9Services = [
 				'../v9ModalPresentationService',
 				'../v9FlowCompletionService',
@@ -211,9 +211,9 @@ describe('V9 Services Modern Messaging Integration', () => {
 					const service = require(servicePath);
 					expect(service).toBeDefined();
 
-					// Check that it doesn't contain toastV8 references
+					// Check that it doesn't contain toast references
 					const serviceString = JSON.stringify(service);
-					expect(serviceString).not.toContain('toastV8');
+					expect(serviceString).not.toContain('toast');
 				} catch (_error) {
 					// Some services might have import errors due to missing dependencies,
 					// but we can still check the file content
@@ -224,7 +224,7 @@ describe('V9 Services Modern Messaging Integration', () => {
 						const filePath = path.resolve(__dirname, `${servicePath}.tsx`);
 						if (fs.existsSync(filePath)) {
 							const content = fs.readFileSync(filePath, 'utf8');
-							expect(content).not.toContain('toastV8');
+							expect(content).not.toContain('toast');
 						}
 					} catch (_fileError) {
 						// Skip if file doesn't exist or can't be read

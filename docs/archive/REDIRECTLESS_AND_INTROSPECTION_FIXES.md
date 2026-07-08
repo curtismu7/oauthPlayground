@@ -61,7 +61,7 @@ POST /oauth/callback
 **Public Client Detection:**
 ```typescript
 if (credentials.clientAuthMethod === 'none') {
-  toastV8.error('Token introspection is not available for public clients...');
+  toast.error('Token introspection is not available for public clients...');
   return;
 }
 ```
@@ -84,7 +84,7 @@ if (!discoveryResult.success) {
 ## Files Modified
 
 ### Redirectless Support
-- `src/v8/services/unifiedFlowOptionsServiceV8.ts`
+- `src/v8/services/unifiedFlowOptionsService.ts`
 - `src/v8u/components/CredentialsFormV8U.tsx`
 
 ### Introspection Fix

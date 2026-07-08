@@ -23,24 +23,24 @@ The V8 Step Navigation System is a complete, production-ready solution for guidi
 
 ### Components (4 files)
 
-1. **StepNavigationV8.tsx** - Main navigation component
+1. **StepNavigation.tsx** - Main navigation component
    - Combines all step UI elements
    - Shows current step label and progress
    - Module tag: `[🧭 STEP-NAVIGATION-V8]`
 
-2. **StepProgressBarV8.tsx** - Visual progress indicator
+2. **StepProgressBar.tsx** - Visual progress indicator
    - Shows percentage complete (0-100%)
    - Displays step indicators (✓ completed, ▶ active, 🔒 locked)
    - Module tag: `[📊 STEP-PROGRESS-V8]`
 
-3. **StepActionButtonsV8.tsx** - Navigation buttons
+3. **StepActionButtons.tsx** - Navigation buttons
    - Previous button (disabled on first step)
    - Next button (disabled until validation passes)
    - Final button (on last step)
    - Tooltip showing why next is disabled
    - Module tag: `[🔘 STEP-BUTTONS-V8]`
 
-4. **StepValidationFeedbackV8.tsx** - Error/warning display
+4. **StepValidationFeedback.tsx** - Error/warning display
    - Collapsible error section
    - Collapsible warning section
    - Clear visual hierarchy
@@ -48,7 +48,7 @@ The V8 Step Navigation System is a complete, production-ready solution for guidi
 
 ### Hook (1 file)
 
-**useStepNavigationV8.ts** - State management hook
+**useStepNavigation.ts** - State management hook
 - Manages current step, completed steps, validation state
 - Provides navigation methods (goToStep, goToNext, goToPrevious)
 - Handles validation error/warning state
@@ -65,10 +65,10 @@ The V8 Step Navigation System is a complete, production-ready solution for guidi
 ### Tests (4 files)
 
 **100% Test Coverage:**
-- StepProgressBarV8.test.tsx - 15 tests
-- StepActionButtonsV8.test.tsx - 25 tests
-- StepValidationFeedbackV8.test.tsx - 30 tests
-- useStepNavigationV8.test.ts - 35 tests
+- StepProgressBar.test.tsx - 15 tests
+- StepActionButtons.test.tsx - 25 tests
+- StepValidationFeedback.test.tsx - 30 tests
+- useStepNavigation.test.ts - 35 tests
 
 **Total: 105 tests, all passing ✅**
 
@@ -79,19 +79,19 @@ The V8 Step Navigation System is a complete, production-ready solution for guidi
 ### Basic Usage
 
 ```typescript
-import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
-import StepNavigationV8 from '@/v8/components/StepNavigationV8';
-import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
-import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
-import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
+import { useStepNavigation } from '@/v8/hooks/useStepNavigation';
+import StepNavigation from '@/v8/components/StepNavigation';
+import StepActionButtons from '@/v8/components/StepActionButtons';
+import StepValidationFeedback from '@/v8/components/StepValidationFeedback';
+import { ValidationService } from '@/v8/services/validationService';
 
-export const MyFlowV8: React.FC = () => {
-	const nav = useStepNavigationV8(4);
+export const MyFlow: React.FC = () => {
+	const nav = useStepNavigation(4);
 	const [credentials, setCredentials] = useState({});
 
 	// Validate when credentials change
 	useEffect(() => {
-		const result = ValidationServiceV8.validateCredentials(credentials, 'oidc');
+		const result = ValidationService.validateCredentials(credentials, 'oidc');
 		nav.setValidationErrors(
 			result.errors.map(e => e.message)
 		);
@@ -103,7 +103,7 @@ export const MyFlowV8: React.FC = () => {
 	return (
 		<div>
 			{/* Progress Bar */}
-			<StepNavigationV8
+			<StepNavigation
 				currentStep={nav.currentStep}
 				totalSteps={4}
 				stepLabels={['Config', 'Auth URL', 'Callback', 'Tokens']}
@@ -118,13 +118,13 @@ export const MyFlowV8: React.FC = () => {
 			)}
 
 			{/* Validation Feedback */}
-			<StepValidationFeedbackV8
+			<StepValidationFeedback
 				errors={nav.validationErrors}
 				warnings={nav.validationWarnings}
 			/>
 
 			{/* Navigation Buttons */}
-			<StepActionButtonsV8
+			<StepActionButtons
 				currentStep={nav.currentStep}
 				totalSteps={4}
 				isNextDisabled={!nav.canGoNext}
@@ -141,7 +141,7 @@ export const MyFlowV8: React.FC = () => {
 
 ## 📊 Component API
 
-### StepNavigationV8
+### StepNavigation
 
 ```typescript
 interface StepNavigationV8Props {
@@ -154,7 +154,7 @@ interface StepNavigationV8Props {
 }
 ```
 
-### StepProgressBarV8
+### StepProgressBar
 
 ```typescript
 interface StepProgressBarProps {
@@ -165,7 +165,7 @@ interface StepProgressBarProps {
 }
 ```
 
-### StepActionButtonsV8
+### StepActionButtons
 
 ```typescript
 interface StepActionButtonsProps {
@@ -182,7 +182,7 @@ interface StepActionButtonsProps {
 }
 ```
 
-### StepValidationFeedbackV8
+### StepValidationFeedback
 
 ```typescript
 interface StepValidationFeedbackProps {
@@ -194,10 +194,10 @@ interface StepValidationFeedbackProps {
 }
 ```
 
-### useStepNavigationV8
+### useStepNavigation
 
 ```typescript
-const nav = useStepNavigationV8(totalSteps, {
+const nav = useStepNavigation(totalSteps, {
 	initialStep: 0,                // Initial step (default: 0)
 	onStepChange: (step) => {},    // Callback when step changes
 	onValidationChange: (errors) => {}  // Callback when validation changes
@@ -336,10 +336,10 @@ Progress: 100% (4 of 4)
 
 | Component | Tests | Coverage |
 |-----------|-------|----------|
-| StepProgressBarV8 | 15 | 100% |
-| StepActionButtonsV8 | 25 | 100% |
-| StepValidationFeedbackV8 | 30 | 100% |
-| useStepNavigationV8 | 35 | 100% |
+| StepProgressBar | 15 | 100% |
+| StepActionButtons | 25 | 100% |
+| StepValidationFeedback | 30 | 100% |
+| useStepNavigation | 35 | 100% |
 | **Total** | **105** | **100%** |
 
 ### Running Tests
@@ -349,10 +349,10 @@ Progress: 100% (4 of 4)
 npm test
 
 # Run specific component tests
-npm test StepProgressBarV8
-npm test StepActionButtonsV8
-npm test StepValidationFeedbackV8
-npm test useStepNavigationV8
+npm test StepProgressBar
+npm test StepActionButtons
+npm test StepValidationFeedback
+npm test useStepNavigation
 
 # Run with coverage
 npm test -- --coverage
@@ -432,16 +432,16 @@ npm test -- --coverage
 ### Step 1: Import Components
 
 ```typescript
-import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
-import StepNavigationV8 from '@/v8/components/StepNavigationV8';
-import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
-import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
+import { useStepNavigation } from '@/v8/hooks/useStepNavigation';
+import StepNavigation from '@/v8/components/StepNavigation';
+import StepActionButtons from '@/v8/components/StepActionButtons';
+import StepValidationFeedback from '@/v8/components/StepValidationFeedback';
 ```
 
 ### Step 2: Initialize Hook
 
 ```typescript
-const nav = useStepNavigationV8(4, {
+const nav = useStepNavigation(4, {
 	onStepChange: (step) => console.log('Step changed to:', step),
 	onValidationChange: (errors) => console.log('Validation errors:', errors)
 });
@@ -450,7 +450,7 @@ const nav = useStepNavigationV8(4, {
 ### Step 3: Add Progress Bar
 
 ```typescript
-<StepNavigationV8
+<StepNavigation
 	currentStep={nav.currentStep}
 	totalSteps={4}
 	stepLabels={['Config', 'Auth URL', 'Callback', 'Tokens']}
@@ -461,7 +461,7 @@ const nav = useStepNavigationV8(4, {
 ### Step 4: Add Validation Feedback
 
 ```typescript
-<StepValidationFeedbackV8
+<StepValidationFeedback
 	errors={nav.validationErrors}
 	warnings={nav.validationWarnings}
 />
@@ -470,7 +470,7 @@ const nav = useStepNavigationV8(4, {
 ### Step 5: Add Navigation Buttons
 
 ```typescript
-<StepActionButtonsV8
+<StepActionButtons
 	currentStep={nav.currentStep}
 	totalSteps={4}
 	isNextDisabled={!nav.canGoNext}
@@ -484,7 +484,7 @@ const nav = useStepNavigationV8(4, {
 
 ```typescript
 useEffect(() => {
-	const result = ValidationServiceV8.validateCredentials(credentials, 'oidc');
+	const result = ValidationService.validateCredentials(credentials, 'oidc');
 	nav.setValidationErrors(result.errors.map(e => e.message));
 	nav.setValidationWarnings(result.warnings.map(w => w.message));
 }, [credentials, nav]);
@@ -497,19 +497,19 @@ useEffect(() => {
 ```
 src/v8/
 ├── components/
-│   ├── StepNavigationV8.tsx
-│   ├── StepProgressBarV8.tsx
-│   ├── StepActionButtonsV8.tsx
-│   ├── StepValidationFeedbackV8.tsx
+│   ├── StepNavigation.tsx
+│   ├── StepProgressBar.tsx
+│   ├── StepActionButtons.tsx
+│   ├── StepValidationFeedback.tsx
 │   └── __tests__/
-│       ├── StepProgressBarV8.test.tsx
-│       ├── StepActionButtonsV8.test.tsx
-│       └── StepValidationFeedbackV8.test.tsx
+│       ├── StepProgressBar.test.tsx
+│       ├── StepActionButtons.test.tsx
+│       └── StepValidationFeedback.test.tsx
 │
 ├── hooks/
-│   ├── useStepNavigationV8.ts
+│   ├── useStepNavigation.ts
 │   └── __tests__/
-│       └── useStepNavigationV8.test.ts
+│       └── useStepNavigation.test.ts
 │
 └── types/
     └── stepNavigation.ts
@@ -572,12 +572,12 @@ src/v8/
 
 ### Ready to Integrate Into:
 
-1. **OAuthAuthorizationCodeFlowV8.tsx**
+1. **OAuthAuthorizationCodeFlow.tsx**
    - Use step navigation for 4-step flow
    - Integrate with validation service
    - Add education tooltips
 
-2. **ImplicitFlowV8.tsx**
+2. **ImplicitFlow.tsx**
    - Use step navigation for 3-step flow
    - Adapt for implicit flow requirements
 

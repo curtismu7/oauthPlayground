@@ -17,14 +17,14 @@ This document details the integration of MFA and Unified systems with the global
 ### **Before Integration**
 ```
 ┌─ MFA System (Isolated)
-│  ├─ MFAFlowV8 (flow-specific storage)
-│  ├─ MFAConfigurationServiceV8 (MFA settings only)
+│  ├─ MFAFlow (flow-specific storage)
+│  ├─ MFAConfigurationService (MFA settings only)
 │  └─ No credential sharing
 ├─ Unified System (Isolated)
 │  ├─ UnifiedOAuthFlowV8U (flow-specific + shared storage)
 │  └─ No MFA integration
 └─ V8 Flows (Isolated)
-   ├─ OAuthAuthorizationCodeFlowV8 (flow-specific storage)
+   ├─ OAuthAuthorizationCodeFlow (flow-specific storage)
    └─ No credential sharing
 ```
 
@@ -36,14 +36,14 @@ This document details the integration of MFA and Unified systems with the global
 │  ├─ Unified Worker Token Service (worker tokens)
 │  └─ Event-driven synchronization
 ├─ MFA System (Integrated)
-│  ├─ MFAFlowV8 (flow-specific + shared storage)
-│  ├─ MFAConfigurationServiceV8 (MFA settings only)
+│  ├─ MFAFlow (flow-specific + shared storage)
+│  ├─ MFAConfigurationService (MFA settings only)
 │  └─ Syncs with global credentials
 ├─ Unified System (Enhanced)
 │  ├─ UnifiedOAuthFlowV8U (flow-specific + shared storage)
 │  └─ Uses unified service directly
 └─ V8 Flows (Preserved)
-   ├─ OAuthAuthorizationCodeFlowV8 (flow-specific storage)
+   ├─ OAuthAuthorizationCodeFlow (flow-specific storage)
    └─ No breaking changes
 ```
 
@@ -53,7 +53,7 @@ This document details the integration of MFA and Unified systems with the global
 
 **Core Service**: `/src/services/unifiedSharedCredentialsService.ts`
 - **Purpose**: Single interface for all shared credential operations
-- **Storage**: Uses existing services (EnvironmentIdServiceV8, SharedCredentialsServiceV8, UnifiedWorkerTokenService)
+- **Storage**: Uses existing services (EnvironmentIdService, SharedCredentialsService, UnifiedWorkerTokenService)
 - **Events**: Dispatches `unifiedSharedCredentialsUpdated` for real-time sync
 
 **Key Methods**:
@@ -124,9 +124,9 @@ await saveOAuthCredentials({
 }, `UnifiedOAuthFlowV8U-${flowKey}`);
 ```
 
-### **4. MFAFlowBaseV8 Integration**
+### **4. MFAFlowBase Integration**
 
-**File**: `/src/v8/flows/shared/MFAFlowBaseV8.tsx`
+**File**: `/src/v8/flows/shared/MFAFlowBase.tsx`
 - **Integration**: Uses unified shared credentials hook
 - **Sync Logic**: Saves to both flow-specific and unified storage
 - **Device-Specific**: Tracks which device type saved credentials
@@ -134,13 +134,13 @@ await saveOAuthCredentials({
 **Credential Saving**:
 ```typescript
 // Save flow-specific credentials
-CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials);
+CredentialsService.saveCredentials(FLOW_KEY, credentials);
 
 // Save to unified shared credentials if Environment ID or OAuth credentials are present
 if (credentials.environmentId || credentials.clientId) {
   // Save Environment ID separately
   if (credentials.environmentId) {
-    saveEnvironmentId(credentials.environmentId, `MFAFlowV8-${deviceType}`);
+    saveEnvironmentId(credentials.environmentId, `MFAFlow-${deviceType}`);
   }
   
   // Save OAuth credentials
@@ -154,7 +154,7 @@ if (credentials.environmentId || credentials.clientId) {
   if (credentials.clientId) oauthCreds.clientId = credentials.clientId;
   if (credentials.clientSecret) oauthCreds.clientSecret = credentials.clientSecret;
   
-  saveOAuthCredentials(oauthCreds, `MFAFlowV8-${deviceType}`);
+  saveOAuthCredentials(oauthCreds, `MFAFlow-${deviceType}`);
 }
 ```
 
@@ -166,7 +166,7 @@ User enters Environment ID in any flow
         ↓
 Unified Shared Credentials Service
         ↓
-EnvironmentIdServiceV8 (localStorage)
+EnvironmentIdService (localStorage)
         ↓
 Event: 'unifiedSharedCredentialsUpdated'
         ↓
@@ -179,7 +179,7 @@ User enters OAuth credentials in any flow
         ↓
 Unified Shared Credentials Service
         ↓
-SharedCredentialsServiceV8 (dual storage)
+SharedCredentialsService (dual storage)
         ↓
 Event: 'unifiedSharedCredentialsUpdated'
         ↓
@@ -298,10 +298,10 @@ MFA flow works independently + shares credentials
 ### **Storage Keys**
 ```
 Global Environment ID:
-├─ v8:global_environment_id (EnvironmentIdServiceV8)
+├─ v8:global_environment_id (EnvironmentIdService)
 
 OAuth Credentials:
-├─ v8_shared_credentials (SharedCredentialsServiceV8)
+├─ v8_shared_credentials (SharedCredentialsService)
 ├─ Browser storage + disk fallback
 
 Worker Token Credentials:
@@ -309,13 +309,13 @@ Worker Token Credentials:
 ├─ IndexedDB + localStorage
 
 MFA Settings:
-├─ pingone_mfa_configuration_v8 (MFAConfigurationServiceV8)
+├─ pingone_mfa_configuration_v8 (MFAConfigurationService)
 ├─ localStorage only
 
 Flow-Specific Credentials:
-├─ oauth-authz-v8 (OAuthAuthorizationCodeFlowV8)
-├─ implicit-flow-v8 (ImplicitFlowV8)
-├─ mfa-flow-v8 (MFAFlowV8)
+├─ oauth-authz-v8 (OAuthAuthorizationCodeFlow)
+├─ implicit-flow-v8 (ImplicitFlow)
+├─ mfa-flow-v8 (MFAFlow)
 ├─ [other flow keys...]
 ```
 
@@ -333,8 +333,8 @@ unifiedSharedCredentialsUpdated:
 | Component | Integration Status | Benefits | Impact |
 |-----------|-------------------|---------|--------|
 | **UnifiedOAuthFlowV8U** | ✅ COMPLETE | Uses unified service directly | Enhanced UX |
-| **MFAFlowBaseV8** | ✅ COMPLETE | Syncs with global credentials | Enhanced UX |
-| **MFAConfigurationServiceV8** | ✅ PRESERVED | MFA settings unchanged | Zero impact |
+| **MFAFlowBase** | ✅ COMPLETE | Syncs with global credentials | Enhanced UX |
+| **MFAConfigurationService** | ✅ PRESERVED | MFA settings unchanged | Zero impact |
 | **V8 Flows** | ✅ PRESERVED | No breaking changes | Zero impact |
 | **Environment ID** | ✅ GLOBAL | Available in all flows | Major benefit |
 | **OAuth Credentials** | ✅ SHARED | Available across flows | Major benefit |

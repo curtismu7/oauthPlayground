@@ -36,7 +36,7 @@ This document defines the UI contract for WhatsApp device registration and authe
 
 ### 1. WhatsApp Configuration Page
 
-**Component:** `WhatsAppOTPConfigurationPageV8.tsx`  
+**Component:** `WhatsAppOTPConfigurationPage.tsx`  
 **Route:** `/v8/mfa/register/whatsapp`
 
 #### Required UI Elements
@@ -66,7 +66,7 @@ This document defines the UI contract for WhatsApp device registration and authe
 
 #### State Management
 
-- Configuration must be saved to `localStorage` via `CredentialsServiceV8`
+- Configuration must be saved to `localStorage` via `CredentialsService`
 - Configuration must be loaded on page mount
 - Changes must be persisted immediately
 
@@ -82,7 +82,7 @@ This document defines the UI contract for WhatsApp device registration and authe
 
 ### 2. WhatsApp Registration Flow
 
-**Component:** `WhatsAppFlowV8.tsx`  
+**Component:** `WhatsAppFlow.tsx`  
 **Route:** `/v8/mfa/register/whatsapp/device`
 
 #### Step 0: Configuration
@@ -97,8 +97,8 @@ This document defines the UI contract for WhatsApp device registration and authe
 
 **State:**
 - Credentials stored in `credentials` state
-- Token status checked via `WorkerTokenStatusServiceV8`
-- Policies loaded from `MFAServiceV8.listDeviceAuthenticationPolicies()`
+- Token status checked via `WorkerTokenStatusService`
+- Policies loaded from `MFAService.listDeviceAuthenticationPolicies()`
 
 #### Step 1: Device Selection
 
@@ -130,7 +130,7 @@ This document defines the UI contract for WhatsApp device registration and authe
 
 **WhatsApp Not Enabled Check:**
 - Must check if WhatsApp is enabled in PingOne environment
-- Must show `WhatsAppNotEnabledModalV8` if WhatsApp is not enabled
+- Must show `WhatsAppNotEnabledModal` if WhatsApp is not enabled
 - Must prevent registration if WhatsApp is not enabled
 
 #### Step 3: OTP Sent / Validation
@@ -168,7 +168,7 @@ This document defines the UI contract for WhatsApp device registration and authe
 
 ### 3. WhatsApp Authentication Flow
 
-**Component:** `MFAAuthenticationMainPageV8.tsx`  
+**Component:** `MFAAuthenticationMainPage.tsx`  
 **Route:** `/v8/mfa/auth`
 
 #### Device Selection
@@ -203,7 +203,7 @@ This document defines the UI contract for WhatsApp device registration and authe
 ### Error Types
 
 1. **LIMIT_EXCEEDED**
-   - Must display `MFACooldownModalV8` with cooldown duration
+   - Must display `MFACooldownModal` with cooldown duration
    - Must show toast notification
    - Must prevent further attempts during cooldown
 
@@ -218,7 +218,7 @@ This document defines the UI contract for WhatsApp device registration and authe
    - Must not show technical error details
 
 4. **WhatsApp Not Enabled**
-   - Must display `WhatsAppNotEnabledModalV8`
+   - Must display `WhatsAppNotEnabledModal`
    - Must prevent registration
    - Must provide guidance on enabling WhatsApp
 

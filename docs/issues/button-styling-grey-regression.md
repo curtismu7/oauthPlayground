@@ -11,7 +11,7 @@ Multiple components were displaying grey buttons when they should be colored (bl
 - `SAMLBearerAssertionFlowV9.tsx` - Flow action buttons
 - `DPoPFlow.tsx` - Copy and action buttons
 - `FlowUIService.tsx` - Global button service
-- `WorkerTokenRequestModalV8.tsx` - Modal action buttons
+- `WorkerTokenRequestModal.tsx` - Modal action buttons
 - `ApiStatusPage.tsx` - Refresh button
 - Any component using V9_COLORS without proper interpolation
 
@@ -199,7 +199,7 @@ const BUTTON_COLORS = {
 - `src/pages/flows/v9/SAMLBearerAssertionFlowV9.tsx` - Button styling fixes
 - `src/pages/flows/DPoPFlow.tsx` - Copy button styling
 - `src/services/flowUIService.tsx` - Global button service fixes
-- `src/v8/components/WorkerTokenRequestModalV8.tsx` - Modal button styling
+- `src/v8/components/WorkerTokenRequestModal.tsx` - Modal button styling
 - `src/pages/ApiStatusPage.tsx` - Refresh button styling
 
 ## Testing Commands

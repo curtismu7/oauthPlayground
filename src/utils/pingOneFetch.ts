@@ -6,7 +6,7 @@
  */
 
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
-import { backendConnectivityService } from '@/mfa/services/backendConnectivityServiceV8';
+import { backendConnectivityService } from '@/mfa/services/backendConnectivityService';
 import { logger } from './logger';
 
 const DEFAULT_RETRY_STATUSES = new Set([408, 409, 425, 429, 500, 502, 503, 504]);
@@ -212,7 +212,7 @@ export async function pingOneFetch(
 
 		// #region agent log - Debug instrumentation before fetch (using safeAnalyticsFetch)
 		try {
-			const { safeAnalyticsFetch } = await import('@/mfa/utils/analyticsServerCheckV8');
+			const { safeAnalyticsFetch } = await import('@/mfa/utils/analyticsServerCheck');
 			await safeAnalyticsFetch({
 				location: 'pingOneFetch.ts:198-BEFORE-FETCH',
 				message: 'About to call fetch in pingOneFetch',
@@ -246,7 +246,7 @@ export async function pingOneFetch(
 
 			// #region agent log - Debug instrumentation after fetch (using safeAnalyticsFetch)
 			try {
-				const { safeAnalyticsFetch } = await import('@/mfa/utils/analyticsServerCheckV8');
+				const { safeAnalyticsFetch } = await import('@/mfa/utils/analyticsServerCheck');
 				await safeAnalyticsFetch({
 					location: 'pingOneFetch.ts:198-AFTER-FETCH',
 					message: 'Fetch completed in pingOneFetch',

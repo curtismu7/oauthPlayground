@@ -36,7 +36,7 @@
   - [x] Migration patterns
 
 ### Phase 3: Reference Implementation
-- [x] Refactor OAuthAuthorizationCodeFlowV8.tsx
+- [x] Refactor OAuthAuthorizationCodeFlow.tsx
   - [x] Import useActionButton hook
   - [x] Replace local isActionInProgress state
   - [x] Create action hooks for each button
@@ -64,13 +64,13 @@
 
 ### Phase 5: Migration
 - [ ] High Priority Flows (Next Week)
-  - [ ] MFAAuthenticationMainPageV8.tsx
-  - [ ] PingOnePARFlowV8/PingOnePARFlowV8.tsx
-  - [ ] ImplicitFlowV8.tsx
+  - [ ] MFAAuthenticationMainPage.tsx
+  - [ ] PingOnePARFlow/PingOnePARFlow.tsx
+  - [ ] ImplicitFlow.tsx
 
 - [ ] Medium Priority Components (Week 2)
-  - [ ] UserLoginModalV8.tsx
-  - [ ] MFADeviceManagerV8.tsx
+  - [ ] UserLoginModal.tsx
+  - [ ] MFADeviceManager.tsx
   - [ ] Other modal components
 
 - [ ] Low Priority (Week 3-4)
@@ -126,8 +126,8 @@
 
 ### This Week
 1. Add unit tests for core functionality
-2. Migrate MFAAuthenticationMainPageV8.tsx
-3. Migrate PingOnePARFlowV8
+2. Migrate MFAAuthenticationMainPage.tsx
+3. Migrate PingOnePARFlow
 4. Create migration guide video
 
 ### Next Week

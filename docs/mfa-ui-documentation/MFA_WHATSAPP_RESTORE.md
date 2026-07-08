@@ -17,23 +17,23 @@
 
 ## Overview
 
-This document provides implementation details, code snippets, and restoration guidance for the WhatsApp MFA flow (`WhatsAppFlowV8.tsx` and `WhatsAppOTPConfigurationPageV8.tsx`). WhatsApp MFA is implemented as an SMS-like MFA factor via PingOne MFA with type = "WHATSAPP".
+This document provides implementation details, code snippets, and restoration guidance for the WhatsApp MFA flow (`WhatsAppFlow.tsx` and `WhatsAppOTPConfigurationPage.tsx`). WhatsApp MFA is implemented as an SMS-like MFA factor via PingOne MFA with type = "WHATSAPP".
 
 ---
 
 ## File Locations
 
 **Components:**
-- `src/v8/flows/types/WhatsAppFlowV8.tsx` - Main WhatsApp flow component
-- `src/v8/flows/types/WhatsAppOTPConfigurationPageV8.tsx` - WhatsApp configuration page
-- `src/v8/pages/WhatsAppRegistrationDocsPageV8.tsx` - WhatsApp documentation page
+- `src/v8/flows/types/WhatsAppFlow.tsx` - Main WhatsApp flow component
+- `src/v8/flows/types/WhatsAppOTPConfigurationPage.tsx` - WhatsApp configuration page
+- `src/v8/pages/WhatsAppRegistrationDocsPage.tsx` - WhatsApp documentation page
 
 **Controllers:**
 - `src/v8/flows/controllers/WhatsAppFlowController.ts` - WhatsApp flow business logic
 
 **Services:**
-- `src/v8/services/mfaServiceV8.ts` - MFA API calls
-- `src/v8/services/mfaAuthenticationServiceV8.ts` - MFA authentication calls
+- `src/v8/services/mfaService.ts` - MFA API calls
+- `src/v8/services/mfaAuthenticationService.ts` - MFA authentication calls
 
 ---
 
@@ -117,7 +117,7 @@ The generated environment file includes all variables with pre-filled values fro
 
 **Correct Implementation:**
 ```typescript
-// In WhatsAppFlowV8.tsx
+// In WhatsAppFlow.tsx
 React.useEffect(() => {
     // Skip device loading during registration flow (when coming from config page)
     if (isConfigured) {
@@ -145,7 +145,7 @@ React.useEffect(() => {
 
 **Correct Implementation:**
 ```typescript
-// In WhatsAppFlowV8.tsx
+// In WhatsAppFlow.tsx
 const step2DeviceNameResetRef = React.useRef<{ step: number; deviceType: string } | null>(null);
 
 const renderStep2Register = useCallback((props: MFAFlowBaseRenderProps) => {
@@ -176,14 +176,14 @@ const renderStep2Register = useCallback((props: MFAFlowBaseRenderProps) => {
 
 **Correct Implementation:**
 ```typescript
-// In WhatsAppFlowV8.tsx
+// In WhatsAppFlow.tsx
 const [showWhatsAppNotEnabledModal, setShowWhatsAppNotEnabledModal] = useState(false);
 
 const handleRegisterDevice = async () => {
     try {
         // Check if WhatsApp is enabled (this check should be done before registration)
         // If not enabled, show modal
-        const result = await MFAServiceV8.registerDevice({
+        const result = await MFAService.registerDevice({
             ...credentials,
             type: 'WHATSAPP',
         });
@@ -209,9 +209,9 @@ const handleRegisterDevice = async () => {
 **Correct Implementation:**
 ```typescript
 import { MFAOTPInput } from '../components/MFAOTPInput';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { MFAConfigurationService } from '@/v8/services/mfaConfigurationService';
 
-const config = MFAConfigurationServiceV8.loadConfiguration();
+const config = MFAConfigurationService.loadConfiguration();
 
 <MFAOTPInput
     length={config.otpCodeLength || 6}

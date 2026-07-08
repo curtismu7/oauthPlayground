@@ -24,7 +24,7 @@
 ```
 /v8/mfa/register/sms
         │
-        ├─► SMSFlowV8 Component
+        ├─► SMSFlow Component
         │
         ├─► Step 0: Configure Credentials
         │   └─► (If accessed directly, shows config)
@@ -51,7 +51,7 @@
 ```
 /v8/mfa/register/email
         │
-        ├─► EmailFlowV8 Component
+        ├─► EmailFlow Component
         │
         ├─► Step 0: Configure Credentials
         │   └─► (If accessed directly, shows config)
@@ -78,7 +78,7 @@
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  Route 1: /v8/mfa/register/totp                                  │
-│  Component: TOTPConfigurationPageV8                              │
+│  Component: TOTPConfigurationPage                              │
 │                                                                   │
 │  ┌───────────────────────────────────────────────────────────┐  │
 │  │  Configuration Steps:                                      │  │
@@ -96,7 +96,7 @@
 
 ┌─────────────────────────────────────────────────────────────────┐
 │  Route 2: /v8/mfa/register/totp/device                          │
-│  Component: TOTPFlowV8                                           │
+│  Component: TOTPFlow                                           │
 │                                                                   │
 │  ┌───────────────────────────────────────────────────────────┐  │
 │  │  Registration Steps:                                       │  │
@@ -121,7 +121,7 @@
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  Route 1: /v8/mfa/register/fido2                                 │
-│  Component: FIDO2ConfigurationPageV8                             │
+│  Component: FIDO2ConfigurationPage                             │
 │                                                                   │
 │  ┌───────────────────────────────────────────────────────────┐  │
 │  │  Configuration Steps:                                      │  │
@@ -139,7 +139,7 @@
 
 ┌─────────────────────────────────────────────────────────────────┐
 │  Route 2: /v8/mfa/register/fido2/device                         │
-│  Component: FIDO2FlowV8                                          │
+│  Component: FIDO2Flow                                          │
 │                                                                   │
 │  ┌───────────────────────────────────────────────────────────┐  │
 │  │  Registration Steps:                                       │  │
@@ -163,7 +163,7 @@
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  Route 1: /v8/mfa/register/whatsapp                             │
-│  Component: WhatsAppOTPConfigurationPageV8                      │
+│  Component: WhatsAppOTPConfigurationPage                      │
 │                                                                   │
 │  ┌───────────────────────────────────────────────────────────┐  │
 │  │  Configuration Steps:                                      │  │
@@ -183,7 +183,7 @@
 
 ┌─────────────────────────────────────────────────────────────────┐
 │  Route 2: /v8/mfa/register/whatsapp/device                       │
-│  Component: WhatsAppFlowV8                                       │
+│  Component: WhatsAppFlow                                       │
 │                                                                   │
 │  ┌───────────────────────────────────────────────────────────┐  │
 │  │  Registration Steps:                                       │  │

@@ -5,15 +5,15 @@
  * @version 8.0.0
  * @since 2024-11-23
  *
- * This is a demo/example component showing how to use MFAInfoButtonV8
- * and MFAEducationServiceV8 in the MFA Flow.
+ * This is a demo/example component showing how to use MFAInfoButton
+ * and MFAEducationService in the MFA Flow.
  *
  * NOT FOR PRODUCTION - This is a reference implementation only.
  */
 
 import React from 'react';
-import { MFAEducationServiceV8 } from '@/mfa/services/mfaEducationServiceV8';
-import { MFAInfoButtonV8 } from '../MFAInfoButtonV8';
+import { MFAEducationService } from '@/mfa/services/mfaEducationService';
+import { MFAInfoButton } from '../MFAInfoButton';
 
 /**
  * MFA Education Demo Component
@@ -54,7 +54,7 @@ export const MFAEducationDemo: React.FC = () => {
 							}}
 						>
 							Environment ID <span style={{ color: '#ef4444', marginLeft: '4px' }}>*</span>
-							<MFAInfoButtonV8 contentKey="credential.environmentId" displayMode="modal" />
+							<MFAInfoButton contentKey="credential.environmentId" displayMode="modal" />
 						</label>
 						<input
 							type="text"
@@ -84,7 +84,7 @@ export const MFAEducationDemo: React.FC = () => {
 							}}
 						>
 							Username <span style={{ color: '#ef4444', marginLeft: '4px' }}>*</span>
-							<MFAInfoButtonV8 contentKey="credential.username" />
+							<MFAInfoButton contentKey="credential.username" />
 						</label>
 						<input
 							type="text"
@@ -114,7 +114,7 @@ export const MFAEducationDemo: React.FC = () => {
 							}}
 						>
 							Phone Number <span style={{ color: '#ef4444', marginLeft: '4px' }}>*</span>
-							<MFAInfoButtonV8 contentKey="phone.number" />
+							<MFAInfoButton contentKey="phone.number" />
 						</label>
 						<input
 							type="tel"
@@ -146,7 +146,7 @@ export const MFAEducationDemo: React.FC = () => {
 						gap: '12px',
 					}}
 				>
-					{MFAEducationServiceV8.getAllFactorTypes().map(({ key, content }) => (
+					{MFAEducationService.getAllFactorTypes().map(({ key, content }) => (
 						<div
 							key={key}
 							style={{
@@ -175,10 +175,10 @@ export const MFAEducationDemo: React.FC = () => {
 								}}
 							>
 								<span style={{ fontSize: '20px' }}>
-									{MFAEducationServiceV8.getSecurityLevelIcon(content.securityLevel)}
+									{MFAEducationService.getSecurityLevelIcon(content.securityLevel)}
 								</span>
 								<strong style={{ fontSize: '14px', color: '#1f2937' }}>{key}</strong>
-								<MFAInfoButtonV8
+								<MFAInfoButton
 									contentKey={`factor.${key.toLowerCase()}`}
 									size="small"
 									displayMode="modal"
@@ -190,7 +190,7 @@ export const MFAEducationDemo: React.FC = () => {
 								style={{
 									fontSize: '10px',
 									padding: '4px 8px',
-									background: MFAEducationServiceV8.getSecurityLevelColor(content.securityLevel),
+									background: MFAEducationService.getSecurityLevelColor(content.securityLevel),
 									color: 'white',
 									borderRadius: '4px',
 									display: 'inline-block',
@@ -237,7 +237,7 @@ export const MFAEducationDemo: React.FC = () => {
 					>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
 							<strong style={{ fontSize: '14px', color: '#1f2937' }}>Tooltip Mode (Hover)</strong>
-							<MFAInfoButtonV8 contentKey="factor.totp" displayMode="tooltip" />
+							<MFAInfoButton contentKey="factor.totp" displayMode="tooltip" />
 						</div>
 						<p style={{ fontSize: '13px', color: '#6b7280', margin: 0 }}>
 							Hover over the info button to see a quick tooltip
@@ -255,7 +255,7 @@ export const MFAEducationDemo: React.FC = () => {
 					>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
 							<strong style={{ fontSize: '14px', color: '#1f2937' }}>Modal Mode (Click)</strong>
-							<MFAInfoButtonV8 contentKey="factor.fido2" displayMode="modal" />
+							<MFAInfoButton contentKey="factor.fido2" displayMode="modal" />
 						</div>
 						<p style={{ fontSize: '13px', color: '#6b7280', margin: 0 }}>
 							Click the info button to see detailed information in a modal
@@ -273,7 +273,7 @@ export const MFAEducationDemo: React.FC = () => {
 					>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
 							<strong style={{ fontSize: '14px', color: '#1f2937' }}>With Label</strong>
-							<MFAInfoButtonV8
+							<MFAInfoButton
 								contentKey="security.phishingResistance"
 								displayMode="modal"
 								label="What's this?"
@@ -305,7 +305,7 @@ export const MFAEducationDemo: React.FC = () => {
 						<p style={{ margin: 0, fontSize: '13px', color: '#065f46', fontWeight: '500' }}>
 							🛡️ <strong>High Security:</strong> FIDO2 and TOTP are phishing-resistant and highly
 							secure
-							<MFAInfoButtonV8 contentKey="factor.fido2" size="small" />
+							<MFAInfoButton contentKey="factor.fido2" size="small" />
 						</p>
 					</div>
 
@@ -320,7 +320,7 @@ export const MFAEducationDemo: React.FC = () => {
 					>
 						<p style={{ margin: 0, fontSize: '13px', color: '#92400e', fontWeight: '500' }}>
 							⚠️ <strong>Medium Security:</strong> SMS and Email are convenient but less secure
-							<MFAInfoButtonV8 contentKey="factor.sms" size="small" />
+							<MFAInfoButton contentKey="factor.sms" size="small" />
 						</p>
 					</div>
 				</div>
@@ -348,7 +348,7 @@ export const MFAEducationDemo: React.FC = () => {
 						lineHeight: '1.8',
 					}}
 				>
-					<li>Import MFAInfoButtonV8 and MFAEducationServiceV8</li>
+					<li>Import MFAInfoButton and MFAEducationService</li>
 					<li>Add info buttons next to form labels</li>
 					<li>Use tooltip mode for quick reference</li>
 					<li>Use modal mode for detailed explanations</li>

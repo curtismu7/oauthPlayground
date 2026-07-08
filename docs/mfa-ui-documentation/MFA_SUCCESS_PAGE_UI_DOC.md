@@ -26,8 +26,8 @@ This document defines the UI structure, components, and user experience for the 
 
 ### 1. Unified Success Page Component
 
-**Location:** `src/v8/services/unifiedMFASuccessPageServiceV8.tsx`  
-**Component:** `UnifiedMFASuccessPageV8`
+**Location:** `src/v8/services/unifiedMFASuccessPageService.tsx`  
+**Component:** `UnifiedMFASuccessPage`
 
 #### Layout Structure
 
@@ -40,7 +40,7 @@ This document defines the UI structure, components, and user experience for the 
 │                                                         │
 │  ┌─────────────────────────────────────────────────┐  │
 │  │  API Display (if enabled)                       │  │
-│  │  - SuperSimpleApiDisplayV8 component           │  │
+│  │  - SuperSimpleApiDisplay component           │  │
 │  └─────────────────────────────────────────────────┘  │
 │                                                         │
 │  ┌─────────────────────────────────────────────────┐  │
@@ -193,7 +193,7 @@ The button navigates to:
 
 ## API Display Integration
 
-- The success page integrates with `SuperSimpleApiDisplayV8` to show API calls
+- The success page integrates with `SuperSimpleApiDisplay` to show API calls
 - API display can be toggled on/off via the checkbox in the top-right
 - When visible, the API display appears above the celebratory header
 - Bottom padding adjusts automatically to ensure buttons remain visible

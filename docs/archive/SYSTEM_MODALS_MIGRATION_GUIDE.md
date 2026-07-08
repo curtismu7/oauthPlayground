@@ -23,10 +23,10 @@ window.prompt('Enter value:');
 ### Import the Service
 
 ```typescript
-import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
+import { uiNotificationService } from '@/v8/services/uiNotificationService';
 
 // Or dynamic import (preferred for non-V8 files)
-const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
+const { uiNotificationService } = await import('@/v8/services/uiNotificationService');
 ```
 
 ---
@@ -36,10 +36,10 @@ const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationSe
 ### Success
 ```typescript
 // Simple message
-uiNotificationServiceV8.showSuccess('Operation completed!');
+uiNotificationService.showSuccess('Operation completed!');
 
 // With options
-uiNotificationServiceV8.showSuccess('Saved successfully', {
+uiNotificationService.showSuccess('Saved successfully', {
   duration: 5000,
   description: 'Your changes have been saved',
 });
@@ -47,18 +47,18 @@ uiNotificationServiceV8.showSuccess('Saved successfully', {
 
 ### Error
 ```typescript
-uiNotificationServiceV8.showError('Operation failed');
-uiNotificationServiceV8.showError('Failed to save: Network error');
+uiNotificationService.showError('Operation failed');
+uiNotificationService.showError('Failed to save: Network error');
 ```
 
 ### Warning
 ```typescript
-uiNotificationServiceV8.showWarning('Please review your input');
+uiNotificationService.showWarning('Please review your input');
 ```
 
 ### Info
 ```typescript
-uiNotificationServiceV8.showInfo('Processing your request...');
+uiNotificationService.showInfo('Processing your request...');
 ```
 
 ---
@@ -68,7 +68,7 @@ uiNotificationServiceV8.showInfo('Processing your request...');
 ### Simple Confirmation
 ```typescript
 async function handleDelete() {
-  const confirmed = await uiNotificationServiceV8.confirm('Delete this item?');
+  const confirmed = await uiNotificationService.confirm('Delete this item?');
   if (confirmed) {
     // User clicked "Confirm"
     deleteItem();
@@ -81,7 +81,7 @@ async function handleDelete() {
 ### Advanced Confirmation
 ```typescript
 async function handleDelete() {
-  const confirmed = await uiNotificationServiceV8.confirm({
+  const confirmed = await uiNotificationService.confirm({
     title: 'Delete Item',
     message: 'Are you sure you want to delete this item? This action cannot be undone.',
     confirmText: 'Delete',
@@ -102,7 +102,7 @@ async function handleDelete() {
 ### Simple Prompt
 ```typescript
 async function handleRename() {
-  const newName = await uiNotificationServiceV8.prompt('Enter new name:');
+  const newName = await uiNotificationService.prompt('Enter new name:');
   if (newName) {
     // User entered a value and clicked OK
     rename(newName);
@@ -115,7 +115,7 @@ async function handleRename() {
 ### Advanced Prompt
 ```typescript
 async function handleRename() {
-  const newName = await uiNotificationServiceV8.prompt({
+  const newName = await uiNotificationService.prompt({
     title: 'Rename Item',
     message: 'Enter a new name for this item:',
     defaultValue: currentName,
@@ -148,8 +148,8 @@ function saveData() {
 ```typescript
 async function saveData() {
   // ... save logic
-  const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
-  uiNotificationServiceV8.showSuccess('Data saved successfully!');
+  const { uiNotificationService } = await import('@/v8/services/uiNotificationService');
+  uiNotificationService.showSuccess('Data saved successfully!');
 }
 ```
 
@@ -167,8 +167,8 @@ function handleDelete() {
 **After:**
 ```typescript
 async function handleDelete() {
-  const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
-  const confirmed = await uiNotificationServiceV8.confirm('Delete this item?');
+  const { uiNotificationService } = await import('@/v8/services/uiNotificationService');
+  const confirmed = await uiNotificationService.confirm('Delete this item?');
   if (confirmed) {
     deleteItem();
   }
@@ -190,8 +190,8 @@ function handleRename() {
 **After:**
 ```typescript
 async function handleRename() {
-  const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
-  const name = await uiNotificationServiceV8.prompt('Enter name:');
+  const { uiNotificationService } = await import('@/v8/services/uiNotificationService');
+  const name = await uiNotificationService.prompt('Enter name:');
   if (name) {
     rename(name);
   }
@@ -212,12 +212,12 @@ try {
 
 **After:**
 ```typescript
-const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
+const { uiNotificationService } = await import('@/v8/services/uiNotificationService');
 try {
   await saveData();
-  uiNotificationServiceV8.showSuccess('Saved!');
+  uiNotificationService.showSuccess('Saved!');
 } catch (error) {
-  uiNotificationServiceV8.showError(`Failed to save: ${error.message}`);
+  uiNotificationService.showError(`Failed to save: ${error.message}`);
 }
 ```
 
@@ -240,15 +240,15 @@ try {
 ### View Notification Logs
 ```typescript
 // Get all notification logs
-const logs = uiNotificationServiceV8.getLogs();
+const logs = uiNotificationService.getLogs();
 console.table(logs);
 
 // Export logs as JSON
-const json = uiNotificationServiceV8.exportLogs();
+const json = uiNotificationService.exportLogs();
 console.log(json);
 
 // Clear logs
-uiNotificationServiceV8.clearLogs();
+uiNotificationService.clearLogs();
 ```
 
 ### Console Logging
@@ -266,14 +266,14 @@ All notifications are automatically logged to console with module tags:
 ### ❌ Forgetting to await
 ```typescript
 // ❌ WRONG - confirm() returns a Promise
-if (uiNotificationServiceV8.confirm('Delete?')) {
+if (uiNotificationService.confirm('Delete?')) {
   // This will always be true!
 }
 ```
 
 ```typescript
 // ✅ CORRECT
-if (await uiNotificationServiceV8.confirm('Delete?')) {
+if (await uiNotificationService.confirm('Delete?')) {
   // Now it works correctly
 }
 ```
@@ -282,14 +282,14 @@ if (await uiNotificationServiceV8.confirm('Delete?')) {
 ```typescript
 // ❌ WRONG - Can't use await in non-async function
 function handleDelete() {
-  const confirmed = await uiNotificationServiceV8.confirm('Delete?');
+  const confirmed = await uiNotificationService.confirm('Delete?');
 }
 ```
 
 ```typescript
 // ✅ CORRECT
 async function handleDelete() {
-  const confirmed = await uiNotificationServiceV8.confirm('Delete?');
+  const confirmed = await uiNotificationService.confirm('Delete?');
 }
 ```
 
@@ -301,7 +301,7 @@ alert('Hello');
 
 ```typescript
 // ✅ CORRECT
-uiNotificationServiceV8.showInfo('Hello');
+uiNotificationService.showInfo('Hello');
 ```
 
 ---
@@ -311,8 +311,8 @@ uiNotificationServiceV8.showInfo('Hello');
 ### Mock the Service
 ```typescript
 // In your test file
-jest.mock('@/v8/services/uiNotificationServiceV8', () => ({
-  uiNotificationServiceV8: {
+jest.mock('@/v8/services/uiNotificationService', () => ({
+  uiNotificationService: {
     showSuccess: jest.fn(),
     showError: jest.fn(),
     confirm: jest.fn().mockResolvedValue(true),
@@ -324,7 +324,7 @@ jest.mock('@/v8/services/uiNotificationServiceV8', () => ({
 ### Test Confirmation
 ```typescript
 it('should confirm before deleting', async () => {
-  const confirmSpy = jest.spyOn(uiNotificationServiceV8, 'confirm')
+  const confirmSpy = jest.spyOn(uiNotificationService, 'confirm')
     .mockResolvedValue(true);
   
   await handleDelete();
@@ -355,8 +355,8 @@ it('should confirm before deleting', async () => {
 - Check `SYSTEM_MODALS_ELIMINATION_COMPLETE.md` for full documentation
 - Run `./scripts/check-system-modals.sh` to find remaining violations
 - Look at migrated files for examples:
-  - `src/v8/components/MFADeviceManagerV8.tsx`
-  - `src/v8/flows/MFAFlowV8.tsx`
+  - `src/v8/components/MFADeviceManager.tsx`
+  - `src/v8/flows/MFAFlow.tsx`
   - `src/pages/ApplicationGenerator.tsx`
 
 ---

@@ -8,11 +8,11 @@
 ## Current Status
 
 ### ✅ Already Have Educational Components
-1. **Response Mode** - ResponseModeDropdownV8 ✅
-2. **Login Hint** - LoginHintInputV8 ✅
-3. **Max Age** - MaxAgeInputV8 ✅
-4. **Display Mode** - DisplayModeDropdownV8 ✅
-5. **Response Type** - ResponseTypeDropdownV8 ✅ (created, needs integration)
+1. **Response Mode** - ResponseModeDropdown ✅
+2. **Login Hint** - LoginHintInput ✅
+3. **Max Age** - MaxAgeInput ✅
+4. **Display Mode** - DisplayModeDropdown ✅
+5. **Response Type** - ResponseTypeDropdown ✅ (created, needs integration)
 
 ### 🎯 High Priority - Should Add Education
 
@@ -321,11 +321,11 @@ interface EducationalComponentProps {
 
 ## Next Steps
 
-1. **Create PKCEInputV8** - Most important security feature
-2. **Create ClientTypeRadioV8** - Fundamental concept
-3. **Create ClientAuthMethodDropdownV8** - Security critical
-4. **Create ScopesInputV8** - Core OAuth concept
-5. **Create RedirectUriInputV8** - Common error source
+1. **Create PKCEInput** - Most important security feature
+2. **Create ClientTypeRadio** - Fundamental concept
+3. **Create ClientAuthMethodDropdown** - Security critical
+4. **Create ScopesInput** - Core OAuth concept
+5. **Create RedirectUriInput** - Common error source
 
 ---
 

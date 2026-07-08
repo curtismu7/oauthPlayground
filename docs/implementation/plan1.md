@@ -14,7 +14,7 @@ Based on Phase 1 inventory analysis, implement comprehensive logging system for 
 - Capture error details and retry attempts
 
 ### 2. RunId Generation & Threading
-**File:** `src/locked/mfa-hub-v8/dependencies/v8/services/workerTokenServiceV8.ts`
+**File:** `src/locked/mfa-hub-v8/dependencies/v8/services/workerTokenService.ts`
 - Generate unique runId on first worker token load
 - Store runId in IndexedDB alongside worker tokens
 - Add runId to all `safeAnalyticsFetch()` calls
@@ -35,7 +35,7 @@ Based on Phase 1 inventory analysis, implement comprehensive logging system for 
 - Include runId in all log payloads
 
 ### 5. Storage Enhancement
-**File:** `src/locked/mfa-hub-v8/dependencies/v8/services/workerTokenServiceV8.ts`
+**File:** `src/locked/mfa-hub-v8/dependencies/v8/services/workerTokenService.ts`
 - Add runId field to WorkerTokenData interface
 - Update IndexedDB schema to include runId
 - Implement runId persistence across sessions
@@ -45,7 +45,7 @@ Based on Phase 1 inventory analysis, implement comprehensive logging system for 
 
 ### Phase 1: Core Logging Infrastructure
 1. Enhance logger.ts with runId support
-2. Update workerTokenServiceV8.ts for runId generation/storage
+2. Update workerTokenService.ts for runId generation/storage
 3. Modify workerToken.ts HTTP interception
 
 ### Phase 2: Integration & Shipping

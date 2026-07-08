@@ -71,7 +71,7 @@ The MFA Flow V8 test mode was making real API calls instead of using mock data. 
 
 ## Files Modified
 
-- `src/v8/flows/MFAFlowV8.tsx` - Enhanced test mode implementation
+- `src/v8/flows/MFAFlow.tsx` - Enhanced test mode implementation
 - `MFA_TEST_MODE_FIX.md` - Detailed documentation
 - `TEST_MODE_IMPROVEMENTS_SUMMARY.md` - This summary
 

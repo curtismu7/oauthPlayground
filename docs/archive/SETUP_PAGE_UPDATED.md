@@ -6,7 +6,7 @@ Updated both the redirect URI service and the setup page catalog to show the new
 
 ## Files Updated
 
-### 1. src/v8/services/redirectUriServiceV8.ts
+### 1. src/v8/services/redirectUriService.ts
 Updated V8U flows to use `unified-callback`:
 - `oauth-authz-v8u` → `unified-callback`
 - `implicit-v8u` → `unified-callback`

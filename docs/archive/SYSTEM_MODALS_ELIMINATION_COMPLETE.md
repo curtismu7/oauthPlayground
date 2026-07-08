@@ -14,8 +14,8 @@ Successfully created centralized UI notification infrastructure to replace all b
 
 ## What Was Built
 
-### 1. UINotificationServiceV8 ✅
-**File:** `src/v8/services/uiNotificationServiceV8.ts`
+### 1. UINotificationService ✅
+**File:** `src/v8/services/uiNotificationService.ts`
 
 **Centralized notification service providing:**
 - `showSuccess()` - Success toast
@@ -29,18 +29,18 @@ Successfully created centralized UI notification infrastructure to replace all b
 
 **Module Tag:** `[🔔 UI-NOTIFICATION-V8]`
 
-### 2. ConfirmationModalV8 ✅
-**File:** `src/v8/components/ConfirmationModalV8.tsx`
+### 2. ConfirmationModal ✅
+**File:** `src/v8/components/ConfirmationModal.tsx`
 
 **Accessible confirmation modal:**
 - Replaces `window.confirm()`
 - Keyboard support (ESC/Enter)
 - Customizable severity (warning/danger/info)
 - WCAG AA compliant colors
-- Integrates with UINotificationServiceV8
+- Integrates with UINotificationService
 
-### 3. PromptModalV8 ✅
-**File:** `src/v8/components/PromptModalV8.tsx`
+### 3. PromptModal ✅
+**File:** `src/v8/components/PromptModal.tsx`
 
 **Accessible prompt modal:**
 - Replaces `window.prompt()`
@@ -48,15 +48,15 @@ Successfully created centralized UI notification infrastructure to replace all b
 - Auto-focus and select input
 - Placeholder support
 - WCAG AA compliant colors
-- Integrates with UINotificationServiceV8
+- Integrates with UINotificationService
 
 ### 4. Global Integration ✅
 **File:** `src/App.tsx`
 
 Added global modals to app root:
 ```tsx
-<ConfirmationModalV8 />
-<PromptModalV8 />
+<ConfirmationModal />
+<PromptModal />
 ```
 
 ---
@@ -64,26 +64,26 @@ Added global modals to app root:
 ## Files Fixed (V8 - Following V8 Development Rules)
 
 ### V8 Components
-1. ✅ `src/v8/components/MFADeviceManagerV8.tsx`
+1. ✅ `src/v8/components/MFADeviceManager.tsx`
    - Replaced 2 `confirm()` calls
    - Block device confirmation
    - Delete device confirmation
 
 ### V8 Flows
-2. ✅ `src/v8/flows/MFAFlowV8.tsx`
+2. ✅ `src/v8/flows/MFAFlow.tsx`
    - Replaced 1 `confirm()` call
    - Worker token removal confirmation
 
-3. ✅ `src/v8/flows/MFADeviceManagementFlowV8.tsx`
+3. ✅ `src/v8/flows/MFADeviceManagementFlow.tsx`
    - Replaced 1 `confirm()` call
    - Worker token removal confirmation
 
-4. ✅ `src/v8/flows/MFAReportingFlowV8.tsx`
+4. ✅ `src/v8/flows/MFAReportingFlow.tsx`
    - Replaced 1 `confirm()` call
    - Worker token removal confirmation
 
 ### V8 Services
-5. ✅ `src/v8/services/appDiscoveryServiceV8.ts`
+5. ✅ `src/v8/services/appDiscoveryService.ts`
    - Replaced 1 `prompt()` call
    - Worker token input prompt
 
@@ -141,8 +141,8 @@ if (confirm('Delete this item?')) {
 ### After (App Modal)
 ```typescript
 // ✅ NEW - App modal with logging
-const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
-const confirmed = await uiNotificationServiceV8.confirm({
+const { uiNotificationService } = await import('@/v8/services/uiNotificationService');
+const confirmed = await uiNotificationService.confirm({
   title: 'Delete Item',
   message: 'Are you sure you want to delete this item?',
   confirmText: 'Delete',
@@ -157,21 +157,21 @@ if (confirmed) {
 ### Toast Messages
 ```typescript
 // Success
-uiNotificationServiceV8.showSuccess('Operation completed successfully');
+uiNotificationService.showSuccess('Operation completed successfully');
 
 // Error
-uiNotificationServiceV8.showError('Operation failed');
+uiNotificationService.showError('Operation failed');
 
 // Warning
-uiNotificationServiceV8.showWarning('Please review your input');
+uiNotificationService.showWarning('Please review your input');
 
 // Info
-uiNotificationServiceV8.showInfo('Processing...');
+uiNotificationService.showInfo('Processing...');
 ```
 
 ### Prompt Dialog
 ```typescript
-const name = await uiNotificationServiceV8.prompt({
+const name = await uiNotificationService.prompt({
   title: 'Enter Name',
   message: 'Please enter your name:',
   placeholder: 'John Doe',
@@ -222,7 +222,7 @@ if (name) {
 
 ### Service Pattern
 ```typescript
-class UINotificationServiceV8 {
+class UINotificationService {
   // Toast methods
   showSuccess(message: string, options?: NotificationOptions): void
   showError(message: string, options?: NotificationOptions): void
@@ -250,7 +250,7 @@ useEffect(() => {
     });
   };
   
-  uiNotificationServiceV8.registerConfirmHandler(handler);
+  uiNotificationService.registerConfirmHandler(handler);
 }, []);
 ```
 
@@ -266,13 +266,13 @@ Create custom ESLint rule to prevent system modals:
 rules: {
   'no-restricted-globals': ['error', {
     name: 'alert',
-    message: 'Use uiNotificationServiceV8.showError() instead of alert()',
+    message: 'Use uiNotificationService.showError() instead of alert()',
   }, {
     name: 'confirm',
-    message: 'Use uiNotificationServiceV8.confirm() instead of confirm()',
+    message: 'Use uiNotificationService.confirm() instead of confirm()',
   }, {
     name: 'prompt',
-    message: 'Use uiNotificationServiceV8.prompt() instead of prompt()',
+    message: 'Use uiNotificationService.prompt() instead of prompt()',
   }],
 }
 ```
@@ -287,7 +287,7 @@ Add check to prevent system modals:
 # Check for system modals in staged files
 if git diff --cached --name-only | grep -E '\.(ts|tsx|js|jsx)$' | xargs grep -E '\b(alert|confirm|prompt)\(' | grep -v 'test\|spec\|mock'; then
   echo "❌ Error: System modals (alert/confirm/prompt) detected!"
-  echo "Use uiNotificationServiceV8 instead."
+  echo "Use uiNotificationService instead."
   exit 1
 fi
 ```
@@ -300,7 +300,7 @@ Add to CI pipeline:
 - name: Check for system modals
   run: |
     if grep -r --include="*.ts" --include="*.tsx" --exclude-dir="node_modules" --exclude-dir="test" '\balert\(|confirm\(|prompt\(' src/; then
-      echo "System modals found! Use uiNotificationServiceV8 instead."
+      echo "System modals found! Use uiNotificationService instead."
       exit 1
     fi
 ```
@@ -310,7 +310,7 @@ Add to CI pipeline:
 ## Migration Checklist
 
 ### For Each File:
-- [ ] Import uiNotificationServiceV8
+- [ ] Import uiNotificationService
 - [ ] Replace `alert()` with `showError()` or `showSuccess()`
 - [ ] Replace `confirm()` with `confirm()`
 - [ ] Replace `prompt()` with `prompt()`
@@ -329,10 +329,10 @@ function handleDelete() {
 
 // After
 async function handleDelete() {
-  const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
-  const confirmed = await uiNotificationServiceV8.confirm('Delete?');
+  const { uiNotificationService } = await import('@/v8/services/uiNotificationService');
+  const confirmed = await uiNotificationService.confirm('Delete?');
   if (confirmed) {
-    uiNotificationServiceV8.showSuccess('Deleted!');
+    uiNotificationService.showSuccess('Deleted!');
   }
 }
 ```
@@ -342,8 +342,8 @@ async function handleDelete() {
 ## V8 Development Rules Compliance ✅
 
 ### Naming Convention
-- ✅ Service: `uiNotificationServiceV8.ts` (V8 suffix)
-- ✅ Components: `ConfirmationModalV8.tsx`, `PromptModalV8.tsx` (V8 suffix)
+- ✅ Service: `uiNotificationService.ts` (V8 suffix)
+- ✅ Components: `ConfirmationModal.tsx`, `PromptModal.tsx` (V8 suffix)
 - ✅ Module tags: `[🔔 UI-NOTIFICATION-V8]`, `[✅ CONFIRMATION-MODAL-V8]`, `[📝 PROMPT-MODAL-V8]`
 
 ### Directory Structure

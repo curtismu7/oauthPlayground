@@ -38,13 +38,13 @@ Phase 0 pre-implementation work is **100% complete**. All blocking issues have b
 
 ### 2. Feature Flag System (CORE MIGRATION TOOL)
 
-- ✅ **Implementation:** [src/v8/services/mfaFeatureFlagsV8.ts](./src/v8/services/mfaFeatureFlagsV8.ts)
+- ✅ **Implementation:** [src/v8/services/mfaFeatureFlags.ts](./src/v8/services/mfaFeatureFlags.ts)
   - Percentage-based rollout (0%, 10%, 50%, 100%)
   - Deterministic user bucketing (consistent experience)
   - localStorage persistence (survives page reloads)
   - Instant rollback capability (set to 0%)
 
-- ✅ **Test coverage:** [src/v8/services/__tests__/mfaFeatureFlagsV8.test.ts](./src/v8/services/__tests__/mfaFeatureFlagsV8.test.ts)
+- ✅ **Test coverage:** [src/v8/services/__tests__/mfaFeatureFlags.test.ts](./src/v8/services/__tests__/mfaFeatureFlags.test.ts)
   - 9 comprehensive test cases
   - Tests isEnabled, setFlag, persistence, bucketing
   - 100% passing
@@ -112,15 +112,15 @@ window.mfaFlags.setFlag('mfa_unified_sms', false, 0);
 
 ### 5. Test Scaffolding (WEEK 1-2 READY)
 
-- ✅ **Feature flag tests:** [src/v8/services/__tests__/mfaFeatureFlagsV8.test.ts](./src/v8/services/__tests__/mfaFeatureFlagsV8.test.ts)
+- ✅ **Feature flag tests:** [src/v8/services/__tests__/mfaFeatureFlags.test.ts](./src/v8/services/__tests__/mfaFeatureFlags.test.ts)
   - Complete test suite (9 tests)
   - All passing ✅
 
-- ✅ **Token manager test stub:** [src/v8/services/__tests__/mfaTokenManagerV8.test.ts](./src/v8/services/__tests__/mfaTokenManagerV8.test.ts)
+- ✅ **Token manager test stub:** [src/v8/services/__tests__/mfaTokenManager.test.ts](./src/v8/services/__tests__/mfaTokenManager.test.ts)
   - Test structure defined
   - TODO markers for Week 1 implementation
 
-- ✅ **Credential manager test stub:** [src/v8/services/__tests__/mfaCredentialManagerV8.test.ts](./src/v8/services/__tests__/mfaCredentialManagerV8.test.ts)
+- ✅ **Credential manager test stub:** [src/v8/services/__tests__/mfaCredentialManager.test.ts](./src/v8/services/__tests__/mfaCredentialManager.test.ts)
   - Test structure defined
   - TODO markers for Week 2 implementation
 
@@ -153,13 +153,13 @@ window.mfaFlags.setFlag('mfa_unified_sms', false, 0);
 5. [PHASE-0-COMPLETE.md](./PHASE-0-COMPLETE.md) - This report
 
 ### Implementation (4 files)
-1. [src/v8/services/mfaFeatureFlagsV8.ts](./src/v8/services/mfaFeatureFlagsV8.ts) - Feature flag service
+1. [src/v8/services/mfaFeatureFlags.ts](./src/v8/services/mfaFeatureFlags.ts) - Feature flag service
 2. [src/v8/config/deviceFlowConfigTypes.ts](./src/v8/config/deviceFlowConfigTypes.ts) - Type definitions
 
 ### Tests (3 files)
-1. [src/v8/services/__tests__/mfaFeatureFlagsV8.test.ts](./src/v8/services/__tests__/mfaFeatureFlagsV8.test.ts) - Feature flag tests ✅
-2. [src/v8/services/__tests__/mfaTokenManagerV8.test.ts](./src/v8/services/__tests__/mfaTokenManagerV8.test.ts) - Token manager stubs
-3. [src/v8/services/__tests__/mfaCredentialManagerV8.test.ts](./src/v8/services/__tests__/mfaCredentialManagerV8.test.ts) - Credential manager stubs
+1. [src/v8/services/__tests__/mfaFeatureFlags.test.ts](./src/v8/services/__tests__/mfaFeatureFlags.test.ts) - Feature flag tests ✅
+2. [src/v8/services/__tests__/mfaTokenManager.test.ts](./src/v8/services/__tests__/mfaTokenManager.test.ts) - Token manager stubs
+3. [src/v8/services/__tests__/mfaCredentialManager.test.ts](./src/v8/services/__tests__/mfaCredentialManager.test.ts) - Credential manager stubs
 
 **Total:** 10 files created
 
@@ -180,17 +180,17 @@ All prerequisites met:
 
 ### Week 1 Task
 
-**Create MFATokenManagerV8 service**
+**Create MFATokenManager service**
 
-File to create: `src/v8/services/mfaTokenManagerV8.ts`
+File to create: `src/v8/services/mfaTokenManager.ts`
 
 Implementation guide:
 1. Follow interface defined in [reduce-mfa-IMPLEMENTATION-DETAILS.md](./reduce-mfa-IMPLEMENTATION-DETAILS.md#14-new-service-interfaces)
-2. Wrap existing `WorkerTokenStatusServiceV8`
+2. Wrap existing `WorkerTokenStatusService`
 3. Implement singleton pattern with `getInstance()` and `resetInstance()`
 4. Add subscription management (pub/sub)
 5. Add auto-refresh with 30-second interval
-6. Write tests in `src/v8/services/__tests__/mfaTokenManagerV8.test.ts`
+6. Write tests in `src/v8/services/__tests__/mfaTokenManager.test.ts`
 
 **Estimated effort:** 4-6 hours
 **Test target:** 90%+ coverage
@@ -238,7 +238,7 @@ Week 9:  ░░░░░░░░░░░░░░░░░░░░   0%
 ```
 
 **Current status:** Phase 0 complete, ready for Week 1
-**Next milestone:** Week 1 - MFATokenManagerV8 service
+**Next milestone:** Week 1 - MFATokenManager service
 **Estimated completion:** 9 weeks from start of Week 1
 
 ---
@@ -270,16 +270,16 @@ Week 9:  ░░░░░░░░░░░░░░░░░░░░   0%
 
 ### Week 1 (Token Manager)
 
-1. Implement `MFATokenManagerV8` service
+1. Implement `MFATokenManager` service
 2. Complete test suite for token manager
-3. Verify integration with existing `WorkerTokenStatusServiceV8`
+3. Verify integration with existing `WorkerTokenStatusService`
 4. Code review and merge
 
 ### Week 2 (Credential Manager)
 
-1. Implement `MFACredentialManagerV8` service
+1. Implement `MFACredentialManager` service
 2. Complete test suite for credential manager
-3. Verify integration with existing `CredentialsServiceV8`
+3. Verify integration with existing `CredentialsService`
 4. Code review and merge
 
 ---
@@ -291,7 +291,7 @@ Week 9:  ░░░░░░░░░░░░░░░░░░░░   0%
 1. [reduce-mfa.md](./reduce-mfa.md) - Overall plan and architecture
 2. [reduce-mfa-IMPLEMENTATION-DETAILS.md](./reduce-mfa-IMPLEMENTATION-DETAILS.md) - Concrete implementation details
 3. [mfa-consolidation-test-matrix.md](./mfa-consolidation-test-matrix.md) - Test strategy
-4. [src/v8/services/mfaFeatureFlagsV8.ts](./src/v8/services/mfaFeatureFlagsV8.ts) - Feature flag implementation (working example)
+4. [src/v8/services/mfaFeatureFlags.ts](./src/v8/services/mfaFeatureFlags.ts) - Feature flag implementation (working example)
 
 ---
 
@@ -308,7 +308,7 @@ All pre-implementation work is done. The project has:
 
 **The MFA consolidation project is ready to begin Week 1.**
 
-**Next step:** Implement `MFATokenManagerV8` service
+**Next step:** Implement `MFATokenManager` service
 
 ---
 

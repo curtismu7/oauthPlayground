@@ -6,7 +6,7 @@ Converted V7 worker token management system to V8 with new UI styling and improv
 
 ## Components Created
 
-### 1. WorkerTokenModalV8.tsx
+### 1. WorkerTokenModal.tsx
 **Purpose:** Main modal for managing worker token credentials
 
 **Features:**
@@ -25,7 +25,7 @@ Converted V7 worker token management system to V8 with new UI styling and improv
 - Clean form layout
 - Proper spacing and typography
 
-### 2. WorkerTokenRequestModalV8.tsx
+### 2. WorkerTokenRequestModal.tsx
 **Purpose:** Educational modal showing API request details
 
 **Features:**
@@ -53,18 +53,18 @@ Converted V7 worker token management system to V8 with new UI styling and improv
 ## Integration
 
 ### App Picker Integration
-The "Add Token" / "Manage Token" button in AppPickerV8 now:
+The "Add Token" / "Manage Token" button in AppPicker now:
 1. Checks for existing token
-2. If no token: Opens WorkerTokenModalV8
+2. If no token: Opens WorkerTokenModal
 3. If token exists: Prompts to remove it
 4. On token generation: Updates button state automatically
 
 ### Flow
 1. User clicks "🔑 Add Token" button
-2. WorkerTokenModalV8 opens
+2. WorkerTokenModal opens
 3. User fills in credentials
 4. User clicks "Generate Token"
-5. WorkerTokenRequestModalV8 opens (educational)
+5. WorkerTokenRequestModal opens (educational)
 6. Shows API request details with color-coded URL
 7. User reviews and clicks "Execute Request"
 8. Token generated and stored
@@ -98,12 +98,12 @@ The "Add Token" / "Manage Token" button in AppPickerV8 now:
 ## Usage Example
 
 ```typescript
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenModal } from '@/v8/components/WorkerTokenModal';
 
 // In your component
 const [showModal, setShowModal] = useState(false);
 
-<WorkerTokenModalV8
+<WorkerTokenModal
   isOpen={showModal}
   onClose={() => setShowModal(false)}
   onTokenGenerated={(token) => {
@@ -144,7 +144,7 @@ client_secret={clientSecret}
 - `worker_token_expires_at` - Expiry timestamp
 
 ### Service Integration
-Uses `AppDiscoveryServiceV8` for:
+Uses `AppDiscoveryService` for:
 - `storeWorkerToken(token)` - Store token
 - `getStoredWorkerToken()` - Retrieve token
 - `clearWorkerToken()` - Remove token
@@ -179,7 +179,7 @@ Uses `AppDiscoveryServiceV8` for:
 
 **Version 8.1.0 Feature**
 
-When both "Silent API Token Retrieval" and "Show Token After Generation" settings are enabled, the `WorkerTokenModalV8` can display in **token-only mode**.
+When both "Silent API Token Retrieval" and "Show Token After Generation" settings are enabled, the `WorkerTokenModal` can display in **token-only mode**.
 
 ### When Token-Only Mode Activates
 
@@ -206,7 +206,7 @@ Token-only mode is activated when:
 ### Implementation
 
 ```typescript
-<WorkerTokenModalV8
+<WorkerTokenModal
   isOpen={showModal}
   onClose={() => setShowModal(false)}
   showTokenOnly={true}  // Enables token-only mode

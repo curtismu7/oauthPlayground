@@ -6,7 +6,7 @@ The MFA flow uses a **hybrid Router + Factory + Controller** pattern:
 
 ```
 ┌─────────────────┐
-│   Router        │  MFAFlowV8.tsx - Routes to device type
+│   Router        │  MFAFlow.tsx - Routes to device type
 │  (UI Routing)   │
 └────────┬────────┘
          │
@@ -24,14 +24,14 @@ The MFA flow uses a **hybrid Router + Factory + Controller** pattern:
          │
          ▼
 ┌─────────────────┐
-│   Service       │  MFAServiceV8 - API calls
+│   Service       │  MFAService - API calls
 │  (Data)         │
 └─────────────────┘
 ```
 
 ## Components
 
-### 1. Router (`MFAFlowV8.tsx`)
+### 1. Router (`MFAFlow.tsx`)
 - **Purpose**: UI-level routing to device-specific components
 - **Responsibility**: Determine which device flow to show
 - **Pattern**: Simple switch/router component
@@ -134,8 +134,8 @@ case 'TOTP':
 
 3. **Create Component:**
 ```typescript
-// TOTPFlowV8.tsx
-export const TOTPFlowV8: React.FC = () => {
+// TOTPFlow.tsx
+export const TOTPFlow: React.FC = () => {
   const controller = useMemo(() => 
     MFAFlowControllerFactory.create({ deviceType: 'TOTP' }), []
   );
@@ -146,7 +146,7 @@ export const TOTPFlowV8: React.FC = () => {
 4. **Register in Component Factory:**
 ```typescript
 // MFAFlowComponentFactory.ts
-MFAFlowComponentFactory.register('TOTP', TOTPFlowV8);
+MFAFlowComponentFactory.register('TOTP', TOTPFlow);
 ```
 
 5. **Router automatically picks it up** (no changes needed!)

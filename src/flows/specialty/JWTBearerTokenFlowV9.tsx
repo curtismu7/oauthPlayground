@@ -12,7 +12,7 @@ import { FlowRestartButton } from '../../platform/FlowRestartButton';
 import { ModernMessagingService } from '../../platform/ModernMessagingService';
 import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 import { MockBanner } from '../mock-ui/MockBanner';
-import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
+import type { DiscoveredApp } from '../../mfa/components/AppPicker';
 import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
 
 // Built-in copy function to replace CopyButtonService

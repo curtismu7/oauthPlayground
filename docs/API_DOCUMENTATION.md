@@ -82,9 +82,9 @@ interface TokenExchangeRequest {
 
 #### Credential Validation
 ```typescript
-import { ValidationServiceV8 } from './src/v8/services/validationServiceV8';
+import { ValidationService } from './src/v8/services/validationService';
 
-const result = ValidationServiceV8.validateCredentials(credentials, 'oidc');
+const result = ValidationService.validateCredentials(credentials, 'oidc');
 if (!result.valid) {
   console.error('Validation errors:', result.errors);
   console.warn('Validation warnings:', result.warnings);
@@ -93,7 +93,7 @@ if (!result.valid) {
 
 #### UUID Validation
 ```typescript
-const uuidResult = ValidationServiceV8.validateUUID(environmentId, 'Environment ID');
+const uuidResult = ValidationService.validateUUID(environmentId, 'Environment ID');
 if (!uuidResult.valid) {
   console.error('Invalid UUID format:', uuidResult.errors);
 }
@@ -101,7 +101,7 @@ if (!uuidResult.valid) {
 
 #### URL Validation
 ```typescript
-const urlResult = ValidationServiceV8.validateUrl(redirectUri, 'redirect');
+const urlResult = ValidationService.validateUrl(redirectUri, 'redirect');
 if (!urlResult.valid) {
   console.error('Invalid redirect URI:', urlResult.errors);
 }
@@ -181,10 +181,10 @@ The playground includes comprehensive mock services for testing:
 
 ```typescript
 // Mock token service
-import { tokenServiceV8 } from './src/v8/services/tokenServiceV8';
+import { tokenService } from './src/v8/services/tokenService';
 
 // Mock validation service
-import { ValidationServiceV8 } from './src/v8/services/validationServiceV8';
+import { ValidationService } from './src/v8/services/validationService';
 
 // Mock API responses
 const mockTokenResponse = {

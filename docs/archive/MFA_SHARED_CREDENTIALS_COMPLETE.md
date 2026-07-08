@@ -9,7 +9,7 @@
 
 Implemented **shared credentials** across all MFA flows so users don't have to re-enter:
 - **Environment ID** - Shared globally across all flows
-- **Worker Token** - Already using global `workerTokenServiceV8` singleton
+- **Worker Token** - Already using global `workerTokenService` singleton
 
 ---
 
@@ -17,14 +17,14 @@ Implemented **shared credentials** across all MFA flows so users don't have to r
 
 ### 1. Global Environment ID Sharing
 
-All MFA flows now use `EnvironmentIdServiceV8` to:
+All MFA flows now use `EnvironmentIdService` to:
 - **Load** environment ID from global storage on initialization
 - **Save** environment ID to global storage when changed
 - **Fallback** to flow-specific storage if global not available
 
 ### 2. Global Worker Token (Already Implemented)
 
-Worker token was already using `workerTokenServiceV8` singleton:
+Worker token was already using `workerTokenService` singleton:
 - ✅ Single token shared across all flows
 - ✅ Automatic expiry checking
 - ✅ Memory cache + IndexedDB backup
@@ -34,9 +34,9 @@ Worker token was already using `workerTokenServiceV8` singleton:
 
 ## 📋 Updated Files
 
-### MFAFlowV8.tsx
+### MFAFlow.tsx
 **Changes:**
-- ✅ Added `EnvironmentIdServiceV8` import
+- ✅ Added `EnvironmentIdService` import
 - ✅ Load global environment ID on initialization
 - ✅ Save environment ID globally when credentials change
 - ✅ Logging for debugging credential flow
@@ -44,29 +44,29 @@ Worker token was already using `workerTokenServiceV8` singleton:
 **Code:**
 ```typescript
 // Load global environment ID
-const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+const globalEnvId = EnvironmentIdService.getEnvironmentId();
 const environmentId = stored.environmentId || globalEnvId || '';
 
 // Save globally when changed
 if (credentials.environmentId) {
-  EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
+  EnvironmentIdService.saveEnvironmentId(credentials.environmentId);
 }
 ```
 
 ---
 
-### MFADeviceManagementFlowV8.tsx
+### MFADeviceManagementFlow.tsx
 **Changes:**
-- ✅ Added `EnvironmentIdServiceV8` import
+- ✅ Added `EnvironmentIdService` import
 - ✅ Load global environment ID on initialization
 - ✅ Save environment ID globally when credentials change
 - ✅ Logging for debugging
 
 ---
 
-### MFAReportingFlowV8.tsx
+### MFAReportingFlow.tsx
 **Changes:**
-- ✅ Added `EnvironmentIdServiceV8` import
+- ✅ Added `EnvironmentIdService` import
 - ✅ Load global environment ID on initialization
 - ✅ Save environment ID globally when credentials change
 - ✅ Logging for debugging
@@ -82,7 +82,7 @@ if (credentials.environmentId) {
    - Saved to global storage: `v8:global_environment_id`
 
 2. **User generates Worker Token**
-   - Saved globally via `workerTokenServiceV8`
+   - Saved globally via `workerTokenService`
    - Stored in memory cache + IndexedDB
    - Includes expiry timestamp
 
@@ -262,10 +262,10 @@ All flows now log credential loading for debugging:
 
 ## 🔗 Related Services
 
-- `EnvironmentIdServiceV8` - Global environment ID storage
-- `workerTokenServiceV8` - Global worker token management
-- `CredentialsServiceV8` - Flow-specific credential storage
-- `WorkerTokenStatusServiceV8` - Token expiry checking
+- `EnvironmentIdService` - Global environment ID storage
+- `workerTokenService` - Global worker token management
+- `CredentialsService` - Flow-specific credential storage
+- `WorkerTokenStatusService` - Token expiry checking
 
 ---
 
@@ -282,9 +282,9 @@ All flows now log credential loading for debugging:
 ## ✅ Verification
 
 **All diagnostics clean:**
-- ✅ MFAFlowV8.tsx - No errors
-- ✅ MFADeviceManagementFlowV8.tsx - Minor linting only
-- ✅ MFAReportingFlowV8.tsx - Minor linting only
+- ✅ MFAFlow.tsx - No errors
+- ✅ MFADeviceManagementFlow.tsx - Minor linting only
+- ✅ MFAReportingFlow.tsx - Minor linting only
 
 **All functionality working:**
 - ✅ Environment ID shared across flows

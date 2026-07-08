@@ -16,9 +16,9 @@
 
 - ✅ **UnifiedFlowIntegrationV8U Service**
   - Facade to V8 services (real PingOne APIs)
-  - Delegates to `SpecVersionServiceV8`
-  - Delegates to `UnifiedFlowOptionsServiceV8`
-  - Delegates to `OAuthIntegrationServiceV8` / `ImplicitFlowIntegrationServiceV8`
+  - Delegates to `SpecVersionService`
+  - Delegates to `UnifiedFlowOptionsService`
+  - Delegates to `OAuthIntegrationService` / `ImplicitFlowIntegrationService`
   - **Location:** `src/v8u/services/unifiedFlowIntegrationV8U.ts`
 
 ### Phase 2: Smart Filtering UI
@@ -98,13 +98,13 @@ V8U **reuses** V8 services because they use **real PingOne APIs**:
 ```
 UnifiedOAuthFlowV8U
   ├── UnifiedFlowIntegrationV8U (Facade)
-  │   ├── SpecVersionServiceV8 (V8) ✅
-  │   ├── UnifiedFlowOptionsServiceV8 (V8) ✅
-  │   ├── OAuthIntegrationServiceV8 (V8) ✅
-  │   └── ImplicitFlowIntegrationServiceV8 (V8) ✅
+  │   ├── SpecVersionService (V8) ✅
+  │   ├── UnifiedFlowOptionsService (V8) ✅
+  │   ├── OAuthIntegrationService (V8) ✅
+  │   └── ImplicitFlowIntegrationService (V8) ✅
   ├── SpecVersionSelector (V8U) ✅
   ├── FlowTypeSelector (V8U) ✅
-  └── CredentialsFormV8 (V8) ✅
+  └── CredentialsForm (V8) ✅
 ```
 
 ### File Structure
@@ -130,7 +130,7 @@ src/v8u/
 2. **Flow Type Selection** - Dropdown that filters based on spec version
 3. **Dynamic Field Visibility** - Fields show/hide based on spec + flow
 4. **Compliance Warnings** - Warnings shown for deprecated flows
-5. **Credentials Form** - Uses V8 `CredentialsFormV8` component
+5. **Credentials Form** - Uses V8 `CredentialsForm` component
 6. **Flow Execution** - Actual OAuth flow steps (authorization, token exchange)
 7. **Token Display** - Show tokens after exchange
 8. **UserInfo/Introspection** - Call UserInfo and introspection endpoints

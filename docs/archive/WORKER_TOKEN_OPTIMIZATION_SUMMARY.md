@@ -144,7 +144,7 @@ interface StorageMetrics {
 
 ### **Services Updated**
 - ✅ **TokenMonitoringService** → uses `unifiedWorkerTokenServiceV2`
-- ✅ **WorkerTokenModalV8** → uses `unifiedWorkerTokenServiceV2`
+- ✅ **WorkerTokenModal** → uses `unifiedWorkerTokenServiceV2`
 - ✅ **WorkerTokenManager** → uses `workerTokenRepository`
 
 ### **Storage Migration**

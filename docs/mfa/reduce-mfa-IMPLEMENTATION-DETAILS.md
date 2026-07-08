@@ -119,7 +119,7 @@ export interface TokenInfo {
   userAgent?: string | null;
 }
 
-// ✅ TokenStatusInfo from workerTokenStatusServiceV8.ts (lines 13-20)
+// ✅ TokenStatusInfo from workerTokenStatusService.ts (lines 13-20)
 export interface TokenStatusInfo {
   status: 'valid' | 'expiring-soon' | 'expired' | 'missing';
   message: string;
@@ -187,7 +187,7 @@ export interface DeviceSpecificComponentProps {
 
 ### 1.4 NEW Service Interfaces
 
-**To be created in:** `src/v8/services/mfaTokenManagerV8.ts`
+**To be created in:** `src/v8/services/mfaTokenManager.ts`
 
 ```typescript
 export type TokenUpdateCallback = (state: TokenStatusInfo) => void;
@@ -197,15 +197,15 @@ export interface MFATokenManagerConfig {
   autoRefresh: boolean; // default: true
 }
 
-export class MFATokenManagerV8 {
-  private static instance: MFATokenManagerV8;
+export class MFATokenManager {
+  private static instance: MFATokenManager;
   private tokenState: TokenStatusInfo;
   private subscribers: Set<TokenUpdateCallback>;
   private refreshTimer: NodeJS.Timeout | null;
   private config: MFATokenManagerConfig;
 
   private constructor(config?: Partial<MFATokenManagerConfig>);
-  static getInstance(): MFATokenManagerV8;
+  static getInstance(): MFATokenManager;
   static resetInstance(): void; // For testing
 
   subscribe(callback: TokenUpdateCallback): () => void;
@@ -217,15 +217,15 @@ export class MFATokenManagerV8 {
 }
 ```
 
-**To be created in:** `src/v8/services/mfaCredentialManagerV8.ts`
+**To be created in:** `src/v8/services/mfaCredentialManager.ts`
 
 ```typescript
-export class MFACredentialManagerV8 {
-  private static instance: MFACredentialManagerV8;
+export class MFACredentialManager {
+  private static instance: MFACredentialManager;
   private credentials: MFACredentials | null;
 
   private constructor();
-  static getInstance(): MFACredentialManagerV8;
+  static getInstance(): MFACredentialManager;
   static resetInstance(): void; // For testing
 
   loadCredentials(flowKey: string): MFACredentials;
@@ -247,7 +247,7 @@ export class MFACredentialManagerV8 {
 
 ### 2.2 Simple Feature Flag Implementation
 
-**Create:** `src/v8/services/mfaFeatureFlagsV8.ts`
+**Create:** `src/v8/services/mfaFeatureFlags.ts`
 
 ```typescript
 /**
@@ -280,7 +280,7 @@ const DEFAULT_FLAGS: Record<MFAFeatureFlag, FeatureFlagState> = {
   mfa_unified_fido2: { enabled: false, rolloutPercentage: 0, lastUpdated: Date.now() },
 };
 
-export class MFAFeatureFlagsV8 {
+export class MFAFeatureFlags {
   private static readonly STORAGE_KEY = 'mfa_feature_flags_v8';
 
   /**
@@ -385,7 +385,7 @@ export class MFAFeatureFlagsV8 {
 
 // Admin UI helper (add to devtools console)
 if (typeof window !== 'undefined') {
-  (window as any).mfaFlags = MFAFeatureFlagsV8;
+  (window as any).mfaFlags = MFAFeatureFlags;
 }
 ```
 
@@ -395,24 +395,24 @@ if (typeof window !== 'undefined') {
 
 ```typescript
 // BEFORE (current):
-<Route path="/v8/mfa/register/sms" element={<SMSOTPConfigurationPageV8 />} />
-<Route path="/v8/mfa/register/sms/device" element={<SMSFlowV8 />} />
+<Route path="/v8/mfa/register/sms" element={<SMSOTPConfigurationPage />} />
+<Route path="/v8/mfa/register/sms/device" element={<SMSFlow />} />
 
 // AFTER (with feature flags):
 <Route
   path="/v8/mfa/register/sms"
   element={
-    MFAFeatureFlagsV8.isEnabled('mfa_unified_sms')
-      ? <UnifiedMFARegistrationFlowV8 deviceType="SMS" />
-      : <SMSOTPConfigurationPageV8 />
+    MFAFeatureFlags.isEnabled('mfa_unified_sms')
+      ? <UnifiedMFARegistrationFlow deviceType="SMS" />
+      : <SMSOTPConfigurationPage />
   }
 />
 <Route
   path="/v8/mfa/register/sms/device"
   element={
-    MFAFeatureFlagsV8.isEnabled('mfa_unified_sms')
+    MFAFeatureFlags.isEnabled('mfa_unified_sms')
       ? <Navigate to="/v8/mfa/register/sms?tab=device" replace />
-      : <SMSFlowV8 />
+      : <SMSFlow />
   }
 />
 ```
@@ -435,9 +435,9 @@ window.mfaFlags.resetAllFlags(); // Reset all to defaults
 
 ```typescript
 // Each device type has 3 routes:
-/v8/mfa/register/sms          → SMSOTPConfigurationPageV8 (config & education)
-/v8/mfa/register/sms/device   → SMSFlowV8 (actual registration flow)
-/v8/mfa/register/sms/docs     → SMSRegistrationDocsPageV8 (API documentation)
+/v8/mfa/register/sms          → SMSOTPConfigurationPage (config & education)
+/v8/mfa/register/sms/device   → SMSFlow (actual registration flow)
+/v8/mfa/register/sms/docs     → SMSRegistrationDocsPage (API documentation)
 
 // Pattern repeats for: email, mobile, whatsapp, totp, fido2
 ```
@@ -447,7 +447,7 @@ window.mfaFlags.resetAllFlags(); // Reset all to defaults
 **Analysis:** Current flows use programmatic navigation:
 
 ```typescript
-// From SMSOTPConfigurationPageV8.tsx (line 785)
+// From SMSOTPConfigurationPage.tsx (line 785)
 navigate('/v8/mfa/register/sms/device', {
   replace: false,
   state: {
@@ -469,25 +469,25 @@ navigate('/v8/mfa/register/sms/device', {
 
 ```typescript
 // Single route per device type:
-/v8/mfa/register/sms?tab=config   → UnifiedMFARegistrationFlowV8 (config view)
-/v8/mfa/register/sms?tab=device   → UnifiedMFARegistrationFlowV8 (device registration view)
-/v8/mfa/register/sms?tab=docs     → UnifiedMFARegistrationFlowV8 (documentation view)
+/v8/mfa/register/sms?tab=config   → UnifiedMFARegistrationFlow (config view)
+/v8/mfa/register/sms?tab=device   → UnifiedMFARegistrationFlow (device registration view)
+/v8/mfa/register/sms?tab=docs     → UnifiedMFARegistrationFlow (documentation view)
 
 // Default (no tab param):
-/v8/mfa/register/sms              → UnifiedMFARegistrationFlowV8 (defaults to config view)
+/v8/mfa/register/sms              → UnifiedMFARegistrationFlow (defaults to config view)
 ```
 
-### 3.4 UnifiedMFARegistrationFlowV8 Component Structure
+### 3.4 UnifiedMFARegistrationFlow Component Structure
 
 ```typescript
-export const UnifiedMFARegistrationFlowV8: React.FC<{ deviceType: DeviceType }> = ({ deviceType }) => {
+export const UnifiedMFARegistrationFlow: React.FC<{ deviceType: DeviceType }> = ({ deviceType }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get('tab') || 'config'; // default to config
   const config = deviceFlowConfigs[deviceType];
 
   return (
     <div>
-      <MFANavigationV8 currentPage="registration" showBackToMain={true} />
+      <MFANavigation currentPage="registration" showBackToMain={true} />
 
       {/* Tab Navigation */}
       <TabBar activeTab={currentTab} onTabChange={(tab) => setSearchParams({ tab })} />
@@ -539,13 +539,13 @@ export const UnifiedMFARegistrationFlowV8: React.FC<{ deviceType: DeviceType }> 
 **Source:** Found 24 test files in `src/v8/**/__tests__/`
 
 ```bash
-src/v8/hooks/__tests__/useStepNavigationV8.test.ts
+src/v8/hooks/__tests__/useStepNavigation.test.ts
 src/v8/hooks/__tests__/useWorkerToken.test.ts
 src/v8/hooks/__tests__/useMFAAuthentication.test.ts
-src/v8/services/__tests__/flowResetServiceV8.test.ts
-src/v8/services/__tests__/errorHandlerV8.test.ts
-src/v8/services/__tests__/validationServiceV8.test.ts
-src/v8/components/__tests__/StepActionButtonsV8.test.tsx
+src/v8/services/__tests__/flowResetService.test.ts
+src/v8/services/__tests__/errorHandler.test.ts
+src/v8/services/__tests__/validationService.test.ts
+src/v8/components/__tests__/StepActionButtons.test.tsx
 # ... and 17 more
 ```
 
@@ -553,30 +553,30 @@ src/v8/components/__tests__/StepActionButtonsV8.test.tsx
 
 #### Unit Tests
 
-**Create:** `src/v8/services/__tests__/mfaTokenManagerV8.test.ts`
+**Create:** `src/v8/services/__tests__/mfaTokenManager.test.ts`
 
 ```typescript
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { MFATokenManagerV8 } from '../mfaTokenManagerV8';
+import { MFATokenManager } from '../mfaTokenManager';
 
-describe('MFATokenManagerV8', () => {
+describe('MFATokenManager', () => {
   beforeEach(() => {
-    MFATokenManagerV8.resetInstance();
+    MFATokenManager.resetInstance();
     vi.clearAllMocks();
   });
 
   afterEach(() => {
-    MFATokenManagerV8.resetInstance();
+    MFATokenManager.resetInstance();
   });
 
   it('should be a singleton', () => {
-    const instance1 = MFATokenManagerV8.getInstance();
-    const instance2 = MFATokenManagerV8.getInstance();
+    const instance1 = MFATokenManager.getInstance();
+    const instance2 = MFATokenManager.getInstance();
     expect(instance1).toBe(instance2);
   });
 
   it('should notify subscribers on token refresh', async () => {
-    const manager = MFATokenManagerV8.getInstance();
+    const manager = MFATokenManager.getInstance();
     const callback = vi.fn();
 
     manager.subscribe(callback);
@@ -589,7 +589,7 @@ describe('MFATokenManagerV8', () => {
   });
 
   it('should unsubscribe callbacks', () => {
-    const manager = MFATokenManagerV8.getInstance();
+    const manager = MFATokenManager.getInstance();
     const callback = vi.fn();
 
     const unsubscribe = manager.subscribe(callback);
@@ -601,20 +601,20 @@ describe('MFATokenManagerV8', () => {
 });
 ```
 
-**Create:** `src/v8/services/__tests__/mfaCredentialManagerV8.test.ts`
+**Create:** `src/v8/services/__tests__/mfaCredentialManager.test.ts`
 
 ```typescript
 import { describe, it, expect, beforeEach } from 'vitest';
-import { MFACredentialManagerV8 } from '../mfaCredentialManagerV8';
+import { MFACredentialManager } from '../mfaCredentialManager';
 
-describe('MFACredentialManagerV8', () => {
+describe('MFACredentialManager', () => {
   beforeEach(() => {
-    MFACredentialManagerV8.resetInstance();
+    MFACredentialManager.resetInstance();
     localStorage.clear();
   });
 
   it('should save and load credentials', () => {
-    const manager = MFACredentialManagerV8.getInstance();
+    const manager = MFACredentialManager.getInstance();
     const credentials = {
       environmentId: 'test-env',
       clientId: 'test-client',
@@ -630,7 +630,7 @@ describe('MFACredentialManagerV8', () => {
   });
 
   it('should validate credentials correctly', () => {
-    const manager = MFACredentialManagerV8.getInstance();
+    const manager = MFACredentialManager.getInstance();
 
     const result = manager.validateCredentials({
       environmentId: 'valid-env',
@@ -644,24 +644,24 @@ describe('MFACredentialManagerV8', () => {
 
 #### Integration Tests
 
-**Create:** `src/v8/components/__tests__/UnifiedMFARegistrationFlowV8.test.tsx`
+**Create:** `src/v8/components/__tests__/UnifiedMFARegistrationFlow.test.tsx`
 
 ```typescript
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { UnifiedMFARegistrationFlowV8 } from '../UnifiedMFARegistrationFlowV8';
-import { MFATokenManagerV8 } from '@/v8/services/mfaTokenManagerV8';
+import { UnifiedMFARegistrationFlow } from '../UnifiedMFARegistrationFlow';
+import { MFATokenManager } from '@/v8/services/mfaTokenManager';
 
-describe('UnifiedMFARegistrationFlowV8', () => {
+describe('UnifiedMFARegistrationFlow', () => {
   beforeEach(() => {
-    MFATokenManagerV8.resetInstance();
+    MFATokenManager.resetInstance();
   });
 
   it('should render config tab by default', () => {
     render(
       <BrowserRouter>
-        <UnifiedMFARegistrationFlowV8 deviceType="SMS" />
+        <UnifiedMFARegistrationFlow deviceType="SMS" />
       </BrowserRouter>
     );
 
@@ -672,15 +672,15 @@ describe('UnifiedMFARegistrationFlowV8', () => {
     // Mock useSearchParams to return 'device' tab
     render(
       <BrowserRouter initialEntries={['/v8/mfa/register/sms?tab=device']}>
-        <UnifiedMFARegistrationFlowV8 deviceType="SMS" />
+        <UnifiedMFARegistrationFlow deviceType="SMS" />
       </BrowserRouter>
     );
 
     expect(screen.getByText(/Device Registration/i)).toBeInTheDocument();
   });
 
-  it('should integrate with MFATokenManagerV8', async () => {
-    const manager = MFATokenManagerV8.getInstance();
+  it('should integrate with MFATokenManager', async () => {
+    const manager = MFATokenManager.getInstance();
     const mockState = {
       status: 'valid' as const,
       isValid: true,
@@ -691,7 +691,7 @@ describe('UnifiedMFARegistrationFlowV8', () => {
 
     render(
       <BrowserRouter>
-        <UnifiedMFARegistrationFlowV8 deviceType="SMS" />
+        <UnifiedMFARegistrationFlow deviceType="SMS" />
       </BrowserRouter>
     );
 
@@ -743,7 +743,7 @@ describe.each(DEVICE_TYPES)('MFA %s flow E2E tests', (deviceType) => {
 
 ## 5. API Contracts
 
-### 5.1 Existing APIs (Source: mfaServiceV8.ts)
+### 5.1 Existing APIs (Source: mfaService.ts)
 
 All MFA device registration APIs **already exist** and follow consistent patterns.
 
@@ -871,31 +871,31 @@ All of these services **already exist** and will be wrapped/used by the new unif
 
 | Service | Location | Purpose | Status |
 |---------|----------|---------|--------|
-| `CredentialsServiceV8` | `src/v8/services/credentialsServiceV8.ts` | Credential storage | ✅ Reuse as-is |
-| `EnvironmentIdServiceV8` | `src/v8/services/environmentIdServiceV8.ts` | Global environment ID | ✅ Reuse as-is |
-| `WorkerTokenStatusServiceV8` | `src/v8/services/workerTokenStatusServiceV8.ts` | Token status checking | ✅ Wrap in MFATokenManagerV8 |
-| `WorkerTokenUIServiceV8` | `src/v8/services/workerTokenUIServiceV8.tsx` | Token UI component | ✅ Reuse in unified component |
-| `SuperSimpleApiDisplayV8` | `src/v8/components/SuperSimpleApiDisplayV8.tsx` | API request display | ✅ Reuse as-is |
-| `MFAInfoButtonV8` | `src/v8/components/MFAInfoButtonV8.tsx` | Info tooltips | ✅ Reuse as-is |
+| `CredentialsService` | `src/v8/services/credentialsService.ts` | Credential storage | ✅ Reuse as-is |
+| `EnvironmentIdService` | `src/v8/services/environmentIdService.ts` | Global environment ID | ✅ Reuse as-is |
+| `WorkerTokenStatusService` | `src/v8/services/workerTokenStatusService.ts` | Token status checking | ✅ Wrap in MFATokenManager |
+| `WorkerTokenUIService` | `src/v8/services/workerTokenUIService.tsx` | Token UI component | ✅ Reuse in unified component |
+| `SuperSimpleApiDisplay` | `src/v8/components/SuperSimpleApiDisplay.tsx` | API request display | ✅ Reuse as-is |
+| `MFAInfoButton` | `src/v8/components/MFAInfoButton.tsx` | Info tooltips | ✅ Reuse as-is |
 | `UnifiedFlowErrorHandler` | `src/v8u/services/unifiedFlowErrorHandlerV8U.ts` | Error handling | ✅ Reuse as-is |
-| `MFAServiceV8` | `src/v8/services/mfaServiceV8.ts` | API calls | ✅ Reuse as-is |
-| `useStepNavigationV8` | `src/v8/hooks/useStepNavigationV8.ts` | Step navigation | ⚠️ May be replaced by tab navigation |
+| `MFAService` | `src/v8/services/mfaService.ts` | API calls | ✅ Reuse as-is |
+| `useStepNavigation` | `src/v8/hooks/useStepNavigation.ts` | Step navigation | ⚠️ May be replaced by tab navigation |
 | `buildSuccessPageData` | Found in flow files | Success page builder | ✅ Reuse as-is |
-| `MFASuccessPageV8` | `src/v8/components/MFAAuthenticationSuccessPage.tsx` | Success page | ✅ Reuse as-is |
+| `MFASuccessPage` | `src/v8/components/MFAAuthenticationSuccessPage.tsx` | Success page | ✅ Reuse as-is |
 
-### 6.2 MFATokenManagerV8 Integration
+### 6.2 MFATokenManager Integration
 
 ```typescript
-// Wraps existing WorkerTokenStatusServiceV8
-export class MFATokenManagerV8 {
+// Wraps existing WorkerTokenStatusService
+export class MFATokenManager {
   private constructor() {
-    this.tokenState = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+    this.tokenState = WorkerTokenStatusService.checkWorkerTokenStatusSync();
     this.subscribers = new Set();
   }
 
   async refreshToken(): Promise<void> {
     // Delegates to existing service
-    const newState = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+    const newState = await WorkerTokenStatusService.checkWorkerTokenStatus();
     this.tokenState = newState;
     this.notify();
   }
@@ -912,8 +912,8 @@ export class MFATokenManagerV8 {
 
 ```typescript
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { MFATokenManagerV8 } from '../services/mfaTokenManagerV8';
-import type { TokenStatusInfo } from '../services/workerTokenStatusServiceV8';
+import { MFATokenManager } from '../services/mfaTokenManager';
+import type { TokenStatusInfo } from '../services/workerTokenStatusService';
 
 interface MFATokenContextValue {
   tokenState: TokenStatusInfo;
@@ -924,7 +924,7 @@ interface MFATokenContextValue {
 const MFATokenContext = createContext<MFATokenContextValue | null>(null);
 
 export const MFATokenProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const manager = React.useMemo(() => MFATokenManagerV8.getInstance(), []);
+  const manager = React.useMemo(() => MFATokenManager.getInstance(), []);
   const [tokenState, setTokenState] = useState<TokenStatusInfo>(manager.getTokenState());
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -956,10 +956,10 @@ export const useTokenManager = () => {
 };
 ```
 
-**Usage in UnifiedMFARegistrationFlowV8:**
+**Usage in UnifiedMFARegistrationFlow:**
 
 ```typescript
-export const UnifiedMFARegistrationFlowV8: React.FC<{ deviceType: DeviceType }> = ({ deviceType }) => {
+export const UnifiedMFARegistrationFlow: React.FC<{ deviceType: DeviceType }> = ({ deviceType }) => {
   const { tokenState, refreshToken } = useTokenManager();
   const { credentials, saveCredentials } = useCredentialManager();
 
@@ -970,7 +970,7 @@ export const UnifiedMFARegistrationFlowV8: React.FC<{ deviceType: DeviceType }> 
 <MFATokenProvider>
   <MFACredentialProvider>
     <Routes>
-      <Route path="/v8/mfa/register/sms" element={<UnifiedMFARegistrationFlowV8 deviceType="SMS" />} />
+      <Route path="/v8/mfa/register/sms" element={<UnifiedMFARegistrationFlow deviceType="SMS" />} />
       {/* ... other routes */}
     </Routes>
   </MFACredentialProvider>
@@ -1000,7 +1000,7 @@ the consolidation project (reduce-mfa.md) begins.
 
 Files included:
 - 17 MFA flow files (6 config, 6 device, 5 docs pages)
-- MFA services (WorkerTokenStatusServiceV8, CredentialsServiceV8, etc.)
+- MFA services (WorkerTokenStatusService, CredentialsService, etc.)
 - MFA routing (App.tsx lines 553-624)
 
 Rollback: git checkout backup/pre-mfa-consolidation
@@ -1106,12 +1106,12 @@ window.mfaFlags.setFlag('mfa_unified_totp', false, 0);
 
 | Blocker | Status | Resolution |
 |---------|--------|------------|
-| **Data contracts undefined** | ✅ Resolved | All types exist in `MFATypes.ts`, `comprehensiveTokenUIService.ts`, `mfaServiceV8.ts` |
-| **Feature flag system missing** | ✅ Resolved | Simple localStorage-based system implemented (`mfaFeatureFlagsV8.ts`) |
+| **Data contracts undefined** | ✅ Resolved | All types exist in `MFATypes.ts`, `comprehensiveTokenUIService.ts`, `mfaService.ts` |
+| **Feature flag system missing** | ✅ Resolved | Simple localStorage-based system implemented (`mfaFeatureFlags.ts`) |
 | **Route navigation unclear** | ✅ Resolved | Tab-based navigation with query params (`?tab=config/device/docs`) |
 | **Test infrastructure unknown** | ✅ Resolved | Vitest framework exists, test strategy documented, 36+ E2E test matrix |
 | **API contracts unspecified** | ✅ Resolved | All APIs exist and follow consistent patterns, HATEOAS links used |
-| **Service integration unclear** | ✅ Resolved | All existing services reused, React Context for state, MFATokenManagerV8 wraps existing |
+| **Service integration unclear** | ✅ Resolved | All existing services reused, React Context for state, MFATokenManager wraps existing |
 | **Rollback plan missing** | ✅ Resolved | Feature flags for instant rollback, backup branch for code rollback, SLO-based triggers |
 
 ---
@@ -1120,6 +1120,6 @@ window.mfaFlags.setFlag('mfa_unified_totp', false, 0);
 
 1. **Review this document** with the team for any clarifications
 2. **Begin Phase 0 pre-work** (create backup branch, set up feature flag system)
-3. **Start Week 1: MFATokenManagerV8** implementation with full confidence
+3. **Start Week 1: MFATokenManager** implementation with full confidence
 
 All blocking questions are now answered. The plan is **ready for implementation**.

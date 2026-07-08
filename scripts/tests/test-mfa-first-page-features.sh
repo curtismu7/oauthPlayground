@@ -65,7 +65,7 @@ else
 fi
 
 # Test 8: Check worker token modal
-if grep -q "WorkerTokenModalV8" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx && grep -q "Get Worker Token" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
+if grep -q "WorkerTokenModal" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx && grep -q "Get Worker Token" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
     echo "✅ Worker token modal present"
 else
     echo "❌ Worker token modal missing"

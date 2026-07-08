@@ -366,13 +366,13 @@ This document defines the UI contract for the Postman Collection Generator page.
 
 ### Unified Credentials
 
-- Must load from `CredentialsServiceV8.loadCredentials('oauth-authz-v8u', config)`
-- Must fallback to `EnvironmentIdServiceV8.getEnvironmentId()` for environment ID
+- Must load from `CredentialsService.loadCredentials('oauth-authz-v8u', config)`
+- Must fallback to `EnvironmentIdService.getEnvironmentId()` for environment ID
 - Must include: `environmentId`, `clientId`, `clientSecret`
 
 ### MFA Credentials
 
-- Must load from `CredentialsServiceV8.loadCredentials('mfa-flow-v8', mfaConfig)`
+- Must load from `CredentialsService.loadCredentials('mfa-flow-v8', mfaConfig)`
 - Must include: `environmentId`, `username`
 - Must use proper flow config with `flowType: 'oidc'`
 

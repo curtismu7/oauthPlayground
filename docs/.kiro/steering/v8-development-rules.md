@@ -13,16 +13,16 @@ inclusion: always
 ### 1.1 All V8 Code Must Include "V8" Suffix
 
 **Files:**
-- ✅ `TokenDisplayV8.tsx`
-- ✅ `educationServiceV8.ts`
-- ✅ `modalManagerV8.ts`
+- ✅ `TokenDisplay.tsx`
+- ✅ `educationService.ts`
+- ✅ `modalManager.ts`
 - ❌ `TokenDisplay.tsx` (ambiguous)
 - ❌ `educationService.ts` (ambiguous)
 
 **Components:**
 ```typescript
 // ✅ CORRECT
-export const TokenDisplayV8: React.FC<TokenDisplayV8Props> = () => {}
+export const TokenDisplay: React.FC<TokenDisplayV8Props> = () => {}
 interface TokenDisplayV8Props {}
 
 // ❌ WRONG
@@ -32,8 +32,8 @@ export const TokenDisplay: React.FC<TokenDisplayProps> = () => {}
 **Services:**
 ```typescript
 // ✅ CORRECT
-export class EducationServiceV8 {}
-export const educationServiceV8 = new EducationServiceV8();
+export class EducationService {}
+export const educationService = new EducationService();
 
 // ❌ WRONG
 export class EducationService {}
@@ -42,7 +42,7 @@ export class EducationService {}
 **Hooks:**
 ```typescript
 // ✅ CORRECT
-export const useModalManagerV8 = () => {}
+export const useModalManager = () => {}
 
 // ❌ WRONG
 export const useModalManager = () => {}
@@ -58,33 +58,33 @@ export const useModalManager = () => {}
 src/
 ├── v8/                              # NEW: All V8 code goes here
 │   ├── components/                  # V8 components
-│   │   ├── TokenDisplayV8.tsx
-│   │   ├── ScopeManagerV8.tsx
+│   │   ├── TokenDisplay.tsx
+│   │   ├── ScopeManager.tsx
 │   │   ├── EducationTooltip.tsx
 │   │   ├── QuickStartModal.tsx
-│   │   ├── ConfigCheckerModalV8.tsx
-│   │   ├── DiscoveryModalV8.tsx
-│   │   ├── CredentialsModalV8.tsx
+│   │   ├── ConfigCheckerModal.tsx
+│   │   ├── DiscoveryModal.tsx
+│   │   ├── CredentialsModal.tsx
 │   │   └── ErrorDisplay.tsx
 │   │
 │   ├── services/                    # V8 services
-│   │   ├── educationServiceV8.ts
-│   │   ├── modalManagerV8.ts
-│   │   ├── errorHandlerV8.ts
-│   │   ├── validationServiceV8.ts
-│   │   ├── urlBuilderV8.ts
-│   │   ├── storageServiceV8.ts
-│   │   ├── apiCallDisplayV8.ts
-│   │   ├── tokenDisplayServiceV8.ts
-│   │   ├── scopeEducationServiceV8.ts
-│   │   ├── configCheckerServiceV8.ts
-│   │   └── discoveryServiceV8.ts
+│   │   ├── educationService.ts
+│   │   ├── modalManager.ts
+│   │   ├── errorHandler.ts
+│   │   ├── validationService.ts
+│   │   ├── urlBuilder.ts
+│   │   ├── storageService.ts
+│   │   ├── apiCallDisplay.ts
+│   │   ├── tokenDisplayService.ts
+│   │   ├── scopeEducationService.ts
+│   │   ├── configCheckerService.ts
+│   │   └── discoveryService.ts
 │   │
 │   ├── hooks/                       # V8 hooks
-│   │   ├── useModalManagerV8.ts
-│   │   ├── useEducationV8.ts
-│   │   ├── useValidationV8.ts
-│   │   └── useStorageV8.ts
+│   │   ├── useModalManager.ts
+│   │   ├── useEducation.ts
+│   │   ├── useValidation.ts
+│   │   └── useStorage.ts
 │   │
 │   ├── types/                       # V8 types
 │   │   ├── education.ts
@@ -98,8 +98,8 @@ src/
 │   │   └── constants.ts
 │   │
 │   └── flows/                       # V8 flows
-│       ├── OAuthAuthorizationCodeFlowV8.tsx
-│       ├── ImplicitFlowV8.tsx
+│       ├── OAuthAuthorizationCodeFlow.tsx
+│       ├── ImplicitFlow.tsx
 │       └── [future flows]
 │
 ├── pages/flows/                     # V7 and earlier flows (PRESERVE)
@@ -123,8 +123,8 @@ src/
 
 ```typescript
 // ✅ CORRECT - V8 importing V8
-import { EducationServiceV8 } from '@/v8/services/educationServiceV8';
-import { TokenDisplayV8 } from '@/v8/components/TokenDisplayV8';
+import { EducationService } from '@/v8/services/educationService';
+import { TokenDisplay } from '@/v8/components/TokenDisplay';
 
 // ❌ WRONG - V8 importing from old structure
 import { SomeService } from '@/services/someService';
@@ -145,7 +145,7 @@ import { someSharedUtil } from '@/utils/someSharedUtil';
 
 ```typescript
 // ❌ FORBIDDEN - V7 importing V8
-import { EducationServiceV8 } from '@/v8/services/educationServiceV8';
+import { EducationService } from '@/v8/services/educationService';
 
 // ✅ CORRECT - V7 stays in V7
 import { ComprehensiveCredentialsService } from '@/services/comprehensiveCredentialsService';
@@ -196,21 +196,21 @@ const MODULE_TAGS = {
 ```
 src/v8/
 ├── components/
-│   ├── TokenDisplayV8.tsx
+│   ├── TokenDisplay.tsx
 │   └── __tests__/
-│       └── TokenDisplayV8.test.tsx
+│       └── TokenDisplay.test.tsx
 │
 └── services/
-    ├── educationServiceV8.ts
+    ├── educationService.ts
     └── __tests__/
-        └── educationServiceV8.test.ts
+        └── educationService.test.ts
 ```
 
 ### 5.2 Test Naming Convention
 
 ```typescript
 // ✅ CORRECT
-describe('TokenDisplayV8', () => {
+describe('TokenDisplay', () => {
   describe('copyToken', () => {
     it('should copy token to clipboard', () => {});
   });
@@ -228,14 +228,14 @@ describe('TokenDisplay', () => {});
 
 ```typescript
 /**
- * @file TokenDisplayV8.tsx
+ * @file TokenDisplay.tsx
  * @module v8/components
  * @description Unified token display component for all V8 flows
  * @version 8.0.0
  * @since 2024-11-16
  * 
  * @example
- * <TokenDisplayV8 
+ * <TokenDisplay 
  *   tokens={tokens} 
  *   flowType="oidc" 
  *   flowKey="authz-code-v8"
@@ -252,7 +252,7 @@ describe('TokenDisplay', () => {});
  * @returns Tooltip content with title, description, and optional learn more link
  * @throws {Error} If key is not found in content registry
  * @example
- * const tooltip = EducationServiceV8.getTooltip('credential.clientId');
+ * const tooltip = EducationService.getTooltip('credential.clientId');
  */
 static getTooltip(key: string): TooltipContent {
   // implementation
@@ -273,8 +273,8 @@ export class ComprehensiveCredentialsService {
 }
 
 // ✅ CORRECT - Create new V8 service
-// File: src/v8/services/comprehensiveCredentialsServiceV8.tsx
-export class ComprehensiveCredentialsServiceV8 {
+// File: src/v8/services/comprehensiveCredentialsService.tsx
+export class ComprehensiveCredentialsService {
   // V8-specific code here
 }
 ```
@@ -286,7 +286,7 @@ export class ComprehensiveCredentialsServiceV8 {
 const useV8Components = process.env.REACT_APP_USE_V8 === 'true';
 
 if (useV8Components) {
-  return <TokenDisplayV8 {...props} />;
+  return <TokenDisplay {...props} />;
 } else {
   return <TokenDisplay {...props} />;
 }
@@ -301,7 +301,7 @@ if (!credentials.clientId) {
 }
 
 // FLOW_SAFE_CHANGE: Do not modify without updating tests
-const authUrl = UrlBuilderV8.buildAuthorizationUrl(params);
+const authUrl = UrlBuilder.buildAuthorizationUrl(params);
 ```
 
 ---
@@ -316,7 +316,7 @@ const authUrl = UrlBuilderV8.buildAuthorizationUrl(params);
 // Adding V8 features here
 
 // ✅ CORRECT - New V8 flow file
-// File: src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx
+// File: src/v8/flows/OAuthAuthorizationCodeFlow.tsx
 // All V8 features here
 ```
 
@@ -325,10 +325,10 @@ const authUrl = UrlBuilderV8.buildAuthorizationUrl(params);
 ```typescript
 // ✅ CORRECT - Both routes exist
 <Route path="/flows/oauth-authz-v7" element={<OAuthAuthorizationCodeFlowV7 />} />
-<Route path="/flows/oauth-authz-v8" element={<OAuthAuthorizationCodeFlowV8 />} />
+<Route path="/flows/oauth-authz-v8" element={<OAuthAuthorizationCodeFlow />} />
 
 // ❌ WRONG - Replacing V7 route
-<Route path="/flows/oauth-authz" element={<OAuthAuthorizationCodeFlowV8 />} />
+<Route path="/flows/oauth-authz" element={<OAuthAuthorizationCodeFlow />} />
 ```
 
 ---
@@ -339,10 +339,10 @@ const authUrl = UrlBuilderV8.buildAuthorizationUrl(params);
 
 ```typescript
 // ✅ CORRECT
-const TokenDisplayV8 = lazy(() => import('@/v8/components/TokenDisplayV8'));
+const TokenDisplay = lazy(() => import('@/v8/components/TokenDisplay'));
 
 // ⚠️ CAUTION - Eager loading increases bundle size
-import { TokenDisplayV8 } from '@/v8/components/TokenDisplayV8';
+import { TokenDisplay } from '@/v8/components/TokenDisplay';
 ```
 
 ### 9.2 Memoize Expensive Operations
@@ -350,7 +350,7 @@ import { TokenDisplayV8 } from '@/v8/components/TokenDisplayV8';
 ```typescript
 // ✅ CORRECT
 const validationResult = useMemo(
-  () => ValidationServiceV8.validateCredentials(credentials, flowType),
+  () => ValidationService.validateCredentials(credentials, flowType),
   [credentials, flowType]
 );
 ```
@@ -423,32 +423,32 @@ npm run test:coverage -- --threshold=80
 
 ```bash
 # 1. Create file in V8 directory
-touch src/v8/components/MyComponentV8.tsx
+touch src/v8/components/MyComponent.tsx
 
 # 2. Create test file
-touch src/v8/components/__tests__/MyComponentV8.test.tsx
+touch src/v8/components/__tests__/MyComponent.test.tsx
 
 # 3. Use V8 naming
-export const MyComponentV8: React.FC<MyComponentV8Props> = () => {}
+export const MyComponent: React.FC<MyComponentV8Props> = () => {}
 
 # 4. Add module tag logging
 console.log('[🎯 MY-COMPONENT-V8] Action performed', { data });
 
 # 5. Document
-/** @file MyComponentV8.tsx ... */
+/** @file MyComponent.tsx ... */
 ```
 
 ### Creating a New V8 Service
 
 ```bash
 # 1. Create file in V8 directory
-touch src/v8/services/myServiceV8.ts
+touch src/v8/services/myService.ts
 
 # 2. Create test file
-touch src/v8/services/__tests__/myServiceV8.test.ts
+touch src/v8/services/__tests__/myService.test.ts
 
 # 3. Use V8 naming
-export class MyServiceV8 {}
+export class MyService {}
 
 # 4. Add module tag
 const MODULE_TAG = '[🎯 MY-SERVICE-V8]';
@@ -471,14 +471,14 @@ export const TokenDisplay = () => {}
 
 ❌ **Wrong directory**
 ```typescript
-// WRONG: src/components/TokenDisplayV8.tsx
-// RIGHT: src/v8/components/TokenDisplayV8.tsx
+// WRONG: src/components/TokenDisplay.tsx
+// RIGHT: src/v8/components/TokenDisplay.tsx
 ```
 
 ❌ **Modifying V7 code**
 ```typescript
 // WRONG: Editing src/services/comprehensiveCredentialsService.tsx
-// RIGHT: Create src/v8/services/comprehensiveCredentialsServiceV8.tsx
+// RIGHT: Create src/v8/services/comprehensiveCredentialsService.tsx
 ```
 
 ❌ **Missing module tag**
@@ -493,7 +493,7 @@ console.log('[🎯 MODULE-V8] Action performed', { data });
 ❌ **No tests**
 ```typescript
 // WRONG: Component without tests
-// RIGHT: Component with __tests__/ComponentV8.test.tsx
+// RIGHT: Component with __tests__/Component.test.tsx
 ```
 
 ---

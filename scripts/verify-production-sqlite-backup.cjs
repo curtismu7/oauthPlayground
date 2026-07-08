@@ -26,15 +26,15 @@ const PRODUCTION_APPS = {
 	},
 	'delete-devices': {
 		name: 'Delete All Devices',
-		path: 'src/v8/pages/DeleteAllDevicesUtilityV8.tsx',
+		path: 'src/v8/pages/DeleteAllDevicesUtility.tsx',
 		type: 'worker-token',
-		expectedService: 'UnifiedWorkerTokenBackupServiceV8'
+		expectedService: 'UnifiedWorkerTokenBackupService'
 	},
 	'token-monitoring': {
 		name: 'Token Monitoring Dashboard',
 		path: 'src/v8u/pages/TokenMonitoringPage.tsx',
 		type: 'worker-token',
-		expectedService: 'UnifiedWorkerTokenBackupServiceV8'
+		expectedService: 'UnifiedWorkerTokenBackupService'
 	},
 	'enhanced-state': {
 		name: 'Enhanced State Management',

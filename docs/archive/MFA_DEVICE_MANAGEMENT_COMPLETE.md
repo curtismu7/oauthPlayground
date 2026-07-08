@@ -35,7 +35,7 @@ Built a comprehensive MFA device management system that allows users to view, re
 - Requires confirmation with warning
 - Cannot be undone
 
-### 2. New API Methods Added to MFAServiceV8
+### 2. New API Methods Added to MFAService
 
 ```typescript
 // Get all devices for a user
@@ -56,8 +56,8 @@ static async unblockDevice(params: SendOTPParams): Promise<void>
 
 ### 3. Components Created
 
-#### MFADeviceManagerV8
-**Location:** `src/v8/components/MFADeviceManagerV8.tsx`
+#### MFADeviceManager
+**Location:** `src/v8/components/MFADeviceManager.tsx`
 
 **Props:**
 - `environmentId: string` - PingOne environment ID
@@ -73,8 +73,8 @@ static async unblockDevice(params: SendOTPParams): Promise<void>
 - Confirmation dialogs for destructive actions
 - Toast notifications for all operations
 
-#### MFADeviceManagementFlowV8
-**Location:** `src/v8/flows/MFADeviceManagementFlowV8.tsx`
+#### MFADeviceManagementFlow
+**Location:** `src/v8/flows/MFADeviceManagementFlow.tsx`
 
 **Features:**
 - Setup screen for credentials
@@ -227,12 +227,12 @@ Authorization: Bearer {token}
 ## Files Created/Modified
 
 ### New Files
-- `src/v8/components/MFADeviceManagerV8.tsx` - Device management component
-- `src/v8/flows/MFADeviceManagementFlowV8.tsx` - Device management flow
+- `src/v8/components/MFADeviceManager.tsx` - Device management component
+- `src/v8/flows/MFADeviceManagementFlow.tsx` - Device management flow
 - `MFA_DEVICE_MANAGEMENT_COMPLETE.md` - This documentation
 
 ### Modified Files
-- `src/v8/services/mfaServiceV8.ts` - Added device management methods
+- `src/v8/services/mfaService.ts` - Added device management methods
 
 ## Testing Checklist
 
@@ -270,6 +270,6 @@ https://apidocs.pingidentity.com/pingone/mfa/v1/api/
 **Version:** 8.0.0
 **Date:** 2024-11-19
 **Status:** Complete ✅
-**Component:** MFADeviceManagerV8, MFADeviceManagementFlowV8
-**Service:** MFAServiceV8 (enhanced)
+**Component:** MFADeviceManager, MFADeviceManagementFlow
+**Service:** MFAService (enhanced)
  

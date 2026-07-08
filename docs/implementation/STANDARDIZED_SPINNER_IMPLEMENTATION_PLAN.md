@@ -76,14 +76,14 @@ This plan standardizes on 2 spinner types and provides a systematic approach to 
 4. `src/v8u/pages/TokenStatusPageV8U.tsx` - Token status operations
 
 **🥈 High Priority (Authentication flows):**
-5. `src/v8/flows/MFAAuthenticationMainPageV8.tsx` - MFA authentication
-6. `src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx` - OAuth authorization
-7. `src/v8/flows/PingOneProtectFlowV8.tsx` - PingOne Protect flow
-8. `src/v8/flows/ImplicitFlowV8.tsx` - Implicit flow
+5. `src/v8/flows/MFAAuthenticationMainPage.tsx` - MFA authentication
+6. `src/v8/flows/OAuthAuthorizationCodeFlow.tsx` - OAuth authorization
+7. `src/v8/flows/PingOneProtectFlow.tsx` - PingOne Protect flow
+8. `src/v8/flows/ImplicitFlow.tsx` - Implicit flow
 
 **🥉 Medium Priority (Supporting operations):**
-9. `src/v8/components/WorkerTokenModalV8.tsx` - Worker token operations
-10. `src/v8/components/UserAuthenticationSuccessPageV8.tsx` - Success page operations
+9. `src/v8/components/WorkerTokenModal.tsx` - Worker token operations
+10. `src/v8/components/UserAuthenticationSuccessPage.tsx` - Success page operations
 11. `src/v8u/components/CredentialsFormV8U.tsx` - Credentials form
 12. `src/v8u/components/UnifiedFlowSteps.tsx` - Unified flow steps
 

@@ -18,15 +18,15 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
 	ApiDisplayCheckbox,
-	SuperSimpleApiDisplayV8,
-} from '@/mfa/components/SuperSimpleApiDisplayV8';
-import { WorkerTokenExpiryBannerV8 } from '@/mfa/components/WorkerTokenExpiryBannerV8';
-import WorkerTokenStatusDisplayV8 from '@/mfa/components/WorkerTokenStatusDisplayV8';
-import { MFAConfigurationServiceV8 } from '@/mfa/services/mfaConfigurationServiceV8';
+	SuperSimpleApiDisplay,
+} from '@/mfa/components/SuperSimpleApiDisplay';
+import { WorkerTokenExpiryBanner } from '@/mfa/components/WorkerTokenExpiryBanner';
+import WorkerTokenStatusDisplay from '@/mfa/components/WorkerTokenStatusDisplay';
+import { MFAConfigurationService } from '@/mfa/services/mfaConfigurationService';
 import {
 	type TokenStatusInfo,
-	WorkerTokenStatusServiceV8,
-} from '@/mfa/services/workerTokenStatusServiceV8';
+	WorkerTokenStatusService,
+} from '@/mfa/services/workerTokenStatusService';
 import UserTokenStatusDisplayV8U from '@/lab/components/UserTokenStatusDisplayV8U';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 
@@ -114,12 +114,12 @@ const TokenStatusPageV8U: React.FC = () => {
 	});
 
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
-		const config = MFAConfigurationServiceV8.loadConfiguration();
+		const config = MFAConfigurationService.loadConfiguration();
 		return config.workerToken?.silentApiRetrieval || false;
 	});
 
 	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
-		const config = MFAConfigurationServiceV8.loadConfiguration();
+		const config = MFAConfigurationService.loadConfiguration();
 		return config.workerToken?.showTokenAtEnd || false;
 	});
 
@@ -132,7 +132,7 @@ const TokenStatusPageV8U: React.FC = () => {
 	useEffect(() => {
 		const updateTokenStatus = async () => {
 			try {
-				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				const status = await WorkerTokenStatusService.checkWorkerTokenStatus();
 				setTokenStatus(status);
 			} catch (error) {
 				logger.error('[TOKEN-STATUS-V8U] Failed to check token status:', error);
@@ -154,7 +154,7 @@ const TokenStatusPageV8U: React.FC = () => {
 
 		// Listen for configuration updates
 		const handleConfigUpdate = () => {
-			const config = MFAConfigurationServiceV8.loadConfiguration();
+			const config = MFAConfigurationService.loadConfiguration();
 			setSilentApiRetrieval(config.workerToken?.silentApiRetrieval || false);
 			setShowTokenAtEnd(config.workerToken?.showTokenAtEnd || false);
 		};
@@ -180,7 +180,7 @@ const TokenStatusPageV8U: React.FC = () => {
 		<>
 			<PageContainer>
 				<PlatformFlowHeader flowId="token-monitoring-v8u" customConfig={{ flowType: 'pingone' }} />
-				<WorkerTokenExpiryBannerV8
+				<WorkerTokenExpiryBanner
 					onFixToken={() => openGlobalWorkerTokenModal('TokenStatusPageV8U-Fix')}
 					marginBottom="24px"
 				/>
@@ -256,9 +256,9 @@ const TokenStatusPageV8U: React.FC = () => {
 										const newValue = e.target.checked;
 										setSilentApiRetrieval(newValue);
 										// Update config service immediately (no cache)
-										const config = MFAConfigurationServiceV8.loadConfiguration();
+										const config = MFAConfigurationService.loadConfiguration();
 										config.workerToken.silentApiRetrieval = newValue;
-										MFAConfigurationServiceV8.saveConfiguration(config);
+										MFAConfigurationService.saveConfiguration(config);
 										// Dispatch event to notify other components
 										window.dispatchEvent(
 											new CustomEvent('mfaConfigurationUpdated', {
@@ -270,7 +270,7 @@ const TokenStatusPageV8U: React.FC = () => {
 										if (newValue) {
 											try {
 												const currentStatus =
-													await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+													await WorkerTokenStatusService.checkWorkerTokenStatus();
 												if (!currentStatus.isValid) {
 													logger.debug(
 														'[TOKEN-STATUS-V8U] Silent API retrieval enabled, opening worker token modal...'
@@ -325,9 +325,9 @@ const TokenStatusPageV8U: React.FC = () => {
 										const newValue = e.target.checked;
 										setShowTokenAtEnd(newValue);
 										// Update config service immediately (no cache)
-										const config = MFAConfigurationServiceV8.loadConfiguration();
+										const config = MFAConfigurationService.loadConfiguration();
 										config.workerToken.showTokenAtEnd = newValue;
-										MFAConfigurationServiceV8.saveConfiguration(config);
+										MFAConfigurationService.saveConfiguration(config);
 										// Dispatch event to notify other components
 										window.dispatchEvent(
 											new CustomEvent('mfaConfigurationUpdated', {
@@ -355,7 +355,7 @@ const TokenStatusPageV8U: React.FC = () => {
 						</div>
 
 						{/* Worker Token Status Display - Moved below buttons */}
-						<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
+						<WorkerTokenStatusDisplay mode="compact" showRefresh={true} />
 					</div>
 				</TokenStatusCard>
 
@@ -377,7 +377,7 @@ const TokenStatusPageV8U: React.FC = () => {
 			</PageContainer>
 
 			{/* API Display - Full Width at Bottom */}
-			<SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />
+			<SuperSimpleApiDisplay flowFilter="all" reserveSpace={true} />
 		</>
 	);
 };

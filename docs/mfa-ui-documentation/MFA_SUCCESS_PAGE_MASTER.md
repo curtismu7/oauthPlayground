@@ -24,16 +24,16 @@ This master document provides comprehensive information about the unified MFA Su
 
 The following files are locked down and protected:
 
-1. **`src/v8/services/unifiedMFASuccessPageServiceV8.tsx`**
+1. **`src/v8/services/unifiedMFASuccessPageService.tsx`**
    - Main unified success page component
    - Handles all device types (SMS, EMAIL, TOTP, FIDO2, VOICE, WHATSAPP)
    - Handles both registration and authentication flows
    - **Hash:** See `src/v8/lockdown/success-page/manifest.json`
 
-2. **`src/v8/flows/shared/mfaSuccessPageServiceV8.tsx`**
+2. **`src/v8/flows/shared/mfaSuccessPageService.tsx`**
    - Shared success page service
    - Converts MFA flow data to unified format
-   - Provides `MFASuccessPageV8` wrapper component
+   - Provides `MFASuccessPage` wrapper component
    - **Hash:** See `src/v8/lockdown/success-page/manifest.json`
 
 3. **`src/v8/components/MFAAuthenticationSuccessPage.tsx`**
@@ -105,7 +105,7 @@ The following files are locked down and protected:
 **Fix:** Added "Back to MFA Hub" button to the top navigation bar (left side), with API Display Toggle on the right.
 
 **Files Modified:**
-- `src/v8/services/unifiedMFASuccessPageServiceV8.tsx`
+- `src/v8/services/unifiedMFASuccessPageService.tsx`
 
 **Code Change:**
 ```typescript
@@ -174,10 +174,10 @@ The API display was covering the success page buttons, making them inaccessible.
 Added dynamic bottom padding that adjusts based on API display visibility:
 
 ```typescript
-const [apiDisplayVisible, setApiDisplayVisible] = useState(apiDisplayServiceV8.isVisible());
+const [apiDisplayVisible, setApiDisplayVisible] = useState(apiDisplayService.isVisible());
 
 useEffect(() => {
-  const unsubscribe = apiDisplayServiceV8.subscribe((isVisible) => {
+  const unsubscribe = apiDisplayService.subscribe((isVisible) => {
     setApiDisplayVisible(isVisible);
   });
   return unsubscribe;
@@ -272,12 +272,12 @@ If files have been modified, restore them from snapshots:
 
 ```bash
 # Restore unified success page component
-cp src/v8/lockdown/success-page/snapshot/unifiedMFASuccessPageServiceV8.tsx \
-   src/v8/services/unifiedMFASuccessPageServiceV8.tsx
+cp src/v8/lockdown/success-page/snapshot/unifiedMFASuccessPageService.tsx \
+   src/v8/services/unifiedMFASuccessPageService.tsx
 
 # Restore shared success page service
-cp src/v8/lockdown/success-page/snapshot/mfaSuccessPageServiceV8.tsx \
-   src/v8/flows/shared/mfaSuccessPageServiceV8.tsx
+cp src/v8/lockdown/success-page/snapshot/mfaSuccessPageService.tsx \
+   src/v8/flows/shared/mfaSuccessPageService.tsx
 
 # Restore authentication success page wrapper
 cp src/v8/lockdown/success-page/snapshot/MFAAuthenticationSuccessPage.tsx \
@@ -377,8 +377,8 @@ npm run success-page:lockdown:approve
 
 ### Implementation Files
 
-- `src/v8/services/unifiedMFASuccessPageServiceV8.tsx` - Main component
-- `src/v8/flows/shared/mfaSuccessPageServiceV8.tsx` - Shared service
+- `src/v8/services/unifiedMFASuccessPageService.tsx` - Main component
+- `src/v8/flows/shared/mfaSuccessPageService.tsx` - Shared service
 - `src/v8/components/MFAAuthenticationSuccessPage.tsx` - Auth wrapper
 
 ### Documentation Files

@@ -1,19 +1,19 @@
-# MFA Hub vs MFAAuthenticationMainPageV8 Comparison
+# MFA Hub vs MFAAuthenticationMainPage Comparison
 
 **Generated:** 2026-01-27 08:20:00  
-**Purpose:** Detailed comparison between MFAHubV8.tsx and MFAAuthenticationMainPageV8.tsx
+**Purpose:** Detailed comparison between MFAHub.tsx and MFAAuthenticationMainPage.tsx
 
 ---
 
 ## Overview
 
-**MFAHubV8.tsx** - Original MFA Hub (1,209 lines)
+**MFAHub.tsx** - Original MFA Hub (1,209 lines)
 - Simple navigation hub
 - Basic device registration links
 - Worker token status display
 - Collapsible sections for features
 
-**MFAAuthenticationMainPageV8.tsx** - Current Implementation (5,561 lines)
+**MFAAuthenticationMainPage.tsx** - Current Implementation (5,561 lines)
 - Full-featured authentication page
 - Complete MFA flow implementation
 - Advanced device management
@@ -25,7 +25,7 @@
 
 ### 1. **Purpose & Scope**
 
-| Aspect | MFAHubV8 | MFAAuthenticationMainPageV8 |
+| Aspect | MFAHub | MFAAuthenticationMainPage |
 |--------|----------|----------------------------|
 | **Purpose** | Simple navigation hub | Complete authentication system |
 | **Lines of Code** | 1,209 | 5,561 |
@@ -36,10 +36,10 @@
 
 ### 2. **File Headers**
 
-#### MFAHubV8.tsx
+#### MFAHub.tsx
 ```typescript
 /**
- * @file MFAHubV8.tsx
+ * @file MFAHub.tsx
  * @description MFA Hub - Central navigation for all MFA features
  * @version 8.0.0
  * @since 2024-11-19
@@ -52,10 +52,10 @@
  */
 ```
 
-#### MFAAuthenticationMainPageV8.tsx
+#### MFAAuthenticationMainPage.tsx
 ```typescript
 /**
- * @file MFAAuthenticationMainPageV8.tsx
+ * @file MFAAuthenticationMainPage.tsx
  * @description Unified MFA Authentication Main Page
  * @version 8.3.0
  * @since 2025-01-XX
@@ -78,18 +78,18 @@
 
 ### 3. **Imports Comparison**
 
-#### MFAHubV8.tsx (Minimal)
+#### MFAHub.tsx (Minimal)
 ```typescript
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { FiChevronDown, FiPackage, FiTrash2 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { ConfirmModalV8 } from '../components/ConfirmModalV8';
+import { ConfirmModal } from '../components/ConfirmModal';
 import styled from 'styled-components';
 import { useAuth } from '@/contexts/NewAuthContext';
 // ... ~15 imports total
 ```
 
-#### MFAAuthenticationMainPageV8.tsx (Comprehensive)
+#### MFAAuthenticationMainPage.tsx (Comprehensive)
 ```typescript
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import {
@@ -110,7 +110,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 
 ### 4. **Core Functionality**
 
-#### MFAHubV8.tsx (Navigation Only)
+#### MFAHub.tsx (Navigation Only)
 ```typescript
 // Simple navigation links
 const handleNavigateToRegistration = (deviceType: string) => {
@@ -122,7 +122,7 @@ const [featuresExpanded, setFeaturesExpanded] = useState(true);
 const [aboutExpanded, setAboutExpanded] = useState(false);
 ```
 
-#### MFAAuthenticationMainPageV8.tsx (Full Authentication)
+#### MFAAuthenticationMainPage.tsx (Full Authentication)
 ```typescript
 // Complete authentication state management
 const [credentials, setCredentials] = useState(() => ({
@@ -152,10 +152,10 @@ const handleUsernamelessFIDO2 = useCallback(async () => { /* FIDO2 flow */ });
 
 ### 5. **Worker Token Integration**
 
-#### MFAHubV8.tsx (Basic Display)
+#### MFAHub.tsx (Basic Display)
 ```typescript
 // Simple worker token status display
-<WorkerTokenStatusDisplayV8 />
+<WorkerTokenStatusDisplay />
 
 // Basic settings section with Get Worker Token button
 <div style={{ flex: '1', minWidth: '300px' }}>
@@ -166,7 +166,7 @@ const handleUsernamelessFIDO2 = useCallback(async () => { /* FIDO2 flow */ });
 </div>
 ```
 
-#### MFAAuthenticationMainPageV8.tsx (Advanced Integration)
+#### MFAAuthenticationMainPage.tsx (Advanced Integration)
 ```typescript
 // Advanced worker token management
 const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
@@ -195,10 +195,10 @@ const isFeatureEnabled = tokenStatus.isValid && credentials.environmentId;
 
 ### 6. **User Interface**
 
-#### MFAHubV8.tsx (Simple Layout)
+#### MFAHub.tsx (Simple Layout)
 ```typescript
 // Basic header
-<MFAHeaderV8 title="MFA Hub" subtitle="Multi-Factor Authentication Center" />
+<MFAHeader title="MFA Hub" subtitle="Multi-Factor Authentication Center" />
 
 // Simple collapsible sections
 <div className="collapsible-section">
@@ -215,10 +215,10 @@ const isFeatureEnabled = tokenStatus.isValid && credentials.environmentId;
 </div>
 ```
 
-#### MFAAuthenticationMainPageV8.tsx (Advanced UI)
+#### MFAAuthenticationMainPage.tsx (Advanced UI)
 ```typescript
 // Professional header with gradients
-<PageHeaderV8
+<PageHeader
   title="MFA Authentication Hub"
   subtitle="Complete MFA authentication and device management"
   gradient={PageHeaderGradients.mfa}
@@ -252,7 +252,7 @@ const isFeatureEnabled = tokenStatus.isValid && credentials.environmentId;
   
   {/* Worker Token Settings */}
   <div className="worker-token-settings">
-    <WorkerTokenStatusDisplayV8 mode="detailed" />
+    <WorkerTokenStatusDisplay mode="detailed" />
     <button onClick={handleGetWorkerToken}>Get Worker Token</button>
   </div>
 </div>
@@ -262,12 +262,12 @@ const isFeatureEnabled = tokenStatus.isValid && credentials.environmentId;
 
 ### 7. **Device Management**
 
-#### MFAHubV8.tsx (No Device Management)
+#### MFAHub.tsx (No Device Management)
 - ❌ No device listing
 - ❌ No device selection
 - ❌ No device management features
 
-#### MFAAuthenticationMainPageV8.tsx (Full Device Management)
+#### MFAAuthenticationMainPage.tsx (Full Device Management)
 ```typescript
 // Real-time device loading
 const loadUserDevices = async () => {
@@ -277,7 +277,7 @@ const loadUserDevices = async () => {
   }
   
   try {
-    const devices = await MFAServiceV8.getUserDevices(
+    const devices = await MFAService.getUserDevices(
       credentials.environmentId,
       usernameInput.trim()
     );
@@ -311,22 +311,22 @@ const loadUserDevices = async () => {
 
 ### 8. **Authentication Flows**
 
-#### MFAHubV8.tsx (No Authentication)
+#### MFAHub.tsx (No Authentication)
 - ❌ No authentication flows
 - ❌ No MFA challenges
 - ❌ No device registration
 
-#### MFAAuthenticationMainPageV8.tsx (Complete Authentication)
+#### MFAAuthenticationMainPage.tsx (Complete Authentication)
 ```typescript
 // Username-based MFA
 const handleStartMFA = useCallback(async () => {
   if (!tokenStatus.isValid) {
-    toastV8.error('Please configure worker token first');
+    toast.error('Please configure worker token first');
     return;
   }
   
   try {
-    const response = await MfaAuthenticationServiceV8.startAuthentication({
+    const response = await MfaAuthenticationService.startAuthentication({
       environmentId: credentials.environmentId,
       username: usernameInput.trim(),
       deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
@@ -339,19 +339,19 @@ const handleStartMFA = useCallback(async () => {
       challengeId: response.challengeId,
     });
   } catch (error) {
-    toastV8.error('Failed to start MFA authentication');
+    toast.error('Failed to start MFA authentication');
   }
 }, [tokenStatus.isValid, credentials.environmentId, usernameInput]);
 
 // Username-less FIDO2
 const handleUsernamelessFIDO2 = useCallback(async () => {
   if (!tokenStatus.isValid) {
-    toastV8.error('Please configure worker token first');
+    toast.error('Please configure worker token first');
     return;
   }
   
   try {
-    const credentialRequest = await WebAuthnAuthenticationServiceV8.startUsernamelessAuthentication(
+    const credentialRequest = await WebAuthnAuthenticationService.startUsernamelessAuthentication(
       credentials.environmentId
     );
     
@@ -361,12 +361,12 @@ const handleUsernamelessFIDO2 = useCallback(async () => {
     });
     
     // Complete authentication
-    await WebAuthnAuthenticationServiceV8.completeUsernamelessAuthentication(
+    await WebAuthnAuthenticationService.completeUsernamelessAuthentication(
       credentials.environmentId,
       assertion
     );
   } catch (error) {
-    toastV8.error('FIDO2 authentication failed');
+    toast.error('FIDO2 authentication failed');
   }
 }, [tokenStatus.isValid, credentials.environmentId]);
 ```
@@ -375,10 +375,10 @@ const handleUsernamelessFIDO2 = useCallback(async () => {
 
 ### 9. **Error Handling & Modals**
 
-#### MFAHubV8.tsx (Basic Error Handling)
+#### MFAHub.tsx (Basic Error Handling)
 ```typescript
 // Simple confirm modal
-<ConfirmModalV8
+<ConfirmModal
   isOpen={showDeleteModal}
   onConfirm={handleDelete}
   onCancel={() => setShowDeleteModal(false)}
@@ -387,11 +387,11 @@ const handleUsernamelessFIDO2 = useCallback(async () => {
 />
 ```
 
-#### MFAAuthenticationMainPageV8.tsx (Advanced Error Handling)
+#### MFAAuthenticationMainPage.tsx (Advanced Error Handling)
 ```typescript
 // Device failure modal
 {showDeviceFailureModal && (
-  <DeviceFailureModalV8
+  <DeviceFailureModal
     isOpen={showDeviceFailureModal}
     onClose={() => {
       setShowDeviceFailureModal(false);
@@ -405,7 +405,7 @@ const handleUsernamelessFIDO2 = useCallback(async () => {
 
 // Cooldown/Lockout modal
 {cooldownError && (
-  <MFACooldownModalV8
+  <MFACooldownModal
     isOpen={!!cooldownError}
     onClose={() => setCooldownError(null)}
     message={cooldownError.message}
@@ -438,11 +438,11 @@ const handleUsernamelessFIDO2 = useCallback(async () => {
 
 ### 10. **API Integration**
 
-#### MFAHubV8.tsx (No API Calls)
+#### MFAHub.tsx (No API Calls)
 - ❌ No direct API integration
 - ❌ No real-time data fetching
 
-#### MFAAuthenticationMainPageV8.tsx (Comprehensive API Integration)
+#### MFAAuthenticationMainPage.tsx (Comprehensive API Integration)
 ```typescript
 // Policy loading
 const loadPolicies = useCallback(async (): Promise<DeviceAuthenticationPolicy[]> => {
@@ -453,7 +453,7 @@ const loadPolicies = useCallback(async (): Promise<DeviceAuthenticationPolicy[]>
   }
   
   try {
-    const policies = await MFAServiceV8.getDeviceAuthenticationPolicies(envId);
+    const policies = await MFAService.getDeviceAuthenticationPolicies(envId);
     return policies;
   } catch (error) {
     console.error('Failed to load policies:', error);
@@ -486,7 +486,7 @@ const handleSilentRetrieval = async () => {
     
     if (response.ok) {
       const data = await response.json();
-      await workerTokenServiceV8.saveToken(data.access_token, data.expires_in);
+      await workerTokenService.saveToken(data.access_token, data.expires_in);
       window.dispatchEvent(new Event('workerTokenUpdated'));
     }
   } catch (error) {
@@ -499,7 +499,7 @@ const handleSilentRetrieval = async () => {
 
 ## Summary
 
-| Feature | MFAHubV8 | MFAAuthenticationMainPageV8 |
+| Feature | MFAHub | MFAAuthenticationMainPage |
 |---------|----------|----------------------------|
 | **Purpose** | Navigation hub | Full authentication system |
 | **Lines of Code** | 1,209 | 5,561 |
@@ -516,11 +516,11 @@ const handleSilentRetrieval = async () => {
 
 ## Recommendation
 
-**MFAAuthenticationMainPageV8.tsx** is the superior implementation and should remain the active MFA Hub page. It provides:
+**MFAAuthenticationMainPage.tsx** is the superior implementation and should remain the active MFA Hub page. It provides:
 
 1. **Complete functionality** - Full authentication flows vs. simple navigation
 2. **Better UX** - Professional interface with real-time updates
 3. **Advanced features** - Device management, error handling, API integration
 4. **Production ready** - Comprehensive error handling and state management
 
-**MFAHubV8.tsx** could be kept as a simplified backup or reference implementation, but should not be used in production.
+**MFAHub.tsx** could be kept as a simplified backup or reference implementation, but should not be used in production.

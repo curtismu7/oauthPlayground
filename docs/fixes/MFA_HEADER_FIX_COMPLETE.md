@@ -9,7 +9,7 @@ Fixed the missing header in the Unified MFA flow. The header was only showing wh
 ### **Issue Details**
 - **Route**: `/v8/unified-mfa`
 - **Problem**: Header missing after selecting device type
-- **Root Cause**: `UnifiedMFARegistrationFlowContent` component didn't include `MFAHeaderV8`
+- **Root Cause**: `UnifiedMFARegistrationFlowContent` component didn't include `MFAHeader`
 
 ### **What Was Broken**
 ```tsx
@@ -17,7 +17,7 @@ Fixed the missing header in the Unified MFA flow. The header was only showing wh
 if (!selectedDeviceType) {
   return (
     <>
-      <MFAHeaderV8 ... />  // ✅ Header present
+      <MFAHeader ... />  // ✅ Header present
       <DeviceTypeSelectionScreen ... />
     </>
   );
@@ -26,8 +26,8 @@ if (!selectedDeviceType) {
 // ❌ Header missing in content component (device type selected)
 return (
   <>
-    <MFAFlowBaseV8 ... />  // ❌ No header!
-    <SuperSimpleApiDisplayV8 ... />
+    <MFAFlowBase ... />  // ❌ No header!
+    <SuperSimpleApiDisplay ... />
   </>
 );
 ```
@@ -39,7 +39,7 @@ return (
 // ✅ Added header to content component
 return (
   <>
-    <MFAHeaderV8
+    <MFAHeader
       title={`${config.displayName} Registration`}
       description={`Register a ${config.displayName} device for multi-factor authentication`}
       versionTag="V8"
@@ -47,7 +47,7 @@ return (
       showBackToMain={true}
       headerColor="blue"
     />
-    <MFAFlowBaseV8
+    <MFAFlowBase
       deviceType={deviceType}
       renderStep0={renderStep0}
       renderStep1={renderStep1}
@@ -58,7 +58,7 @@ return (
       stepLabels={stepLabels}
       shouldHideNextButton={shouldHideNextButton}
     />
-    <SuperSimpleApiDisplayV8 flowFilter="mfa" />
+    <SuperSimpleApiDisplay flowFilter="mfa" />
   </>
 );
 ```
@@ -91,7 +91,7 @@ return (
 ### **Test Results**
 ```bash
 🧪 MFA Header Fix Verification
-✅ MFAHeaderV8 is properly imported
+✅ MFAHeader is properly imported
 ✅ Header shown when no device type selected
 ✅ Header shown when device type selected
 ✅ Build succeeds

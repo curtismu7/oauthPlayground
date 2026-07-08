@@ -335,8 +335,8 @@ export class MFAErrorBoundary extends Component<Props, State> {
 
 #### 2.2 Wrap All Flows
 ```typescript
-// Update MFAFlowV8.tsx
-export const MFAFlowV8: React.FC = () => {
+// Update MFAFlow.tsx
+export const MFAFlow: React.FC = () => {
   return (
     <MFAErrorBoundary>
       {/* existing flow logic */}
@@ -344,8 +344,8 @@ export const MFAFlowV8: React.FC = () => {
   );
 };
 
-// Update UnifiedMFARegistrationFlowV8.tsx
-export const UnifiedMFARegistrationFlowV8: React.FC = (props) => {
+// Update UnifiedMFARegistrationFlow.tsx
+export const UnifiedMFARegistrationFlow: React.FC = (props) => {
   return (
     <MFAErrorBoundary>
       <MFACredentialProvider>
@@ -463,9 +463,9 @@ export const MFAFlowSkeleton: React.FC = () => {
 
 #### 3.2 Replace Suspense Fallbacks
 ```typescript
-// Update MFAFlowV8.tsx
+// Update MFAFlow.tsx
 <Suspense fallback={<MFAFlowSkeleton />}>
-  <UnifiedMFARegistrationFlowV8 deviceType={deviceType as DeviceConfigKey} />
+  <UnifiedMFARegistrationFlow deviceType={deviceType as DeviceConfigKey} />
 </Suspense>
 ```
 
@@ -588,7 +588,7 @@ export const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
 
 #### 4.2 Mobile-Friendly Navigation
 ```typescript
-// Update MFANavigationV8.tsx
+// Update MFANavigation.tsx
 <div
   className="mfa-nav-links"
   style={{

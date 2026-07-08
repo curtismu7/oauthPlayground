@@ -123,7 +123,7 @@
 - `otp`: ✅ String ✅
 
 **Verification:** Based on codebase review:
-- `mfaServiceV8.ts` line 3694-3695: "CRITICAL: Device activation ALWAYS uses worker tokens"
+- `mfaService.ts` line 3694-3695: "CRITICAL: Device activation ALWAYS uses worker tokens"
 - `server.js` line 13187-13200: Backend endpoint requires `workerToken`
 - Device creation uses `{{workerToken}}`, so activation should match for consistency
 
@@ -214,7 +214,7 @@ Authorization: `Bearer {{workerToken}}`
 1. **✅ MFA Device Activation Authorization - FIXED:**
    - ✅ Verified: Device activation uses `{{workerToken}}` (admin flow operation)
    - ✅ Matches device creation authorization pattern
-   - ✅ Confirmed by codebase review (`mfaServiceV8.ts` and `server.js`)
+   - ✅ Confirmed by codebase review (`mfaService.ts` and `server.js`)
 
 2. **Run Validation Script Regularly:**
    - Use `node scripts/validate-postman-api-calls.js` before committing changes

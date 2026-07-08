@@ -17,23 +17,23 @@
 
 ## Overview
 
-This document provides implementation details, code snippets, and restoration guidance for the Email MFA flow (`EmailFlowV8.tsx` and `EmailOTPConfigurationPageV8.tsx`).
+This document provides implementation details, code snippets, and restoration guidance for the Email MFA flow (`EmailFlow.tsx` and `EmailOTPConfigurationPage.tsx`).
 
 ---
 
 ## File Locations
 
 **Components:**
-- `src/v8/flows/types/EmailFlowV8.tsx` - Main Email flow component
-- `src/v8/flows/types/EmailOTPConfigurationPageV8.tsx` - Email configuration page
-- `src/v8/pages/EmailRegistrationDocsPageV8.tsx` - Email documentation page
+- `src/v8/flows/types/EmailFlow.tsx` - Main Email flow component
+- `src/v8/flows/types/EmailOTPConfigurationPage.tsx` - Email configuration page
+- `src/v8/pages/EmailRegistrationDocsPage.tsx` - Email documentation page
 
 **Controllers:**
 - `src/v8/flows/controllers/EmailFlowController.ts` - Email flow business logic
 
 **Services:**
-- `src/v8/services/mfaServiceV8.ts` - MFA API calls
-- `src/v8/services/mfaAuthenticationServiceV8.ts` - MFA authentication calls
+- `src/v8/services/mfaService.ts` - MFA API calls
+- `src/v8/services/mfaAuthenticationService.ts` - MFA authentication calls
 
 ---
 
@@ -117,7 +117,7 @@ The generated environment file includes all variables with pre-filled values fro
 
 **Correct Implementation:**
 ```typescript
-// In EmailFlowV8.tsx
+// In EmailFlow.tsx
 React.useEffect(() => {
     // Skip device loading during registration flow (when coming from config page)
     if (isConfigured) {
@@ -145,7 +145,7 @@ React.useEffect(() => {
 
 **Correct Implementation:**
 ```typescript
-// In EmailFlowV8.tsx
+// In EmailFlow.tsx
 const step2DeviceNameResetRef = React.useRef<{ step: number; deviceType: string } | null>(null);
 
 const renderStep2Register = useCallback((props: MFAFlowBaseRenderProps) => {
@@ -177,9 +177,9 @@ const renderStep2Register = useCallback((props: MFAFlowBaseRenderProps) => {
 **Correct Implementation:**
 ```typescript
 import { MFAOTPInput } from '../components/MFAOTPInput';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { MFAConfigurationService } from '@/v8/services/mfaConfigurationService';
 
-const config = MFAConfigurationServiceV8.loadConfiguration();
+const config = MFAConfigurationService.loadConfiguration();
 
 <MFAOTPInput
     length={config.otpCodeLength || 6}
@@ -228,7 +228,7 @@ const normalizeErrorMessage = (error: unknown): string => {
 // For ACTIVE devices: Show success page immediately
 if (mfaState.deviceStatus === 'ACTIVE' && deviceRegisteredActive) {
     return (
-        <MFASuccessPageV8
+        <MFASuccessPage
             deviceType="EMAIL"
             flowType="registration"
             successData={buildSuccessPageData(/* ... */)}
@@ -287,7 +287,7 @@ if (step2DeviceNameResetRef.current?.step !== nav.currentStep) {
 **Fix:**
 ```typescript
 // Load configuration and use otpCodeLength
-const config = MFAConfigurationServiceV8.loadConfiguration();
+const config = MFAConfigurationService.loadConfiguration();
 <MFAOTPInput length={config.otpCodeLength || 6} ... />
 ```
 
@@ -299,7 +299,7 @@ const config = MFAConfigurationServiceV8.loadConfiguration();
 ```typescript
 // Normalize all error messages
 const userFriendlyError = normalizeErrorMessage(error);
-toastV8.error(userFriendlyError);
+toast.error(userFriendlyError);
 ```
 
 ---

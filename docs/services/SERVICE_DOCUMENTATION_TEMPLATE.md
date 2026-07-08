@@ -11,8 +11,8 @@
 
 **Version:** 1.0.0  
 **Last Updated:** {Date}  
-**Service:** `{serviceName}ServiceV8`  
-**File:** `src/v8/services/{serviceName}ServiceV8.ts`
+**Service:** `{serviceName}Service`  
+**File:** `src/v8/services/{serviceName}Service.ts`
 
 ---
 
@@ -75,7 +75,7 @@ interface ReturnType {
 
 ### Required Services
 
-- `dependencyServiceV8`: Purpose
+- `dependencyService`: Purpose
 
 ### Required Modules
 
@@ -86,7 +86,7 @@ interface ReturnType {
 ### Basic Usage
 
 ```typescript
-import { ServiceName } from '@/v8/services/serviceNameServiceV8';
+import { ServiceName } from '@/v8/services/serviceNameService';
 
 const result = await ServiceName.methodName(params);
 ```
@@ -115,8 +115,8 @@ const result = await ServiceName.methodName(params);
 
 **Version:** 1.0.0  
 **Last Updated:** {Date}  
-**Service:** `{serviceName}ServiceV8`  
-**File:** `src/v8/services/{serviceName}ServiceV8.ts`
+**Service:** `{serviceName}Service`  
+**File:** `src/v8/services/{serviceName}Service.ts`
 
 ---
 
@@ -135,7 +135,7 @@ Implementation details for restoring this service if it breaks or drifts.
 ## File Location
 
 **Service File:**
-- `src/v8/services/{serviceName}ServiceV8.ts`
+- `src/v8/services/{serviceName}Service.ts`
 
 **Related Files:**
 - `src/v8/types/{relatedTypes}.ts`
@@ -183,14 +183,14 @@ Implementation details for restoring this service if it breaks or drifts.
 ### Required Imports
 
 ```typescript
-import { Dependency1 } from '@/v8/services/dependency1ServiceV8';
+import { Dependency1 } from '@/v8/services/dependency1Service';
 import { Dependency2 } from '@/v8/utils/dependency2';
 ```
 
 ### Service Dependencies
 
-- `dependencyServiceV8`: Used for X
-- `anotherServiceV8`: Used for Y
+- `dependencyService`: Used for X
+- `anotherService`: Used for Y
 
 ---
 
@@ -236,7 +236,7 @@ When restoring this service:
 
 ```typescript
 // Full service structure template
-export class ServiceNameServiceV8 {
+export class ServiceNameService {
   // Methods
 }
 ```

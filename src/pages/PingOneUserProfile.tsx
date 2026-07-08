@@ -15,10 +15,10 @@ import PageLayoutService from '../services/pageLayoutService';
 import { lookupPingOneUser } from '../services/pingOneUserProfileService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
-import { ShowTokenConfigCheckboxV8 } from '../mfa/components/ShowTokenConfigCheckboxV8';
-import { SilentApiConfigCheckboxV8 } from '../mfa/components/SilentApiConfigCheckboxV8';
-import { UserSearchDropdownV8 } from '../mfa/components/UserSearchDropdownV8';
-import { WorkerTokenSectionV8 } from '../mfa/components/WorkerTokenSectionV8';
+import { ShowTokenConfigCheckbox } from '../mfa/components/ShowTokenConfigCheckbox';
+import { SilentApiConfigCheckbox } from '../mfa/components/SilentApiConfigCheckbox';
+import { UserSearchDropdown } from '../mfa/components/UserSearchDropdown';
+import { WorkerTokenSection } from '../mfa/components/WorkerTokenSection';
 
 interface PingOneConsentRecord {
 	id?: string;
@@ -1508,15 +1508,15 @@ const PingOneUserProfile: React.FC = () => {
 								gap: '1.5rem',
 							}}
 						>
-							<SilentApiConfigCheckboxV8 />
-							<ShowTokenConfigCheckboxV8 />
+							<SilentApiConfigCheckbox />
+							<ShowTokenConfigCheckbox />
 						</div>
 
 						<div style={styles.inputField}>
 							<label htmlFor="userIdentifier" style={styles.inputLabel}>
 								User Identifier *
 							</label>
-							<UserSearchDropdownV8
+							<UserSearchDropdown
 								value={userIdentifier}
 								onChange={(value) => {
 									setUserIdentifier(value);

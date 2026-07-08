@@ -7,11 +7,11 @@
 
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MFAServiceV8 } from '@/mfa/services/mfaServiceV8';
+import { MFAService } from '@/mfa/services/mfaService';
 import { useMFAPolicies } from '../useMFAPolicies';
 
 // Mock the service
-vi.mock('@/mfa/services/mfaServiceV8');
+vi.mock('@/mfa/services/mfaService');
 
 describe('useMFAPolicies', () => {
 	const mockPolicies = [
@@ -47,11 +47,11 @@ describe('useMFAPolicies', () => {
 				})
 			);
 
-			expect(MFAServiceV8.getDeviceAuthenticationPolicies).not.toHaveBeenCalled();
+			expect(MFAService.getDeviceAuthenticationPolicies).not.toHaveBeenCalled();
 		});
 
 		it('should auto-load policies when conditions are met', async () => {
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
 
 			renderHook(() =>
 				useMFAPolicies({
@@ -62,7 +62,7 @@ describe('useMFAPolicies', () => {
 			);
 
 			await waitFor(() => {
-				expect(MFAServiceV8.getDeviceAuthenticationPolicies).toHaveBeenCalledWith({
+				expect(MFAService.getDeviceAuthenticationPolicies).toHaveBeenCalledWith({
 					environmentId: 'env123',
 				});
 			});
@@ -71,7 +71,7 @@ describe('useMFAPolicies', () => {
 
 	describe('Loading Policies', () => {
 		it('should load policies successfully', async () => {
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
 
 			const { result } = renderHook(() =>
 				useMFAPolicies({
@@ -92,7 +92,7 @@ describe('useMFAPolicies', () => {
 		});
 
 		it('should set loading state during policy fetch', async () => {
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockImplementation(
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockImplementation(
 				() => new Promise((resolve) => setTimeout(() => resolve(mockPolicies), 100))
 			);
 
@@ -128,7 +128,7 @@ describe('useMFAPolicies', () => {
 				await result.current.loadPolicies();
 			});
 
-			expect(MFAServiceV8.getDeviceAuthenticationPolicies).not.toHaveBeenCalled();
+			expect(MFAService.getDeviceAuthenticationPolicies).not.toHaveBeenCalled();
 		});
 
 		it('should not load policies when token is invalid', async () => {
@@ -144,13 +144,13 @@ describe('useMFAPolicies', () => {
 				await result.current.loadPolicies();
 			});
 
-			expect(MFAServiceV8.getDeviceAuthenticationPolicies).not.toHaveBeenCalled();
+			expect(MFAService.getDeviceAuthenticationPolicies).not.toHaveBeenCalled();
 		});
 	});
 
 	describe('Policy Caching', () => {
 		it('should cache policies and not reload for same environment', async () => {
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
 
 			const { result } = renderHook(() =>
 				useMFAPolicies({
@@ -165,18 +165,18 @@ describe('useMFAPolicies', () => {
 				await result.current.loadPolicies();
 			});
 
-			expect(MFAServiceV8.getDeviceAuthenticationPolicies).toHaveBeenCalledTimes(1);
+			expect(MFAService.getDeviceAuthenticationPolicies).toHaveBeenCalledTimes(1);
 
 			// Second load with same environment - should use cache
 			await act(async () => {
 				await result.current.loadPolicies();
 			});
 
-			expect(MFAServiceV8.getDeviceAuthenticationPolicies).toHaveBeenCalledTimes(1); // Still 1
+			expect(MFAService.getDeviceAuthenticationPolicies).toHaveBeenCalledTimes(1); // Still 1
 		});
 
 		it('should reload policies when environment changes', async () => {
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
 
 			const { result, rerender } = renderHook(
 				({ environmentId }) =>
@@ -193,7 +193,7 @@ describe('useMFAPolicies', () => {
 				await result.current.loadPolicies();
 			});
 
-			expect(MFAServiceV8.getDeviceAuthenticationPolicies).toHaveBeenCalledTimes(1);
+			expect(MFAService.getDeviceAuthenticationPolicies).toHaveBeenCalledTimes(1);
 
 			// Change environment
 			rerender({ environmentId: 'env456' });
@@ -203,13 +203,13 @@ describe('useMFAPolicies', () => {
 				await result.current.loadPolicies();
 			});
 
-			expect(MFAServiceV8.getDeviceAuthenticationPolicies).toHaveBeenCalledTimes(2);
+			expect(MFAService.getDeviceAuthenticationPolicies).toHaveBeenCalledTimes(2);
 		});
 	});
 
 	describe('Refresh Policies', () => {
 		it('should force reload policies when refreshPolicies is called', async () => {
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
 
 			const { result } = renderHook(() =>
 				useMFAPolicies({
@@ -224,20 +224,20 @@ describe('useMFAPolicies', () => {
 				await result.current.loadPolicies();
 			});
 
-			expect(MFAServiceV8.getDeviceAuthenticationPolicies).toHaveBeenCalledTimes(1);
+			expect(MFAService.getDeviceAuthenticationPolicies).toHaveBeenCalledTimes(1);
 
 			// Refresh should force reload
 			await act(async () => {
 				await result.current.refreshPolicies();
 			});
 
-			expect(MFAServiceV8.getDeviceAuthenticationPolicies).toHaveBeenCalledTimes(2);
+			expect(MFAService.getDeviceAuthenticationPolicies).toHaveBeenCalledTimes(2);
 		});
 	});
 
 	describe('Policy Selection', () => {
 		it('should select a policy by ID', async () => {
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
 
 			const { result } = renderHook(() =>
 				useMFAPolicies({
@@ -259,7 +259,7 @@ describe('useMFAPolicies', () => {
 		});
 
 		it('should clear selected policy when selecting null', async () => {
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
 
 			const { result } = renderHook(() =>
 				useMFAPolicies({
@@ -287,7 +287,7 @@ describe('useMFAPolicies', () => {
 		});
 
 		it('should auto-select policy when selectedPolicyId is provided', async () => {
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
 
 			const { result } = renderHook(() =>
 				useMFAPolicies({
@@ -310,7 +310,7 @@ describe('useMFAPolicies', () => {
 
 	describe('Clear Policies', () => {
 		it('should clear all policies and selection', async () => {
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
 
 			const { result } = renderHook(() =>
 				useMFAPolicies({
@@ -342,7 +342,7 @@ describe('useMFAPolicies', () => {
 
 	describe('Default Policy Detection', () => {
 		it('should identify default policy', async () => {
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
 
 			const { result } = renderHook(() =>
 				useMFAPolicies({
@@ -362,7 +362,7 @@ describe('useMFAPolicies', () => {
 
 		it('should return null when no default policy exists', async () => {
 			const policiesWithoutDefault = mockPolicies.map((p) => ({ ...p, default: false }));
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockResolvedValue(
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockResolvedValue(
 				policiesWithoutDefault
 			);
 
@@ -385,7 +385,7 @@ describe('useMFAPolicies', () => {
 	describe('Error Handling', () => {
 		it('should handle API errors', async () => {
 			const errorMessage = 'Failed to fetch policies';
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockRejectedValue(
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockRejectedValue(
 				new Error(errorMessage)
 			);
 
@@ -407,7 +407,7 @@ describe('useMFAPolicies', () => {
 		});
 
 		it('should detect server connection errors', async () => {
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockRejectedValue(
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockRejectedValue(
 				new Error('Failed to connect to server')
 			);
 
@@ -427,7 +427,7 @@ describe('useMFAPolicies', () => {
 		});
 
 		it('should clear error when clearError is called', async () => {
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockRejectedValue(
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockRejectedValue(
 				new Error('Test error')
 			);
 
@@ -455,7 +455,7 @@ describe('useMFAPolicies', () => {
 
 	describe('Computed Values', () => {
 		it('should compute hasPolicies correctly', async () => {
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
 
 			const { result } = renderHook(() =>
 				useMFAPolicies({
@@ -475,7 +475,7 @@ describe('useMFAPolicies', () => {
 		});
 
 		it('should compute policyCount correctly', async () => {
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockResolvedValue(mockPolicies);
 
 			const { result } = renderHook(() =>
 				useMFAPolicies({
@@ -498,7 +498,7 @@ describe('useMFAPolicies', () => {
 	describe('Configuration Options', () => {
 		it('should respect autoSelectSingle configuration', async () => {
 			const singlePolicy = [mockPolicies[0]];
-			vi.mocked(MFAServiceV8.getDeviceAuthenticationPolicies).mockResolvedValue(singlePolicy);
+			vi.mocked(MFAService.getDeviceAuthenticationPolicies).mockResolvedValue(singlePolicy);
 
 			const { result } = renderHook(() =>
 				useMFAPolicies({

@@ -1,5 +1,5 @@
 /**
- * @file credentialsServiceV8.ts
+ * @file credentialsService.ts
  * @module v8/services
  * @description Centralized credentials management service for all V8 flows - MIGRATED TO UNIFIED STORAGE
  * @version 8.0.0
@@ -16,19 +16,19 @@
  *
  * @example
  * // Get smart defaults for a flow
- * const creds = CredentialsServiceV8.getSmartDefaults('oauth-authz-v8');
+ * const creds = CredentialsService.getSmartDefaults('oauth-authz-v8');
  *
  * // Load with app discovery
- * const creds = CredentialsServiceV8.loadWithAppDiscovery('oauth-authz-v8', appConfig);
+ * const creds = CredentialsService.loadWithAppDiscovery('oauth-authz-v8', appConfig);
  *
  * // Save credentials
- * CredentialsServiceV8.saveCredentials('oauth-authz-v8', credentials);
+ * CredentialsService.saveCredentials('oauth-authz-v8', credentials);
  */
 
 const MODULE_TAG = '[ CREDENTIALS-SERVICE-V8-MIGRATED]';
 const ENABLE_CREDENTIALS_DEBUG_LOGGING = false;
 
-import { safeAnalyticsFetch } from '@/mfa/utils/analyticsServerCheckV8';
+import { safeAnalyticsFetch } from '@/mfa/utils/analyticsServerCheck';
 import type {
 	V8AppConfig,
 	V8Credentials,
@@ -59,7 +59,7 @@ const ensureMigration = async (): Promise<void> => {};
 // ============================================================================
 
 // biome-ignore lint/complexity/noStaticOnlyClass: This is a service class with static methods
-export class CredentialsServiceV8 {
+export class CredentialsService {
 	private static readonly STORAGE_PREFIX = 'v8_credentials_';
 
 	/**
@@ -67,12 +67,12 @@ export class CredentialsServiceV8 {
 	 * @param flowKey - Unique key for the flow (e.g., 'oauth-authz-v8')
 	 * @returns Default credentials with smart values
 	 * @example
-	 * const defaults = CredentialsServiceV8.getSmartDefaults('oauth-authz-v8');
+	 * const defaults = CredentialsService.getSmartDefaults('oauth-authz-v8');
 	 */
 	static getSmartDefaults(flowKey: string): Credentials {
 		const config = FLOW_FIELD_CONFIG[flowKey];
 		if (!config) {
-			return CredentialsServiceV8.getDefaultCredentials(flowKey, {
+			return CredentialsService.getDefaultCredentials(flowKey, {
 				flowKey,
 				flowType: 'oauth',
 				includeClientSecret: false,
@@ -100,7 +100,7 @@ export class CredentialsServiceV8 {
 	 * @param config - Configuration for which fields to include
 	 * @returns Default credentials object
 	 * @example
-	 * const defaults = CredentialsServiceV8.getDefaultCredentials('oauth-authz-v8', config);
+	 * const defaults = CredentialsService.getDefaultCredentials('oauth-authz-v8', config);
 	 */
 	static getDefaultCredentials(_flowKey: string, config: CredentialsConfig): Credentials {
 		const defaults: Credentials = {
@@ -131,12 +131,12 @@ export class CredentialsServiceV8 {
 	 * @param appConfig - App configuration from PingOne
 	 * @returns Credentials with app-discovered values
 	 * @example
-	 * const creds = CredentialsServiceV8.loadWithAppDiscovery('oauth-authz-v8', appConfig);
+	 * const creds = CredentialsService.loadWithAppDiscovery('oauth-authz-v8', appConfig);
 	 */
 	static async loadWithAppDiscovery(flowKey: string, appConfig: AppConfig): Promise<Credentials> {
 		const config = FLOW_FIELD_CONFIG[flowKey];
 		if (!config) {
-			return CredentialsServiceV8.loadCredentials(flowKey, {
+			return CredentialsService.loadCredentials(flowKey, {
 				flowKey,
 				flowType: 'oauth',
 				includeClientSecret: false,
@@ -147,7 +147,7 @@ export class CredentialsServiceV8 {
 		}
 
 		// Load stored credentials or get defaults
-		const stored = await CredentialsServiceV8.loadCredentials(flowKey, config);
+		const stored = await CredentialsService.loadCredentials(flowKey, config);
 
 		// Merge with app config
 		const merged: Credentials = {
@@ -214,7 +214,7 @@ export class CredentialsServiceV8 {
 	 * @param config - Configuration for which fields to include
 	 * @returns Saved credentials or defaults if not found
 	 * @example
-	 * const creds = CredentialsServiceV8.loadCredentials('oauth-authz-v8', config);
+	 * const creds = CredentialsService.loadCredentials('oauth-authz-v8', config);
 	 */
 	static async loadCredentials(flowKey: string, config: CredentialsConfig): Promise<Credentials> {
 		debugLog(`${MODULE_TAG} Loading credentials from unified storage`, { flowKey });
@@ -227,7 +227,7 @@ export class CredentialsServiceV8 {
 				debugLog(`${MODULE_TAG} Credentials loaded from unified storage`, { flowKey });
 				// #region agent log
 				safeAnalyticsFetch({
-					location: 'credentialsServiceV8.ts:310',
+					location: 'credentialsService.ts:310',
 					message: 'Credentials loaded from unified storage',
 					data: {
 						flowKey,
@@ -247,7 +247,7 @@ export class CredentialsServiceV8 {
 			}
 		} catch (_error) {}
 
-		return CredentialsServiceV8.getDefaultCredentials(flowKey, config);
+		return CredentialsService.getDefaultCredentials(flowKey, config);
 	}
 
 	/**
@@ -272,7 +272,7 @@ export class CredentialsServiceV8 {
 		} catch (_error) {}
 
 		debugLog(`${MODULE_TAG} ⚠️ No credentials found, using defaults`, { flowKey });
-		return CredentialsServiceV8.getDefaultCredentials(flowKey, config);
+		return CredentialsService.getDefaultCredentials(flowKey, config);
 	}
 
 	/**
@@ -280,8 +280,8 @@ export class CredentialsServiceV8 {
 	 * @param flowKey - Unique key for the flow (can include specVersion, e.g., 'oidc-oauth-authz-v8u')
 	 * @param credentials - Credentials to save
 	 * @example
-	 * CredentialsServiceV8.saveCredentials('oauth-authz-v8', credentials);
-	 * CredentialsServiceV8.saveCredentials('oidc-oauth-authz-v8u', credentials);
+	 * CredentialsService.saveCredentials('oauth-authz-v8', credentials);
+	 * CredentialsService.saveCredentials('oidc-oauth-authz-v8u', credentials);
 	 */
 	static async saveCredentials(flowKey: string, credentials: Credentials): Promise<void> {
 		try {
@@ -290,9 +290,9 @@ export class CredentialsServiceV8 {
 			// #region agent log - Use safe analytics fetch
 			(async () => {
 				try {
-					const { safeAnalyticsFetch } = await import('@/mfa/utils/analyticsServerCheckV8');
+					const { safeAnalyticsFetch } = await import('@/mfa/utils/analyticsServerCheck');
 					await safeAnalyticsFetch({
-						location: 'credentialsServiceV8.ts:423',
+						location: 'credentialsService.ts:423',
 						message: 'Saving credentials to unified storage',
 						data: {
 							flowKey,
@@ -324,7 +324,7 @@ export class CredentialsServiceV8 {
 	 * Clear credentials from storage (now uses unified storage)
 	 * @param flowKey - Unique key for the flow
 	 * @example
-	 * CredentialsServiceV8.clearCredentials('oauth-authz-v8');
+	 * CredentialsService.clearCredentials('oauth-authz-v8');
 	 */
 	static async clearCredentials(flowKey: string): Promise<void> {
 		try {
@@ -340,7 +340,7 @@ export class CredentialsServiceV8 {
 	 * @param flowType - Flow type for validation rules
 	 * @returns Validation result with errors and warnings
 	 * @example
-	 * const result = CredentialsServiceV8.validateCredentials(credentials, 'oauth');
+	 * const result = CredentialsService.validateCredentials(credentials, 'oauth');
 	 * if (result.errors.length > 0) {
 	 *   logger.error('CredentialsServiceV9', 'Validation failed:', { arg0: result.errors });;
 	 * }
@@ -358,7 +358,7 @@ export class CredentialsServiceV8 {
 		// Always required
 		if (!credentials.environmentId?.trim()) {
 			errors.push({ message: 'Environment ID is required', field: 'environmentId' });
-		} else if (!CredentialsServiceV8.isValidUUID(credentials.environmentId)) {
+		} else if (!CredentialsService.isValidUUID(credentials.environmentId)) {
 			warnings.push({ message: 'Environment ID should be a valid UUID', field: 'environmentId' });
 		}
 
@@ -373,7 +373,7 @@ export class CredentialsServiceV8 {
 			errors.push({ message: 'Redirect URI is required for this flow', field: 'redirectUri' });
 		} else if (
 			credentials.redirectUri &&
-			!CredentialsServiceV8.isValidUrl(credentials.redirectUri)
+			!CredentialsService.isValidUrl(credentials.redirectUri)
 		) {
 			warnings.push({ message: 'Redirect URI should be a valid URL', field: 'redirectUri' });
 		}
@@ -402,7 +402,7 @@ export class CredentialsServiceV8 {
 		// Post-logout redirect URI validation
 		if (
 			credentials.postLogoutRedirectUri &&
-			!CredentialsServiceV8.isValidUrl(credentials.postLogoutRedirectUri)
+			!CredentialsService.isValidUrl(credentials.postLogoutRedirectUri)
 		) {
 			warnings.push({
 				message: 'Post-Logout Redirect URI should be a valid URL',
@@ -411,7 +411,7 @@ export class CredentialsServiceV8 {
 		}
 
 		// Issuer URL validation
-		if (credentials.issuerUrl && !CredentialsServiceV8.isValidUrl(credentials.issuerUrl)) {
+		if (credentials.issuerUrl && !CredentialsService.isValidUrl(credentials.issuerUrl)) {
 			warnings.push({ message: 'Issuer URL should be a valid URL', field: 'issuerUrl' });
 		}
 
@@ -447,7 +447,7 @@ export class CredentialsServiceV8 {
 	 * @param credentials - Credentials to export
 	 * @returns JSON string
 	 * @example
-	 * const json = CredentialsServiceV8.exportCredentials(credentials);
+	 * const json = CredentialsService.exportCredentials(credentials);
 	 */
 	static exportCredentials(credentials: Credentials): string {
 		return JSON.stringify(credentials, null, 2);
@@ -459,7 +459,7 @@ export class CredentialsServiceV8 {
 	 * @returns Parsed credentials
 	 * @throws Error if JSON is invalid
 	 * @example
-	 * const creds = CredentialsServiceV8.importCredentials(jsonString);
+	 * const creds = CredentialsService.importCredentials(jsonString);
 	 */
 	static importCredentials(json: string): Credentials {
 		try {
@@ -481,7 +481,7 @@ export class CredentialsServiceV8 {
 	 * @returns Full storage key
 	 */
 	static getStorageKey(flowKey: string): string {
-		return `${CredentialsServiceV8.STORAGE_PREFIX}${flowKey}`;
+		return `${CredentialsService.STORAGE_PREFIX}${flowKey}`;
 	}
 
 	/**
@@ -510,7 +510,7 @@ export class CredentialsServiceV8 {
 	 * @returns Sanitized object safe for logging
 	 *
 	 * @example
-	 * const sanitized = CredentialsServiceV8.sanitizeForLogging(credentials);
+	 * const sanitized = CredentialsService.sanitizeForLogging(credentials);
 	 * logger.info('CredentialsServiceV9', 'Credentials:', { arg0: sanitized });;
 	 * // Output: { environmentId: '...', clientId: '...', hasClientSecret: true, ... }
 	 */
@@ -532,9 +532,9 @@ export class CredentialsServiceV8 {
 	 * @returns True if credentials have changed
 	 *
 	 * @example
-	 * if (CredentialsServiceV8.hasCredentialsChanged(oldCreds, newCreds)) {
+	 * if (CredentialsService.hasCredentialsChanged(oldCreds, newCreds)) {
 	 *   // Save is needed
-	 *   CredentialsServiceV8.saveCredentials(flowKey, newCreds);
+	 *   CredentialsService.saveCredentials(flowKey, newCreds);
 	 * }
 	 */
 	static hasCredentialsChanged(
@@ -553,7 +553,7 @@ export class CredentialsServiceV8 {
 	 * @returns Human-readable summary
 	 *
 	 * @example
-	 * const summary = CredentialsServiceV8.getCredentialsSummary(credentials);
+	 * const summary = CredentialsService.getCredentialsSummary(credentials);
 	 * logger.info('CredentialsServiceV9', summary);;
 	 * // "Environment: abc-123, Client: xyz-789, Auth: client_secret_basic, Scopes: 3"
 	 */
@@ -567,7 +567,7 @@ export class CredentialsServiceV8 {
 	}
 }
 
-export default CredentialsServiceV8;
+export default CredentialsService;
 
 // Flow-specific field configurations
 const FLOW_FIELD_CONFIG: Record<string, CredentialsConfig> = {

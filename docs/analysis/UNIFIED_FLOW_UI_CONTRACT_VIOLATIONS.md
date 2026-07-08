@@ -6,7 +6,7 @@
 - `src/v8u/flows/UnifiedOAuthFlowV8U.tsx`
 - `src/v8u/components/SpecVersionSelector.tsx`
 - `src/v8u/components/FlowTypeSelector.tsx`
-- `src/v8/services/specVersionServiceV8.ts`
+- `src/v8/services/specVersionService.ts`
 
 **Contract Documents:**
 - `docs/flows/unified-flow-main-page-ui-contract.md`
@@ -38,7 +38,7 @@
 ### 2. Protocol Terminology in Service
 **Status:** ✅ FULLY COMPLIANT
 
-`specVersionServiceV8.ts` uses correct labels:
+`specVersionService.ts` uses correct labels:
 - ✅ `'oauth2.0': 'OAuth 2.0 Authorization Framework (RFC 6749)'`
 - ✅ `'oauth2.1': 'OAuth 2.1 Authorization Framework (draft)'` - includes "(draft)"
 - ✅ `'oidc': 'OpenID Connect Core 1.0'`
@@ -96,7 +96,7 @@ const specVersions: SpecVersion[] = ['oauth2.0', 'oidc', 'oauth2.1'];
 > - "OAuth 2.1 / OIDC 2.1" (not just "OAuth 2.1 Authorization Framework (draft)")
 
 **Current Implementation:**
-The component uses `SpecVersionServiceV8.getSpecLabel(spec)` which returns:
+The component uses `SpecVersionService.getSpecLabel(spec)` which returns:
 - "OAuth 2.0 Authorization Framework (RFC 6749)" ❌ Too long for button label
 - "OpenID Connect Core 1.0" ❌ Should be "OIDC Core 1.0"
 - "OAuth 2.1 Authorization Framework (draft)" ❌ Should be "OAuth 2.1 / OIDC 2.1"
@@ -168,7 +168,7 @@ const SPEC_VERSION_BUTTON_LABELS: Record<SpecVersion, string> = {
 <span>{SPEC_VERSION_BUTTON_LABELS[spec]}</span>
 ```
 
-Keep using `SpecVersionServiceV8.getSpecLabel(spec)` for educational content and tooltips where full names are appropriate.
+Keep using `SpecVersionService.getSpecLabel(spec)` for educational content and tooltips where full names are appropriate.
 
 ---
 

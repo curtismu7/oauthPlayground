@@ -3,12 +3,12 @@
 echo "🧪 Username Dropdown Debug Test"
 echo "=============================="
 
-# Test 1: Check if SearchableDropdownV8 is properly imported
-echo "📋 Checking SearchableDropdownV8 import..."
-if grep -q "import.*SearchableDropdownV8.*from.*@/v8/components/SearchableDropdownV8" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
-    echo "✅ SearchableDropdownV8 imported"
+# Test 1: Check if SearchableDropdown is properly imported
+echo "📋 Checking SearchableDropdown import..."
+if grep -q "import.*SearchableDropdown.*from.*@/v8/components/SearchableDropdown" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
+    echo "✅ SearchableDropdown imported"
 else
-    echo "❌ SearchableDropdownV8 import missing"
+    echo "❌ SearchableDropdown import missing"
     exit 1
 fi
 
@@ -44,9 +44,9 @@ else
     exit 1
 fi
 
-# Test 6: Check if SearchableDropdownV8 has all required props
+# Test 6: Check if SearchableDropdown has all required props
 echo ""
-echo "📋 Checking SearchableDropdownV8 props..."
+echo "📋 Checking SearchableDropdown props..."
 if grep -q "value={username}" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
     echo "✅ value prop present"
 else

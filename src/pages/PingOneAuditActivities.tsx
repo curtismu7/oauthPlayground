@@ -14,9 +14,9 @@ import { apiRequestModalService } from '../services/apiRequestModalService';
 import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { logger } from '../utils/logger';
-import { ShowTokenConfigCheckboxV8 } from '../mfa/components/ShowTokenConfigCheckboxV8';
-import { SilentApiConfigCheckboxV8 } from '../mfa/components/SilentApiConfigCheckboxV8';
-import { WorkerTokenSectionV8 } from '../mfa/components/WorkerTokenSectionV8';
+import { ShowTokenConfigCheckbox } from '../mfa/components/ShowTokenConfigCheckbox';
+import { SilentApiConfigCheckbox } from '../mfa/components/SilentApiConfigCheckbox';
+import { WorkerTokenSection } from '../mfa/components/WorkerTokenSection';
 
 const styles = {
 	pageContainer: {
@@ -1005,7 +1005,7 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 							)}
 						</div>
 
-						<WorkerTokenSectionV8 compact />
+						<WorkerTokenSection compact />
 
 						{/* Configuration Checkboxes */}
 						<div
@@ -1016,8 +1016,8 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 								gap: '0.75rem',
 							}}
 						>
-							<SilentApiConfigCheckboxV8 />
-							<ShowTokenConfigCheckboxV8 />
+							<SilentApiConfigCheckbox />
+							<ShowTokenConfigCheckbox />
 						</div>
 
 						<div style={styles.buttonRow}>

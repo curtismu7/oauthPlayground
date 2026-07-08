@@ -21,7 +21,7 @@ import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 import { credentialManager } from '../../utils/credentialManager';
 import { logger } from '../../utils/logger';
 import { MockBanner } from '../mock-ui/MockBanner';
-import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
+import type { DiscoveredApp } from '../../mfa/components/AppPicker';
 import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
 
 // Get UI components from FlowUIService

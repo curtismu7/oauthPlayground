@@ -3,7 +3,7 @@
 **Version:** 1.0  
 **Last Updated:** 2025-01-27  
 **Utility Type:** Delete All Users Utility  
-**Component:** `DeleteAllUsersUtilityV8` (to be implemented)
+**Component:** `DeleteAllUsersUtility` (to be implemented)
 
 ## Table of Contents
 
@@ -86,7 +86,7 @@ The Delete All Users Utility uses a **minimal persistence strategy**:
 
 **Storage Location**: Global worker token service (localStorage/IndexedDB)
 
-**Storage Key**: `v8:worker_token` (via `WorkerTokenServiceV8`)
+**Storage Key**: `v8:worker_token` (via `WorkerTokenService`)
 
 **Stored Data Structure**:
 ```typescript
@@ -108,7 +108,7 @@ The Delete All Users Utility uses a **minimal persistence strategy**:
 
 **Retrieval**:
 - On component mount
-- Via `WorkerTokenStatusServiceV8.checkWorkerTokenStatus()`
+- Via `WorkerTokenStatusService.checkWorkerTokenStatus()`
 
 **Lifespan**: Persists until:
 - Token expires
@@ -251,7 +251,7 @@ Array<{
 **Load Priority**:
 1. **Saved Configuration** (localStorage)
 2. **Query Parameter** (URL `env` parameter)
-3. **Global Environment ID** (from `EnvironmentIdServiceV8`)
+3. **Global Environment ID** (from `EnvironmentIdService`)
 4. **Default Values** (empty strings, defaults)
 
 **Default Values**:

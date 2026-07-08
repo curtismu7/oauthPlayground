@@ -8,7 +8,7 @@
 
 ## Purpose
 
-Replaces the localStorage-only `EnvironmentIdServiceV8` as the canonical
+Replaces the localStorage-only `EnvironmentIdService` as the canonical
 write path for the environment ID. Implements the same dual-storage pattern
 as `customDomainService`.
 
@@ -18,7 +18,7 @@ as `customDomainService`.
 | --- | --- | --- |
 | IndexedDB | DB `oauth_playground_app_config`, store `settings`, key `environment_id` | Same DB as customDomainService — fast, local |
 | SQLite (API) | `POST /api/settings/environment-id` | Backend-persisted, survives server restart |
-| localStorage | `v8:global_environment_id` | Compat fallback for `EnvironmentIdServiceV8` consumers |
+| localStorage | `v8:global_environment_id` | Compat fallback for `EnvironmentIdService` consumers |
 
 ## Exports
 
@@ -49,5 +49,5 @@ Invalid values are silently rejected — no partial saves.
 ## Rollback
 
 Delete the file. Revert `unifiedWorkerTokenService.ts` and
-`comprehensiveFlowDataService.ts` to use `EnvironmentIdServiceV8` directly.
+`comprehensiveFlowDataService.ts` to use `EnvironmentIdService` directly.
 Update `useAutoEnvironmentId.ts` to remove the `loadEnvironmentId()` async call.

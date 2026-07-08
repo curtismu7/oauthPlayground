@@ -30,7 +30,7 @@ import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService
 import { COLORS } from '../platform/ColorStandards';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import { WorkerTokenSectionV8 } from '../mfa/components/WorkerTokenSectionV8';
+import { WorkerTokenSection } from '../mfa/components/WorkerTokenSection';
 
 // MDI Icon Component for React Icons migration
 const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
@@ -1216,7 +1216,7 @@ const Configuration: React.FC = () => {
 				icon={<MDIIcon icon="FiKey" />}
 				defaultCollapsed={false}
 			>
-				<WorkerTokenSectionV8 compact onTokenUpdated={(token) => setWorkerToken(token || '')} />
+				<WorkerTokenSection compact onTokenUpdated={(token) => setWorkerToken(token || '')} />
 			</UnifiedFlowCollapsibleHeader>
 
 			{/* Authorization Code (OIDC) Client — for user login via Authz Code + PKCE + pi.flow */}

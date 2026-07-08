@@ -73,7 +73,7 @@ All four OTP flows (SMS, Email, WhatsApp, Voice) follow the **exact same step st
 | **Input Field** | Phone Number with country code picker (47 countries) | Phone Number with country code picker (47 countries) | Email Address (with email icon, auto-filled from PingOne if available) | Phone Number with country code picker (47 countries) |
 | **Preview Box** | Phone Number Preview (yellow background, shows formatted phone number) | Phone Number Preview (yellow background, shows formatted phone number) | Email Preview (yellow background, shown if email is auto-filled) | Phone Number Preview (yellow background, shows formatted phone number) |
 | **Field Icon** | None | None | `FiMail` icon (20px, gray) | None |
-| **Auto-population** | Yes (fetches from PingOne user profile via `phoneAutoPopulationServiceV8.fetchPhoneFromPingOne()`) | Yes (fetches from PingOne user profile via `phoneAutoPopulationServiceV8.fetchPhoneFromPingOne()`) | Yes (fetches from PingOne user profile via `MFAServiceV8.lookupUserByUsername()`) | Yes (fetches from PingOne user profile via `phoneAutoPopulationServiceV8.fetchPhoneFromPingOne()`) |
+| **Auto-population** | Yes (fetches from PingOne user profile via `phoneAutoPopulationService.fetchPhoneFromPingOne()`) | Yes (fetches from PingOne user profile via `phoneAutoPopulationService.fetchPhoneFromPingOne()`) | Yes (fetches from PingOne user profile via `MFAService.lookupUserByUsername()`) | Yes (fetches from PingOne user profile via `phoneAutoPopulationService.fetchPhoneFromPingOne()`) |
 | **Register Button Text** | "Register SMS Device" | "Register Voice Device" | "Register Email Device" | "Register WhatsApp Device" |
 | **API Parameter** | `phone: "+1234567890"` (string) | `phone: "+1234567890"` (string) | `email: "user@example.com"` (string) | `phone: "+1234567890"` (string) |
 | **Controller Used** | `SMSFlowController` | `SMSFlowController` (type overridden to `VOICE` in API call) | `EmailFlowController` | `WhatsAppFlowController` |
@@ -150,7 +150,7 @@ All four OTP flows (SMS, Email, WhatsApp, Voice) follow the **exact same step st
   - **Auto-population:** Fetches email from PingOne user profile if available
   - Preview box shown when email is auto-filled
 - **Secondary Field:** Device Name (optional, defaults to "EMAIL")
-- **Unique Feature:** Email auto-population from PingOne user data via `MFAServiceV8.lookupUserByUsername()`
+- **Unique Feature:** Email auto-population from PingOne user data via `MFAService.lookupUserByUsername()`
 
 #### WhatsApp Flow
 - **Primary Field:** Phone Number
@@ -266,7 +266,7 @@ All three flows support both **Admin Flow** and **User Flow** with identical beh
 **User Flow:**
 - Uses User Token (Authorization Code Flow with PingOne)
 - Always sets device status to `ACTIVATION_REQUIRED` (security requirement)
-- Requires OAuth authentication via `UserLoginModalV8`
+- Requires OAuth authentication via `UserLoginModal`
 - Uses `'oauth_completed'` placeholder for user token
 - Falls back to worker token for device registration API calls
 
@@ -279,8 +279,8 @@ All three flows support both **Admin Flow** and **User Flow** with identical beh
 - **Email:** Email address with auto-population from PingOne
 
 ### 2. **Auto-Population**
-- **Email:** ✅ Yes (fetches from PingOne user profile via `MFAServiceV8.lookupUserByUsername()`)
-- **SMS/Voice/WhatsApp:** ✅ Yes (fetches phone from PingOne user profile via `phoneAutoPopulationServiceV8.fetchPhoneFromPingOne()`, looks for MOBILE or MAIN phone number)
+- **Email:** ✅ Yes (fetches from PingOne user profile via `MFAService.lookupUserByUsername()`)
+- **SMS/Voice/WhatsApp:** ✅ Yes (fetches phone from PingOne user profile via `phoneAutoPopulationService.fetchPhoneFromPingOne()`, looks for MOBILE or MAIN phone number)
 
 ### 3. **API Device Type**
 - **SMS:** `type: "SMS"`
@@ -320,7 +320,7 @@ All three flows support both **Admin Flow** and **User Flow** with identical beh
 **Voice Flow Implementation:**
 - ✅ Integrated as device type option in SMS flow dropdown (Step 2 registration modal)
 - ✅ Uses `SMSFlowController` for phone validation and device registration logic
-- ✅ Overrides `type: "VOICE"` in API call when Voice is selected (line 987 in `SMSFlowV8.tsx`)
+- ✅ Overrides `type: "VOICE"` in API call when Voice is selected (line 987 in `SMSFlow.tsx`)
 - ✅ All UI labels and messages updated to reference "Voice" appropriately
 - ✅ OTP validation subtitle: "Enter the verification code from your voice call"
 - ✅ Button text: "Register Voice Device"
@@ -330,7 +330,7 @@ All three flows support both **Admin Flow** and **User Flow** with identical beh
 
 **Key Implementation Code:**
 ```typescript
-// In SMSFlowV8.tsx, handleRegisterDevice function:
+// In SMSFlow.tsx, handleRegisterDevice function:
 // For VOICE, use SMS controller (both use phone numbers)
 const controllerTypeForVoice = actualDeviceType === 'VOICE' ? 'SMS' : actualDeviceType;
 const correctController = MFAFlowControllerFactory.create({ deviceType: controllerTypeForVoice });
@@ -346,21 +346,21 @@ if (actualDeviceType === 'VOICE') {
 ## Code References
 
 ### Implementation Files
-- **SMS:** `src/v8/flows/types/SMSFlowV8.tsx`
-- **Voice:** Integrated in `src/v8/flows/types/SMSFlowV8.tsx` (device type option in dropdown)
-- **Email:** `src/v8/flows/types/EmailFlowV8.tsx`
-- **WhatsApp:** `src/v8/flows/types/WhatsAppFlowV8.tsx`
+- **SMS:** `src/v8/flows/types/SMSFlow.tsx`
+- **Voice:** Integrated in `src/v8/flows/types/SMSFlow.tsx` (device type option in dropdown)
+- **Email:** `src/v8/flows/types/EmailFlow.tsx`
+- **WhatsApp:** `src/v8/flows/types/WhatsAppFlow.tsx`
 
 ### Shared Components
-- `src/v8/flows/shared/MFAFlowBaseV8.tsx` - Base flow component
+- `src/v8/flows/shared/MFAFlowBase.tsx` - Base flow component
 - `src/v8/flows/shared/useUnifiedOTPFlow.ts` - Shared state management hook
 - `src/v8/flows/components/MFADeviceSelector.tsx` - Device selection UI
 - `src/v8/hooks/useDraggableModal.ts` - Draggable modal hook
-- `src/v8/flows/shared/MFAConfigurationStepV8.tsx` - Configuration step UI
+- `src/v8/flows/shared/MFAConfigurationStep.tsx` - Configuration step UI
 
 ### Services
-- `src/v8/services/phoneAutoPopulationServiceV8.ts` - Phone auto-population service (used by SMS, Voice, WhatsApp flows)
-- `src/v8/services/mfaServiceV8.ts` - MFA service with user lookup (used by Email flow for email auto-population)
+- `src/v8/services/phoneAutoPopulationService.ts` - Phone auto-population service (used by SMS, Voice, WhatsApp flows)
+- `src/v8/services/mfaService.ts` - MFA service with user lookup (used by Email flow for email auto-population)
 
 ### Documentation
 - **SMS:** `docs/SMS_REGISTER_FLOW_ANALYSIS.md`
@@ -378,7 +378,7 @@ if (actualDeviceType === 'VOICE') {
    - Consider extracting Voice into a separate flow component if it needs different behavior in the future
 
 2. **For Voice Flow (Future Enhancement):**
-   - If Voice needs to diverge from SMS behavior, consider creating a dedicated `VoiceFlowV8.tsx` component
+   - If Voice needs to diverge from SMS behavior, consider creating a dedicated `VoiceFlow.tsx` component
    - Would require: cloning SMS flow, updating route, factory registration, and creating `VoiceFlowController`
    - Current implementation (integrated in SMS) is optimal if behavior remains identical
 
@@ -391,7 +391,7 @@ if (actualDeviceType === 'VOICE') {
 ## Version History
 
 - **v1.2.0** (2025-01-31): Added phone auto-population for SMS, Voice, and WhatsApp flows
-  - Created `phoneAutoPopulationServiceV8.ts` service for consistent phone auto-population
+  - Created `phoneAutoPopulationService.ts` service for consistent phone auto-population
   - Updated SMS, Voice, and WhatsApp flows to auto-populate phone numbers from PingOne user profile
   - Updated backend to include `phoneNumbers` in user lookup response
   - Updated documentation to reflect phone auto-population across all phone-based OTP flows
@@ -417,7 +417,7 @@ if (actualDeviceType === 'VOICE') {
   2. API parameter name (`phone` vs `email`)
   3. Device type constant (`'SMS'` vs `'VOICE'` vs `'EMAIL'` vs `'WHATSAPP'`)
   4. Content/labels referencing the device type
-  5. Auto-population: Email uses `MFAServiceV8.lookupUserByUsername()`, phone-based flows use `phoneAutoPopulationServiceV8.fetchPhoneFromPingOne()`
+  5. Auto-population: Email uses `MFAService.lookupUserByUsername()`, phone-based flows use `phoneAutoPopulationService.fetchPhoneFromPingOne()`
   6. Implementation approach (dedicated flows vs integrated option)
 - The flows are so similar that they could potentially be further unified into a single parameterized component
 - **Voice Implementation:** Voice is integrated as an option in the SMS flow dropdown rather than a separate flow. This is optimal since Voice behavior is identical to SMS (phone input, validation, OTP delivery via voice call). The only difference is the `type: "VOICE"` parameter sent to the API, which is overridden in the device registration call.

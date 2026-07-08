@@ -14,10 +14,10 @@ This document defines the UI contract for the unified MFA Success Page component
 
 ## Component Contract
 
-### UnifiedMFASuccessPageV8
+### UnifiedMFASuccessPage
 
-**File:** `src/v8/services/unifiedMFASuccessPageServiceV8.tsx`  
-**Component:** `UnifiedMFASuccessPageV8`
+**File:** `src/v8/services/unifiedMFASuccessPageService.tsx`  
+**Component:** `UnifiedMFASuccessPage`
 
 #### Props Interface
 
@@ -97,7 +97,7 @@ interface UnifiedMFASuccessPageData {
    - Must use flexbox with `justifyContent: 'space-between'`
 
 2. **API Display** (conditional)
-   - Must use `SuperSimpleApiDisplayV8` component
+   - Must use `SuperSimpleApiDisplay` component
    - Must use `flowFilter="mfa"`
    - Must appear above celebratory header when visible
 
@@ -277,9 +277,9 @@ const deviceTypeStr = (deviceType || 'SMS').toUpperCase();
 
 ## API Display Integration Contract
 
-- Must subscribe to `apiDisplayServiceV8` to track visibility
+- Must subscribe to `apiDisplayService` to track visibility
 - Must use `apiDisplayVisible` state to adjust bottom padding
-- Must render `SuperSimpleApiDisplayV8` with `flowFilter="mfa"`
+- Must render `SuperSimpleApiDisplay` with `flowFilter="mfa"`
 - Must render `ApiDisplayCheckbox` in top navigation bar
 
 ---

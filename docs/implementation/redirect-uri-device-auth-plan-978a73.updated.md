@@ -33,7 +33,7 @@ Add a tiny service (e.g., `ReturnTargetServiceV8U`) that manages a structured re
   - **Rule:** only `consume` after successful callback handling.
 
 ### 0.2 Set return target at the moment the login modal opens (flow-aware)
-Update call sites that open `UserLoginModalV8` to set the return target **right before opening**:
+Update call sites that open `UserLoginModal` to set the return target **right before opening**:
 - Device Registration entry → set `{ kind: mfa_device_registration, step: 2, path: <unified MFA step 2+> }`
 - Device Authentication entry → set `{ kind: mfa_device_authentication, step: 2, path: <hub / device select> }`
 - OAuth V8U entry → set `{ kind: oauth_v8u, step: 2/3, path: <V8U step> }`
@@ -51,17 +51,17 @@ Keep legacy callback routes working by aliasing them to the canonical handler:
 
 ## 1) Inventory redirect URI sources (read-only audit)
 - Map **defaults** and **user-editable** values across all flows:
-  - `MFARedirectUriServiceV8` (flow mapping + migration rules)
-  - `flowRedirectUriMapping.ts` and `redirectUriServiceV8.ts` (callbackPath + flowType)
-  - `UserLoginModalV8` (UI field default, saved credentials, override logic)
-  - `MFAAuthenticationMainPageV8` (auth flow redirects)
+  - `MFARedirectUriService` (flow mapping + migration rules)
+  - `flowRedirectUriMapping.ts` and `redirectUriService.ts` (callbackPath + flowType)
+  - `UserLoginModal` (UI field default, saved credentials, override logic)
+  - `MFAAuthenticationMainPage` (auth flow redirects)
   - `UnifiedMFARegistrationFlowV8_Legacy` (user login modal usage + callback handling)
   - OAuth/OIDC flow entry points (`UnifiedFlowSteps`, `UnifiedFlowIntegrationV8U`, `AuthorizationUrlBuilderServiceV8U`)
 - Document where **/mfa-unified-callback** and any legacy **/v8/** paths are generated or forced.
 
 ## 2) Trace callback routing and return-path storage
 - Trace how callbacks are **sent** and **handled** across flows:
-  - OAuth URL creation (`OAuthIntegrationServiceV8`, `AuthorizationUrlBuilderServiceV8U`)
+  - OAuth URL creation (`OAuthIntegrationService`, `AuthorizationUrlBuilderServiceV8U`)
   - Callback routing (`CallbackHandlerV8U`, `App.tsx` routes)
 - Identify **state/return-path storage** and usage:
   - `sessionStorage` keys (`user_login_state_v8`, `user_login_return_to_mfa`, `mfa_oauth_callback_return`, etc.)
@@ -114,10 +114,10 @@ Keep legacy callback routes working by aliasing them to the canonical handler:
 
 ## 5) Implement changes + regression checks
 - **Files to Update**:
-  - `UserLoginModalV8` (flow-aware return path storage)
+  - `UserLoginModal` (flow-aware return path storage)
   - `CallbackHandlerV8U` (flow-aware routing, remove legacy paths)
   - `UnifiedMFARegistrationFlowV8_Legacy` (return path setting)
-  - `MFAAuthenticationMainPageV8` (return path setting)
+  - `MFAAuthenticationMainPage` (return path setting)
   - Redirect services/mapping as needed
 - **Regression Checks**:
   - Device authentication no longer falls back to OAuth flow main page

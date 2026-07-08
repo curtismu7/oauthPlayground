@@ -22,7 +22,7 @@ import { Button } from '@/mfa/components/Button';
 import { PageTransition } from '@/mfa/components/PageTransition';
 import type { DeviceFlowConfig } from '@/mfa/config/deviceFlowConfigTypes';
 import { borderRadius, colors, spacing, typography } from '@/mfa/design/tokens';
-import type { MFAFlowBaseRenderProps } from '@/mfa/flows/shared/MFAFlowBaseV8';
+import type { MFAFlowBaseRenderProps } from '@/mfa/flows/shared/MFAFlowBase';
 import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';
 import {
 	FiAlertCircle,
@@ -134,8 +134,8 @@ export const UnifiedActivationStepModern: React.FC<UnifiedActivationStepModernPr
 		}
 		setIsLoading(true);
 		try {
-			const { MFAServiceV8 } = await import('@/mfa/services/mfaServiceV8');
-			const result = await MFAServiceV8.activateDevice({
+			const { MFAService } = await import('@/mfa/services/mfaService');
+			const result = await MFAService.activateDevice({
 				environmentId: credentials.environmentId,
 				username: credentials.username,
 				deviceId: mfaState.deviceId,
@@ -184,8 +184,8 @@ export const UnifiedActivationStepModern: React.FC<UnifiedActivationStepModernPr
 		setCanResend(false);
 		setResendCooldown(60);
 		try {
-			const { MFAServiceV8 } = await import('@/mfa/services/mfaServiceV8');
-			await MFAServiceV8.resendPairingCode({
+			const { MFAService } = await import('@/mfa/services/mfaService');
+			await MFAService.resendPairingCode({
 				environmentId: credentials.environmentId,
 				username: credentials.username,
 				deviceId: mfaState.deviceId,

@@ -515,12 +515,12 @@ const [isGenerating, setIsGenerating] = useState(false);
 
 **Services:**
 - `src/services/postmanCollectionGeneratorV8.ts` - Collection generation logic
-- `src/v8/services/credentialsServiceV8.ts` - Credential loading
-- `src/v8/services/environmentIdServiceV8.ts` - Environment ID service
-- `src/v8/services/specVersionServiceV8.ts` - Spec version utilities
+- `src/v8/services/credentialsService.ts` - Credential loading
+- `src/v8/services/environmentIdService.ts` - Environment ID service
+- `src/v8/services/specVersionService.ts` - Spec version utilities
 
 **Utilities:**
-- `src/v8/utils/toastNotificationsV8.ts` - Toast notifications
+- `src/v8/utils/toastNotifications.ts` - Toast notifications
 - `src/hooks/usePageScroll.ts` - Page scroll management
 
 ---

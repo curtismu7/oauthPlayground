@@ -164,7 +164,7 @@ Tracking Biome linting fixes for the OAuth Playground codebase.
 - **Fixed**: Assignment in expressions (converted to proper event handlers)
 - **Result**: Reduced from 9 errors + 9 warnings to 0 errors + 3 warnings
 
-### MFAHubV8.tsx ✅
+### MFAHub.tsx ✅
 - **Fixed**: Button type issues (added type="button" to feature buttons)
 - **Fixed**: Accessibility issues (added keyboard events and role to interactive divs)
 - **Result**: Reduced from 5 errors to 3 errors

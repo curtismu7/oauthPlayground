@@ -14,9 +14,9 @@ Verify that the OTP send functionality works correctly after the fix that remove
 
 ## 🔍 Code Review Results
 
-### Frontend Implementation (mfaServiceV8.ts)
+### Frontend Implementation (mfaService.ts)
 
-**Location:** `src/v8/services/mfaServiceV8.ts` - Lines 484-620
+**Location:** `src/v8/services/mfaService.ts` - Lines 484-620
 
 **Key Points:**
 ✅ Sends request to `/api/pingone/mfa/send-otp`  
@@ -150,12 +150,12 @@ const response = await global.fetch(otpEndpoint, {
 **Expected Result:** ✅ Test OTP ready: 123456  
 **Actual Result:** ✅ PASS (test mode implemented)
 
-**Code Location:** `src/v8/flows/MFAFlowV8.tsx` - Lines ~1460
+**Code Location:** `src/v8/flows/MFAFlow.tsx` - Lines ~1460
 ```typescript
 // Test mode: Skip API call
 if (testMode) {
   console.log(`${MODULE_TAG} Test mode: Skipping OTP send, using mock OTP`);
-  toastV8.success(`Test OTP ready: ${mockOTP}`);
+  toast.success(`Test OTP ready: ${mockOTP}`);
   nav.markStepComplete();
   return;
 }

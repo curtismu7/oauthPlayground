@@ -36,7 +36,7 @@ This document defines the UI contract for TOTP (Time-based One-Time Password) de
 
 ### 1. TOTP Configuration Page
 
-**Component:** `TOTPConfigurationPageV8.tsx`  
+**Component:** `TOTPConfigurationPage.tsx`  
 **Route:** `/v8/mfa/register/totp`
 
 #### Required UI Elements
@@ -83,7 +83,7 @@ This document defines the UI contract for TOTP (Time-based One-Time Password) de
 
 #### State Management
 
-- Configuration must be saved to `localStorage` via `CredentialsServiceV8`
+- Configuration must be saved to `localStorage` via `CredentialsService`
 - Configuration must be loaded on page mount
 - Changes must be persisted immediately
 
@@ -99,7 +99,7 @@ This document defines the UI contract for TOTP (Time-based One-Time Password) de
 
 ### 2. TOTP Registration Flow
 
-**Component:** `TOTPFlowV8.tsx`  
+**Component:** `TOTPFlow.tsx`  
 **Route:** `/v8/mfa/register/totp/device`
 
 #### Step 0: Configuration
@@ -114,8 +114,8 @@ This document defines the UI contract for TOTP (Time-based One-Time Password) de
 
 **State:**
 - Credentials stored in `credentials` state
-- Token status checked via `WorkerTokenStatusServiceV8`
-- Policies loaded from `MFAServiceV8.listDeviceAuthenticationPolicies()`
+- Token status checked via `WorkerTokenStatusService`
+- Policies loaded from `MFAService.listDeviceAuthenticationPolicies()`
 
 #### Step 1: Device Selection
 
@@ -136,7 +136,7 @@ This document defines the UI contract for TOTP (Time-based One-Time Password) de
 - Must create device with `status: "ACTIVATION_REQUIRED"` to receive secret and QR code
 
 **Device Registration Contract:**
-- Must call `MFAServiceV8.registerDevice()` with `type: "TOTP"`
+- Must call `MFAService.registerDevice()` with `type: "TOTP"`
 - Must include `status: "ACTIVATION_REQUIRED"` in request (for User flow or when admin selects ACTIVATION_REQUIRED)
 - Must extract `secret` and `keyUri` from response
 - Must store secret and QR code URI in state
@@ -176,7 +176,7 @@ This document defines the UI contract for TOTP (Time-based One-Time Password) de
 - Must show info tip about opening authenticator app
 - Must have sticky footer with "Cancel" and "Activate Device" buttons
 - "Activate Device" button must be disabled until OTP length matches `otpLength`
-- Must validate OTP and activate device via `MFAServiceV8.activateTOTPDevice()`
+- Must validate OTP and activate device via `MFAService.activateTOTPDevice()`
 - Must handle activation errors gracefully
 - Must close modal after successful activation
 - Must close QR modal after successful activation
@@ -230,7 +230,7 @@ This document defines the UI contract for TOTP (Time-based One-Time Password) de
 
 ### 3. TOTP Authentication Flow
 
-**Component:** `MFAAuthenticationMainPageV8.tsx`  
+**Component:** `MFAAuthenticationMainPage.tsx`  
 **Route:** `/v8/mfa/auth`
 
 #### Device Selection
@@ -268,7 +268,7 @@ This document defines the UI contract for TOTP (Time-based One-Time Password) de
    - Must track validation attempts
 
 2. **Secret Expired**
-   - Must display expiration modal (`TOTPExpiredModalV8`)
+   - Must display expiration modal (`TOTPExpiredModal`)
    - Must allow user to delete device and recreate
    - Must prevent QR code display if expired
 

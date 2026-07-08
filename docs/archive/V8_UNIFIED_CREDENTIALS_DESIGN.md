@@ -381,9 +381,9 @@ When OIDC is selected:
 ## Implementation Strategy
 
 ### Phase 1: Core Infrastructure
-1. Create `SpecVersionServiceV8` - Manages spec versions and compliance rules
-2. Create `UnifiedFlowOptionsServiceV8` - Extends flow options with spec awareness
-3. Update `CredentialsFormV8` - Add spec version radio buttons and flow selector
+1. Create `SpecVersionService` - Manages spec versions and compliance rules
+2. Create `UnifiedFlowOptionsService` - Extends flow options with spec awareness
+3. Update `CredentialsForm` - Add spec version radio buttons and flow selector
 
 ### Phase 2: Smart Filtering
 1. Implement spec-aware field visibility
@@ -404,7 +404,7 @@ When OIDC is selected:
 
 ```typescript
 // Spec version service
-export class SpecVersionServiceV8 {
+export class SpecVersionService {
   static getAvailableFlows(specVersion: 'oauth2.0' | 'oauth2.1' | 'oidc'): FlowType[]
   static isFlowAvailable(specVersion, flowType): boolean
   static getComplianceRules(specVersion): ComplianceRules
@@ -412,22 +412,22 @@ export class SpecVersionServiceV8 {
 }
 
 // Unified flow options
-export class UnifiedFlowOptionsServiceV8 {
+export class UnifiedFlowOptionsService {
   static getOptionsForFlow(specVersion, flowType): FlowOptions
   static getFieldVisibility(specVersion, flowType): FieldVisibility
   static getCheckboxAvailability(specVersion, flowType): CheckboxAvailability
 }
 
 // Updated credentials form
-export const CredentialsFormV8: React.FC<Props> = ({
+export const CredentialsForm: React.FC<Props> = ({
   specVersion = 'oauth2.0',
   flowType = 'oauth-authz',
   ...
 }) => {
   const [selectedSpec, setSelectedSpec] = useState(specVersion)
   const [selectedFlow, setSelectedFlow] = useState(flowType)
-  const availableFlows = SpecVersionServiceV8.getAvailableFlows(selectedSpec)
-  const flowOptions = UnifiedFlowOptionsServiceV8.getOptionsForFlow(selectedSpec, selectedFlow)
+  const availableFlows = SpecVersionService.getAvailableFlows(selectedSpec)
+  const flowOptions = UnifiedFlowOptionsService.getOptionsForFlow(selectedSpec, selectedFlow)
   // ...
 }
 ```

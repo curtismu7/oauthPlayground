@@ -49,7 +49,7 @@ This document defines the UI contract for the 6-step MFA Device Authentication f
 
 ### Step 0: Configuration
 
-**Component**: `ConfigurationStepV8`
+**Component**: `ConfigurationStep`
 
 **Props Interface**:
 ```typescript
@@ -76,7 +76,7 @@ interface ConfigurationStepProps {
 
 ### Step 1: User Login
 
-**Component**: `UserLoginStepV8`
+**Component**: `UserLoginStep`
 
 **Props Interface**:
 ```typescript
@@ -103,7 +103,7 @@ interface UserLoginStepProps {
 
 ### Step 2: Device Selection
 
-**Component**: `DeviceSelectionStepV8`
+**Component**: `DeviceSelectionStep`
 
 **Props Interface**:
 ```typescript
@@ -133,7 +133,7 @@ interface DeviceSelectionStepProps {
 ### Step 3: Device-Specific Actions
 
 #### Standard Devices (SMS, Email, TOTP, WhatsApp)
-**Component**: `OTPGenerationStepV8`
+**Component**: `OTPGenerationStep`
 
 **Requirements**:
 - OTP code generation and display
@@ -143,7 +143,7 @@ interface DeviceSelectionStepProps {
 - Countdown timer for OTP expiry
 
 #### FIDO2
-**Component**: `FIDO2StepV8`
+**Component**: `FIDO2Step`
 
 **Requirements**:
 - WebAuthn browser API integration
@@ -153,7 +153,7 @@ interface DeviceSelectionStepProps {
 - Clear error handling
 
 #### Mobile
-**Component**: `MobilePushStepV8`
+**Component**: `MobilePushStep`
 
 **Requirements**:
 - Push notification sending
@@ -166,7 +166,7 @@ interface DeviceSelectionStepProps {
 
 ### Step 4: Validation
 
-**Component**: `OTPValidationStepV8` (Standard) / `ConfirmationStepV8` (FIDO2/Mobile)
+**Component**: `OTPValidationStep` (Standard) / `ConfirmationStep` (FIDO2/Mobile)
 
 **Requirements**:
 - OTP input field (6 digits for standard devices)
@@ -179,7 +179,7 @@ interface DeviceSelectionStepProps {
 
 ### Step 5: API Documentation
 
-**Component**: `APIDocsStepV8`
+**Component**: `APIDocsStep`
 
 **Requirements**:
 - Authentication headers display
@@ -198,7 +198,7 @@ interface DeviceSelectionStepProps {
 
 ### Step 6: Success Screen
 
-**Component**: `SuccessStepV8`
+**Component**: `SuccessStep`
 
 **Requirements**:
 - Success celebration animation

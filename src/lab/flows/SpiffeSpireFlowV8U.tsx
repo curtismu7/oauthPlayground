@@ -17,9 +17,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { type EnhancedApiCallData } from '@/services/enhancedApiCallDisplayService';
-import { SuperSimpleApiDisplayV8 } from '@/mfa/components/SuperSimpleApiDisplayV8';
-import { EnvironmentIdServiceV8 } from '@/mfa/services/environmentIdServiceV8';
-import { TokenDisplayServiceV8 } from '@/mfa/services/tokenDisplayServiceV8';
+import { SuperSimpleApiDisplay } from '@/mfa/components/SuperSimpleApiDisplay';
+import { EnvironmentIdService } from '@/mfa/services/environmentIdService';
+import { TokenDisplayService } from '@/mfa/services/tokenDisplayService';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowRestartButton } from '../../platform/FlowRestartButton';
 import { PlatformFlowHeader } from '../../platform/platformFlowHeaderService';
@@ -825,7 +825,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 		// Clear shared API call history when this lab loads, similar to MFA flow
 		apiCallTrackerService.clearApiCalls();
 
-		const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+		const storedEnvId = EnvironmentIdService.getEnvironmentId();
 		if (storedEnvId) {
 			setEnvironmentId(storedEnvId);
 			logger.info(`${MODULE_TAG} Loaded environment ID from storage`, 'Logger info');
@@ -854,7 +854,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 	// Listen for environment ID updates
 	useEffect(() => {
 		const handleEnvIdUpdate = () => {
-			const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+			const storedEnvId = EnvironmentIdService.getEnvironmentId();
 			if (storedEnvId && storedEnvId !== environmentId) {
 				setEnvironmentId(storedEnvId);
 				logger.info(`${MODULE_TAG} Environment ID updated from storage`, 'Logger info');
@@ -1067,7 +1067,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 			timestamp: new Date(),
 		};
 
-		// Track PingOne token exchange via shared API call tracker (used by SuperSimpleApiDisplayV8)
+		// Track PingOne token exchange via shared API call tracker (used by SuperSimpleApiDisplay)
 		const trackerId = apiCallTrackerService.trackApiCall({
 			method: 'POST',
 			url: tokenExchangeApiCall.url,
@@ -1133,9 +1133,9 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 		}, 1500);
 	};
 
-	// Copy to clipboard using TokenDisplayServiceV8
+	// Copy to clipboard using TokenDisplayService
 	const handleCopy = async (text: string, field: string) => {
-		const success = await TokenDisplayServiceV8.copyToClipboard(text, field);
+		const success = await TokenDisplayService.copyToClipboard(text, field);
 		if (success) {
 			setCopiedField(field);
 			setTimeout(() => setCopiedField(null), 2000);
@@ -1548,7 +1548,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 										const newValue = e.target.value;
 										setEnvironmentId(newValue);
 										if (newValue.trim()) {
-											EnvironmentIdServiceV8.saveEnvironmentId(newValue);
+											EnvironmentIdService.saveEnvironmentId(newValue);
 										}
 									}}
 									placeholder="12345678-1234-1234-1234-123456789abc"
@@ -1861,7 +1861,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 									<Label>Token Metadata</Label>
 									<CodeBlock>
 										{`Token Type: ${pingOneToken.tokenType}
-Expires In: ${pingOneToken.expiresIn} seconds (${TokenDisplayServiceV8.formatExpiry(pingOneToken.expiresIn)})
+Expires In: ${pingOneToken.expiresIn} seconds (${TokenDisplayService.formatExpiry(pingOneToken.expiresIn)})
 Scope: ${pingOneToken.scope}
 Workload SPIFFE ID: ${svid?.spiffeId}
 Issued At: ${new Date().toISOString()}`}
@@ -1885,7 +1885,7 @@ Issued At: ${new Date().toISOString()}`}
 
 				{/* API Call Display Section - Full Width at Bottom */}
 				{/* MFA-style bottom-docked PingOne/SPIFFE API history (shared across V8 flows) */}
-				<SuperSimpleApiDisplayV8 />
+				<SuperSimpleApiDisplay />
 			</PageContainer>
 		</OuterWrapper>
 	);

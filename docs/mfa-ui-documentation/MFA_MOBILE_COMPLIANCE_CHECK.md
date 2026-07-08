@@ -14,8 +14,8 @@
 - ✅ Factory configuration is correct (MOBILE uses SMSFlowController)
 - ✅ Routes are properly defined in App.tsx
 - ✅ Documentation page exists
-- ❌ **MobileFlowV8.tsx is MISSING** (causing import error)
-- ❌ **MobileOTPConfigurationPageV8.tsx is MISSING** (causing import error)
+- ❌ **MobileFlow.tsx is MISSING** (causing import error)
+- ❌ **MobileOTPConfigurationPage.tsx is MISSING** (causing import error)
 - ✅ Flow API infrastructure exists (redirectless support in server.js)
 - ⚠️ Flow APIs are optional per master doc - current uses MFA APIs directly (acceptable)
 
@@ -78,7 +78,7 @@ The master document states Mobile flows **"can leverage"** Flow APIs, which impl
 > Mobile devices are registered using the same API as SMS devices (`type: "SMS"` or `type: "MOBILE"`)
 
 **Current Implementation:**
-- ✅ Uses `MFAServiceV8.registerDevice()` (same as SMS)
+- ✅ Uses `MFAService.registerDevice()` (same as SMS)
 - ✅ Request body format matches master doc specification
 - ✅ Supports both `type: "SMS"` and `type: "MOBILE"`
 
@@ -162,9 +162,9 @@ The master document states Mobile flows **"can leverage"** Flow APIs, which impl
 
 ## Missing Implementation Files
 
-### ❌ Critical: MobileFlowV8.tsx
+### ❌ Critical: MobileFlow.tsx
 
-**Expected Location:** `src/v8/flows/types/MobileFlowV8.tsx`
+**Expected Location:** `src/v8/flows/types/MobileFlow.tsx`
 
 **Required Features (per master doc):**
 - Registration flow (Steps 0-5)
@@ -177,13 +177,13 @@ The master document states Mobile flows **"can leverage"** Flow APIs, which impl
 
 **Current Status:** ❌ **FILE MISSING** - Causing import error in App.tsx
 
-**Solution:** Create from `SMSFlowV8.tsx` with Mobile-specific replacements
+**Solution:** Create from `SMSFlow.tsx` with Mobile-specific replacements
 
 ---
 
-### ❌ Critical: MobileOTPConfigurationPageV8.tsx
+### ❌ Critical: MobileOTPConfigurationPage.tsx
 
-**Expected Location:** `src/v8/flows/types/MobileOTPConfigurationPageV8.tsx`
+**Expected Location:** `src/v8/flows/types/MobileOTPConfigurationPage.tsx`
 
 **Required Features (per master doc):**
 - Configuration page for Mobile registration
@@ -194,7 +194,7 @@ The master document states Mobile flows **"can leverage"** Flow APIs, which impl
 
 **Current Status:** ❌ **FILE MISSING** - Causing import error in App.tsx
 
-**Solution:** Create from `SMSOTPConfigurationPageV8.tsx` with Mobile-specific replacements
+**Solution:** Create from `SMSOTPConfigurationPage.tsx` with Mobile-specific replacements
 
 ---
 
@@ -205,14 +205,14 @@ The master document states Mobile flows **"can leverage"** Flow APIs, which impl
 - [x] Factory configuration (MFAFlowControllerFactory)
 - [x] Component factory registration (MFAFlowComponentFactory)
 - [x] Route definitions in App.tsx
-- [x] Documentation page (MobileRegistrationDocsPageV8.tsx)
+- [x] Documentation page (MobileRegistrationDocsPage.tsx)
 - [x] Redirectless authorization infrastructure
 - [x] Flow API support in server.js
 
 ### ❌ Missing (Blocking)
 
-- [ ] **MobileFlowV8.tsx** - Main flow component
-- [ ] **MobileOTPConfigurationPageV8.tsx** - Configuration page
+- [ ] **MobileFlow.tsx** - Main flow component
+- [ ] **MobileOTPConfigurationPage.tsx** - Configuration page
 
 ### ⚠️ Optional Enhancements
 
@@ -226,14 +226,14 @@ The master document states Mobile flows **"can leverage"** Flow APIs, which impl
 
 ### Immediate Actions (Required)
 
-1. **Create MobileFlowV8.tsx**
-   - Copy from `SMSFlowV8.tsx`
+1. **Create MobileFlow.tsx**
+   - Copy from `SMSFlow.tsx`
    - Replace all SMS references with Mobile
    - Update routes to `/v8/mfa/register/mobile`
    - Ensure `deviceType="MOBILE"` is used
 
-2. **Create MobileOTPConfigurationPageV8.tsx**
-   - Copy from `SMSOTPConfigurationPageV8.tsx`
+2. **Create MobileOTPConfigurationPage.tsx**
+   - Copy from `SMSOTPConfigurationPage.tsx`
    - Replace all SMS references with Mobile
    - Update routes to `/v8/mfa/register/mobile`
    - Ensure `deviceType="MOBILE"` is used
@@ -266,8 +266,8 @@ The master document states Mobile flows **"can leverage"** Flow APIs, which impl
 | SPA OAuth Pattern | ✅ | PKCE and state preservation implemented |
 | Device Registration | ✅ | Uses same API as SMS |
 | OTP Delivery | ✅ | SMS-based delivery |
-| MobileFlowV8.tsx | ❌ | **FILE MISSING** |
-| MobileOTPConfigurationPageV8.tsx | ❌ | **FILE MISSING** |
+| MobileFlow.tsx | ❌ | **FILE MISSING** |
+| MobileOTPConfigurationPage.tsx | ❌ | **FILE MISSING** |
 | Routes | ✅ | Properly defined |
 | Factories | ✅ | Correctly configured |
 | Documentation | ✅ | Page exists |

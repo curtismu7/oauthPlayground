@@ -17,9 +17,9 @@
  * - Other: postLogoutRedirectUri, logoutUri, responseType, useRedirectless (deprecated)
  */
 
-import { CredentialsServiceV8 } from '@/mfa/services/credentialsServiceV8';
-import { EnvironmentIdServiceV8 } from '@/mfa/services/environmentIdServiceV8';
-import { SharedCredentialsServiceV8 } from '@/mfa/services/sharedCredentialsServiceV8';
+import { CredentialsService } from '@/mfa/services/credentialsService';
+import { EnvironmentIdService } from '@/mfa/services/environmentIdService';
+import { SharedCredentialsService } from '@/mfa/services/sharedCredentialsService';
 import type { UnifiedFlowCredentials } from '@/lab/services/unifiedFlowIntegrationV8U';
 import { logger } from '../../utils/logger';
 
@@ -226,7 +226,7 @@ export async function reloadCredentialsAfterReset(
 		 * Flow config determines which credential fields are relevant for this flow type.
 		 * For example, device code flow doesn't need redirectUri, but authorization code flow does.
 		 */
-		const config = CredentialsServiceV8.getFlowConfig(flowKey) || {
+		const config = CredentialsService.getFlowConfig(flowKey) || {
 			flowKey: flowKey,
 			flowType: 'oauth' as const,
 			includeClientSecret: true,
@@ -251,7 +251,7 @@ export async function reloadCredentialsAfterReset(
 		let flowSpecific: Record<string, unknown>;
 		try {
 			// Use async backup version for better persistence
-			const loaded = await CredentialsServiceV8.loadCredentialsWithBackup(flowKey, config);
+			const loaded = await CredentialsService.loadCredentialsWithBackup(flowKey, config);
 			flowSpecific = loaded as Record<string, unknown>;
 		} catch (error) {
 			logger.warn('CredentialReloadServiceV8U', `Async load failed, using sync fallback`, {
@@ -259,7 +259,7 @@ export async function reloadCredentialsAfterReset(
 				error,
 			});
 			// Fall back to sync version
-			flowSpecific = CredentialsServiceV8.loadCredentials(flowKey, config) as Record<
+			flowSpecific = CredentialsService.loadCredentials(flowKey, config) as Record<
 				string,
 				unknown
 			>;
@@ -275,7 +275,7 @@ export async function reloadCredentialsAfterReset(
 			allKeys: Object.keys(flowSpecific),
 		});
 		// #region agent log
-		import('@/mfa/utils/analyticsV8')
+		import('@/mfa/utils/analytics')
 			.then(({ analytics }) => {
 				analytics.log({
 					location: 'credentialReloadServiceV8U.ts:190',
@@ -303,7 +303,7 @@ export async function reloadCredentialsAfterReset(
 		 *
 		 * Using synchronous load for immediate results (no async delay).
 		 */
-		const shared = SharedCredentialsServiceV8.loadSharedCredentialsSync();
+		const shared = SharedCredentialsService.loadSharedCredentialsSync();
 
 		/**
 		 * Step 4: Get global environment ID
@@ -311,7 +311,7 @@ export async function reloadCredentialsAfterReset(
 		 * This is a fallback if neither shared nor flow-specific credentials have environmentId.
 		 * The global environment ID is stored separately and used as a last resort.
 		 */
-		const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+		const storedEnvId = EnvironmentIdService.getEnvironmentId();
 
 		/**
 		 * Step 5: Merge credentials with priority
@@ -360,7 +360,7 @@ export async function reloadCredentialsAfterReset(
 			hasPrivateKey: !!merged.privateKey,
 		});
 		// #region agent log
-		import('@/mfa/utils/analyticsV8')
+		import('@/mfa/utils/analytics')
 			.then(({ analytics }) => {
 				analytics.log({
 					location: 'credentialReloadServiceV8U.ts:232',
@@ -394,7 +394,7 @@ export async function reloadCredentialsAfterReset(
 		});
 
 		// Return minimal defaults if reload fails
-		const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+		const storedEnvId = EnvironmentIdService.getEnvironmentId();
 		return {
 			environmentId: storedEnvId || '',
 			clientId: '',
@@ -420,7 +420,7 @@ export function saveCredentialsBeforeReset(
 
 	try {
 		// Save flow-specific credentials
-		CredentialsServiceV8.saveCredentials(flowKey, credentials);
+		CredentialsService.saveCredentials(flowKey, credentials);
 
 		// Save shared credentials
 		const sharedCreds: {
@@ -441,7 +441,7 @@ export function saveCredentialsBeforeReset(
 			...(credentials.issuerUrl ? { issuerUrl: credentials.issuerUrl } : {}),
 			...(credentials.clientAuthMethod ? { clientAuthMethod: credentials.clientAuthMethod } : {}),
 		};
-		SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
+		SharedCredentialsService.saveSharedCredentials(sharedCreds);
 
 		logger.info(`${MODULE_TAG} ✅ Credentials saved before reset`, 'Logger info');
 	} catch (error) {

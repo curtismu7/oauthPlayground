@@ -8,15 +8,15 @@
 ## What changed
 
 After a successful `localStorage.setItem` in `saveSharedEnvironment()`, a
-cascade block now also calls `EnvironmentIdServiceV8.saveEnvironmentId()` via
+cascade block now also calls `EnvironmentIdService.saveEnvironmentId()` via
 an async import (best-effort, errors are silenced).
 
 ```ts
 // NEW block added at the end of the try block in saveSharedEnvironment()
 if (updated.environmentId) {
-  import('../v8/services/environmentIdServiceV8')
-    .then(({ EnvironmentIdServiceV8 }) => {
-      EnvironmentIdServiceV8.saveEnvironmentId(updated.environmentId);
+  import('../v8/services/environmentIdService')
+    .then(({ EnvironmentIdService }) => {
+      EnvironmentIdService.saveEnvironmentId(updated.environmentId);
     })
     .catch(() => {
       // Silent — sync is best-effort

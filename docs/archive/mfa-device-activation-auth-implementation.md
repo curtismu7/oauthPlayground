@@ -14,7 +14,7 @@ This document tracks the implementation of comprehensive MFA device activation a
 
 ## 1. Service Layer Methods
 
-### New Methods to Add to `src/v8/services/mfaServiceV8.ts`
+### New Methods to Add to `src/v8/services/mfaService.ts`
 
 #### A. FIDO2 Device Activation
 
@@ -162,7 +162,7 @@ app.post('/api/pingone/mfa/complete-authentication', async (req, res) => {
 
 ### A. Activation Mode Selector
 
-**Location:** `src/v8/flows/MFAFlowV8.tsx` - Step 1 (Device Registration)
+**Location:** `src/v8/flows/MFAFlow.tsx` - Step 1 (Device Registration)
 
 **Component:**
 ```tsx
@@ -312,7 +312,7 @@ if (activationMode === 'full-validation') {
   if (deviceType === 'TOTP') {
     // Display QR code
     // Wait for user to scan and enter first OTP
-    const validationResult = await MFAServiceV8.validateOTP({
+    const validationResult = await MFAService.validateOTP({
       environmentId,
       username,
       deviceId,
@@ -321,18 +321,18 @@ if (activationMode === 'full-validation') {
     
     if (validationResult.valid) {
       // Activate device
-      await MFAServiceV8.activateDevice({ environmentId, username, deviceId });
-      toastV8.success('✅ Device validated and activated!');
+      await MFAService.activateDevice({ environmentId, username, deviceId });
+      toast.success('✅ Device validated and activated!');
     }
   } else if (deviceType === 'FIDO2') {
     // Perform FIDO2 activation ceremony
-    await MFAServiceV8.activateFIDO2Device({
+    await MFAService.activateFIDO2Device({
       environmentId,
       username,
       deviceId,
       fido2Data: webAuthnResult
     });
-    toastV8.success('✅ FIDO2 device activated!');
+    toast.success('✅ FIDO2 device activated!');
   }
   // Similar for SMS/EMAIL
 }
@@ -355,21 +355,21 @@ if (activationMode === 'admin-fast-path') {
   
   // Activate immediately
   if (deviceType === 'FIDO2') {
-    await MFAServiceV8.activateFIDO2Device({
+    await MFAService.activateFIDO2Device({
       environmentId,
       username,
       deviceId,
       fido2Data: {} // Empty for admin mode
     });
   } else {
-    await MFAServiceV8.activateDevice({
+    await MFAService.activateDevice({
       environmentId,
       username,
       deviceId
     });
   }
   
-  toastV8.warning('⚡ Device activated via admin fast-path (demo-only, not for production)');
+  toast.warning('⚡ Device activated via admin fast-path (demo-only, not for production)');
   
   // Skip to success
   nav.markStepComplete();
@@ -415,7 +415,7 @@ if (activationMode === 'admin-fast-path') {
 
 ## 6. API Call Display
 
-All API calls should be visible in the SuperSimpleApiDisplayV8 component with:
+All API calls should be visible in the SuperSimpleApiDisplay component with:
 
 - **Endpoint URL**
 - **HTTP Method**

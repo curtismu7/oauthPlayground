@@ -14,8 +14,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { apiDisplayServiceV8 } from '@/mfa/services/apiDisplayServiceV8';
-import { CredentialsServiceV8 } from '@/mfa/services/credentialsServiceV8';
+import { apiDisplayService } from '@/mfa/services/apiDisplayService';
+import { CredentialsService } from '@/mfa/services/credentialsService';
 import { logger } from '../../../utils/logger';
 import { getFullPhoneNumber } from '../controllers/SMSFlowController';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
@@ -147,7 +147,7 @@ export function useUnifiedOTPFlow(options: UseUnifiedOTPFlowOptions): UseUnified
 		const isOTPFlow = deviceType === 'SMS' || deviceType === 'EMAIL' || deviceType === 'WHATSAPP';
 
 		// Check if we have credentials in storage (always check, even if we have location state)
-		const storedCredentials = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+		const storedCredentials = CredentialsService.loadCredentials('mfa-flow-v8', {
 			flowKey: 'mfa-flow-v8',
 			flowType: 'oidc',
 			includeClientSecret: false,
@@ -307,11 +307,11 @@ export function useUnifiedOTPFlow(options: UseUnifiedOTPFlowOptions): UseUnified
 
 	useEffect(() => {
 		const checkVisibility = () => {
-			const visible = apiDisplayServiceV8.isVisible();
+			const visible = apiDisplayService.isVisible();
 			setIsApiDisplayVisible(visible);
 		};
 
-		const unsubscribe = apiDisplayServiceV8.subscribe(checkVisibility);
+		const unsubscribe = apiDisplayService.subscribe(checkVisibility);
 		checkVisibility(); // Initial check
 
 		return unsubscribe;
