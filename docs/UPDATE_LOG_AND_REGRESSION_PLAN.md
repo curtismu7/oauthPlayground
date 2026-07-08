@@ -29,7 +29,14 @@ This document:
 
 ## 3. Update Log
 
-### LLM provider env semantics: OPENAI_API_KEY is llama.cpp bearer, not OpenAI cloud (2026-07-06)
+### Settings storage: SQLite service replaced with LMDB adapter (2026-07-08)
+
+- **What:** `/api/settings/*` routes failed silently because `server.js` imported deleted `settingsDatabaseService.js`. Settings now use `settingsAdapter.js` → LMDB `settingsStore`.
+- **Cause:** LMDB migration landed `settingsStore.js` but never wired `server.js` off the removed SQLite service.
+- **Fix:** Added `settingsAdapter.js` (async facade matching legacy JSON-string get contract) and `migrateSettingsSqlite.js` (one-time import from `src/server/data/settings.db`). `server.js` loads the adapter and calls `init()` at boot.
+- **Files:** `src/server/lmdb/settingsAdapter.js`, `src/server/lmdb/migrateSettingsSqlite.js`, `src/server/lmdb/__tests__/settingsAdapter.test.ts`, `server.js`
+- **Regression check:** (1) `npm run test:run -- src/server/lmdb/__tests__/settingsAdapter.test.ts` passes. (2) `npm run start` — no "Settings DB unavailable (SQLite)" warning. (3) GET/POST `/api/settings/custom-domain` and `/api/settings/region` persist across restart.
+
 
 - **What:** `AI_PROVIDER=auto` incorrectly routed `OPENAI_API_KEY` to api.openai.com. In this project the key is the bearer token for a local llama.cpp OpenAI-compatible server.
 - **Cause:** `resolveLlmProvider()` auto mode checked `isOpenAiConfigured()` first; `buildChatCompletionConfig` for llama.cpp ignored `OPENAI_API_KEY`.

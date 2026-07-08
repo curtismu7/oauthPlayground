@@ -26,7 +26,7 @@ import fetch from 'node-fetch';
 // SQLite-dependent modules — all loaded dynamically below with in-memory fallbacks
 // so the app starts cleanly on Vercel and other environments without native sqlite3.
 // import { userDatabaseService } from './src/server/services/userDatabaseService.js';
-// import { settingsDB } from './src/server/services/settingsDatabaseService.js';
+// import { settingsDB } from './src/server/lmdb/settingsAdapter.js';
 // import { setupUserApiRoutes } from './src/server/routes/userApiRoutes.js';
 // SQLite-dependent modules are loaded dynamically below to allow graceful fallback when
 // native sqlite3 binaries are unavailable (e.g. Vercel serverless, CI environments).
@@ -1038,10 +1038,12 @@ let credentialStore = {
 	}
 
 	try {
-		const settingsMod = await import('./src/server/services/settingsDatabaseService.js');
+		const settingsMod = await import('./src/server/lmdb/settingsAdapter.js');
 		settingsDB = settingsMod.settingsDB;
+		await settingsDB.init();
+		console.log('💾 Settings store initialized (LMDB)');
 	} catch (err) {
-		console.warn('⚠️ Settings DB unavailable (SQLite):', err.message);
+		console.warn('⚠️ Settings store unavailable (LMDB):', err.message);
 	}
 
 	// Initialize user database service
@@ -1486,7 +1488,7 @@ app.get('/api/settings/debug-log-viewer', async (req, res) => {
 });
 
 /**
- * Custom domain (app URL) — stored in SQLite via settingsDB; synced with Dashboard + IndexedDB on client.
+ * Custom domain (app URL) — stored in LMDB via settingsDB; synced with Dashboard + IndexedDB on client.
  * GET /api/settings/custom-domain — returns { domain } (hostname only, e.g. api.pingdemo.com)
  * POST /api/settings/custom-domain — body: { domain: string }; validates and saves.
  */
@@ -1516,7 +1518,7 @@ function resolvePingOneMgmtBase(region) {
 }
 
 /**
- * Load the stored region from SQLite settings, or return null if none saved.
+ * Load the stored region from LMDB settings, or return null if none saved.
  * @returns {Promise<string|null>}
  */
 async function getStoredRegion() {
