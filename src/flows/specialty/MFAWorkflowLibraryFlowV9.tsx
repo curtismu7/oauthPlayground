@@ -1,4 +1,4 @@
-// src/pages/flows/v9/MFAWorkflowLibraryFlowV9.tsx
+// src/flows/specialty/MFAWorkflowLibraryFlowV9.tsx
 // V9 PingOne MFA Workflow Library Flow — Steps 11-20 (Authorization Code + MFA)
 // V9 improvements: V9CredentialStorageService, CompactAppPickerV8U, modernMessaging, no WorkerTokenModal
 
@@ -6,18 +6,18 @@ import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
-import JSONHighlighter, { type JSONData } from '../../../components/JSONHighlighter';
-import PhoneNumberInput from '../../../components/PhoneNumberInput';
-import type { StepCredentials } from '../../../components/steps/CommonSteps';
-import { usePageScroll } from '../../../hooks/usePageScroll';
-import { CollapsibleHeader } from '../../../services/collapsibleHeaderService';
-import ComprehensiveCredentialsService from '../../../services/comprehensiveCredentialsService';
-import { FlowHeader } from '../../../services/flowHeaderService';
-import { FlowUIService } from '../../../services/flowUIService';
-import { V9CredentialStorageService } from '../../../platform/V9CredentialStorageService';
-import { getAnyWorkerToken } from '../../../utils/workerTokenDetection';
-import type { DiscoveredApp } from '../../../mfa/components/AppPickerV8';
-import { CompactAppPickerV8U } from '../../../lab/components/CompactAppPickerV8U';
+import JSONHighlighter, { type JSONData } from '../../components/JSONHighlighter';
+import PhoneNumberInput from '../../components/PhoneNumberInput';
+import type { StepCredentials } from '../../components/steps/CommonSteps';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { FlowUIService } from '../../services/flowUIService';
+import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
+import { getAnyWorkerToken } from '../../utils/workerTokenDetection';
+import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
+import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
 
 interface MfaDevice {
 	id: string;

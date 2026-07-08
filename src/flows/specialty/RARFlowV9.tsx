@@ -1,4 +1,4 @@
-// src/pages/flows/v9/RARFlowV9.tsx
+// src/flows/specialty/RARFlowV9.tsx
 // lint-file-disable: token-value-in-jsx
 // V9 RAR (Rich Authorization Requests) Flow with Enhanced Architecture
 
@@ -6,21 +6,21 @@ import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
-import ColoredUrlDisplay from '../../../components/ColoredUrlDisplay';
-import { StandardizedCredentialExportImport } from '../../../components/StandardizedCredentialExportImport';
-import { usePageStepper } from '../../../contexts/FloatingStepperContext';
-import { usePageScroll } from '../../../hooks/usePageScroll';
-import { FlowUIService } from '../../../services/flowUIService';
-import { V9FlowCredentialService } from '../../../platform/core/V9FlowCredentialService';
-import { EnvironmentIdServiceV8 } from '../../../platform/environmentIdServiceV9';
-import { V9_COLORS } from '../../../platform/V9ColorStandards';
-import { V9CredentialStorageService } from '../../../platform/V9CredentialStorageService';
-import { V9FlowRestartButton } from '../../../platform/V9FlowRestartButton';
-import V9FlowHeader from '../../../platform/v9FlowHeaderService';
-import { V7MMockBanner } from '../../../flows/mock-ui/V7MMockBanner';
-import type { DiscoveredApp } from '../../../mfa/components/AppPickerV8';
-import WorkerTokenStatusDisplayV8 from '../../../mfa/components/WorkerTokenStatusDisplayV8';
-import { CompactAppPickerV8U } from '../../../lab/components/CompactAppPickerV8U';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import { StandardizedCredentialExportImport } from '../../components/StandardizedCredentialExportImport';
+import { usePageStepper } from '../../contexts/FloatingStepperContext';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { FlowUIService } from '../../services/flowUIService';
+import { V9FlowCredentialService } from '../../platform/core/V9FlowCredentialService';
+import { EnvironmentIdServiceV8 } from '../../platform/environmentIdServiceV9';
+import { V9_COLORS } from '../../platform/V9ColorStandards';
+import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
+import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
+import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import { V7MMockBanner } from '../mock-ui/V7MMockBanner';
+import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
+import WorkerTokenStatusDisplayV8 from '../../mfa/components/WorkerTokenStatusDisplayV8';
+import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
 
 /**
  * Utility function to mask tokens for security

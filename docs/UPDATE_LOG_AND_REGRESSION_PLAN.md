@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### Version consolidation Phase 7: migrate specialty flows to `src/flows/specialty` (2026-07-08)
+
+- **What:** Moved 17 specialty flow pages from `src/pages/flows/v9` into `src/flows/specialty`; fixed relative import depth.
+- **Cause:** Specialty flows belong with the flows module, not under versioned `pages/flows/v9` path.
+- **Fix:** `git mv`; `App.tsx` lazy imports → `./flows/specialty/*`; internal imports adjusted. `V9*` filenames deferred to Phase 8.
+- **Files:** `src/flows/specialty/**`, `src/App.tsx`, `docs/VERSION_CONSOLIDATION_INVENTORY.md`
+- **Regression check:** (1) `npm run build` passes. (2) `/flows/rar-v9`, `/flows/ciba-v9` routes still resolve.
+
 ### Version consolidation Phase 6: delete `src/v7` (2026-07-08)
 
 - **What:** Removed legacy `src/v7` folder; relocated still-used mock UI helpers to `src/flows/mock-ui/`; settings page to `MockServerSettingsPage.tsx`.

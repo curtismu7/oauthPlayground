@@ -1,11 +1,11 @@
-// src/pages/flows/v9/StepUpAuthFlow.tsx
+// src/flows/specialty/StepUpAuthFlow.tsx
 // Step-Up Authentication — RFC 9470
 // https://www.rfc-editor.org/rfc/rfc9470
 
 import type React from 'react';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import V9FlowHeader from '../../../platform/v9FlowHeaderService';
+import V9FlowHeader from '../../platform/v9FlowHeaderService';
 
 type Step = 0 | 1 | 2 | 3;
 

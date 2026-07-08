@@ -419,7 +419,7 @@ const MigrationGuideTab: React.FC = () => (
 			<Code>styles/</Code>, <Code>constants/</Code>, <Code>types/</Code>.
 		</P>
 		<P>
-			<strong>Import depth:</strong> From <Code>src/pages/flows/v9/</Code> use{' '}
+			<strong>Import depth:</strong> From <Code>src/flows/specialty/</Code> use{' '}
 			<Code>../../../</Code> to
 			<Code>src/</Code> or{' '}
 			<strong>
@@ -427,7 +427,7 @@ const MigrationGuideTab: React.FC = () => (
 			</strong>{' '}
 			to avoid depth errors. When moving a V8 flow into V9, fix V8-internal imports:
 		</P>
-		<Pre>{`FLOW="src/pages/flows/v9/MyFlowV9.tsx"
+		<Pre>{`FLOW="src/flows/specialty/MyFlowV9.tsx"
 sed -i '' "s|from '../services/|from '@/mfa/services/|g" "$FLOW"
 sed -i '' "s|from '../components/|from '@/mfa/components/|g" "$FLOW"
 sed -i '' "s|from '../hooks/|from '@/mfa/hooks/|g" "$FLOW"
@@ -765,7 +765,7 @@ const ReferenceTab: React.FC = () => (
 		<H2>1. V9 Flow Template (minimal)</H2>
 		<OL>
 			<li>
-				Create <Code>src/pages/flows/v9/MyFlowV9.tsx</Code>.
+				Create <Code>src/flows/specialty/MyFlowV9.tsx</Code>.
 			</li>
 			<li>
 				Use <strong>blue</strong> header gradient:{' '}
@@ -801,7 +801,7 @@ const FlowHeader = styled.div\`
 
 		<H3>Starter snippet — route registration</H3>
 		<Pre>{`// App.tsx lazy import
-const MyFlowV9 = lazy(() => import('./pages/flows/v9/MyFlowV9'));
+const MyFlowV9 = lazy(() => import('./flows/specialty/MyFlowV9'));
 
 // Route
 <Route path="/flows/my-flow-v9" element={

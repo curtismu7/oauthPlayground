@@ -1,11 +1,11 @@
-// src/pages/flows/v9/GnapFlow.tsx
+// src/flows/specialty/GnapFlow.tsx
 // GNAP — Grant Negotiation and Authorization Protocol (RFC 9635)
 // https://www.rfc-editor.org/rfc/rfc9635
 
 import type React from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import V9FlowHeader from '../../../platform/v9FlowHeaderService';
+import V9FlowHeader from '../../platform/v9FlowHeaderService';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
