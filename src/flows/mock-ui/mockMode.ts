@@ -1,4 +1,4 @@
-// src/v7m/mode.ts
+// src/flows/mock-ui/mockMode.ts
 // Lightweight selector for enabling/disabling V7M mock mode for V7 flows.
 
 const STORAGE_KEY = 'v7m:mode';

@@ -1,10 +1,11 @@
-// src/v7/pages/V7MSettingsV9.tsx
+// src/pages/MockServerSettingsPage.tsx
+// Toggle educational mock mode (legacy route /v7/settings).
 
 import React, { useEffect, useState } from 'react';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { isV7MEnabled, setV7MMode } from '../mode';
+import { FlowHeader } from '../services/flowHeaderService';
+import { isV7MEnabled, setV7MMode } from '../flows/mock-ui/mockMode';
 
-const V7MSettingsV9: React.FC = () => {
+const MockServerSettingsPage: React.FC = () => {
 	const [enabled, setEnabled] = useState<boolean>(isV7MEnabled());
 	useEffect(() => {
 		setEnabled(isV7MEnabled());
@@ -56,4 +57,4 @@ const btnStyle: React.CSSProperties = {
 	cursor: 'pointer',
 };
 
-export default V7MSettingsV9;
+export default MockServerSettingsPage;

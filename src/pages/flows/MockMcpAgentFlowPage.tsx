@@ -9,14 +9,14 @@ import { callTool, listTools, type MockToolCallResult } from '../../services/moc
 import { V9_COLORS } from '../../platform/V9ColorStandards';
 import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
 import V9FlowHeader from '../../platform/v9FlowHeaderService';
-import { V7MMockBanner } from '../../v7/components/V7MMockBanner';
+import { V7MMockBanner } from '../../flows/mock-ui/V7MMockBanner';
 import {
 	getSectionHeaderStyle,
 	MOCK_FLOW_CONTAINER_STYLE,
 	MOCK_PRIMARY_BTN,
 	MOCK_SECTION_BODY_STYLE,
 	MOCK_SECTION_STYLE,
-} from '../../v7/styles/mockFlowStyles';
+} from '../../flows/mock-ui/mockFlowStyles';
 
 function JsonBlock({ data }: { data: object }) {
 	return (

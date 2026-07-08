@@ -397,7 +397,7 @@ const ApiStatusPage = lazy(() => import('./pages/ApiStatusPage'));
 // V7MImplicitFlowV9 retired — /flows/implicit-v9 and /flows/oidc-implicit-v9
 // V7MROPCV9 retired — /v7/oauth/ropc and /v7/oidc/ropc
 // V7MOIDCHybridFlowV9 retired — /flows/oidc-hybrid-v9
-const V7MSettingsV9 = lazy(() => import('./v7/pages/V7MSettingsV9'));
+const MockServerSettingsPage = lazy(() => import('./pages/MockServerSettingsPage'));
 const V7MCIBAFlowV9 = lazy(() => import('./pages/flows/v9/V7MCIBAFlowV9'));
 const MockMcpAgentFlowPage = lazy(() => import('./pages/flows/MockMcpAgentFlowPage'));
 
@@ -975,7 +975,7 @@ const AppRoutes: React.FC = () => {
 										path="/v7/settings"
 										element={
 											<Suspense fallback={<div>Loading...</div>}>
-												<V7MSettingsV9 />
+												<MockServerSettingsPage />
 											</Suspense>
 										}
 									/>

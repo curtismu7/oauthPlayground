@@ -13,7 +13,7 @@ import { FlowCompletionService } from '../../../services/flowCompletionService';
 import { FlowHeader } from '../../../services/flowHeaderService';
 import { samlService as SAMLService } from '../../../services/samlService';
 import { logger } from '../../../utils/logger';
-import { V7MMockBanner } from '../../../v7/components/V7MMockBanner';
+import { V7MMockBanner } from '../../../flows/mock-ui/V7MMockBanner';
 
 // Styled Components
 const Container = styled.div`

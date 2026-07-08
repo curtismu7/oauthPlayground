@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### Version consolidation Phase 6: delete `src/v7` (2026-07-08)
+
+- **What:** Removed legacy `src/v7` folder; relocated still-used mock UI helpers to `src/flows/mock-ui/`; settings page to `MockServerSettingsPage.tsx`.
+- **Cause:** V7 mock flow pages were already retired (routes redirect to `/flows/*`); only banner, styles, mode toggle, and settings remained.
+- **Fix:** `git rm src/v7`; move 3 files to `flows/mock-ui/`; update 6 consumers + `App.tsx`. Dead components (`V7MHelpModal`, etc.) and orphan `V7MPages.test.tsx` deleted.
+- **Files:** `src/flows/mock-ui/**`, `src/pages/MockServerSettingsPage.tsx`, consumer flow pages, `src/App.tsx`, docs
+- **Regression check:** (1) `npm run build` passes. (2) `/v7/settings` loads mock mode toggle. (3) Specialty v9 flows still render `V7MMockBanner`.
+
 ### Version consolidation Phase 5: rename `src/v8u` → `src/lab` (2026-07-08)
 
 - **What:** Moved OAuth lab UI from `src/v8u` to `src/lab`; updated `@/v8u/*` and relative import paths.

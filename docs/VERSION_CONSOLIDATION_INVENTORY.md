@@ -7,7 +7,7 @@
 | `src/flows` | 67 | OAuth/OIDC flows (real PingOne) | **Phase 2 done** — folder + routes `/flows/*` |
 | `src/mfa` | 261 | Unified MFA + shared modals | **Phase 4 done** — was `v8`; routes `/mfa` + legacy `/v8/*` |
 | `src/lab` | 88 | OAuth lab UI | **Phase 5 done** — was `v8u`; routes `/lab/*` + legacy `/v8u/*` |
-| `src/v7` | 10 | Mock settings (legacy) | Unchanged — delete Phase 6 |
+| `src/v7` | — | Mock settings (legacy) | **Phase 6 done** — deleted; mock UI → `flows/mock-ui/` |
 | `src/pages/flows/v9` | ~28 | Specialty flows | Unchanged — migrate Phase 7 |
 | `src/platform` | many | Platform services (not legacy) | **Phase 3 done** — was `services/v9` |
 
@@ -86,6 +86,13 @@ Constants: `src/config/canonicalRoutes.ts`
 - Session keys (`v8u_flow_settings_*`, `v8u-oauth-authz-*` state prefixes) unchanged for browser back-compat
 - `V8U*` symbol names unchanged — Phase 8
 
+## Phase 6 (done)
+
+- Deleted `src/v7/` (orphan components + broken tests removed)
+- Retained mock UI: `src/flows/mock-ui/` (`V7MMockBanner`, `mockFlowStyles`, `mockMode`)
+- Settings page → `src/pages/MockServerSettingsPage.tsx`; legacy route `/v7/settings` unchanged
+- `v7m:mode` localStorage key unchanged for browser back-compat
+
 ## Next phases
 
-Phase 6 delete `v7`.
+Phase 7 migrate `pages/flows/v9`; Phase 8 strip V7/V8/V9 from symbols.

@@ -24,7 +24,7 @@ import { usePageScroll } from '../../hooks/usePageScroll';
 import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
 import { V9FlowHeader } from '../../platform/v9FlowHeaderService';
 import { logger } from '../../utils/logger';
-import { V7MMockBanner } from '../../v7/components/V7MMockBanner';
+import { V7MMockBanner } from '../../flows/mock-ui/V7MMockBanner';
 
 const MODULE_TAG = '[ SPIFFE-SPIRE-FLOW-V8U]';
 

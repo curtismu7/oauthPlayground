@@ -1,4 +1,4 @@
-// src/v7/styles/mockFlowStyles.ts
+// src/flows/mock-ui/mockFlowStyles.ts
 // Centralized styles for Mock Flows so all flows look and behave consistently.
 
 import type { CSSProperties } from 'react';
