@@ -148,13 +148,15 @@ test.describe('Unified OAuth - Simple Tests', () => {
 
 	test('forms have input fields', async ({ page }) => {
 		await page.goto(`${BASE_URL}/oauth-authz`);
-		await page.waitForLoadState('domcontentloaded');
 
-		// Look for different types of inputs
-		const textInputs = page.locator('input[type="text"]');
-		const passwordInputs = page.locator('input[type="password"]');
-		const textareas = page.locator('textarea');
-		const selects = page.locator('select');
+		// domcontentloaded fires before React hydrates the config panel
+		const configPanel = page.locator('.oauth-authz-config-panel');
+		await configPanel.waitFor({ state: 'visible', timeout: 30000 });
+
+		const textInputs = configPanel.locator('input[type="text"]');
+		const passwordInputs = configPanel.locator('input[type="password"]');
+		const textareas = configPanel.locator('textarea');
+		const selects = configPanel.locator('select');
 
 		const textCount = await textInputs.count();
 		const passwordCount = await passwordInputs.count();
@@ -165,7 +167,6 @@ test.describe('Unified OAuth - Simple Tests', () => {
 			`Found: ${textCount} text inputs, ${passwordCount} password inputs, ${textareaCount} textareas, ${selectCount} selects`
 		);
 
-		// Should have at least some input fields
 		const totalInputs = textCount + passwordCount + textareaCount + selectCount;
 		expect(totalInputs).toBeGreaterThan(0);
 	});
