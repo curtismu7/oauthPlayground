@@ -32,7 +32,7 @@ import {
 import { useRedirectURIRouting } from '@/mfa/services/redirectURIRoutingServiceV8';
 import { workerTokenServiceV8 } from '@/mfa/services/workerTokenServiceV8';
 import { sendAnalyticsLog } from '@/mfa/utils/analyticsLoggerV8';
-import { CompactAppPickerV8U } from '@/v8u/components/CompactAppPickerV8U';
+import { CompactAppPickerV8U } from '@/lab/components/CompactAppPickerV8U';
 import { logger } from '../../utils/logger';
 import {
 	type SessionInfo,

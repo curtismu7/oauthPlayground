@@ -45,8 +45,8 @@ import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/mfa/services/workerTokenStatusServiceV8';
-import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { reloadCredentialsAfterReset } from '@/lab/services/credentialReloadServiceV8U';
+import { logger } from '@/lab/services/unifiedFlowLoggerServiceV8U';
 import { AdvancedOAuthFeatures } from '../components/AdvancedOAuthFeatures';
 import CredentialsFormV8U from '../components/CredentialsFormV8U';
 import { FlowGuidanceSystem } from '../components/FlowGuidanceSystem';

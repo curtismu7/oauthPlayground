@@ -17,7 +17,7 @@ import { FlowUIService } from '../../../services/flowUIService';
 import { V9CredentialStorageService } from '../../../platform/V9CredentialStorageService';
 import { getAnyWorkerToken } from '../../../utils/workerTokenDetection';
 import type { DiscoveredApp } from '../../../mfa/components/AppPickerV8';
-import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import { CompactAppPickerV8U } from '../../../lab/components/CompactAppPickerV8U';
 
 interface MfaDevice {
 	id: string;

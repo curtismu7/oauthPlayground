@@ -9,7 +9,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─── Mock CompactAppPickerV8U ─────────────────────────────────────────────────
-vi.mock('../../../v8u/components/CompactAppPickerV8U', () => ({
+vi.mock('../../../lab/components/CompactAppPickerV8U', () => ({
 	CompactAppPickerV8U: ({
 		onAppSelected,
 	}: {
@@ -103,7 +103,7 @@ vi.mock('../../../services/v7m/core/V7MPKCEGenerationService', () => ({
 	},
 }));
 
-vi.mock('../../../v8u/services/pkceStorageServiceV8U', () => ({
+vi.mock('../../../lab/services/pkceStorageServiceV8U', () => ({
 	PKCEStorageServiceV8U: {
 		savePKCECodes: vi.fn(),
 		loadPKCECodes: vi.fn().mockReturnValue(null),

@@ -6,7 +6,7 @@ import { unifiedTokenStorage } from '../services/unifiedTokenStorageService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { V9_COLORS } from '../platform/V9ColorStandards';
 import { logger } from '../utils/logger';
-import { TokenMonitoringPage } from '../v8u/pages/TokenMonitoringPage';
+import { TokenMonitoringPage } from '../lab/pages/TokenMonitoringPage';
 import TokenIntrospectionFlow from '../flows/flows/tokenIntrospection.flow';
 import TokenRevocationFlow from './flows/TokenRevocationFlow';
 import TokenMonitoringTab from './TokenMonitoringTab';

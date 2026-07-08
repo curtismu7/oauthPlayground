@@ -52,7 +52,7 @@ function findAppFiles(appId) {
   const possiblePaths = [
     `src/pages${appId.includes('v8') ? '/v8' : ''}${appId.includes('v8u') ? '/v8u' : ''}`,
     `src/v8${appId.includes('mfa') ? '/flows' : '/pages'}`,
-    `src/v8u/components`,
+    `src/lab/components`,
     `src/pages`,
     `src/components`
   ];

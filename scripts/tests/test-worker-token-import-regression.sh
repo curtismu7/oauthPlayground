@@ -9,12 +9,12 @@ echo "=================================================="
 # Test 1: Check if import exists in CredentialsFormV8U.tsx
 echo "📋 Checking import in CredentialsFormV8U.tsx..."
 
-if grep -q "import.*WorkerTokenStatusServiceV8.*from.*@/v8/services/workerTokenStatusServiceV8" src/v8u/components/CredentialsFormV8U.tsx; then
+if grep -q "import.*WorkerTokenStatusServiceV8.*from.*@/v8/services/workerTokenStatusServiceV8" src/lab/components/CredentialsFormV8U.tsx; then
     echo "✅ Import found in CredentialsFormV8U.tsx"
 else
     echo "❌ Import NOT found in CredentialsFormV8U.tsx"
     echo "🔍 Searching for any WorkerTokenStatusServiceV8 usage..."
-    if grep -n "WorkerTokenStatusServiceV8" src/v8u/components/CredentialsFormV8U.tsx; then
+    if grep -n "WorkerTokenStatusServiceV8" src/lab/components/CredentialsFormV8U.tsx; then
         echo "⚠️  Usage found but import missing - REGRESSION DETECTED"
         exit 1
     else
@@ -60,7 +60,7 @@ echo ""
 echo "📋 Checking for import-related errors..."
 
 # Check if there are any "is not defined" errors related to WorkerTokenStatusServiceV8
-if grep -r "WorkerTokenStatusServiceV8.*is not defined" src/v8u/components/ > /dev/null 2>&1; then
+if grep -r "WorkerTokenStatusServiceV8.*is not defined" src/lab/components/ > /dev/null 2>&1; then
     echo "❌ 'WorkerTokenStatusServiceV8 is not defined' errors found"
     exit 1
 else

@@ -18,7 +18,7 @@ import type { ApiCall } from '../../services/apiCallTrackerService';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import { PageLayoutService } from '../../services/pageLayoutService';
-// import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
+// import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
 // import { renderWorkerTokenButton } from '../../services/workerTokenUIService';
 // import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';

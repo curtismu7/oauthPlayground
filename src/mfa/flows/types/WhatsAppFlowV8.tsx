@@ -25,7 +25,7 @@ import { fetchPhoneFromPingOne } from '@/mfa/services/phoneAutoPopulationService
 import { WorkerTokenStatusServiceV8 } from '@/mfa/services/workerTokenStatusServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/mfa/utils/mfaFlowCleanupV8';
 import { isValidPhoneFormat } from '@/mfa/utils/phoneValidationV8';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';
 import { logger } from '../../../utils/logger';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';

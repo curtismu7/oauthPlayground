@@ -101,9 +101,9 @@ GROUPS: dict[str, dict[str, Any]] = {
         "num": "04",
         "label": "Unified & Production Flows",
         "pages": [
-            "src/v8u/flows/UnifiedOAuthFlowV8U.tsx",
-            "src/v8u/pages/FlowComparisonPage.tsx",
-            "src/v8u/pages/EnhancedStateManagementPage.tsx",
+            "src/lab/flows/UnifiedOAuthFlowV8U.tsx",
+            "src/lab/pages/FlowComparisonPage.tsx",
+            "src/lab/pages/EnhancedStateManagementPage.tsx",
             "src/pages/protect-portal/ProtectPortalWrapper.tsx",
             "src/pages/flows/v9/TokenExchangeFlowV9.tsx",
             "src/pages/FlowComparison.tsx",
@@ -230,7 +230,7 @@ GROUPS: dict[str, dict[str, Any]] = {
         "label": "Education & Tutorials",
         "pages": [
             "src/pages/flows/AdvancedOAuthParametersDemoFlow.tsx",
-            "src/v8u/flows/SpiffeSpireFlowV8U.tsx",
+            "src/lab/flows/SpiffeSpireFlowV8U.tsx",
         ],
         "tests": {
             "unit": [],

@@ -23,8 +23,8 @@ import V9FlowHeader from '../../../platform/v9FlowHeaderService';
 import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import { logger } from '../../../utils/logger';
 import type { DiscoveredApp } from '../../../mfa/components/AppPickerV8';
-import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
-import { PKCEStorageServiceV8U } from '../../../v8u/services/pkceStorageServiceV8U';
+import { CompactAppPickerV8U } from '../../../lab/components/CompactAppPickerV8U';
+import { PKCEStorageServiceV8U } from '../../../lab/services/pkceStorageServiceV8U';
 
 // Step metadata for V9
 const STEP_METADATA = [

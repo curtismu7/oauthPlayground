@@ -112,8 +112,8 @@ run_check "Direct setShowWorkerTokenModal calls" "grep -rn 'setShowWorkerTokenMo
 run_check "Canonical helper usage" "grep -rn 'handleShowWorkerTokenModal' src/mfa/ --include='*.tsx' --include='*.ts' | wc -l | grep -q '^[1-9][0-9]*$'" "PASS"
 
 echo -e "\n${BLUE}🌐 7. REDIRECT URI ROUTING (Issue 55 Prevention)${NC}"
-run_check "Step 3 routing checks" "grep -r 'step=3' src/v8u/components/ | wc -l | grep -q '^0$'" "PASS"
-run_check "ReturnTargetService usage" "grep -r 'ReturnTargetServiceV8U' src/v8u/components/CallbackHandlerV8U.tsx | wc -l | grep -q '^[1-9][0-9]*$'" "PASS"
+run_check "Step 3 routing checks" "grep -r 'step=3' src/lab/components/ | wc -l | grep -q '^0$'" "PASS"
+run_check "ReturnTargetService usage" "grep -r 'ReturnTargetServiceV8U' src/lab/components/CallbackHandlerV8U.tsx | wc -l | grep -q '^[1-9][0-9]*$'" "PASS"
 
 echo -e "\n${BLUE}🔄 8. TOKEN EXCHANGE PREVENTION${NC}"
 run_check "TokenExchangeService usage" "grep -rn 'TokenExchangeServiceV8\|tokenExchangeServiceV8' src/mfa/ | grep -v '\.md' | wc -l | grep -q '^3$'" "PASS"

@@ -11,7 +11,7 @@
 
 import React, { useState } from 'react';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';
 import { FiAlertTriangle, FiCheck, FiX } from '../../icons';
 
 const _MODULE_TAG = '[ REDIRECT-URI-VALIDATOR-V8]';

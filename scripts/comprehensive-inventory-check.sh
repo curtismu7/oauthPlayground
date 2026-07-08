@@ -38,13 +38,13 @@ if [ -f "PRODUCTION_INVENTORY.md" ]; then
     echo "📋 Checking Production apps for regressions..."
     
     # Token Monitoring
-    grep -rn "localStorage.*token" src/v8u/services/tokenMonitoringService.ts | wc -l && echo "✅ Token persistence found" || echo "⚠️  Token persistence check"
+    grep -rn "localStorage.*token" src/lab/services/tokenMonitoringService.ts | wc -l && echo "✅ Token persistence found" || echo "⚠️  Token persistence check"
     
     # Device Management
     grep -rn "policy.*deviceCount\|deviceLimit" src/mfa/pages/DeleteAllDevicesUtilityV8.tsx | wc -l && echo "✅ Device count display found" || echo "⚠️  Device count check"
     
     # Dropdown functionality
-    grep -rn "All Tokens\|selectedTokenType.*all" src/v8u/pages/TokenMonitoringPage.tsx | wc -l && echo "✅ Dropdown functionality found" || echo "⚠️  Dropdown check"
+    grep -rn "All Tokens\|selectedTokenType.*all" src/lab/pages/TokenMonitoringPage.tsx | wc -l && echo "✅ Dropdown functionality found" || echo "⚠️  Dropdown check"
     
     # Controlled inputs
     grep -rn "checked.*??.*false" src/mfa/components/SilentApiConfigCheckboxV8.tsx | wc -l && echo "✅ Controlled input fixed" || echo "⚠️  Controlled input check"
@@ -74,7 +74,7 @@ if [ -f "UNIFIED_MFA_INVENTORY.md" ]; then
     grep -rn "registrationFlowType" src/mfa/flows/unified/ | wc -l && echo "✅ Flow type logic found" || echo "⚠️  Flow type check"
     
     # Redirect URI routing
-    grep -rn "ReturnTargetServiceV8U" src/v8u/components/CallbackHandlerV8U.tsx | wc -l && echo "✅ Return target service found" || echo "⚠️  Return target check"
+    grep -rn "ReturnTargetServiceV8U" src/lab/components/CallbackHandlerV8U.tsx | wc -l && echo "✅ Return target service found" || echo "⚠️  Return target check"
 fi
 
 # UNIFIED OAUTH INVENTORY CHECKS
@@ -84,7 +84,7 @@ if [ -f "UNIFIED_OAUTH_INVENTORY.md" ]; then
     echo "📋 Checking Unified OAuth for regressions..."
     
     # OAuth callback handling
-    grep -rn "oauth.*callback\|callback.*handler" src/v8u/ --include="*.tsx" | wc -l && echo "✅ OAuth callbacks found" || echo "⚠️  OAuth callback check"
+    grep -rn "oauth.*callback\|callback.*handler" src/lab/ --include="*.tsx" | wc -l && echo "✅ OAuth callbacks found" || echo "⚠️  OAuth callback check"
     
     # Token exchange
     grep -rn "TokenExchangeService" src/mfa/ | wc -l && echo "✅ Token exchange service found" || echo "⚠️  Token exchange check"

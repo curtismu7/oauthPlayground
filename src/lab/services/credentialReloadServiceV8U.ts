@@ -20,7 +20,7 @@
 import { CredentialsServiceV8 } from '@/mfa/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/mfa/services/environmentIdServiceV8';
 import { SharedCredentialsServiceV8 } from '@/mfa/services/sharedCredentialsServiceV8';
-import type { UnifiedFlowCredentials } from '@/v8u/services/unifiedFlowIntegrationV8U';
+import type { UnifiedFlowCredentials } from '@/lab/services/unifiedFlowIntegrationV8U';
 import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[ CREDENTIAL-RELOAD-V8U]';

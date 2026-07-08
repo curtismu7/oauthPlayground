@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { LoadingSpinnerModalV8U } from '@/v8u/components/LoadingSpinnerModalV8U';
+import { LoadingSpinnerModalV8U } from '@/lab/components/LoadingSpinnerModalV8U';
 import { ButtonSpinner } from './ButtonSpinner';
 
 // Standard spinner types

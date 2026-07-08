@@ -22,7 +22,7 @@ import { WorkerTokenUIServiceV8 } from '@/mfa/services/workerTokenUIServiceV8'; 
 import { useMFALoadingStateManager } from '@/mfa/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/mfa/utils/mfaFlowCleanupV8';
 import { isValidPhoneFormat, validateAndNormalizePhone } from '@/mfa/utils/phoneValidationV8';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';
 import { FiMail } from '../../../icons';
 import { logger } from '../../../utils/logger';
 import { type Device, MFADeviceSelector } from '../components/MFADeviceSelector';

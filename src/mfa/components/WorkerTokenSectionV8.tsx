@@ -19,7 +19,7 @@ import { V9_COLORS } from '@/platform/V9ColorStandards';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { workerTokenManager } from '@/services/workerTokenManager';
 import { WorkerTokenStatusServiceV8 } from '@/mfa/services/workerTokenStatusServiceV8';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';
 import { FiRefreshCw } from '../../icons';
 import { WorkerTokenStatusDisplayV8 } from './WorkerTokenStatusDisplayV8';
 

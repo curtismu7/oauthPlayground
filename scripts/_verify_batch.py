@@ -2,7 +2,7 @@
 import subprocess, json
 files = [
     'src/mfa/flows/MFAConfigurationPageV8.tsx',
-    'src/v8u/components/UserTokenStatusDisplayV8U.tsx',
+    'src/lab/components/UserTokenStatusDisplayV8U.tsx',
 ]
 r = subprocess.run(
     ['/Users/cmuir/P1Import-apps/oauth-playground/node_modules/.bin/eslint'] + files + ['--format', 'json'],

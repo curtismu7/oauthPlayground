@@ -24,7 +24,7 @@ import {
 import {
 	exportAllUseCasesAsMarkdown,
 	exportAllUseCasesAsPDF,
-} from '../v8u/services/unifiedFlowDocumentationServiceV8U';
+} from '../lab/services/unifiedFlowDocumentationServiceV8U';
 import { APP_VERSION } from '../version';
 
 const NavbarContainer = styled.nav<{ $sidebarOpen?: boolean; $sidebarWidth?: number }>`

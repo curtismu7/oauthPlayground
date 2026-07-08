@@ -18,7 +18,7 @@
 import {
 	type UnifiedOAuthCredentials,
 	UnifiedOAuthCredentialsServiceV8U,
-} from '../v8u/services/unifiedOAuthCredentialsServiceV8U';
+} from '../lab/services/unifiedOAuthCredentialsServiceV8U';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

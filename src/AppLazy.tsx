@@ -14,7 +14,7 @@ const CredentialSetupModal = React.lazy(() => import('./components/CredentialSet
 const AuthorizationRequestModal = React.lazy(
 	() => import('./components/AuthorizationRequestModal')
 );
-const LoadingSpinnerModalV8U = React.lazy(() => import('@/v8u/components/LoadingSpinnerModalV8U'));
+const LoadingSpinnerModalV8U = React.lazy(() => import('@/lab/components/LoadingSpinnerModalV8U'));
 
 // Lazy load pages
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));

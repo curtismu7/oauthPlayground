@@ -25,12 +25,12 @@ import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService'
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { MFAConfigurationServiceV8 } from '@/mfa/services/mfaConfigurationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/mfa/services/workerTokenStatusServiceV8';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';
 import {
 	type TokenStatusInfo,
 	WORKER_TOKEN_STATUS_STYLES,
 	WorkerTokenStatusServiceV8U,
-} from '@/v8u/services/workerTokenStatusServiceV8U';
+} from '@/lab/services/workerTokenStatusServiceV8U';
 import {
 	FiActivity,
 	FiCalendar,

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { logger } from '../utils/logger';
-import { PKCEStorageServiceV8U } from '../v8u/services/pkceStorageServiceV8U';
+import { PKCEStorageServiceV8U } from '../lab/services/pkceStorageServiceV8U';
 import {
 	DEFAULT_CONFIG,
 	FLOW_CONTEXT_KEY,
