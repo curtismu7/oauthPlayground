@@ -196,8 +196,8 @@ const ClientCredentialsFlow: React.FC = () => {
 			mode={mode}
 			subtitle="Machine-to-machine grant (RFC 6749 §4.4) — a confidential client authenticates with its own credentials and receives an access token. No user, no redirect."
 			engine={engine}
-			<UseCaseBanner />
 		>
+			<UseCaseBanner />
 			{cur === 'configure' && (
 				<FlowStep
 					title="1. Configure the worker app"

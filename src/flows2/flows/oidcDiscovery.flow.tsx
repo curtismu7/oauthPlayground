@@ -235,8 +235,8 @@ const OidcDiscoveryFlow: React.FC = () => {
 			mode={mode}
 			subtitle="Fetch .well-known/openid-configuration so clients self-configure their endpoints, then inspect the JSON Web Key Set clients use to verify id_token signatures."
 			engine={engine}
-			<UseCaseBanner />
 		>
+			<UseCaseBanner />
 			{/* ------------------------------------------------------------------ */}
 			{/* Step 1 — Configure                                                  */}
 			{/* ------------------------------------------------------------------ */}
