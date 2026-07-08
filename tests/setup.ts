@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom'
+import 'fake-indexeddb/auto'
 import { configure } from '@testing-library/react'
 import { vi } from 'vitest'
 
@@ -24,6 +25,61 @@ global.ResizeObserver = class ResizeObserver {
   unobserve() {}
 }
 
+/** In-memory Storage for tests that read/write keys (localStorage/sessionStorage). */
+function createInMemoryStorage(): Storage {
+  const store = new Map<string, string>()
+  return {
+    get length() {
+      return store.size
+    },
+    clear() {
+      store.clear()
+    },
+    getItem(key: string) {
+      return store.has(key) ? store.get(key)! : null
+    },
+    key(index: number) {
+      return [...store.keys()][index] ?? null
+    },
+    removeItem(key: string) {
+      store.delete(key)
+    },
+    setItem(key: string, value: string) {
+      store.set(key, String(value))
+    },
+  }
+}
+
+const localStorageImpl = createInMemoryStorage()
+const sessionStorageImpl = createInMemoryStorage()
+
+function installWebStorage() {
+  Object.defineProperty(globalThis, 'localStorage', {
+    value: localStorageImpl,
+    writable: true,
+    configurable: true,
+  })
+  Object.defineProperty(globalThis, 'sessionStorage', {
+    value: sessionStorageImpl,
+    writable: true,
+    configurable: true,
+  })
+  if (typeof window !== 'undefined') {
+    Object.defineProperty(window, 'localStorage', {
+      value: localStorageImpl,
+      writable: true,
+      configurable: true,
+    })
+    Object.defineProperty(window, 'sessionStorage', {
+      value: sessionStorageImpl,
+      writable: true,
+      configurable: true,
+    })
+  }
+}
+
+installWebStorage()
+
 // Mock window.matchMedia (only in DOM envs — node-env tests have no window)
 if (typeof window !== 'undefined') {
   Object.defineProperty(window, 'matchMedia', {
@@ -39,23 +95,4 @@ if (typeof window !== 'undefined') {
       dispatchEvent: vi.fn(),
     })),
   })
-}
-
-// Mock localStorage
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-}
-global.localStorage = localStorageMock
-
-// Mock console methods in tests
-global.console = {
-  ...console,
-  log: vi.fn(),
-  debug: vi.fn(),
-  info: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
 }

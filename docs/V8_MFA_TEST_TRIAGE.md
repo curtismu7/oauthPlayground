@@ -43,9 +43,11 @@ npm run test:run -- src/v8 src/contexts/__tests__/NewAuthContext.enhanced.test.t
 - `flowResetServiceV8.test.ts` — 13/15 fail
 - `appDiscoveryServiceV8.test.ts` — 3/20 fail
 
-**Fix:** One `tests/setup.ts` change — real in-memory `localStorage`, `indexedDB` stub, preserve `console` or scope console mock per-file.
+**Fix:** `tests/setup.ts` — in-memory `localStorage`/`sessionStorage`, `fake-indexeddb/auto`, remove global `console` mock.
 
-**Priority:** P0 (single fix, largest payoff)
+**Status (2026-07-08 P0 landed):** 150 fail → **142 fail**, 534 pass → **542 pass**, unhandled `indexedDB` errors eliminated. `storageServiceV8` tests still fail (assert `localStorage` but impl uses `unifiedTokenStorage`/IndexedDB). `mfaFeatureFlags`/`apiDisplay` failures are API/default drift, not mock no-ops.
+
+**Priority:** P0 done; remaining items P1+
 
 ---
 
