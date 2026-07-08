@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### Vitest P0: in-memory web storage + fake-indexeddb (2026-07-08)
+
+- **What:** Legacy v8/MFA suite had 150 failures; global `tests/setup.ts` used no-op `localStorage` mocks and no `indexedDB`, causing unhandled rejections from `unifiedTokenStorageService`.
+- **Cause:** Setup mocked `localStorage` with `vi.fn()` (no persistence) and never polyfilled IndexedDB; `console.*` was globally stubbed.
+- **Fix:** In-memory `localStorage`/`sessionStorage`, `fake-indexeddb/auto`, removed global console mock. Added devDependency `fake-indexeddb`.
+- **Files:** `tests/setup.ts`, `package.json`, `package-lock.json`, `docs/V8_MFA_TEST_TRIAGE.md`
+- **Regression check:** (1) `npm run test:run -- src/v8` — no unhandled `indexedDB` errors; 142 fail / 542 pass (down from 150/534). (2) `npm run test:run -- src/flows2 src/server/lmdb` still green.
+
 ### LMDB Phase 3: remove dead SQLite user service refs (2026-07-08)
 
 - **What:** `server.js` still imported deleted `userDatabaseService.js`, logging `⚠️ User DB service unavailable (SQLite)` on every boot. `sync-users-cli.mjs` also referenced the removed service.
