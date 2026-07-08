@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### Version consolidation Phase 1: canonical routes (2026-07-08)
+
+- **What:** Introduced versionless URLs for flows2 (`/flows/*`), MFA (`/mfa`), and lab tools (`/lab/*`). Sidebar uses canonical paths only.
+- **Cause:** `/v2`, `/v8`, `/v8u`, and `*-v9` route prefixes confuse users and block folder renames.
+- **Fix:** Canonical routes in `App.tsx`; legacy paths redirect via `<Navigate>`; `canonicalRoutes.ts` documents mapping; inventory in `docs/VERSION_CONSOLIDATION_INVENTORY.md`.
+- **Files:** `src/App.tsx`, `src/config/canonicalRoutes.ts`, `src/config/sidebarMenuConfig.ts`, `docs/VERSION_CONSOLIDATION_INVENTORY.md`
+- **Regression check:** (1) `npm run build` passes. (2) `/flows/client-credentials` and `/v2/flows/client-credentials` (redirect). (3) `/mfa` and `/v8/unified-mfa` (redirect). (4) Sidebar mock-flow links use `/flows/*`.
+
 ### Vitest P0: in-memory web storage + fake-indexeddb (2026-07-08)
 
 - **What:** Legacy v8/MFA suite had 150 failures; global `tests/setup.ts` used no-op `localStorage` mocks and no `indexedDB`, causing unhandled rejections from `unifiedTokenStorageService`.
