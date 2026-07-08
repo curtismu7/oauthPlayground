@@ -45,7 +45,7 @@ process_file() {
     # Find last import and add V9 import after it
     local import_line=$(grep -n "^import" "$file" | tail -1 | cut -d: -f1)
     if [[ -n "$import_line" ]]; then
-      local relative_path=$(realpath --relative-to="$(dirname "$file")" "src/services/v9/V9ColorStandards" | sed 's|\\|/|g')
+      local relative_path=$(realpath --relative-to="$(dirname "$file")" "src/platform/V9ColorStandards" | sed 's|\\|/|g')
       sed -i "${import_line}a\\
 import { V9_COLORS } from '${relative_path}';" "$temp_file"
       changed=true

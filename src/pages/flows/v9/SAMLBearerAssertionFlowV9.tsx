@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
 import { DEMO_API_BASE, DEMO_ENVIRONMENT_ID } from '../../../components/PingOneApiCallDisplay';
 import { usePageScroll } from '../../../hooks/usePageScroll';
@@ -14,10 +14,10 @@ import { FlowUIService } from '../../../services/flowUIService';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import SAMLAssertionService from '../../../services/samlAssertionService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
-import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
-import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
-import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
+import { V9_COLORS } from '../../../platform/V9ColorStandards';
+import { V9CredentialStorageService } from '../../../platform/V9CredentialStorageService';
+import { V9FlowRestartButton } from '../../../platform/V9FlowRestartButton';
+import V9FlowHeader from '../../../platform/v9FlowHeaderService';
 import { credentialManager } from '../../../utils/credentialManager';
 import { logger } from '../../../utils/logger';
 import { V7MMockBanner } from '../../../v7/components/V7MMockBanner';

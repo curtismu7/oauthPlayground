@@ -6,7 +6,7 @@
  * to ensure required fields are filled before proceeding to next steps.
  */
 
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 
 export interface ValidationResult {
 	isValid: boolean;

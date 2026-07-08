@@ -7,7 +7,7 @@
 
 import React, { useState } from 'react';
 import { type Device, type P1MFAConfig, P1MFASDK } from '@/sdk/p1mfa';
-import { modernMessaging } from '../../../services/v9/V9ModernMessagingService';
+import { modernMessaging } from '../../../platform/V9ModernMessagingService';
 import { logger } from '../../../utils/logger';
 import { CredentialsForm } from '../shared/CredentialsForm';
 import { DeviceList } from '../shared/DeviceList';

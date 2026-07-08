@@ -2,7 +2,7 @@
 // Provides consistent restart functionality for all stepper flows
 
 import React from 'react';
-import { logger } from '../../utils/logger';
+import { logger } from '../utils/logger';
 import { getButtonStyles } from './V9ColorStandards';
 import { modernMessaging } from './V9ModernMessagingService';
 

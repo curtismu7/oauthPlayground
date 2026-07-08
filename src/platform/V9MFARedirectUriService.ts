@@ -1,6 +1,6 @@
 /**
  * @file V9MFARedirectUriService.ts
- * @module services/v9
+ * @module platform
  * @description V9 MFA Redirect URI Service
  *
  *   Centralized service for Unified MFA redirect URIs. Delegates to

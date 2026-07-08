@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '@/hooks/usePageScroll';
-import { V9_COLORS } from '@/services/v9/V9ColorStandards';
+import { V9_COLORS } from '@/platform/V9ColorStandards';
 import { Card, CardBody } from '../components/Card';
 import { PingIcon } from '../components/PingIcon';
 import { CollapsibleHeader as V6CollapsibleHeader } from '../services/collapsibleHeaderService';

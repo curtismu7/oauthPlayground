@@ -31,7 +31,7 @@ const { mockLoadSync, mockSave } = vi.hoisted(() => ({
 	mockSave: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock('../../../services/v9/V9CredentialStorageService', () => ({
+vi.mock('../../../platform/V9CredentialStorageService', () => ({
 	V9CredentialStorageService: {
 		loadSync: mockLoadSync,
 		save: mockSave,

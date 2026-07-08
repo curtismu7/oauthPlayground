@@ -42,7 +42,7 @@ import {
 	type FooterMessageConfig,
 	useModernMessaging,
 	type WaitScreenConfig,
-} from '../../services/v9/V9ModernMessagingService';
+} from '../../platform/V9ModernMessagingService';
 
 // V9 Color Standards — Wait screens use blue only (hard rule: no purple).
 const V9_COLORS = {
@@ -562,4 +562,4 @@ export const V9ModernMessagingProvider: React.FC<{ children: React.ReactNode }> 
 };
 
 // Export hook and service for convenience
-export { modernMessaging, useModernMessaging } from '../../services/v9/V9ModernMessagingService';
+export { modernMessaging, useModernMessaging } from '../../platform/V9ModernMessagingService';

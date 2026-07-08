@@ -14,7 +14,7 @@ import LiveRFCExplorer from '../components/LiveRFCExplorer';
 import RealWorldScenarioBuilder from '../components/RealWorldScenarioBuilder';
 import SecurityThreatTheater from '../components/SecurityThreatTheater';
 import { FlowHeader } from '../services/flowHeaderService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { V9_COLORS } from '../platform/V9ColorStandards';
 
 const PageContainer = styled.div`
 	min-height: 100vh;

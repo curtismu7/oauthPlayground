@@ -7,7 +7,7 @@ import DocumentationHeader from '../../components/DocumentationHeader';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import PageLayoutService from '../../services/pageLayoutService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
+import { V9_COLORS } from '../../platform/V9ColorStandards';
 
 const pageConfig = {
 	flowType: 'pingone' as const,

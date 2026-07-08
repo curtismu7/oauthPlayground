@@ -5,7 +5,7 @@
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import JSONHighlighter, { type JSONData } from '../../../components/JSONHighlighter';
 import PhoneNumberInput from '../../../components/PhoneNumberInput';
 import type { StepCredentials } from '../../../components/steps/CommonSteps';
@@ -14,7 +14,7 @@ import { CollapsibleHeader } from '../../../services/collapsibleHeaderService';
 import ComprehensiveCredentialsService from '../../../services/comprehensiveCredentialsService';
 import { FlowHeader } from '../../../services/flowHeaderService';
 import { FlowUIService } from '../../../services/flowUIService';
-import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
+import { V9CredentialStorageService } from '../../../platform/V9CredentialStorageService';
 import { getAnyWorkerToken } from '../../../utils/workerTokenDetection';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';

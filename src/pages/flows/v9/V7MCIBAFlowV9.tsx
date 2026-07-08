@@ -14,9 +14,9 @@ import { ResultCard } from '../../../flows/framework/ResultCard';
 import { ExplanationPanel } from '../../../flows/framework/ExplanationPanel';
 import { tokens } from '../../../flows/framework/tokens';
 import type { StepDefinition, FlowError } from '../../../flows/framework/types';
-import type { V9MockCIBADeliveryMode } from '../../../services/v9/mock/V9MockCIBAService';
-import { V9MockCIBAService } from '../../../services/v9/mock/V9MockCIBAService';
-import { introspectToken, type V9MockIntrospectionResponse } from '../../../services/v9/mock/V9MockIntrospectionService';
+import type { V9MockCIBADeliveryMode } from '../../../platform/mock/V9MockCIBAService';
+import { V9MockCIBAService } from '../../../platform/mock/V9MockCIBAService';
+import { introspectToken, type V9MockIntrospectionResponse } from '../../../platform/mock/V9MockIntrospectionService';
 
 type TokenResult = {
 	access_token: string;

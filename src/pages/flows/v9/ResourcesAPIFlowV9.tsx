@@ -15,7 +15,7 @@ import styled from 'styled-components';
 import ConfigurationButton from '../../../components/ConfigurationButton';
 import { type FlowStep, StepByStepFlow } from '../../../components/StepByStepFlow';
 import { FlowHeader } from '../../../services/flowHeaderService';
-import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessagingService';
+import { V9ModernMessagingService } from '../../../platform/V9ModernMessagingService';
 import { logger } from '../../../utils/logger';
 
 const messagingService = V9ModernMessagingService.getInstance();

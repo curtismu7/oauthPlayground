@@ -35,7 +35,7 @@ for fp in files:
     if not m:
         print(f'NO MATCH: {fp}')
         continue
-    path = m.group(1)  # e.g. '../../services/v9/V9ColorStandards'
+    path = m.group(1)  # e.g. '../../platform/V9ColorStandards'
     # Check if V9_COLORS is actually used after the import block
     rest = src[m.end():]
     used = 'V9_COLORS.' in rest

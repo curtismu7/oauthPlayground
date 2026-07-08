@@ -1,4 +1,4 @@
-// src/services/v9/V9AppDiscoveryService.ts
+// src/platform/V9AppDiscoveryService.ts
 // V9 wrapper around AppDiscoveryServiceV8 for worker-token-based PingOne app listing.
 //
 // What this gives every V9 flow:
@@ -21,7 +21,7 @@ import {
 	type AppConfig,
 	AppDiscoveryServiceV8,
 	type DiscoveredApplication,
-} from '../../v8/services/appDiscoveryServiceV8';
+} from '../v8/services/appDiscoveryServiceV8';
 import type { V9FlowCredentials } from './V9CredentialStorageService';
 
 // ─── Types ────────────────────────────────────────────────────────────────────

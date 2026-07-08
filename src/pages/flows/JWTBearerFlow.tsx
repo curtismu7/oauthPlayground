@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { CardBody, CardHeader } from '../../components/Card';
 import { CompactAppPickerV9 } from '../../components/CompactAppPickerV9';
 import { CredentialsImportExport } from '../../components/CredentialsImportExport';
@@ -8,8 +8,8 @@ import { SpecCard } from '../../components/SpecCard';
 import { TokenSurface } from '../../components/TokenSurface';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { FlowHeader } from '../../services/flowHeaderService';
-import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
-import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
+import type { V9DiscoveredApp } from '../../platform/V9AppDiscoveryService';
+import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
 
 /**

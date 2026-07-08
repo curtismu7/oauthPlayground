@@ -1,10 +1,10 @@
-// src/services/v9/v9FlowHeaderService.tsx
+// src/platform/v9FlowHeaderService.tsx
 // V9 Wrapper for FlowHeaderService - Modern Messaging Compliant
 
 import React from 'react';
 // Import Modern Messaging (V9) - proper migration to non-toast messaging
-import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
-import { FlowHeader, FlowHeaderConfig, getFlowConfig } from '../flowHeaderService';
+import { modernMessaging } from '../components/v9/V9ModernMessagingComponents';
+import { FlowHeader, FlowHeaderConfig, getFlowConfig } from '../services/flowHeaderService';
 
 // V9 Wrapper Component
 export interface V9FlowHeaderProps {

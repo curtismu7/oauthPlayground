@@ -12,7 +12,7 @@
 const MODULE_TAG = 'EnvironmentIdServiceV8';
 const STORAGE_KEY = 'v8:global_environment_id';
 
-import { logger } from '../../utils/logger';
+import { logger } from '../utils/logger';
 
 declare global {
 	interface Window {

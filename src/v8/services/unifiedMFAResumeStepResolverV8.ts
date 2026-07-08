@@ -17,7 +17,7 @@
  * - FOOL-PROOF: Step 0 fallback is forbidden for redirect resumes
  */
 
-import { V9MFARedirectUriService as MFARedirectUriServiceV8 } from '@/services/v9/V9MFARedirectUriService';
+import { V9MFARedirectUriService as MFARedirectUriServiceV8 } from '@/platform/V9MFARedirectUriService';
 
 import { logger } from '../../utils/logger';
 

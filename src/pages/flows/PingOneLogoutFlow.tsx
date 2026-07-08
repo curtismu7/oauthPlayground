@@ -23,7 +23,7 @@ import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { pingOneLogoutService } from '../../services/pingOneLogoutService';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
-import { modernMessaging } from '../../services/v9/V9ModernMessagingService';
+import { modernMessaging } from '../../platform/V9ModernMessagingService';
 import { buildPingOneLogoutUrl, generateState } from '../../utils/pingone-url-builders';
 import type { DiscoveredApp } from '../../v8/components/AppPickerV8';
 import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';

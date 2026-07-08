@@ -14,7 +14,7 @@ import EnvironmentServiceV8, {
 } from '../services/environmentServiceV8';
 import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import { modernMessaging } from '../services/v9/V9ModernMessagingService';
+import { modernMessaging } from '../platform/V9ModernMessagingService';
 import { logger } from '../utils/logger';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 

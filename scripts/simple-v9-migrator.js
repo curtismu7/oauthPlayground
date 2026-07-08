@@ -45,7 +45,7 @@ function processFile(filePath) {
         }
       }
       
-      const relativePath = path.relative(path.dirname(filePath), 'src/services/v9/V9ColorStandards').replace(/\\/g, '/');
+      const relativePath = path.relative(path.dirname(filePath), 'src/platform/V9ColorStandards').replace(/\\/g, '/');
       lines.splice(importIndex, 0, `import { V9_COLORS } from '${relativePath}';`);
       content = lines.join('\n');
       changed = true;

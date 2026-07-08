@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import V9FlowHeader from '../../services/v9/v9FlowHeaderService';
+import V9FlowHeader from '../../platform/v9FlowHeaderService';
 import { type FlowType, SpecVersionServiceV8 } from '../../v8/services/specVersionServiceV8';
 import { FlowComparisonTool, type SpecFilterOption } from '../components/FlowComparisonTool';
 

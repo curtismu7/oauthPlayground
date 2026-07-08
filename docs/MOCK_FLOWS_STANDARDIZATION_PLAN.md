@@ -68,7 +68,7 @@ Make all flows in the **Mock Flows** group behave and look very similar so users
 - **DEMO_API_BASE / DEMO_ENVIRONMENT_ID**: used in mock API URLs (api.pingdemo.com + real env ID).
 - **V7MHelpModal, V7MInfoIcon, V7MJwtInspectorModal**: shared across V7M pages.
 - **Educational Mock banner**: same copy pattern (📚 Educational Mock Mode + short description) and similar styling (#fef3c7, #fbbf24) in most V7M flows.
-- **Mock flow backend services**: canonical location is **`src/services/v9/mock/`** (migrated from `services/v7m`; symbols renamed V7M* → V9Mock*). Exports V9MockAuthorizeService, V9MockTokenService, V9MockUserInfoService, V9MockIntrospectionService, V9MockDeviceAuthorizationService, V9MockCIBAService, V9MockStateStore, V9MockTokenGenerator, V9MockApiLogger, and core/ui submodules (e.g. V9MockPKCEGenerationService, V9MockFlowHeader). Use `from '@/services/v9/mock'` or `from '../../../services/v9/mock/...'` from pages/flows/v9.
+- **Mock flow backend services**: canonical location is **`src/platform/mock/`** (migrated from `services/v7m`; symbols renamed V7M* → V9Mock*). Exports V9MockAuthorizeService, V9MockTokenService, V9MockUserInfoService, V9MockIntrospectionService, V9MockDeviceAuthorizationService, V9MockCIBAService, V9MockStateStore, V9MockTokenGenerator, V9MockApiLogger, and core/ui submodules (e.g. V9MockPKCEGenerationService, V9MockFlowHeader). Use `from '@/platform/mock'` or `from '../../../platform/mock/...'` from pages/flows/v9.
 
 ### 2.3 What is inconsistent
 

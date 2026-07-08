@@ -1,6 +1,6 @@
 /**
  * @file V9ServicesModernMessaging.test.ts
- * @module services/v9/__tests__
+ * @module platform/__tests__
  * @description Integration tests for V9 Services Modern Messaging migration
  * @version 9.0.0
  */

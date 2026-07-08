@@ -7,9 +7,9 @@ import { ColoredJsonDisplay } from '../../../components/ColoredJsonDisplay';
 import { WorkerTokenSectionV9 } from '../../../components/WorkerTokenSectionV9';
 import { showGlobalError, showGlobalSuccess } from '../../../contexts/NotificationSystem';
 import { unifiedWorkerTokenService } from '../../../services/unifiedWorkerTokenService';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
-import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
-import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
+import { V9_COLORS } from '../../../platform/V9ColorStandards';
+import { V9FlowRestartButton } from '../../../platform/V9FlowRestartButton';
+import V9FlowHeader from '../../../platform/v9FlowHeaderService';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

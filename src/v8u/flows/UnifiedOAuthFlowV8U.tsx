@@ -23,8 +23,8 @@ import {
 	generateCompletePostmanCollection,
 	generateComprehensiveUnifiedPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import V9FlowHeader from '@/services/v9/v9FlowHeaderService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import V9FlowHeader from '@/platform/v9FlowHeaderService';
 import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -59,7 +59,7 @@ import { SpecVersionSelector } from '../components/SpecVersionSelector';
 // Lazy load the heavy UnifiedFlowSteps component
 const UnifiedFlowSteps = lazy(() => import('../components/UnifiedFlowSteps'));
 
-import { V9_COLORS } from '@/services/v9/V9ColorStandards';
+import { V9_COLORS } from '@/platform/V9ColorStandards';
 import { UnifiedNavigationV8U } from '../components/UnifiedNavigationV8U';
 import { usePersistedCollapse } from '../hooks/usePersistedCollapse';
 import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';

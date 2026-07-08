@@ -6,7 +6,7 @@
  * @since 2026-03-06
  */
 
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { logger } from '../utils/logger';
 
 export interface CredentialsConfiguration {

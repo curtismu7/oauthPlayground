@@ -16,13 +16,13 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
-import type { V9DiscoveredApp } from '@/services/v9/V9AppDiscoveryService';
-import { V9AppDiscoveryService } from '@/services/v9/V9AppDiscoveryService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import type { V9DiscoveredApp } from '@/platform/V9AppDiscoveryService';
+import { V9AppDiscoveryService } from '@/platform/V9AppDiscoveryService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import {
 	type V9TokenStatusInfo,
 	V9WorkerTokenStatusService,
-} from '@/services/v9/V9WorkerTokenStatusService';
+} from '@/platform/V9WorkerTokenStatusService';
 import { FiSearch } from '../icons';
 import { logger } from '../utils/logger';
 

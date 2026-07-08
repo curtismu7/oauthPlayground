@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { V9_COLORS } from '../platform/V9ColorStandards';
 
 const OIDCContainer = styled.div`
   max-width: 1200px;

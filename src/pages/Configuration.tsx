@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import packageJson from '../../package.json';
 import AdvancedSecuritySettingsMock from '../components/AdvancedSecuritySettingsMock';
 import { ApiKeyConfiguration } from '../components/ApiKeyConfiguration';
@@ -27,7 +27,7 @@ import {
 	saveRegion,
 } from '../services/regionService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { V9_COLORS } from '../platform/V9ColorStandards';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';

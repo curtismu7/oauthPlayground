@@ -24,7 +24,7 @@ import {
 	formatUptime,
 } from '../services/serverHealthService';
 import { UnifiedTokenStorageService } from '../services/unifiedTokenStorageService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { V9_COLORS } from '../platform/V9ColorStandards';
 import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
 import { useComponentTracker } from '../utils/componentTracker';
 import { checkSavedCredentialsAsync } from '../utils/configurationStatus';

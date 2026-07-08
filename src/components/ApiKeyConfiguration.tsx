@@ -11,7 +11,7 @@ import styled from 'styled-components';
 import { useApiKeyManager } from '../hooks/useApiKeyManager';
 import { type BackupStatus } from '../services/apiKeyBackupService';
 import { type ApiKeyConfig, type ApiKeyInfo, apiKeyService } from '../services/apiKeyService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { V9_COLORS } from '../platform/V9ColorStandards';
 import { logger } from '../utils/logger';
 
 const Container = styled.div`

@@ -1,4 +1,4 @@
-// src/services/v9/V9CredentialStorageService.ts
+// src/platform/V9CredentialStorageService.ts
 // V9 credential storage — 4-layer persistence for all V9 flows.
 //
 // Layers (in priority order):
@@ -18,7 +18,7 @@
 import {
 	type UnifiedOAuthCredentials,
 	UnifiedOAuthCredentialsServiceV8U,
-} from '../../v8u/services/unifiedOAuthCredentialsServiceV8U';
+} from '../v8u/services/unifiedOAuthCredentialsServiceV8U';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

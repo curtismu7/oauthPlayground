@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
+import { V9_COLORS } from '../../../platform/V9ColorStandards';
 
 // ─── Layout ───────────────────────────────────────────────────────────────────
 
@@ -652,7 +652,7 @@ const ServicesTab: React.FC = () => (
 		<H2>4. V7/V8/V9 Contracts (summary)</H2>
 		<UL>
 			<li>
-				<strong>V9 services</strong> live under <Code>src/services/v9/</Code> and expose typed,
+				<strong>V9 services</strong> live under <Code>src/platform/</Code> and expose typed,
 				testable APIs; avoid V7/V8-specific types in public APIs where possible.
 			</li>
 			<li>

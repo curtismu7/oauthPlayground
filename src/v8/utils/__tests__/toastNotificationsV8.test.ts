@@ -16,7 +16,7 @@ const { mockShowFooterMessage, mockShowBanner } = vi.hoisted(() => ({
 	mockShowBanner: vi.fn(),
 }));
 
-vi.mock('@/services/v9/V9ModernMessagingService', () => ({
+vi.mock('@/platform/V9ModernMessagingService', () => ({
 	modernMessaging: {
 		showFooterMessage: mockShowFooterMessage,
 		showBanner: mockShowBanner,

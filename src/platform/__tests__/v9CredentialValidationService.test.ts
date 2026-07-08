@@ -37,7 +37,7 @@ vi.mock('../modalPresentationService', () => ({
 	}),
 }));
 
-vi.mock('../../utils/v4ToastMessages', () => ({
+vi.mock('../utils/v4ToastMessages', () => ({
 	v4ToastManager: {
 		showError: vi.fn(),
 		showSuccess: vi.fn(),

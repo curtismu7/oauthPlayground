@@ -6,9 +6,9 @@ import { Link } from 'react-router-dom';
 import { CodeExamplesSection } from '../../components/CodeExamplesSection';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { callTool, listTools, type MockToolCallResult } from '../../services/mockMcpAgentService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
-import { V9FlowRestartButton } from '../../services/v9/V9FlowRestartButton';
-import V9FlowHeader from '../../services/v9/v9FlowHeaderService';
+import { V9_COLORS } from '../../platform/V9ColorStandards';
+import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
+import V9FlowHeader from '../../platform/v9FlowHeaderService';
 import { V7MMockBanner } from '../../v7/components/V7MMockBanner';
 import {
 	getSectionHeaderStyle,

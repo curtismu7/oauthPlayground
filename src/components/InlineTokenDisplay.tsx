@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import TokenDisplayService, { type DecodedJWT } from '../services/tokenDisplayService';
 
 interface InlineTokenDisplayProps {

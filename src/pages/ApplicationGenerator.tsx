@@ -4,7 +4,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';
 import { ExportImportPanel } from '../components/ExportImportPanel';
 import { PresetSelector } from '../components/PresetSelector';

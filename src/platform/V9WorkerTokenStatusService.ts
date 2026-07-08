@@ -1,6 +1,6 @@
 /**
  * @file V9WorkerTokenStatusService.ts
- * @module services/v9
+ * @module platform
  * @description Worker token status checking and formatting for V9
  * @version 9.0.0
  * @since 2026-02-28
@@ -13,7 +13,7 @@
  * - V9 color standards compliance
  */
 
-import { unifiedWorkerTokenService } from '../unifiedWorkerTokenService';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 
 export type V9TokenStatus = 'valid' | 'expiring-soon' | 'expired' | 'missing';
 

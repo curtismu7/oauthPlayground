@@ -8,7 +8,7 @@ import React, { lazy, Suspense, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { CodeExamplesSection } from '../components/CodeExamplesSection';
 import { FlowHeader } from '../services/flowHeaderService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { V9_COLORS } from '../platform/V9ColorStandards';
 
 // Lazy load heavy components for better performance
 const InteractiveCodeEditor = lazy(() => import('../components/InteractiveCodeEditor'));

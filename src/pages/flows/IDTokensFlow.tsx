@@ -8,8 +8,8 @@ import PageTitle from '../../components/PageTitle';
 import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
-import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
+import type { V9DiscoveredApp } from '../../platform/V9AppDiscoveryService';
+import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
 import { getOAuthTokens } from '../../utils/tokenStorage';
 
