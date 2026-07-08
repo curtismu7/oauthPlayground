@@ -1,8 +1,8 @@
-// src/v7/components/V7MMockBanner.tsx
+// src/flows/mock-ui/V7MMockBanner.tsx
 // Shared educational mock mode banner for all Mock Flows.
 
 import React from 'react';
-import { MOCK_FLOW_BANNER_DESC_STYLE, MOCK_FLOW_BANNER_STYLE } from '../styles/mockFlowStyles';
+import { MOCK_FLOW_BANNER_DESC_STYLE, MOCK_FLOW_BANNER_STYLE } from './mockFlowStyles';
 
 export interface V7MMockBannerDeprecation {
 	short: string;
