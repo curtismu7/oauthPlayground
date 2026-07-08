@@ -6,7 +6,7 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { MFAServiceV8 } from '@/mfa/services/mfaServiceV8';
 import { checkWorkerTokenStatusSync } from '@/mfa/services/workerTokenStatusServiceV8';
 import { FiAlertTriangle, FiSearch } from '../../icons';

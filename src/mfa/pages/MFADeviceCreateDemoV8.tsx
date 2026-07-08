@@ -6,7 +6,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { MFAHeaderV8 } from '@/mfa/components/MFAHeaderV8';
 import SimplePingOneApiDisplayV8 from '@/mfa/components/SimplePingOneApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/mfa/components/WorkerTokenExpiryBannerV8';

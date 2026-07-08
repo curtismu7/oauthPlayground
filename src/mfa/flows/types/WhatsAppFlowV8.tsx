@@ -11,7 +11,7 @@
 
 import React, { useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { CountryCodePickerV8 } from '@/mfa/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/mfa/components/MFAInfoButtonV8';
 import { NicknamePromptModalV8 } from '@/mfa/components/NicknamePromptModalV8';

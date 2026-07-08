@@ -9,7 +9,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import type { DiscoveredApp } from '@/mfa/components/AppPickerV8';
 import {
 	AppDiscoveryServiceV8,

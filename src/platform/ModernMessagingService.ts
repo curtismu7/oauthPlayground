@@ -1,5 +1,5 @@
 /**
- * @file V9ModernMessagingService.ts
+ * @file ModernMessagingService.ts
  * @module platform
  * @description V9 Modern Messaging Service - Non-toast messaging system
  * @version 9.0.0
@@ -68,18 +68,18 @@ export interface MessageState {
  * Provides state-based messaging without toast notifications.
  * Components subscribe to message state and render appropriate UI.
  */
-class V9ModernMessagingService {
-	private static instance: V9ModernMessagingService;
+class ModernMessagingService {
+	private static instance: ModernMessagingService;
 	private listeners: Set<React.Dispatch<React.SetStateAction<MessageState>>> = new Set();
 	private messageState: MessageState = {};
 
 	private constructor() {}
 
-	static getInstance(): V9ModernMessagingService {
-		if (!V9ModernMessagingService.instance) {
-			V9ModernMessagingService.instance = new V9ModernMessagingService();
+	static getInstance(): ModernMessagingService {
+		if (!ModernMessagingService.instance) {
+			ModernMessagingService.instance = new ModernMessagingService();
 		}
-		return V9ModernMessagingService.instance;
+		return ModernMessagingService.instance;
 	}
 
 	/**
@@ -197,10 +197,10 @@ class V9ModernMessagingService {
 }
 
 // Export singleton instance
-export const modernMessaging = V9ModernMessagingService.getInstance();
+export const modernMessaging = ModernMessagingService.getInstance();
 
 // Export class for testing
-export { V9ModernMessagingService };
+export { ModernMessagingService };
 
 // Export hook for React components
 export function useModernMessaging(): [MessageState, typeof modernMessaging] {

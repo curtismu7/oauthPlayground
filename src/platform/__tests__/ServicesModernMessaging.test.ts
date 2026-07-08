@@ -6,10 +6,10 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { modernMessaging } from '../V9ModernMessagingService';
+import { modernMessaging } from '../ModernMessagingService';
 
 // Mock the modern messaging service for testing
-vi.mock('../V9ModernMessagingService', () => ({
+vi.mock('../ModernMessagingService', () => ({
 	modernMessaging: {
 		showBanner: vi.fn(),
 		showCriticalError: vi.fn(),
@@ -34,7 +34,7 @@ describe('V9 Services Modern Messaging Integration', () => {
 
 	describe('v9ModalPresentationService', () => {
 		it('should use modern messaging for action completion', async () => {
-			const { default: V9ModalPresentationService } = await import('../v9ModalPresentationService');
+			const { default: ModalPresentationService } = await import('../v9ModalPresentationService');
 
 			// Mock props
 			const _mockProps = {
@@ -55,7 +55,7 @@ describe('V9 Services Modern Messaging Integration', () => {
 			try {
 				// Since we can't easily render React components in this test context,
 				// we'll test the service directly by checking the imports
-				expect(V9ModalPresentationService).toBeDefined();
+				expect(ModalPresentationService).toBeDefined();
 			} catch (_error) {
 				// Expected in test context
 			}
@@ -64,19 +64,19 @@ describe('V9 Services Modern Messaging Integration', () => {
 
 	describe('v9FlowCompletionService', () => {
 		it('should use modern messaging for flow operations', async () => {
-			const { default: V9FlowCompletionService } = await import('../v9FlowCompletionService');
+			const { default: PlatformFlowCompletionService } = await import('../v9FlowCompletionService');
 
-			expect(V9FlowCompletionService).toBeDefined();
+			expect(PlatformFlowCompletionService).toBeDefined();
 		});
 	});
 
 	describe('v9ComprehensiveCredentialsService', () => {
 		it('should use modern messaging for credential operations', async () => {
-			const { default: V9ComprehensiveCredentialsService } = await import(
+			const { default: PlatformComprehensiveCredentialsService } = await import(
 				'../v9ComprehensiveCredentialsService'
 			);
 
-			expect(V9ComprehensiveCredentialsService).toBeDefined();
+			expect(PlatformComprehensiveCredentialsService).toBeDefined();
 		});
 	});
 
@@ -162,10 +162,10 @@ describe('V9 Services Modern Messaging Integration', () => {
 		it('should use modern messaging for header operations', async () => {
 			// Test the utility function
 			try {
-				const { getV9FlowConfig } = await import('../v9FlowHeaderService');
+				const { getPlatformFlowConfig } = await import('../v9FlowHeaderService');
 
 				// Test with invalid flow ID
-				const result = getV9FlowConfig('invalid-flow-id');
+				const result = getPlatformFlowConfig('invalid-flow-id');
 				expect(result).toBeNull();
 
 				// Verify modern messaging was called

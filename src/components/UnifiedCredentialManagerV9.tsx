@@ -15,13 +15,13 @@ import {
 	credentialsImportExportService,
 	type ImportExportOptions,
 } from '@/services/credentialsImportExportService';
-import type { V9DiscoveredApp } from '@/platform/V9AppDiscoveryService';
-import { V9AppDiscoveryService } from '@/platform/V9AppDiscoveryService';
-import { V9CredentialStorageService } from '@/platform/V9CredentialStorageService';
+import type { DiscoveredApp } from '@/platform/AppDiscoveryService';
+import { AppDiscoveryService } from '@/platform/AppDiscoveryService';
+import { CredentialStorageService } from '@/platform/CredentialStorageService';
 import {
-	type V9TokenStatusInfo,
-	V9WorkerTokenStatusService,
-} from '@/platform/V9WorkerTokenStatusService';
+	type TokenStatusInfo,
+	WorkerTokenStatusService,
+} from '@/platform/WorkerTokenStatusService';
 import { logger } from '../utils/logger';
 
 const _MODULE_TAG = '[ UNIFIED-CREDENTIAL-MANAGER-V9]';
@@ -201,7 +201,7 @@ export interface UnifiedCredentialManagerV9Props {
 	flowKey: string; // For V9 credential storage
 	credentials: Record<string, unknown>;
 	importExportOptions: ImportExportOptions;
-	onAppSelected?: (app: V9DiscoveredApp) => void;
+	onAppSelected?: (app: DiscoveredApp) => void;
 	grantType?: string; // Optional filter for specific grant types
 	disabled?: boolean; // Manual disable override
 	defaultExpanded?: boolean; // Whether to start expanded
@@ -244,8 +244,8 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 	const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 	const [isSearching, setIsSearching] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
-	const [discoveredApps, setDiscoveredApps] = useState<V9DiscoveredApp[]>([]);
-	const [tokenStatus, setTokenStatus] = useState<V9TokenStatusInfo | null>(null);
+	const [discoveredApps, setDiscoveredApps] = useState<DiscoveredApp[]>([]);
+	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo | null>(null);
 	const [statusMessage, setStatusMessage] = useState<{
 		type: 'info' | 'success' | 'warning' | 'error';
 		text: string;
@@ -256,7 +256,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 	// Check token status using V9 service (same pattern as CompactAppPickerV9)
 	useEffect(() => {
 		const checkStatus = async () => {
-			const status = await V9WorkerTokenStatusService.checkStatus();
+			const status = await WorkerTokenStatusService.checkStatus();
 			setTokenStatus(status);
 		};
 		checkStatus();
@@ -273,12 +273,12 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 		setStatusMessage({ type: 'info', text: 'Discovering applications...' });
 
 		try {
-			const result = await V9AppDiscoveryService.discoverApplications(
+			const result = await AppDiscoveryService.discoverApplications(
 				environmentId,
 				tokenStatus.token || ''
 			);
 			const filteredApps = grantType
-				? V9AppDiscoveryService.getAppsByGrantType(result.apps, grantType)
+				? AppDiscoveryService.getAppsByGrantType(result.apps, grantType)
 				: result.apps;
 
 			setDiscoveredApps(filteredApps);
@@ -296,9 +296,9 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 	};
 
 	// Handle app selection
-	const handleAppSelected = (app: V9DiscoveredApp) => {
+	const handleAppSelected = (app: DiscoveredApp) => {
 		// Save to V9 credential storage
-		V9CredentialStorageService.save(
+		CredentialStorageService.save(
 			flowKey,
 			{ clientId: app.clientId, environmentId },
 			{ environmentId }

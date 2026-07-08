@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { CardBody, CardHeader } from '../../components/Card';
 import { CompactAppPickerV9 } from '../../components/CompactAppPickerV9';
 import { CredentialsImportExport } from '../../components/CredentialsImportExport';
@@ -8,8 +8,8 @@ import { SpecCard } from '../../components/SpecCard';
 import { TokenSurface } from '../../components/TokenSurface';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { FlowHeader } from '../../services/flowHeaderService';
-import type { V9DiscoveredApp } from '../../platform/V9AppDiscoveryService';
-import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
+import type { DiscoveredApp } from '../../platform/AppDiscoveryService';
+import { CredentialStorageService } from '../../platform/CredentialStorageService';
 import { logger } from '../../utils/logger';
 
 /**
@@ -213,9 +213,9 @@ const JWTBearerFlow: React.FC = () => {
 
 	// Handle app selection from CompactAppPickerV9
 	const handleAppSelected = useCallback(
-		(app: V9DiscoveredApp) => {
+		(app: DiscoveredApp) => {
 			// Use V9 credential storage to update the configuration
-			V9CredentialStorageService.save(
+			CredentialStorageService.save(
 				'v9:jwt-bearer',
 				{ clientId: app.clientId, environmentId: config?.environmentId || '' },
 				{ environmentId: config?.environmentId || '' }
@@ -677,7 +677,7 @@ const JWTBearerFlow: React.FC = () => {
 							flowType: 'jwt-bearer',
 							appName: 'JWT Bearer Token Flow',
 							onImportSuccess: (creds) => {
-								V9CredentialStorageService.save(
+								CredentialStorageService.save(
 									'v9:jwt-bearer',
 									{
 										clientId: creds.clientId,

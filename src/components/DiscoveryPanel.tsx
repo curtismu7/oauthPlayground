@@ -2,7 +2,7 @@ import type React from 'react';
 import { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 import { COLORS } from '@/platform/ColorStandards';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { FiRefreshCw } from '../icons';
 import { discoveryService, type OpenIDConfiguration } from '../services/discoveryService';
 import { loadEnvironmentId } from '../services/environmentIdService';

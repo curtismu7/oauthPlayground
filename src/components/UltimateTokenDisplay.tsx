@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { COLORS } from '@/platform/ColorStandards';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { FiClock, FiTag, FiUnlock } from '../icons';
 import TokenDisplayService from '../services/tokenDisplayService';
 

@@ -1,19 +1,19 @@
-// src/platform/v9FlowHeaderService.tsx
+// src/platform/platformFlowHeaderService.tsx
 // V9 Wrapper for FlowHeaderService - Modern Messaging Compliant
 
 import React from 'react';
 // Import Modern Messaging (V9) - proper migration to non-toast messaging
-import { modernMessaging } from '../components/v9/V9ModernMessagingComponents';
+import { modernMessaging } from '../components/ModernMessagingComponents';
 import { FlowHeader, FlowHeaderConfig, getFlowConfig } from '../services/flowHeaderService';
 
 // V9 Wrapper Component
-export interface V9FlowHeaderProps {
+export interface PlatformFlowHeaderProps {
 	flowId?: string;
 	flowType?: string;
 	customConfig?: Partial<FlowHeaderConfig>;
 }
 
-const V9FlowHeader: React.FC<V9FlowHeaderProps> = (props) => {
+const PlatformFlowHeader: React.FC<PlatformFlowHeaderProps> = (props) => {
 	// Add V9-specific logging and error handling
 	React.useEffect(() => {
 		const configKey = props.flowId || props.flowType;
@@ -53,7 +53,7 @@ const V9FlowHeader: React.FC<V9FlowHeaderProps> = (props) => {
 };
 
 // Export utility functions with V9 error handling
-export const getV9FlowConfig = (flowId: string): FlowHeaderConfig | null => {
+export const getPlatformFlowConfig = (flowId: string): FlowHeaderConfig | null => {
 	try {
 		return getFlowConfig(flowId);
 	} catch (_error) {
@@ -66,5 +66,5 @@ export const getV9FlowConfig = (flowId: string): FlowHeaderConfig | null => {
 	}
 };
 
-export { V9FlowHeader };
-export default V9FlowHeader;
+export { PlatformFlowHeader };
+export default PlatformFlowHeader;

@@ -23,8 +23,8 @@ import {
 	generateCompletePostmanCollection,
 	generateComprehensiveUnifiedPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
-import V9FlowHeader from '@/platform/v9FlowHeaderService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
+import PlatformFlowHeader from '@/platform/platformFlowHeaderService';
 import { ShowTokenConfigCheckboxV8 } from '@/mfa/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '@/mfa/components/SilentApiConfigCheckboxV8';
 import { SuperSimpleApiDisplayV8 } from '@/mfa/components/SuperSimpleApiDisplayV8';
@@ -1909,8 +1909,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				</div>
 			)}
 
-			{/* Header: standard red PingOne style via V9FlowHeader */}
-			<V9FlowHeader flowId="oauth-authz-v8u" customConfig={{ flowType: 'pingone' }} />
+			{/* Header: standard red PingOne style via PlatformFlowHeader */}
+			<PlatformFlowHeader flowId="oauth-authz-v8u" customConfig={{ flowType: 'pingone' }} />
 
 			{/* Flow Step Breadcrumbs and Action Buttons */}
 			<div

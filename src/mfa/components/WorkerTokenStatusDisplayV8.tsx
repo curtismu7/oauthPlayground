@@ -22,7 +22,7 @@ import type {
 	UnifiedWorkerTokenStatus,
 } from '@/services/unifiedWorkerTokenService';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { MFAConfigurationServiceV8 } from '@/mfa/services/mfaConfigurationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/mfa/services/workerTokenStatusServiceV8';
 import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';

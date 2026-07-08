@@ -7,7 +7,7 @@
  */
 
 import { useCallback, useState } from 'react';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import type { PingOneApplicationState } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { storeFlowNavigationState } from '../utils/flowNavigation';

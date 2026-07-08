@@ -1,7 +1,7 @@
 # Worker Token Storage Priority Mismatch - [HIGH] [FIXED]
 
 ## Summary
-Worker token credentials were not loading consistently across different apps due to storage priority mismatch between V9CredentialStorageService and unifiedWorkerTokenService.
+Worker token credentials were not loading consistently across different apps due to storage priority mismatch between CredentialStorageService and unifiedWorkerTokenService.
 
 ## Severity
 **HIGH** - Critical functionality broken, poor user experience
@@ -9,7 +9,7 @@ Worker token credentials were not loading consistently across different apps due
 ## Affected Components
 - `WorkerTokenModalV9.tsx` - Worker token modal
 - `unifiedWorkerTokenService.ts` - Unified storage service
-- `V9CredentialStorageService.ts` - V9 storage service
+- `CredentialStorageService.ts` - V9 storage service
 - `useGlobalWorkerToken.ts` - Worker token hook
 - `EnvironmentManagementPageV8.tsx` - Environments page
 
@@ -26,7 +26,7 @@ The modal saves credentials to both V9 and unified storage systems, but during l
 
 ```typescript
 // CURRENT (BROKEN) in WorkerTokenModalV9.tsx:
-const v9Credentials = V9CredentialStorageService.loadSync('worker-token-v9');
+const v9Credentials = CredentialStorageService.loadSync('worker-token-v9');
 if (v9Credentials && Object.keys(v9Credentials).length > 0) {
   // Load from V9 storage only
 } else {
@@ -57,7 +57,7 @@ if (unifiedResult.success && unifiedResult.data) {
   setCredentials(prev => ({ ...prev, ...unifiedResult.data }));
 } else {
   // Fallback to V9 storage
-  const v9Credentials = V9CredentialStorageService.loadSync('worker-token-v9');
+  const v9Credentials = CredentialStorageService.loadSync('worker-token-v9');
   if (v9Credentials && Object.keys(v9Credentials).length > 0) {
     setCredentials(prev => ({ ...prev, ...v9Credentials }));
   }
@@ -85,7 +85,7 @@ return workerTokenManager.getWorkerToken();
 ## Testing Requirements
 ### Unit Tests
 - [ ] Test unifiedWorkerTokenService.loadCredentials() priority
-- [ ] Test V9CredentialStorageService fallback behavior
+- [ ] Test CredentialStorageService fallback behavior
 - [ ] Test useGlobalWorkerToken token source preference
 - [ ] Test cache invalidation on save operations
 
@@ -211,7 +211,7 @@ console.log('localStorage unified_worker_token:', localStorage.getItem('unified_
 - This was a critical issue affecting core functionality
 - Multiple storage systems created confusion and data isolation
 - Quick fix addresses immediate problem, comprehensive fix needed
-- Consider deprecating V9CredentialStorageService in favor of unified storage
+- Consider deprecating CredentialStorageService in favor of unified storage
 - User impact was significant - repeated credential entry frustration
 
 ---

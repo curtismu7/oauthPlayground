@@ -7,10 +7,10 @@ import styled from 'styled-components';
 import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { useGlobalWorkerToken } from '../../hooks/useGlobalWorkerToken';
 import {
-	V9AppDiscoveryService,
-	type V9DiscoveredApp,
-} from '../../platform/V9AppDiscoveryService';
-import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
+	AppDiscoveryService,
+	type DiscoveredApp,
+} from '../../platform/AppDiscoveryService';
+import { CredentialStorageService } from '../../platform/CredentialStorageService';
 import { logger } from '../../utils/logger';
 import { useWorkerToken } from '../../mfa/hooks/useWorkerToken';
 
@@ -244,7 +244,7 @@ const FLOW_KEY = 'mfa-flows-api-test-v9';
 const MFAFlowsApiTest: React.FC = () => {
 	const { tokenStatus, showWorkerTokenModal, setShowWorkerTokenModal } = useWorkerToken();
 	const globalToken = useGlobalWorkerToken({ autoFetch: false });
-	const [discoveredApps, setDiscoveredApps] = useState<V9DiscoveredApp[]>([]);
+	const [discoveredApps, setDiscoveredApps] = useState<DiscoveredApp[]>([]);
 	const [selectedAppClientId, setSelectedAppClientId] = useState<string>('');
 
 	const hasWorkerToken = tokenStatus.isValid;
@@ -256,7 +256,7 @@ const MFAFlowsApiTest: React.FC = () => {
 	}, [globalToken.token]);
 
 	const [config, setConfig] = useState<MFATestConfig>(() => {
-		const saved = V9CredentialStorageService.loadSync(FLOW_KEY);
+		const saved = CredentialStorageService.loadSync(FLOW_KEY);
 		return {
 			environmentId: saved.environmentId || '',
 			clientId: saved.clientId || '',
@@ -277,7 +277,7 @@ const MFAFlowsApiTest: React.FC = () => {
 
 	const discoverApps = useCallback(async () => {
 		if (!globalToken.token || !config.environmentId) return;
-		const result = await V9AppDiscoveryService.discoverApplications(
+		const result = await AppDiscoveryService.discoverApplications(
 			config.environmentId,
 			globalToken.token
 		);
@@ -291,7 +291,7 @@ const MFAFlowsApiTest: React.FC = () => {
 	const handleConfigChange = (field: keyof MFATestConfig, value: string) => {
 		setConfig((prev) => {
 			const next = { ...prev, [field]: value };
-			void V9CredentialStorageService.save(FLOW_KEY, {
+			void CredentialStorageService.save(FLOW_KEY, {
 				environmentId: next.environmentId,
 				clientId: next.clientId,
 				clientSecret: next.clientSecret,
@@ -808,7 +808,7 @@ const MFAFlowsApiTest: React.FC = () => {
 									if (clientId) {
 										const app = discoveredApps.find((a) => a.clientId === clientId);
 										if (app) {
-											const appCreds = V9AppDiscoveryService.applyAppConfig(app);
+											const appCreds = AppDiscoveryService.applyAppConfig(app);
 											setConfig((prev) => {
 												const next = {
 													...prev,
@@ -816,7 +816,7 @@ const MFAFlowsApiTest: React.FC = () => {
 													...(appCreds.clientSecret && { clientSecret: appCreds.clientSecret }),
 													...(appCreds.redirectUri && { redirectUri: appCreds.redirectUri }),
 												};
-												void V9CredentialStorageService.save(FLOW_KEY, {
+												void CredentialStorageService.save(FLOW_KEY, {
 													environmentId: next.environmentId,
 													clientId: next.clientId,
 													clientSecret: next.clientSecret,

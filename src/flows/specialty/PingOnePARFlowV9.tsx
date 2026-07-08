@@ -15,11 +15,11 @@ import {
 } from '../../services/parConfigurationService';
 import { PKCEServiceUtils } from '../../services/pkceService';
 import { type AuthorizationDetail, RARService } from '../../services/rarService';
-import { V9FlowCredentialService } from '../../platform/core/V9FlowCredentialService';
-import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
-import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
-import { V9ModernMessagingService } from '../../platform/V9ModernMessagingService';
-import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import { FlowCredentialService } from '../../platform/core/FlowCredentialService';
+import { CredentialStorageService } from '../../platform/CredentialStorageService';
+import { FlowRestartButton } from '../../platform/FlowRestartButton';
+import { ModernMessagingService } from '../../platform/ModernMessagingService';
+import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { logger } from '../../utils/logger';
 import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
@@ -74,7 +74,7 @@ const _log = createModuleLogger('src/flows/specialty/PingOnePARFlowV9.tsx');
 const PingOnePARFlowV9: React.FC = () => {
 	const location = useLocation();
 	const [currentStep, setCurrentStep] = useState(0);
-	const messagingService = V9ModernMessagingService.getInstance();
+	const messagingService = ModernMessagingService.getInstance();
 
 	// Initialize page scroll management
 	usePageScroll({ pageName: 'PingOne PAR Flow V9', force: true });
@@ -118,7 +118,7 @@ const PingOnePARFlowV9: React.FC = () => {
 		(app: DiscoveredApp) => {
 			const updated = { ...controller.credentials, clientId: app.id };
 			controller.setCredentials(updated);
-			V9CredentialStorageService.save(
+			CredentialStorageService.save(
 				'v9:pingone-par',
 				{
 					clientId: app.id,
@@ -360,7 +360,7 @@ const PingOnePARFlowV9: React.FC = () => {
 						<CompactAppPickerV8U
 							onAppSelected={handleParAppSelected}
 						/>
-						<V9FlowCredentialService
+						<FlowCredentialService
 							flowKey="pingone-par-flow-v9"
 							onCredentialsChange={(credentials) => {
 								if (credentials) {
@@ -918,7 +918,7 @@ const PingOnePARFlowV9: React.FC = () => {
 
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
-			<V9FlowHeader flowId="pingone-par-v9" />
+			<PlatformFlowHeader flowId="pingone-par-v9" />
 
 			{/* Progress Steps */}
 			<div
@@ -1049,7 +1049,7 @@ const PingOnePARFlowV9: React.FC = () => {
 							)}
 						</div>
 						<div>
-							<V9FlowRestartButton onRestart={handleRestartFlow} />
+							<FlowRestartButton onRestart={handleRestartFlow} />
 							{currentStep < STEP_METADATA.length - 1 && (
 								<button
 									type="button"

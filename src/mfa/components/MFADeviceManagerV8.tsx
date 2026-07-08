@@ -20,7 +20,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { MFAServiceV8 } from '@/mfa/services/mfaServiceV8';
 import { ButtonSpinner } from '../../components/ui';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';

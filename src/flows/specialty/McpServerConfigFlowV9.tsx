@@ -8,8 +8,8 @@ import { showGlobalError, showGlobalSuccess } from '../../contexts/NotificationS
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import { COLORS } from '../../platform/ColorStandards';
-import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
-import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import { FlowRestartButton } from '../../platform/FlowRestartButton';
+import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -472,7 +472,7 @@ const McpServerConfigFlowV9: React.FC = () => {
 
 	return (
 		<Container>
-			<V9FlowHeader flowId="mcp-server-config" />
+			<PlatformFlowHeader flowId="mcp-server-config" />
 
 			{/* Documentation Link */}
 			<div style={{ marginBottom: '2rem', textAlign: 'center' }}>
@@ -667,7 +667,7 @@ const McpServerConfigFlowV9: React.FC = () => {
 				onTokenUpdated={handleWorkerTokenUpdated}
 			/>
 
-			<V9FlowRestartButton flowId="mcp-server-config" />
+			<FlowRestartButton flowId="mcp-server-config" />
 		</Container>
 	);
 };

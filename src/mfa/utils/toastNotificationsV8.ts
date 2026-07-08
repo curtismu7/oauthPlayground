@@ -9,7 +9,7 @@
  * All V8 code should use these methods for consistent user feedback.
  *
  * @example
- * import { modernMessaging } from '@/platform/V9ModernMessagingService';
+ * import { modernMessaging } from '@/platform/ModernMessagingService';
  *
  * // Success notification
  * modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved successfully', duration: 3000 });
@@ -24,7 +24,7 @@
  * modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization URL copied to clipboard', duration: 3000 });
  */
 
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 
 import { logger } from '../../utils/logger';
 /**

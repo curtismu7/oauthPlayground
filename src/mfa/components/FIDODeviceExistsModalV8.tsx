@@ -7,7 +7,7 @@
 
 import React, { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { useDraggableModal } from '@/mfa/hooks/useDraggableModal';
 import { MFAServiceV8 } from '@/mfa/services/mfaServiceV8';
 

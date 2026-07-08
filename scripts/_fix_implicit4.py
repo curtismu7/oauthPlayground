@@ -26,13 +26,13 @@ content = content.replace(
     ''
 )
 
-# Delete V9CredentialStorageService import
+# Delete CredentialStorageService import
 # Need to see exact line
 import re
-pattern = r"import \{ V9CredentialStorageService \} from '.*?';\n"
+pattern = r"import \{ CredentialStorageService \} from '.*?';\n"
 before = len(content)
 content = re.sub(pattern, '', content)
-print(f"V9CredentialStorageService import removed: {before - len(content)} chars")
+print(f"CredentialStorageService import removed: {before - len(content)} chars")
 
 with open(path, 'w') as f:
     f.write(content)

@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { FiInfo } from '../icons';
 import { comprehensiveFlowDataService } from '../services/comprehensiveFlowDataService';
 import {

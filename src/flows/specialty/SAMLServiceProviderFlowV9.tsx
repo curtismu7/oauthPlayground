@@ -4,7 +4,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { CredentialsImportExport } from '../../components/CredentialsImportExport';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { useSamlSpFlowController } from '../../hooks/useSamlSpFlowController';

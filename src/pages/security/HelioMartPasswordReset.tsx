@@ -33,7 +33,7 @@ const _helioMartLayout = PageLayoutService.createPageLayout({
 	responsive: true,
 });
 
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { FiAlertCircle, FiCheckCircle, FiLock } from '../../icons';
 import {
 	changePassword,

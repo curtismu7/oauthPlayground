@@ -34,7 +34,7 @@ const WorkerActions: React.FC<{
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
 import { CredentialsInput } from '../components/CredentialsInput';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';

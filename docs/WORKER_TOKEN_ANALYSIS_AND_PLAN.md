@@ -260,7 +260,7 @@ Use this list to ensure each file uses the single modal and storage service. (Lo
 - `src/v8/services/auth/tokenGatewayV8.ts`
 - `src/services/workerTokenCredentialsService.ts`
 - `src/services/aiAssistantWorkerTokenService.ts`
-- `src/services/v9/V9WorkerTokenStatusService.ts`
+- `src/services/v9/WorkerTokenStatusService.ts`
 
 **Hooks**
 

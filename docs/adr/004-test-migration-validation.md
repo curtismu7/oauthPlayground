@@ -66,7 +66,7 @@ Phase 3: V9 Enhancement & Modern Messaging
 #### V9 Service Mapping
 ```typescript
 - V9CredentialService (replace ComprehensiveCredentialsService)
-- V9CredentialValidationService (replace CredentialGuardService)
+- PlatformCredentialValidationService (replace CredentialGuardService)
 - V9TokenService (replace token-related services)
 - V9UserInfoService (replace user info services)
 - V9IntrospectionService (replace introspection)
@@ -92,7 +92,7 @@ Phase 3: V9 Enhancement & Modern Messaging
 
 #### V9 Replacement Strategy
 - Create V9WorkerTokenModal component
-- Integrate V9WorkerTokenStatusService
+- Integrate WorkerTokenStatusService
 - Apply Modern Messaging
 - Update all dependent flows
 

@@ -19,7 +19,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { SuperSimpleApiDisplayV8 } from '@/mfa/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/mfa/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenModal } from '@/components/WorkerTokenModal';

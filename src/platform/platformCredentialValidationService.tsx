@@ -1,4 +1,4 @@
-// src/platform/v9CredentialValidationService.tsx
+// src/platform/platformCredentialValidationService.tsx
 /**
  * V9 Credential Validation Service - Centralized modal validation for all V9 flows
  *
@@ -16,7 +16,7 @@
  * const {
  *   validateCredentialsAndProceed,
  *   CredentialValidationModal,
- * } = V9CredentialValidationService.useValidation({
+ * } = PlatformCredentialValidationService.useValidation({
  *   flowKey: 'oidc-hybrid-v9',
  *   credentials: controller.credentials,
  *   currentStep,
@@ -35,20 +35,20 @@
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { CredentialGuardService } from '../services/credentialGuardService';
 import ModalPresentationService from '../services/modalPresentationService';
 // Flow-specific credential requirements
-export type V9CredentialValues = Record<string, unknown>;
-export type V9CredentialInput = V9CredentialValues | null | undefined;
+export type CredentialValues = Record<string, unknown>;
+export type CredentialInput = CredentialValues | null | undefined;
 
-export interface V9FlowCredentialConfig {
+export interface FlowCredentialConfig {
 	flowName: string;
 	requiredFields: string[];
 	fieldLabels: Record<string, string>;
 	stepIndex: number; // Which step to validate (usually 0)
 	showToastOnSuccess?: boolean;
-	customValidation?: (credentials: V9CredentialValues) => { isValid: boolean; message?: string };
+	customValidation?: (credentials: CredentialValues) => { isValid: boolean; message?: string };
 }
 
 /**
@@ -58,16 +58,16 @@ export interface V9FlowCredentialConfig {
  * Each configuration defines the required fields, field labels, and validation rules
  * specific to that flow type.
  *
- * @type {Record<string, V9FlowCredentialConfig>}
+ * @type {Record<string, FlowCredentialConfig>}
  * @constant
  * @example
  * ```typescript
  * // Access configuration for a specific flow
- * const config = V9_FLOW_CONFIGS['oidc-hybrid-v9'];
+ * const config = FLOW_CREDENTIAL_CONFIGS['oidc-hybrid-v9'];
  * logger.info(config.requiredFields, "Logger info"); // ['environmentId', 'clientId', 'redirectUri']
  * ```
  */
-export const V9_FLOW_CONFIGS: Record<string, V9FlowCredentialConfig> = {
+export const FLOW_CREDENTIAL_CONFIGS: Record<string, FlowCredentialConfig> = {
 	'oidc-hybrid-v9': {
 		flowName: 'OIDC Hybrid Flow',
 		requiredFields: ['environmentId', 'clientId', 'redirectUri'],
@@ -213,16 +213,16 @@ export const V9_FLOW_CONFIGS: Record<string, V9FlowCredentialConfig> = {
 };
 
 // Hook for V9 credential validation with modal
-export interface UseV9CredentialValidationOptions {
+export interface UseCredentialValidationOptions {
 	flowKey: string;
-	credentials: V9CredentialInput;
+	credentials: CredentialInput;
 	currentStep: number;
 	onValidationSuccess?: () => void;
 	onValidationFailure?: (missingFields: string[]) => void;
-	customConfig?: Partial<V9FlowCredentialConfig>;
+	customConfig?: Partial<FlowCredentialConfig>;
 }
 
-export interface UseV9CredentialValidationReturn {
+export interface UseCredentialValidationReturn {
 	showMissingCredentialsModal: boolean;
 	missingCredentialFields: string[];
 	validateCredentialsAndProceed: (onProceed: () => void) => void;
@@ -238,15 +238,15 @@ export interface UseV9CredentialValidationReturn {
  * This hook provides credential validation functionality for V9 flows, including
  * modal display for missing credentials and validation state management.
  *
- * @param {UseV9CredentialValidationOptions} options - Configuration options for the hook
+ * @param {UseCredentialValidationOptions} options - Configuration options for the hook
  * @param {string} options.flowKey - The flow key to validate against
  * @param {any} options.credentials - The credentials object to validate
  * @param {number} options.currentStep - The current step in the flow
  * @param {Function} [options.onValidationSuccess] - Callback for successful validation
  * @param {Function} [options.onValidationFailure] - Callback for failed validation
- * @param {V9FlowCredentialConfig} [options.customConfig] - Custom validation configuration
+ * @param {FlowCredentialConfig} [options.customConfig] - Custom validation configuration
  *
- * @returns {UseV9CredentialValidationReturn} Validation hook return object
+ * @returns {UseCredentialValidationReturn} Validation hook return object
  *
  * @example
  * ```typescript
@@ -255,7 +255,7 @@ export interface UseV9CredentialValidationReturn {
  *   CredentialValidationModal,
  *   isValidForStep,
  *   validationMessage
- * } = useV9CredentialValidation({
+ * } = useCredentialValidation({
  *   flowKey: 'oidc-hybrid-v9',
  *   credentials: controller.credentials,
  *   currentStep: 0,
@@ -264,34 +264,34 @@ export interface UseV9CredentialValidationReturn {
  * });
  * ```
  *
- * @throws {Error} When flowKey is not found in V9_FLOW_CONFIGS
+ * @throws {Error} When flowKey is not found in FLOW_CREDENTIAL_CONFIGS
  * @since 1.0.0
  */
-const sanitizeCredentials = (input: V9CredentialInput): V9CredentialValues => {
+const sanitizeCredentials = (input: CredentialInput): CredentialValues => {
 	if (input && typeof input === 'object') {
 		return input;
 	}
 	return {};
 };
 
-export const useV9CredentialValidation = ({
+export const useCredentialValidation = ({
 	flowKey,
 	credentials,
 	currentStep,
 	onValidationSuccess,
 	onValidationFailure,
 	customConfig,
-}: UseV9CredentialValidationOptions): UseV9CredentialValidationReturn => {
+}: UseCredentialValidationOptions): UseCredentialValidationReturn => {
 	const [showMissingCredentialsModal, setShowMissingCredentialsModal] = useState(false);
 	const [missingCredentialFields, setMissingCredentialFields] = useState<string[]>([]);
 
 	// Get flow configuration
-	const baseConfig = V9_FLOW_CONFIGS[flowKey];
+	const baseConfig = FLOW_CREDENTIAL_CONFIGS[flowKey];
 
 	// Memoize config — computed before any early return to comply with Rules of Hooks.
 	// biome-ignore lint/correctness/useExhaustiveDependencies: customConfig excluded (unstable object identity)
-	const config = useMemo<V9FlowCredentialConfig>(
-		() => ({ ...(baseConfig as V9FlowCredentialConfig), ...customConfig }),
+	const config = useMemo<FlowCredentialConfig>(
+		() => ({ ...(baseConfig as FlowCredentialConfig), ...customConfig }),
 		[baseConfig]
 	);
 
@@ -442,12 +442,12 @@ export const useV9CredentialValidation = ({
 };
 
 // Utility function for quick validation without hook
-export const validateV9FlowCredentials = (
+export const validateFlowCredentials = (
 	flowKey: string,
-	credentials: V9CredentialInput,
-	customConfig?: Partial<V9FlowCredentialConfig>
+	credentials: CredentialInput,
+	customConfig?: Partial<FlowCredentialConfig>
 ): { isValid: boolean; missingFields: string[]; message: string } => {
-	const baseConfig = V9_FLOW_CONFIGS[flowKey];
+	const baseConfig = FLOW_CREDENTIAL_CONFIGS[flowKey];
 
 	if (!baseConfig) {
 		return {
@@ -479,11 +479,11 @@ export const validateV9FlowCredentials = (
 };
 
 // Export the service
-export const V9CredentialValidationService = {
-	useValidation: useV9CredentialValidation,
-	validateCredentials: validateV9FlowCredentials,
-	getFlowConfig: (flowKey: string) => V9_FLOW_CONFIGS[flowKey],
-	getAllFlowConfigs: () => V9_FLOW_CONFIGS,
+export const PlatformCredentialValidationService = {
+	useValidation: useCredentialValidation,
+	validateCredentials: validateFlowCredentials,
+	getFlowConfig: (flowKey: string) => FLOW_CREDENTIAL_CONFIGS[flowKey],
+	getAllFlowConfigs: () => FLOW_CREDENTIAL_CONFIGS,
 };
 
-export default V9CredentialValidationService;
+export default PlatformCredentialValidationService;

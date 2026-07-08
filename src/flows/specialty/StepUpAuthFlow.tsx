@@ -5,7 +5,7 @@
 import type React from 'react';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 
 type Step = 0 | 1 | 2 | 3;
 
@@ -364,7 +364,7 @@ const StepUpAuthFlow: React.FC = () => {
 
 	return (
 		<Page>
-			<V9FlowHeader flowId="step-up-auth" />
+			<PlatformFlowHeader flowId="step-up-auth" />
 			<PageTitle>
 				Step-Up Authentication<RfcBadge>RFC 9470</RfcBadge>
 			</PageTitle>

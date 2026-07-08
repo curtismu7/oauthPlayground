@@ -12,7 +12,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { MFAInfoButtonV8 } from '@/mfa/components/MFAInfoButtonV8';
 import { WorkerTokenExpiryBannerV8 } from '@/mfa/components/WorkerTokenExpiryBannerV8';
 import WorkerTokenStatusDisplayV8 from '@/mfa/components/WorkerTokenStatusDisplayV8';

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { COLORS } from '../platform/ColorStandards';
-import V9FlowHeader from '../platform/v9FlowHeaderService';
+import PlatformFlowHeader from '../platform/platformFlowHeaderService';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -1406,7 +1406,7 @@ const McpToolDiscovery: React.FC = () => {
 
 	return (
 		<Container>
-			<V9FlowHeader flowId="mcp-tool-discovery" />
+			<PlatformFlowHeader flowId="mcp-tool-discovery" />
 
 			<Card>
 				<CardBody>

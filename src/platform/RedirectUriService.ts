@@ -1,5 +1,5 @@
 /**
- * @file V9RedirectUriService.ts
+ * @file RedirectUriService.ts
  * @module platform
  * @description V9 Redirect URI Service
  *
@@ -9,7 +9,7 @@
  *
  *   Adds `returnPath` to each entry: the in-app page to navigate back to after
  *   the OAuth callback completes. Callers (e.g. CallbackHandlerV8U) should call
- *   `V9RedirectUriService.getReturnPathForFlow(flowKey)` instead of hardcoding
+ *   `RedirectUriService.getReturnPathForFlow(flowKey)` instead of hardcoding
  *   fallback routes.
  *
  * @version 9.0.0
@@ -20,7 +20,7 @@ import { logger } from '@/utils/logger';
 
 const MODULE_TAG = '[ V9-REDIRECT-URI]';
 
-export interface V9FlowRedirectUriConfig {
+export interface FlowRedirectUriConfig {
 	/** The flow type identifier (e.g. 'oauth-authz-v8u') */
 	flowType: string;
 	/** Whether this flow requires a redirect URI */
@@ -43,7 +43,7 @@ export interface V9FlowRedirectUriConfig {
  * Flow → callback + return path mapping.
  * Scope: Unified OAuth (V8U) and Unified MFA only. No V8 mock/legacy entries.
  */
-export const V9_FLOW_REDIRECT_URI_MAPPING: V9FlowRedirectUriConfig[] = [
+export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 	// ─── Unified OAuth (V8U) ─────────────────────────────────────────────────
 	{
 		flowType: 'oauth-authz-v8u',
@@ -159,8 +159,8 @@ export const getBaseUrl = (): string => {
 };
 
 /** Look up flow config by flow key. Returns null if not in this service's scope. */
-export const getFlowConfig = (flowKey: string): V9FlowRedirectUriConfig | null =>
-	V9_FLOW_REDIRECT_URI_MAPPING.find((c) => c.flowType === flowKey) ?? null;
+export const getFlowConfig = (flowKey: string): FlowRedirectUriConfig | null =>
+	FLOW_REDIRECT_URI_MAPPING.find((c) => c.flowType === flowKey) ?? null;
 
 /** Build the full OAuth callback URL for a flow key (e.g. `https://host/authz-callback`). */
 export const getRedirectUriForFlow = (flowKey: string): string => {
@@ -230,7 +230,7 @@ export const initializeRedirectUris = (
 	return { redirectUri, postLogoutRedirectUri };
 };
 
-export const V9RedirectUriService = {
+export const RedirectUriService = {
 	getBaseUrl,
 	getFlowConfig,
 	getRedirectUriForFlow,
@@ -241,4 +241,4 @@ export const V9RedirectUriService = {
 	initializeRedirectUris,
 };
 
-export default V9RedirectUriService;
+export default RedirectUriService;

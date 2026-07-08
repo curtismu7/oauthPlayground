@@ -106,11 +106,17 @@ Constants: `src/config/canonicalRoutes.ts`
 - `V7MMockBanner` → `MockBanner` in `flows/mock-ui/`
 - `platform/mock/`: `V9Mock*` files and symbols → `Mock*`
 
-## Phase 8 remaining (8b–8d)
+## Phase 8b (done)
+
+- `platform/`: all `V9*` / `v9*` service files renamed (e.g. `ModernMessagingService`, `CredentialStorageService`, `platformFlowHeaderService`)
+- `components/v9/V9ModernMessagingComponents.tsx` → `components/ModernMessagingComponents.tsx`
+- Symbols: `V9ModernMessagingService` → `ModernMessagingService`, `V9CredentialStorageService` → `CredentialStorageService`, etc.
+- `V9LoggingService` export → `PlatformLoggingService` (file `LoggingService.ts`)
+
+## Phase 8 remaining (8c–8d)
 
 | Batch | Scope |
 |-------|--------|
-| **8b** | `platform/`: `V9ModernMessagingService`, `V9FlowRestartButton`, `v9FlowHeaderService`, credential services, etc. |
 | **8c** | `mfa/`: `*V8` components, services, filenames |
 | **8d** | `lab/`: `*V8U` components/services; specialty flow `*V9` filenames; canonical routes for `/flows/*-v9` |
 

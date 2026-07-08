@@ -59,7 +59,7 @@ Make all flows in the **Mock Flows** group behave and look very similar so users
 
 ### 2.2 What is already consistent
 
-- **FlowHeader** (flowHeaderService): used by all V7M pages with `flowId`; JWT uses V9FlowHeader.
+- **FlowHeader** (flowHeaderService): used by all V7M pages with `flowId`; JWT uses PlatformFlowHeader.
 - **MockApiCallDisplay**: used for request/response learning in Auth Code, Hybrid, Device, CIBA, Implicit, ROPC, Client Credentials, JWT Bearer, SAML Bearer.
 - **ColoredJsonDisplay**: used for token/userinfo/introspection JSON in V7M flows.
 - **ColoredUrlDisplay**: use for authorization URLs, callback URLs, and POST request body (query-string form) so all Mock flows share the same URL color display and Decode behavior.
@@ -84,7 +84,7 @@ Make all flows in the **Mock Flows** group behave and look very similar so users
 | **Show More / Show Less** | Collapse toggle must visibly truncate content; use a collapsed max-height (e.g. 150px) so "Show Less" actually shortens the block. Avoid default collapsed height larger than typical content so the button appears to do nothing. |
 | **Copy controls** | Standardize on one pattern: **Copy button with visible "Copy" text** everywhere. No icon-only copy (e.g. round button with no icon when icon font fails to load). Use "Copy" label so all Mock flows look and behave the same. |
 | **API display** | All use MockApiCallDisplay; URL/base comes from PingOneApiCallDisplay constants. Minor: some flows show API block before button, some after; could standardize “show API, then action button, then response”. |
-| **JWT Bearer / SAML** | JWT has step progress (steps 0–4), restart button, different header (V9FlowHeader). SAML uses CollapsibleHeader, InfoBox, ParameterGrid, Button from FlowUIService/styled — different look from V7M. |
+| **JWT Bearer / SAML** | JWT has step progress (steps 0–4), restart button, different header (PlatformFlowHeader). SAML uses CollapsibleHeader, InfoBox, ParameterGrid, Button from FlowUIService/styled — different look from V7M. |
 | **Multi-step flows** | Any mock flow with multiple sequential steps (e.g. SPIFFE/SPIRE) should use the **new stepper** (`usePageStepper()` from FloatingStepperContext), not a custom inline step indicator or URL-based step navigation. Register steps, drive content from stepper `currentStep`; use `completeStep` / `setCurrentStep` on advancement; optional URL sync on mount for deep links. |
 | **Secondary buttons** | Secondary actions (e.g. Reset, Cancel) must use **blue background** with **white text** (e.g. `#3b82f6`, hover `#2563eb`), not grey. Grey + dark text is deprecated for secondary buttons in Mock flows. |
 
@@ -222,7 +222,7 @@ No need to change the **logic or step content** of each flow; only the **contain
 | **Navigation** | **Previous** (disabled on step 0), **step number buttons** (1–N) for direct jump, **Next** (disabled on last step or when validation fails). Last step label can be “Complete” instead of “Next”. |
 | **Validation** | `validateCurrentStep()` so “Next” is only enabled when the current step is complete (e.g. URL built, token received). |
 | **Last step = Flow Completion** | Dedicated final step with **summary**: “What you did”, “Why use this flow?”, “Why it’s secure?”, and **PingOne documentation** link. Optional: “Flow Completion Summary” card at bottom (e.g. “🎉 Flow Completion Summary” with short recap). |
-| **Reset / Restart** | Header button (e.g. V9FlowRestartButton or MOCK_RESET_BTN) that clears state and sets `currentStep` to 0. |
+| **Reset / Restart** | Header button (e.g. FlowRestartButton or MOCK_RESET_BTN) that clears state and sets `currentStep` to 0. |
 
 ### 5b.2 Suggested step breakdown per flow
 

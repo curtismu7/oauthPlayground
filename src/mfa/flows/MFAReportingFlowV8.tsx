@@ -18,7 +18,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { usePageScroll } from '@/hooks/usePageScroll';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { MFAHeaderV8 } from '@/mfa/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/mfa/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/mfa/components/WorkerTokenExpiryBannerV8';

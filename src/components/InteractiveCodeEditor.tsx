@@ -1,7 +1,7 @@
 import Editor from '@monaco-editor/react';
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { logger } from '../utils/logger';
 import ConfirmationModal from './ConfirmationModal';
 export type FlowStep =

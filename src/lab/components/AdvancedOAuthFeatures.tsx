@@ -7,7 +7,7 @@ import {
 	UnifiedFlowCollapsibleTitle,
 	UnifiedFlowCollapsibleToggleIcon,
 } from '@/services/collapsibleHeaderService';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { FiCheck, FiInfo, FiShield, FiX } from '../../icons';
 import { logger } from '../../utils/logger';
 import { PingOneClientServiceV8U } from '../services/pingOneClientServiceV8U';

@@ -3,7 +3,7 @@
 
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { logger } from '../utils/logger';
 import { CalloutCard } from './InfoBlocks';
 import NextSteps from './NextSteps';

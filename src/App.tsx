@@ -29,7 +29,7 @@ const AIAssistantPopoutPage = lazy(() =>
 
 import LoadingFallback from './components/LoadingFallback';
 import { StandardModalSpinner } from './components/ui/StandardSpinner';
-import { V9ModernMessagingProvider } from './components/v9/V9ModernMessagingComponents';
+import { ModernMessagingProvider } from './components/ModernMessagingComponents';
 
 // Lazy-loaded route-only components (not needed until navigated to)
 const CleanlinessDashboardWorking = lazy(() =>
@@ -2170,9 +2170,9 @@ function AppContent() {
 													<NotificationContainer />
 													<ApiRequestModalProvider />
 													<FloatingStepperProvider>
-														<V9ModernMessagingProvider>
+														<ModernMessagingProvider>
 															<AppRoutes />
-														</V9ModernMessagingProvider>
+														</ModernMessagingProvider>
 													</FloatingStepperProvider>
 												</PageStyleProvider>
 											</StartupWrapper>

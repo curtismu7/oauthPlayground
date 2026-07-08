@@ -10,7 +10,7 @@
  */
 
 import React, { useState } from 'react';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';
 import { FiAlertTriangle, FiCheck, FiX } from '../../icons';
 

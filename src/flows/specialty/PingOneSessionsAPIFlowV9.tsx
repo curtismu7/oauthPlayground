@@ -8,8 +8,8 @@ import { WorkerTokenSectionV9 } from '../../components/WorkerTokenSectionV9';
 import { showGlobalError, showGlobalSuccess } from '../../contexts/NotificationSystem';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import { COLORS } from '../../platform/ColorStandards';
-import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
-import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import { FlowRestartButton } from '../../platform/FlowRestartButton';
+import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -670,7 +670,7 @@ const PingOneSessionsAPIFlowV9: React.FC = () => {
 
 	return (
 		<Container>
-			<V9FlowHeader flowId="pingone-sessions-api" />
+			<PlatformFlowHeader flowId="pingone-sessions-api" />
 
 			{/* Overview */}
 			<OverviewCard>
@@ -988,7 +988,7 @@ const PingOneSessionsAPIFlowV9: React.FC = () => {
 				</div>
 			</SecurityNote>
 
-			<V9FlowRestartButton flowId="pingone-sessions-api" />
+			<FlowRestartButton flowId="pingone-sessions-api" />
 		</Container>
 	);
 };

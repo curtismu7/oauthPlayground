@@ -25,7 +25,7 @@ Standardize all AI & Identity documentation and educational flows to the V9 patt
 ### ✅ What AI & Identity flows should follow
 - **Modern Messaging** — wait screens, banners, footer messages, red critical errors (no legacy toast)
 - **V9FlowUIService.getFlowUIComponents()** — Container, ContentWrapper, MainCard, CollapsibleSection
-- **V9FlowHeader** — consistent page header with AI & Identity branding
+- **PlatformFlowHeader** — consistent page header with AI & Identity branding
 - **usePageScroll** — scroll reset on route change
 - **V9_COLORS** — approved blue/purple palette for AI documentation (purple accent for AI theme)
 - **`@/` imports** — correct import depth
@@ -83,8 +83,8 @@ AI & Identity documentation pages **should** use a **purple accent** to distingu
 **Standard AI documentation header**:
 
 ```tsx
-// When using V9FlowHeader:
-<V9FlowHeader flowId="ai-identity-architectures" customConfig={{ flowType: 'ai-documentation' }} />
+// When using PlatformFlowHeader:
+<PlatformFlowHeader flowId="ai-identity-architectures" customConfig={{ flowType: 'ai-documentation' }} />
 
 // When using custom headers:
 const PageTitle = styled.h1`
@@ -195,7 +195,7 @@ Format:
 ### Phase 2: Standardize Layout
 1. **Apply V9FlowUIService components** to all pages
 2. **Remove hard-coded widths** — replace with fluid layout
-3. **Add V9FlowHeader** to pages missing it
+3. **Add PlatformFlowHeader** to pages missing it
 4. **Implement usePageScroll** for scroll management
 5. **Standardize collapsible sections** with proper icons
 
@@ -264,7 +264,7 @@ For each AI & Identity page, verify:
 - [ ] Container has fluid layout (no hard-coded width)
 - [ ] ContentWrapper uses `max-width: 90rem`
 - [ ] MainCard wraps content
-- [ ] V9FlowHeader present with correct flowId
+- [ ] PlatformFlowHeader present with correct flowId
 - [ ] usePageScroll implemented
 
 ### Visual Design

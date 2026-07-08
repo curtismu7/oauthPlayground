@@ -29,7 +29,7 @@ import { PasswordChangeModal } from '@/components/PasswordChangeModal';
 import RedirectlessLoginModal from '@/components/RedirectlessLoginModal';
 import { EducationPreferenceService } from '@/services/educationPreferenceService';
 import { type PKCECodes, PKCEService } from '@/services/pkceService';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { createModuleLogger } from '@/utils/consoleMigrationHelper';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/mfa/components/WorkerTokenVsClientCredentialsEducationModalV8';
 import { CredentialsServiceV8 } from '@/mfa/services/credentialsServiceV8';
@@ -43,7 +43,7 @@ import { TokenOperationsServiceV8 } from '@/mfa/services/tokenOperationsServiceV
 const _log = createModuleLogger('src/lab/components/UnifiedFlowSteps.tsx');
 
 import { ButtonSpinner } from '@/components/ui';
-import { getRedirectUriForUnifiedFlow } from '@/platform/V9UnifiedRedirectUriService';
+import { getRedirectUriForUnifiedFlow } from '@/platform/UnifiedRedirectUriService';
 import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { FiArrowRight } from '../../icons';
 import { logger } from '../../utils/logger';

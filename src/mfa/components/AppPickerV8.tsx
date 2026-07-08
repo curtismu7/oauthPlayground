@@ -7,7 +7,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { AppDiscoveryServiceV8 } from '@/mfa/services/appDiscoveryServiceV8';
 import { workerTokenServiceV8 } from '@/mfa/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/mfa/services/workerTokenStatusServiceV8';

@@ -6,7 +6,7 @@
  */
 
 // Note: FIDO2Service is not used here - we use PingOne's publicKeyCredentialCreationOptions instead
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import type { useStepNavigationV8 } from '@/mfa/hooks/useStepNavigationV8';
 import type { RegisterDeviceParams } from '@/mfa/services/mfaServiceV8';
 import { MFAServiceV8 } from '@/mfa/services/mfaServiceV8';

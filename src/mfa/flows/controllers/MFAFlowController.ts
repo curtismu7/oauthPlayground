@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import type { useStepNavigationV8 } from '@/mfa/hooks/useStepNavigationV8';
 import { MfaAuthenticationServiceV8 } from '@/mfa/services/mfaAuthenticationServiceV8';
 import { MFAServiceV8, type RegisterDeviceParams } from '@/mfa/services/mfaServiceV8';

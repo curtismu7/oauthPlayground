@@ -5,7 +5,7 @@
 import type React from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -369,7 +369,7 @@ const GnapFlow: React.FC = () => {
 
 	return (
 		<Page>
-			<V9FlowHeader flowId="gnap" />
+			<PlatformFlowHeader flowId="gnap" />
 			<PageTitle>
 				GNAP — Grant Negotiation and Authorization Protocol<RfcBadge>RFC 9635</RfcBadge>
 			</PageTitle>

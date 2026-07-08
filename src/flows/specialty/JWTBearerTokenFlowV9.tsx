@@ -5,12 +5,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Card, CardBody, CardHeader } from '../../components/Card';
 import { CodeExamplesSection } from '../../components/CodeExamplesSection';
 import { MockApiCallDisplay } from '../../components/MockApiCallDisplay';
-import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
+import { modernMessaging } from '../../components/ModernMessagingComponents';
 import UnifiedTokenDisplayService from '../../services/unifiedTokenDisplayService';
-import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
-import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
-import { V9ModernMessagingService } from '../../platform/V9ModernMessagingService';
-import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import { CredentialStorageService } from '../../platform/CredentialStorageService';
+import { FlowRestartButton } from '../../platform/FlowRestartButton';
+import { ModernMessagingService } from '../../platform/ModernMessagingService';
+import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 import { MockBanner } from '../mock-ui/MockBanner';
 import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
@@ -169,19 +169,19 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 
 	// Initialize environment ID credentials on mount
 	useEffect(() => {
-		const synced = V9CredentialStorageService.loadSync('v9:jwt-bearer');
+		const synced = CredentialStorageService.loadSync('v9:jwt-bearer');
 		if (synced) {
 			if (synced.clientId) setClientId(synced.clientId);
 			if (synced.environmentId) setEnvironmentId(synced.environmentId);
 		}
-		V9CredentialStorageService.load('v9:jwt-bearer').then((creds) => {
+		CredentialStorageService.load('v9:jwt-bearer').then((creds) => {
 			if (creds?.clientId) setClientId(creds.clientId);
 			if (creds?.environmentId) setEnvironmentId(creds.environmentId);
 		});
 	}, []);
 
 	const saveJwtCredentials = useCallback((cId: string, envId: string) => {
-		V9CredentialStorageService.save(
+		CredentialStorageService.save(
 			'v9:jwt-bearer',
 			{ clientId: cId, environmentId: envId },
 			envId ? { environmentId: envId } : {}
@@ -223,7 +223,7 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 		setIsLoading(false);
 
 		// Show notification
-		const modernMessaging = V9ModernMessagingService.getInstance();
+		const modernMessaging = ModernMessagingService.getInstance();
 		modernMessaging.showBanner({
 			type: 'info',
 			title: 'Flow Restarted',
@@ -415,7 +415,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 			publicKey: samplePublicKey,
 		}));
 
-		const messaging = V9ModernMessagingService.getInstance();
+		const messaging = ModernMessagingService.getInstance();
 		messaging.showBanner({
 			type: 'success',
 			title: 'Sample Keys Generated',
@@ -429,15 +429,15 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 		await copyToClipboard(text);
 	}, []);
 
-	// Render component (messaging from app-level V9ModernMessagingProvider to avoid duplicate banners)
+	// Render component (messaging from app-level ModernMessagingProvider to avoid duplicate banners)
 	return (
 		<div style={{ padding: '2rem', maxWidth: '90rem', margin: '0 auto' }}>
 			<MockBanner description="This flow simulates the OAuth 2.0 JWT Bearer Token flow (RFC 7523) in-browser. No external APIs are called. JWT and token responses are generated for learning." />
-			<V9FlowHeader flowId="jwt-bearer-token-v7" />
+			<PlatformFlowHeader flowId="jwt-bearer-token-v7" />
 
 			{/* Restart Button */}
 			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
-				<V9FlowRestartButton
+				<FlowRestartButton
 					onRestart={restartFlow}
 					currentStep={currentStep}
 					totalSteps={STEP_METADATA.length}

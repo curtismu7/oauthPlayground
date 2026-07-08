@@ -2,7 +2,7 @@
 // FIDO2/WebAuthn Passkey Registration Modal
 
 import React, { useEffect, useState } from 'react';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { FIDO2Config, FIDO2Service } from '../services/fido2Service';
 
 import { logger } from '../utils/logger';

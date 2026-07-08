@@ -11,10 +11,10 @@ import { useGlobalWorkerToken } from '../../hooks/useGlobalWorkerToken';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import {
-	V9AppDiscoveryService,
-	type V9DiscoveredApp,
-} from '../../platform/V9AppDiscoveryService';
-import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
+	AppDiscoveryService,
+	type DiscoveredApp,
+} from '../../platform/AppDiscoveryService';
+import { CredentialStorageService } from '../../platform/CredentialStorageService';
 import { logger } from '../../utils/logger';
 import WorkerTokenStatusDisplayV8 from '../../mfa/components/WorkerTokenStatusDisplayV8';
 
@@ -295,14 +295,14 @@ const FLOW_KEY = 'all-flows-api-test-v9';
 
 const AllFlowsApiTest: React.FC = () => {
 	const globalToken = useGlobalWorkerToken({ autoFetch: false });
-	const [discoveredApps, setDiscoveredApps] = useState<V9DiscoveredApp[]>([]);
+	const [discoveredApps, setDiscoveredApps] = useState<DiscoveredApp[]>([]);
 	const [selectedAppClientId, setSelectedAppClientId] = useState<string>('');
 
 	// Get worker token status from unified service
 	const hasWorkerToken = unifiedWorkerTokenService.hasValidToken();
 
 	const [config, setConfig] = useState<AllFlowsTestConfig>(() => {
-		const saved = V9CredentialStorageService.loadSync(FLOW_KEY);
+		const saved = CredentialStorageService.loadSync(FLOW_KEY);
 		// Worker token env ID as fallback
 		let workerTokenEnvId = '';
 		try {
@@ -345,7 +345,7 @@ const AllFlowsApiTest: React.FC = () => {
 
 	// Load credentials from selected app
 	useEffect(() => {
-		/* replaced by V9CredentialStorageService.loadSync in initial state */
+		/* replaced by CredentialStorageService.loadSync in initial state */
 	}, []);
 
 	// Listen for worker token updates and update environment ID
@@ -409,7 +409,7 @@ const AllFlowsApiTest: React.FC = () => {
 
 	const discoverApps = useCallback(async () => {
 		if (!globalToken.token || !config.environmentId) return;
-		const result = await V9AppDiscoveryService.discoverApplications(
+		const result = await AppDiscoveryService.discoverApplications(
 			config.environmentId,
 			globalToken.token
 		);
@@ -428,7 +428,7 @@ const AllFlowsApiTest: React.FC = () => {
 	) => {
 		setConfig((prev) => {
 			const next = { ...prev, [field]: value };
-			void V9CredentialStorageService.save(FLOW_KEY, {
+			void CredentialStorageService.save(FLOW_KEY, {
 				environmentId: typeof next.environmentId === 'string' ? next.environmentId : '',
 				clientId: typeof next.clientId === 'string' ? next.clientId : '',
 				clientSecret: typeof next.clientSecret === 'string' ? next.clientSecret : '',
@@ -1025,7 +1025,7 @@ const AllFlowsApiTest: React.FC = () => {
 										if (clientId) {
 											const app = discoveredApps.find((a) => a.clientId === clientId);
 											if (app) {
-												const appCreds = V9AppDiscoveryService.applyAppConfig(app);
+												const appCreds = AppDiscoveryService.applyAppConfig(app);
 												setConfig((prev) => {
 													const next = {
 														...prev,
@@ -1034,7 +1034,7 @@ const AllFlowsApiTest: React.FC = () => {
 														...(appCreds.redirectUri && { redirectUri: appCreds.redirectUri }),
 														...(appCreds.scope && { scopes: appCreds.scope }),
 													};
-													void V9CredentialStorageService.save(FLOW_KEY, {
+													void CredentialStorageService.save(FLOW_KEY, {
 														environmentId: next.environmentId,
 														clientId: next.clientId,
 														clientSecret: next.clientSecret,

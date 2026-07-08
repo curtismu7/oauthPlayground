@@ -16,7 +16,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { COLORS } from '@/platform/ColorStandards';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { workerTokenManager } from '@/services/workerTokenManager';
 import { WorkerTokenStatusServiceV8 } from '@/mfa/services/workerTokenStatusServiceV8';
 import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';

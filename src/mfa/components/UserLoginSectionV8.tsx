@@ -12,7 +12,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/NewAuthContext';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';
 import { FiRefreshCw } from '../../icons';
 import { UserLoginModalV8 } from './UserLoginModalV8';

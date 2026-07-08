@@ -3,7 +3,7 @@
 // Cache bust: 2025-02-17-11:32viewer with filtering - matching Identity Metrics page design
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import ApiCallList from '../components/ApiCallList';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { AuditActivityCharts } from '../components/pingone/AuditActivityCharts';

@@ -4,7 +4,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ApiCallList from '../components/ApiCallList';
 import DocumentationHeader from '../components/DocumentationHeader';
-import { WaitScreen } from '../components/v9/V9ModernMessagingComponents';
+import { WaitScreen } from '../components/ModernMessagingComponents';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import EnvironmentServiceV8, {
@@ -14,7 +14,7 @@ import EnvironmentServiceV8, {
 } from '../services/environmentServiceV8';
 import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import { modernMessaging } from '../platform/V9ModernMessagingService';
+import { modernMessaging } from '../platform/ModernMessagingService';
 import { logger } from '../utils/logger';
 import { WorkerTokenSectionV8 } from '../mfa/components/WorkerTokenSectionV8';
 

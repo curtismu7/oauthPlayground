@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { useDraggableModal } from '@/mfa/hooks/useDraggableModal';
 import { MFAServiceV8, type MFASettings } from '@/mfa/services/mfaServiceV8';
 import { FiSettings } from '../../icons';

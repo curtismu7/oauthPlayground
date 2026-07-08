@@ -6,7 +6,7 @@
 
 import React, { useCallback, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { FiAlertTriangle } from '../icons';
 
 const TheaterContainer = styled.div`

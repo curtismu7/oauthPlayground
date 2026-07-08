@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 // import { FlowHeader } from '../services/flowHeaderService';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { FiAlertCircle, FiCheckCircle, FiXCircle } from '../icons';
 import { credentialStorageManager } from '../services/credentialStorageManager';

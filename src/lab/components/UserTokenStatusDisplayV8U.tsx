@@ -16,7 +16,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { type UnifiedToken, unifiedTokenStorage } from '@/services/unifiedTokenStorageService';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { logger } from '@/utils/logger';
 import { FiRefreshCw } from '../../icons';
 

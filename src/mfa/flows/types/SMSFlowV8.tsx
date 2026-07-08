@@ -6,7 +6,7 @@
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { CountryCodePickerV8 } from '@/mfa/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/mfa/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/mfa/components/SuperSimpleApiDisplayV8';

@@ -32,7 +32,7 @@
  */
 
 import React, { useCallback, useState } from 'react';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { Button } from '@/mfa/components/Button';
 import { colors, spacing } from '@/mfa/styles/designTokens';
 

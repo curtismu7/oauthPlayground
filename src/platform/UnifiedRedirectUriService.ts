@@ -1,10 +1,10 @@
 /**
- * @file V9UnifiedRedirectUriService.ts
+ * @file UnifiedRedirectUriService.ts
  * @module platform
  * @description V9 Single source of truth for redirect URIs for all Unified OAuth flows.
  *
  *   Drop-in replacement for UnifiedRedirectUriServiceV8U — delegates to
- *   V9RedirectUriService instead of RedirectUriServiceV8. Adds
+ *   RedirectUriService instead of RedirectUriServiceV8. Adds
  *   `getDefaultReturnPath()` so callback handlers can navigate back to the
  *   correct app page without hardcoding routes.
  *
@@ -12,12 +12,12 @@
  */
 
 import type { FlowType } from '@/mfa/services/specVersionServiceV8';
-import { V9RedirectUriService } from './V9RedirectUriService';
+import { RedirectUriService } from './RedirectUriService';
 
 /** Redirect URI used when response_mode=pi.flow (redirectless); no browser redirect. */
 export const REDIRECTLESS_URI = 'urn:pingidentity:redirectless';
 
-/** Get the flow key used by V9RedirectUriService for unified flows. */
+/** Get the flow key used by RedirectUriService for unified flows. */
 export function getFlowKeyForRedirect(flowType: FlowType): string {
 	return `${flowType}-v8u`;
 }
@@ -29,7 +29,7 @@ export function getFlowKeyForRedirect(flowType: FlowType): string {
  */
 export function getRedirectUriForUnifiedFlow(flowType: FlowType): string {
 	const flowKey = getFlowKeyForRedirect(flowType);
-	return V9RedirectUriService.getRedirectUriForFlow(flowKey);
+	return RedirectUriService.getRedirectUriForFlow(flowKey);
 }
 
 /**
@@ -58,7 +58,7 @@ export function getRedirectUriForAuthorize(
 /** Whether this flow type uses a browser redirect (false for pi.flow). */
 export function flowUsesRedirectUri(flowType: FlowType): boolean {
 	const flowKey = getFlowKeyForRedirect(flowType);
-	return V9RedirectUriService.getRedirectUriForFlow(flowKey) !== '';
+	return RedirectUriService.getRedirectUriForFlow(flowKey) !== '';
 }
 
 /**
@@ -73,19 +73,19 @@ export function flowUsesRedirectUri(flowType: FlowType): boolean {
  */
 export function getDefaultReturnPath(flowType: FlowType): string {
 	const flowKey = getFlowKeyForRedirect(flowType);
-	return V9RedirectUriService.getReturnPathForFlow(flowKey);
+	return RedirectUriService.getReturnPathForFlow(flowKey);
 }
 
-export const V9UnifiedRedirectUriService = {
+export const UnifiedRedirectUriService = {
 	REDIRECTLESS_URI,
 	getFlowKeyForRedirect,
 	getRedirectUriForUnifiedFlow,
 	getRedirectUriForAuthorize,
 	flowUsesRedirectUri,
 	getDefaultReturnPath,
-	/** Re-exports for callers that need base URL or other V9RedirectUriService helpers */
-	getBaseUrl: V9RedirectUriService.getBaseUrl,
-	getRedirectUriForFlow: V9RedirectUriService.getRedirectUriForFlow,
+	/** Re-exports for callers that need base URL or other RedirectUriService helpers */
+	getBaseUrl: RedirectUriService.getBaseUrl,
+	getRedirectUriForFlow: RedirectUriService.getRedirectUriForFlow,
 };
 
-export default V9UnifiedRedirectUriService;
+export default UnifiedRedirectUriService;

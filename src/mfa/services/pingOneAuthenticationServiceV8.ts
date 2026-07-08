@@ -9,7 +9,7 @@
  * and guaranteed success messages regardless of authentication method
  */
 
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { hasPingOneSessionCookie } from '@/mfa/services/fido2SessionCookieServiceV8';
 
 import { logger } from '../../utils/logger';

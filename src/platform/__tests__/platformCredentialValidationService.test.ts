@@ -14,9 +14,9 @@ import { act, renderHook } from '@testing-library/react';
 // Mock dependencies
 import { vi } from 'vitest';
 import {
-	V9_FLOW_CONFIGS,
-	V9CredentialValidationService,
-	type V9CredentialValues,
+	FLOW_CREDENTIAL_CONFIGS,
+	PlatformCredentialValidationService,
+	type CredentialValues,
 } from '../v9CredentialValidationService';
 
 vi.mock('../credentialGuardService', () => ({
@@ -44,7 +44,7 @@ vi.mock('../utils/v4ToastMessages', () => ({
 	},
 }));
 
-describe('V9CredentialValidationService', () => {
+describe('PlatformCredentialValidationService', () => {
 	const mockCredentials = {
 		environmentId: 'test-env-id',
 		clientId: 'test-client-id',
@@ -56,7 +56,7 @@ describe('V9CredentialValidationService', () => {
 		vi.clearAllMocks();
 	});
 
-	describe('V9_FLOW_CONFIGS', () => {
+	describe('FLOW_CREDENTIAL_CONFIGS', () => {
 		it('should contain configurations for all supported flows', () => {
 			const expectedFlows = [
 				'oidc-hybrid-v9',
@@ -73,16 +73,16 @@ describe('V9CredentialValidationService', () => {
 			];
 
 			expectedFlows.forEach((flowKey) => {
-				expect(V9_FLOW_CONFIGS[flowKey]).toBeDefined();
-				expect(V9_FLOW_CONFIGS[flowKey].flowName).toBeDefined();
-				expect(V9_FLOW_CONFIGS[flowKey].requiredFields).toBeInstanceOf(Array);
-				expect(V9_FLOW_CONFIGS[flowKey].fieldLabels).toBeDefined();
-				expect(V9_FLOW_CONFIGS[flowKey].stepIndex).toBeDefined();
+				expect(FLOW_CREDENTIAL_CONFIGS[flowKey]).toBeDefined();
+				expect(FLOW_CREDENTIAL_CONFIGS[flowKey].flowName).toBeDefined();
+				expect(FLOW_CREDENTIAL_CONFIGS[flowKey].requiredFields).toBeInstanceOf(Array);
+				expect(FLOW_CREDENTIAL_CONFIGS[flowKey].fieldLabels).toBeDefined();
+				expect(FLOW_CREDENTIAL_CONFIGS[flowKey].stepIndex).toBeDefined();
 			});
 		});
 
 		it('should have valid field labels for all required fields', () => {
-			Object.entries(V9_FLOW_CONFIGS).forEach(([_flowKey, config]) => {
+			Object.entries(FLOW_CREDENTIAL_CONFIGS).forEach(([_flowKey, config]) => {
 				config.requiredFields.forEach((field) => {
 					expect(config.fieldLabels[field]).toBeDefined();
 					expect(config.fieldLabels[field]).toBeTruthy();
@@ -94,7 +94,7 @@ describe('V9CredentialValidationService', () => {
 	describe('useValidation hook', () => {
 		it('should return validation functions and modal component', () => {
 			const { result } = renderHook(() =>
-				V9CredentialValidationService.useValidation({
+				PlatformCredentialValidationService.useValidation({
 					flowKey: 'oidc-hybrid-v9',
 					credentials: mockCredentials,
 					currentStep: 0,
@@ -110,7 +110,7 @@ describe('V9CredentialValidationService', () => {
 
 		it('should handle unknown flow key gracefully', () => {
 			const { result } = renderHook(() =>
-				V9CredentialValidationService.useValidation({
+				PlatformCredentialValidationService.useValidation({
 					flowKey: 'unknown-flow',
 					credentials: mockCredentials,
 					currentStep: 0,
@@ -124,7 +124,7 @@ describe('V9CredentialValidationService', () => {
 
 		it('should validate credentials correctly for valid input', () => {
 			const { result } = renderHook(() =>
-				V9CredentialValidationService.useValidation({
+				PlatformCredentialValidationService.useValidation({
 					flowKey: 'oidc-hybrid-v9',
 					credentials: mockCredentials,
 					currentStep: 0,
@@ -141,7 +141,7 @@ describe('V9CredentialValidationService', () => {
 			};
 
 			const { result } = renderHook(() =>
-				V9CredentialValidationService.useValidation({
+				PlatformCredentialValidationService.useValidation({
 					flowKey: 'oidc-hybrid-v9',
 					credentials: incompleteCredentials,
 					currentStep: 0,
@@ -156,7 +156,7 @@ describe('V9CredentialValidationService', () => {
 			const onValidationSuccess = vi.fn();
 
 			const { result } = renderHook(() =>
-				V9CredentialValidationService.useValidation({
+				PlatformCredentialValidationService.useValidation({
 					flowKey: 'oidc-hybrid-v9',
 					credentials: mockCredentials,
 					currentStep: 0,
@@ -178,7 +178,7 @@ describe('V9CredentialValidationService', () => {
 			const incompleteCredentials = { environmentId: 'test-env-id' };
 
 			const { result } = renderHook(() =>
-				V9CredentialValidationService.useValidation({
+				PlatformCredentialValidationService.useValidation({
 					flowKey: 'oidc-hybrid-v9',
 					credentials: incompleteCredentials,
 					currentStep: 0,
@@ -199,7 +199,7 @@ describe('V9CredentialValidationService', () => {
 			const incompleteCredentials = { environmentId: 'test-env-id' };
 
 			const { result } = renderHook(() =>
-				V9CredentialValidationService.useValidation({
+				PlatformCredentialValidationService.useValidation({
 					flowKey: 'oidc-hybrid-v9',
 					credentials: incompleteCredentials,
 					currentStep: 0,
@@ -220,7 +220,7 @@ describe('V9CredentialValidationService', () => {
 			const incompleteCredentials = { environmentId: 'test-env-id' };
 
 			const { result } = renderHook(() =>
-				V9CredentialValidationService.useValidation({
+				PlatformCredentialValidationService.useValidation({
 					flowKey: 'oidc-hybrid-v9',
 					credentials: incompleteCredentials,
 					currentStep: 0,
@@ -245,7 +245,7 @@ describe('V9CredentialValidationService', () => {
 
 	describe('validateCredentials utility function', () => {
 		it('should validate credentials correctly', () => {
-			const result = V9CredentialValidationService.validateCredentials('oidc-hybrid-v9', {
+			const result = PlatformCredentialValidationService.validateCredentials('oidc-hybrid-v9', {
 				environmentId: 'test-env-id',
 				clientId: 'test-client-id',
 				redirectUri: 'https://localhost:3000/callback',
@@ -256,7 +256,7 @@ describe('V9CredentialValidationService', () => {
 		});
 
 		it('should detect missing fields', () => {
-			const result = V9CredentialValidationService.validateCredentials('oidc-hybrid-v9', {
+			const result = PlatformCredentialValidationService.validateCredentials('oidc-hybrid-v9', {
 				environmentId: 'test-env-id',
 				// Missing clientId and redirectUri
 			});
@@ -267,7 +267,7 @@ describe('V9CredentialValidationService', () => {
 		});
 
 		it('should handle unknown flow key', () => {
-			const result = V9CredentialValidationService.validateCredentials(
+			const result = PlatformCredentialValidationService.validateCredentials(
 				'unknown-flow',
 				mockCredentials
 			);
@@ -282,13 +282,13 @@ describe('V9CredentialValidationService', () => {
 				requiredFields: ['testField'],
 				fieldLabels: { testField: 'Test Field' },
 				stepIndex: 0,
-				customValidation: (credentials: V9CredentialValues) => ({
+				customValidation: (credentials: CredentialValues) => ({
 					isValid: credentials.testField === 'valid',
 					message: credentials.testField === 'valid' ? 'Valid' : 'Invalid value',
 				}),
 			};
 
-			const result = V9CredentialValidationService.validateCredentials(
+			const result = PlatformCredentialValidationService.validateCredentials(
 				'oidc-hybrid-v9',
 				{ testField: 'valid' },
 				customConfig
@@ -301,7 +301,7 @@ describe('V9CredentialValidationService', () => {
 
 	describe('getFlowConfig utility function', () => {
 		it('should return correct configuration for known flow', () => {
-			const config = V9CredentialValidationService.getFlowConfig('oidc-hybrid-v9');
+			const config = PlatformCredentialValidationService.getFlowConfig('oidc-hybrid-v9');
 
 			expect(config).toBeDefined();
 			expect(config?.flowName).toBe('OIDC Hybrid Flow');
@@ -309,7 +309,7 @@ describe('V9CredentialValidationService', () => {
 		});
 
 		it('should return undefined for unknown flow', () => {
-			const config = V9CredentialValidationService.getFlowConfig('unknown-flow');
+			const config = PlatformCredentialValidationService.getFlowConfig('unknown-flow');
 
 			expect(config).toBeUndefined();
 		});
@@ -317,31 +317,31 @@ describe('V9CredentialValidationService', () => {
 
 	describe('getAllFlowConfigs utility function', () => {
 		it('should return all flow configurations', () => {
-			const configs = V9CredentialValidationService.getAllFlowConfigs();
+			const configs = PlatformCredentialValidationService.getAllFlowConfigs();
 
 			expect(configs).toBeDefined();
 			expect(Object.keys(configs).length).toBeGreaterThan(0);
-			expect(configs).toEqual(V9_FLOW_CONFIGS);
+			expect(configs).toEqual(FLOW_CREDENTIAL_CONFIGS);
 		});
 	});
 
 	describe('Edge cases and error handling', () => {
 		it('should handle null credentials', () => {
-			const result = V9CredentialValidationService.validateCredentials('oidc-hybrid-v9', null);
+			const result = PlatformCredentialValidationService.validateCredentials('oidc-hybrid-v9', null);
 
 			expect(result.isValid).toBe(false);
 			expect(result.missingFields.length).toBeGreaterThan(0);
 		});
 
 		it('should handle undefined credentials', () => {
-			const result = V9CredentialValidationService.validateCredentials('oidc-hybrid-v9', undefined);
+			const result = PlatformCredentialValidationService.validateCredentials('oidc-hybrid-v9', undefined);
 
 			expect(result.isValid).toBe(false);
 			expect(result.missingFields.length).toBeGreaterThan(0);
 		});
 
 		it('should handle empty string values', () => {
-			const result = V9CredentialValidationService.validateCredentials('oidc-hybrid-v9', {
+			const result = PlatformCredentialValidationService.validateCredentials('oidc-hybrid-v9', {
 				environmentId: '',
 				clientId: '',
 				redirectUri: '',
@@ -354,7 +354,7 @@ describe('V9CredentialValidationService', () => {
 		});
 
 		it('should handle whitespace-only values', () => {
-			const result = V9CredentialValidationService.validateCredentials('oidc-hybrid-v9', {
+			const result = PlatformCredentialValidationService.validateCredentials('oidc-hybrid-v9', {
 				environmentId: '   ',
 				clientId: '\t',
 				redirectUri: '\n',
@@ -370,7 +370,7 @@ describe('V9CredentialValidationService', () => {
 	describe('Performance and memory', () => {
 		it('should not cause memory leaks with multiple hook instances', () => {
 			const { unmount } = renderHook(() =>
-				V9CredentialValidationService.useValidation({
+				PlatformCredentialValidationService.useValidation({
 					flowKey: 'oidc-hybrid-v9',
 					credentials: mockCredentials,
 					currentStep: 0,
@@ -383,7 +383,7 @@ describe('V9CredentialValidationService', () => {
 
 		it('should handle rapid validation calls efficiently', () => {
 			const { result } = renderHook(() =>
-				V9CredentialValidationService.useValidation({
+				PlatformCredentialValidationService.useValidation({
 					flowKey: 'oidc-hybrid-v9',
 					credentials: mockCredentials,
 					currentStep: 0,

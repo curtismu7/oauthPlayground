@@ -17,7 +17,7 @@
 
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useCallback, useEffect, useState } from 'react';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { Button } from '@/mfa/components/Button';
 import { PageTransition } from '@/mfa/components/PageTransition';
 import type { DeviceFlowConfig } from '@/mfa/config/deviceFlowConfigTypes';

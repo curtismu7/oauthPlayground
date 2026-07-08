@@ -7,7 +7,7 @@
  *
  * Migration notes:
  * - WorkerTokenModalV8 → WorkerTokenModalV9Styled
- * - WorkerTokenStatusServiceV8 → V9checkWorkerTokenStatus
+ * - WorkerTokenStatusServiceV8 → checkWorkerTokenStatus
  * - toastV8 → modernMessaging (migration complete)
  * - Inline styles → styled-components with V9 blue palette
  * - WorkerTokenStatusDisplayV8 → inline status block (no V9 component exists)
@@ -18,10 +18,10 @@ import styled from 'styled-components';
 import { FiAlertCircle, FiCheckCircle, FiRefreshCw } from '../icons';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import {
-	V9checkWorkerTokenStatus,
-	type V9TokenStatusInfo,
-} from '../platform/V9WorkerTokenStatusService';
-import { modernMessaging } from './v9/V9ModernMessagingComponents';
+	checkWorkerTokenStatus,
+	type TokenStatusInfo,
+} from '../platform/WorkerTokenStatusService';
+import { modernMessaging } from './ModernMessagingComponents';
 import WorkerTokenModalV9 from './WorkerTokenModalV9';
 
 // ---------------------------------------------------------------------------
@@ -170,14 +170,14 @@ export const WorkerTokenSectionV9: React.FC<WorkerTokenSectionV9Props> = ({
 }) => {
 	const [showModal, setShowModal] = useState(false);
 	const [isRefreshing, setIsRefreshing] = useState(false);
-	const [tokenStatus, setTokenStatus] = useState<V9TokenStatusInfo>({
+	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
 		status: 'missing',
 		message: 'Checking token status…',
 		isValid: false,
 	});
 
 	const updateStatus = useCallback(async () => {
-		const status = await V9checkWorkerTokenStatus();
+		const status = await checkWorkerTokenStatus();
 		setTokenStatus(status);
 		if (status.isValid && status.token && onTokenUpdated) {
 			onTokenUpdated(status.token);

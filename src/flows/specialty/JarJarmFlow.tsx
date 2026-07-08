@@ -5,7 +5,7 @@
 import type React from 'react';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 
 type Tab = 'jar' | 'jarm';
 type Step = 0 | 1 | 2;
@@ -514,7 +514,7 @@ const JarJarmFlow: React.FC = () => {
 
 	return (
 		<Page>
-			<V9FlowHeader flowId="jar-jarm" />
+			<PlatformFlowHeader flowId="jar-jarm" />
 			<PageTitle>
 				JAR + JARM<RfcBadge>RFC 9101</RfcBadge>
 				<RfcBadge>FAPI 2.0</RfcBadge>

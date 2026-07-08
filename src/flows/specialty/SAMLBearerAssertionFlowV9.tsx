@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { MockApiCallDisplay } from '../../components/MockApiCallDisplay';
 import { DEMO_API_BASE, DEMO_ENVIRONMENT_ID } from '../../components/PingOneApiCallDisplay';
 import { usePageScroll } from '../../hooks/usePageScroll';
@@ -15,9 +15,9 @@ import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import SAMLAssertionService from '../../services/samlAssertionService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { COLORS } from '../../platform/ColorStandards';
-import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
-import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
-import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import { CredentialStorageService } from '../../platform/CredentialStorageService';
+import { FlowRestartButton } from '../../platform/FlowRestartButton';
+import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 import { credentialManager } from '../../utils/credentialManager';
 import { logger } from '../../utils/logger';
 import { MockBanner } from '../mock-ui/MockBanner';
@@ -280,19 +280,19 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 
 	// Load stored credentials on mount
 	useEffect(() => {
-		const synced = V9CredentialStorageService.loadSync('v9:saml-bearer');
+		const synced = CredentialStorageService.loadSync('v9:saml-bearer');
 		if (synced) {
 			if (synced.clientId) setClientId(synced.clientId);
 			if (synced.environmentId) setEnvironmentId(synced.environmentId);
 		}
-		V9CredentialStorageService.load('v9:saml-bearer').then((creds) => {
+		CredentialStorageService.load('v9:saml-bearer').then((creds) => {
 			if (creds?.clientId) setClientId(creds.clientId);
 			if (creds?.environmentId) setEnvironmentId(creds.environmentId);
 		});
 	}, []);
 
 	const saveSamlCredentials = useCallback((cId: string, envId: string) => {
-		V9CredentialStorageService.save(
+		CredentialStorageService.save(
 			'v9:saml-bearer',
 			{ clientId: cId, environmentId: envId },
 			envId ? { environmentId: envId } : {}
@@ -1333,9 +1333,9 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 	return (
 		<Container>
 			<MockBanner description="This flow simulates the OAuth 2.0 SAML Bearer Assertion flow (RFC 7522) in-browser. No external APIs are called. SAML assertions and token responses are generated for learning." />
-			<V9FlowHeader flowId="saml-bearer-assertion-v7" customConfig={{ flowType: 'pingone' }} />
+			<PlatformFlowHeader flowId="saml-bearer-assertion-v7" customConfig={{ flowType: 'pingone' }} />
 			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
-				<V9FlowRestartButton
+				<FlowRestartButton
 					onRestart={handleReset}
 					currentStep={currentStep}
 					totalSteps={1}

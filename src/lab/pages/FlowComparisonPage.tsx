@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 import { type FlowType, SpecVersionServiceV8 } from '../../mfa/services/specVersionServiceV8';
 import { FlowComparisonTool, type SpecFilterOption } from '../components/FlowComparisonTool';
 
@@ -491,7 +491,7 @@ export const FlowComparisonPage: React.FC = () => {
 
 	return (
 		<OuterWrapper>
-			<V9FlowHeader flowId="flow-comparison-v8u" customConfig={{ flowType: 'pingone' }} />
+			<PlatformFlowHeader flowId="flow-comparison-v8u" customConfig={{ flowType: 'pingone' }} />
 			<PageContainer>
 				<PageHeader>
 					<PageTitle> Flow Comparison Tool</PageTitle>

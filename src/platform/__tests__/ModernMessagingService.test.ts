@@ -1,5 +1,5 @@
 /**
- * @file V9ModernMessagingService.test.ts
+ * @file ModernMessagingService.test.ts
  * @module platform/__tests__
  * @description Tests for V9 Modern Messaging Service
  * @version 9.0.0
@@ -10,14 +10,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
 	modernMessaging,
 	useModernMessaging,
-	V9ModernMessagingService,
-} from '../V9ModernMessagingService';
+	ModernMessagingService,
+} from '../ModernMessagingService';
 
-describe('V9ModernMessagingService', () => {
-	let service: V9ModernMessagingService;
+describe('ModernMessagingService', () => {
+	let service: ModernMessagingService;
 
 	beforeEach(() => {
-		service = V9ModernMessagingService.getInstance();
+		service = ModernMessagingService.getInstance();
 		service.clearAll();
 	});
 
@@ -27,8 +27,8 @@ describe('V9ModernMessagingService', () => {
 
 	describe('Singleton Pattern', () => {
 		it('should return the same instance', () => {
-			const instance1 = V9ModernMessagingService.getInstance();
-			const instance2 = V9ModernMessagingService.getInstance();
+			const instance1 = ModernMessagingService.getInstance();
+			const instance2 = ModernMessagingService.getInstance();
 			expect(instance1).toBe(instance2);
 		});
 	});

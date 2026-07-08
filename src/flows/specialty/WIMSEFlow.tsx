@@ -4,7 +4,7 @@
 
 import type React from 'react';
 import { useCallback, useState } from 'react';
-import styled from 'styled-components';import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import styled from 'styled-components';import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface WitResult {
@@ -374,7 +374,7 @@ const WIMSEFlow: React.FC = () => {
 
 	return (
 		<Page>
-			<V9FlowHeader flowId="wimse" />
+			<PlatformFlowHeader flowId="wimse" />
 			<PageTitle>
 				WIMSE — Workload Identity Demo
 				<DraftBadge>IETF Draft</DraftBadge>
