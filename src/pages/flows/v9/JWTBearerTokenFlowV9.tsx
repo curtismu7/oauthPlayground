@@ -12,7 +12,7 @@ import { V9FlowRestartButton } from '../../../platform/V9FlowRestartButton';
 import { V9ModernMessagingService } from '../../../platform/V9ModernMessagingService';
 import V9FlowHeader from '../../../platform/v9FlowHeaderService';
 import { V7MMockBanner } from '../../../v7/components/V7MMockBanner';
-import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
+import type { DiscoveredApp } from '../../../mfa/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 // Built-in copy function to replace CopyButtonService

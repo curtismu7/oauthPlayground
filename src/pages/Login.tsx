@@ -40,8 +40,8 @@ import { FiAlertCircle, FiCheckCircle } from '../icons';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import { logger } from '../utils/logger';
-import { EnvironmentIdServiceV8 } from '../v8/services/environmentIdServiceV8';
-import { SharedCredentialsServiceV8 } from '../v8/services/sharedCredentialsServiceV8';
+import { EnvironmentIdServiceV8 } from '../mfa/services/environmentIdServiceV8';
+import { SharedCredentialsServiceV8 } from '../mfa/services/sharedCredentialsServiceV8';
 
 // Define specific types for HMAC and signing algorithms
 type HMACAlgorithm = 'HS256' | 'HS384' | 'HS512';

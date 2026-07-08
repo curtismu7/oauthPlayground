@@ -28,7 +28,7 @@
 const MODULE_TAG = '[ CREDENTIALS-SERVICE-V8-MIGRATED]';
 const ENABLE_CREDENTIALS_DEBUG_LOGGING = false;
 
-import { safeAnalyticsFetch } from '@/v8/utils/analyticsServerCheckV8';
+import { safeAnalyticsFetch } from '@/mfa/utils/analyticsServerCheckV8';
 import type {
 	V8AppConfig,
 	V8Credentials,
@@ -290,7 +290,7 @@ export class CredentialsServiceV8 {
 			// #region agent log - Use safe analytics fetch
 			(async () => {
 				try {
-					const { safeAnalyticsFetch } = await import('@/v8/utils/analyticsServerCheckV8');
+					const { safeAnalyticsFetch } = await import('@/mfa/utils/analyticsServerCheckV8');
 					await safeAnalyticsFetch({
 						location: 'credentialsServiceV8.ts:423',
 						message: 'Saving credentials to unified storage',

@@ -6,7 +6,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { type SpecVersion, SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
+import { type SpecVersion, SpecVersionServiceV8 } from '@/mfa/services/specVersionServiceV8';
 import type { UnifiedFlowCredentials } from '../unifiedFlowIntegrationV8U';
 import { UnifiedFlowIntegrationV8U } from '../unifiedFlowIntegrationV8U';
 

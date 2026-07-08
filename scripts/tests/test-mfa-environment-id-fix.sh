@@ -5,8 +5,8 @@ echo "=================================="
 
 # Test 1: Check MFAFlowBaseV8 environment ID fallback
 echo "📋 Checking MFAFlowBaseV8 environment ID fallback..."
-if grep -q "Applied global environment ID fallback for MFA flow" src/v8/flows/shared/MFAFlowBaseV8.tsx && \
-   grep -q "v8:global_environment_id" src/v8/flows/shared/MFAFlowBaseV8.tsx; then
+if grep -q "Applied global environment ID fallback for MFA flow" src/mfa/flows/shared/MFAFlowBaseV8.tsx && \
+   grep -q "v8:global_environment_id" src/mfa/flows/shared/MFAFlowBaseV8.tsx; then
     echo "✅ MFAFlowBaseV8 environment ID fallback implemented"
 else
     echo "❌ MFAFlowBaseV8 environment ID fallback missing!"
@@ -15,7 +15,7 @@ fi
 
 # Test 2: Check localStorage access pattern
 echo "📋 Checking localStorage access pattern..."
-if grep -q "localStorage.getItem.*v8:global_environment_id" src/v8/flows/shared/MFAFlowBaseV8.tsx; then
+if grep -q "localStorage.getItem.*v8:global_environment_id" src/mfa/flows/shared/MFAFlowBaseV8.tsx; then
     echo "✅ localStorage access pattern implemented"
 else
     echo "❌ localStorage access pattern missing!"
@@ -24,7 +24,7 @@ fi
 
 # Test 3: Check error handling
 echo "📋 Checking error handling..."
-if grep -q "Failed to access global environment ID for fallback" src/v8/flows/shared/MFAFlowBaseV8.tsx; then
+if grep -q "Failed to access global environment ID for fallback" src/mfa/flows/shared/MFAFlowBaseV8.tsx; then
     echo "✅ Error handling implemented"
 else
     echo "❌ Error handling missing!"
@@ -33,7 +33,7 @@ fi
 
 # Test 4: Check placement in useState initializer
 echo "📋 Checking placement in useState initializer..."
-if grep -A 10 -B 2 "useState.*MFACredentials" src/v8/flows/shared/MFAFlowBaseV8.tsx | grep -q "global environment ID fallback"; then
+if grep -A 10 -B 2 "useState.*MFACredentials" src/mfa/flows/shared/MFAFlowBaseV8.tsx | grep -q "global environment ID fallback"; then
     echo "✅ Proper placement in useState initializer"
 else
     echo "⚠️  Placement check passed (fallback logic is correctly positioned)"

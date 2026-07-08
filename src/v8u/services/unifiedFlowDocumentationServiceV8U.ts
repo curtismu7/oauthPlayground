@@ -6,8 +6,8 @@
  */
 
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
-import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
-import { SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
+import type { FlowType, SpecVersion } from '@/mfa/services/specVersionServiceV8';
+import { SpecVersionServiceV8 } from '@/mfa/services/specVersionServiceV8';
 import {
 	convertTrackedCallsToDocumentation,
 	generateUnifiedFlowMarkdown,

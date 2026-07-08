@@ -65,7 +65,7 @@ fi
 # Check MFA device types
 DEVICE_TYPES=("SMS" "EMAIL" "TOTP" "FIDO2")
 for device in "${DEVICE_TYPES[@]}"; do
-    if ! grep -r "\"$device\"" src/v8/flows/ | grep -q .; then
+    if ! grep -r "\"$device\"" src/mfa/flows/ | grep -q .; then
         echo "❌ MFA device type missing: $device"
         exit 1
     fi

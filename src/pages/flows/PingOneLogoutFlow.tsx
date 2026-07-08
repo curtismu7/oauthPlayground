@@ -25,8 +25,8 @@ import { pingOneLogoutService } from '../../services/pingOneLogoutService';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import { modernMessaging } from '../../platform/V9ModernMessagingService';
 import { buildPingOneLogoutUrl, generateState } from '../../utils/pingone-url-builders';
-import type { DiscoveredApp } from '../../v8/components/AppPickerV8';
-import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
+import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
+import WorkerTokenStatusDisplayV8 from '../../mfa/components/WorkerTokenStatusDisplayV8';
 import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
 
 const FlowContainer = styled.div`

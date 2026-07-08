@@ -13,7 +13,7 @@ Fix MFAConfigurationPageV8.tsx:
 """
 import re
 
-path = '/Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/MFAConfigurationPageV8.tsx'
+path = '/Users/cmuir/P1Import-apps/oauth-playground/src/mfa/flows/MFAConfigurationPageV8.tsx'
 
 with open(path, 'r', encoding='utf-8') as f:
     src = f.read()

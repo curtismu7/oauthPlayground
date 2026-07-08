@@ -17,9 +17,9 @@ import {
 	downloadPostmanCollectionWithEnvironment,
 	generatePostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
-import { SpecUrlServiceV8 } from '@/v8/services/specUrlServiceV8';
-import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
-import { SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
+import { SpecUrlServiceV8 } from '@/mfa/services/specUrlServiceV8';
+import type { FlowType, SpecVersion } from '@/mfa/services/specVersionServiceV8';
+import { SpecVersionServiceV8 } from '@/mfa/services/specVersionServiceV8';
 import type { UnifiedFlowCredentials } from '../services/unifiedFlowIntegrationV8U';
 
 interface UnifiedFlowDocumentationPageV8UProps {
@@ -131,7 +131,7 @@ const getApiDocsUrlForFlow = (flowType: FlowType): string => {
 	const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
 
 	// #region agent log
-	import('@/v8/utils/analyticsV8')
+	import('@/mfa/utils/analyticsV8')
 		.then(({ analytics }) => {
 			analytics.log({
 				location: 'UnifiedFlowDocumentationPageV8U.tsx:132',
@@ -167,7 +167,7 @@ const getApiDocsUrlForFlow = (flowType: FlowType): string => {
 	}
 
 	// #region agent log
-	import('@/v8/utils/analyticsV8')
+	import('@/mfa/utils/analyticsV8')
 		.then(({ analytics }) => {
 			analytics.log({
 				location: 'UnifiedFlowDocumentationPageV8U.tsx:153',
@@ -277,7 +277,7 @@ export const generateUnifiedFlowMarkdown = (
 	const versionSpecs = SpecUrlServiceV8.getSpecUrls(specVersion);
 
 	// #region agent log
-	import('@/v8/utils/analyticsV8')
+	import('@/mfa/utils/analyticsV8')
 		.then(({ analytics }) => {
 			analytics.log({
 				location: 'UnifiedFlowDocumentationPageV8U.tsx:231',
@@ -325,7 +325,7 @@ export const generateUnifiedFlowMarkdown = (
 	const apiDocsUrl = getApiDocsUrlForFlow(flowType);
 
 	// #region agent log
-	import('@/v8/utils/analyticsV8')
+	import('@/mfa/utils/analyticsV8')
 		.then(({ analytics }) => {
 			analytics.log({
 				location: 'UnifiedFlowDocumentationPageV8U.tsx:257',

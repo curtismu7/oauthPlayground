@@ -1,0 +1,338 @@
+/**
+ * @file UnifiedSuccessStep.tsx
+ * @module v8/flows/unified/components
+ * @description Step 4: Success - Display registration success and device details
+ * @version 8.0.0
+ * @since 2026-01-29
+ *
+ * Purpose: Display success message after device registration and activation.
+ * Shows device details, provides option to register another device.
+ *
+ * Flow:
+ * 1. Display success message with device icon
+ * 2. Show registered device details (ID, type, status, contact info)
+ * 3. Provide "Register Another Device" button
+ * 4. Call onSuccess callback if provided
+ * 5. Log analytics event
+ *
+ * @example
+ * <UnifiedSuccessStep
+ *   {...mfaFlowBaseProps}
+ *   config={config}
+ *   onComplete={handleComplete}
+ * />
+ */
+
+import React, { useCallback, useEffect } from 'react';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import type { DeviceFlowConfig } from '@/mfa/config/deviceFlowConfigTypes';
+import type { MFAFlowBaseRenderProps } from '@/mfa/flows/shared/MFAFlowBaseV8';
+
+import { logger } from '../../../../utils/logger';
+
+const MODULE_TAG = '[✅ UNIFIED-SUCCESS-STEP]';
+
+// ============================================================================
+// PROPS INTERFACE
+// ============================================================================
+
+export interface UnifiedSuccessStepProps extends MFAFlowBaseRenderProps {
+	/** Device flow configuration */
+	config: DeviceFlowConfig;
+
+	/** Callback when user wants to register another device */
+	onComplete?: () => void;
+
+	/** Callback for registering another device */
+	onRegisterAnother?: () => void;
+}
+
+// ============================================================================
+// COMPONENT
+// ============================================================================
+
+/**
+ * Unified Success Step (Step 4)
+ *
+ * Displays registration success message and device details with option
+ * to register another device.
+ */
+export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
+	credentials,
+	mfaState,
+	tokenStatus,
+	nav,
+	config,
+	onComplete,
+	onRegisterAnother,
+}) => {
+	logger.info(`${MODULE_TAG} Rendering success step for:`, config.deviceType);
+
+	// ========================================================================
+	// EFFECTS
+	// ========================================================================
+
+	/**
+	 * Mark step as complete on mount and log analytics
+	 */
+	useEffect(() => {
+		logger.info(`${MODULE_TAG} Device registration complete:`, {
+			deviceType: config.deviceType,
+			deviceId: mfaState.deviceId,
+			status: mfaState.deviceStatus,
+		});
+
+		// Mark step as complete
+		nav.markStepComplete();
+
+		// Log analytics event
+		if (
+			typeof window !== 'undefined' &&
+			(window as unknown as { gtag?: (e: string, t: string, d: object) => void }).gtag
+		) {
+			(window as unknown as { gtag: (e: string, t: string, d: object) => void }).gtag(
+				'event',
+				'mfa_registration_success',
+				{
+					device_type: config.deviceType,
+					device_id: mfaState.deviceId,
+					flow_version: 'v8-unified',
+				}
+			);
+		}
+
+		// Call onComplete callback
+		if (onComplete) {
+			onComplete();
+		}
+	}, [
+		config.deviceType,
+		mfaState.deviceId,
+		mfaState.deviceStatus, // Mark step as complete
+		nav.markStepComplete,
+		onComplete,
+	]); // Only run once on mount
+
+	// ========================================================================
+	// HANDLERS
+	// ========================================================================
+
+	/**
+	 * Handle "Register Another Device" button click
+	 * Navigate back to main page like Restart Flow does
+	 */
+	const handleRegisterAnother = useCallback(() => {
+		logger.info(`${MODULE_TAG} User wants to register another device`, 'Logger info');
+
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Starting new device registration',
+			duration: 3000,
+		});
+
+		// Call callback if provided
+		if (onRegisterAnother) {
+			onRegisterAnother();
+		} else {
+			// Navigate back to unified MFA main page
+			window.location.href = '/v8/unified-mfa';
+		}
+	}, [onRegisterAnother]);
+
+	// ========================================================================
+	// COMPUTED PROPERTIES
+	// ========================================================================
+
+	/**
+	 * Get device contact information based on device type
+	 */
+	const getDeviceContactInfo = (): string | null => {
+		switch (config.deviceType) {
+			case 'SMS':
+				return credentials.phoneNumber
+					? `${credentials.countryCode} ${credentials.phoneNumber}`
+					: null;
+			case 'EMAIL':
+				return credentials.email || null;
+			case 'WHATSAPP':
+				return credentials.phoneNumber
+					? `${credentials.countryCode} ${credentials.phoneNumber}`
+					: credentials.email || null;
+			case 'TOTP':
+				return 'Authenticator App';
+			case 'FIDO2':
+				return 'Security Key / Biometric';
+			case 'MOBILE':
+				return 'PingOne Mobile App';
+			default:
+				return null;
+		}
+	};
+
+	const contactInfo = getDeviceContactInfo();
+
+	/**
+	 * Get device nickname if available
+	 */
+	const deviceName = credentials.deviceName || credentials.nickname || `My ${config.displayName}`;
+
+	// ========================================================================
+	// RENDER
+	// ========================================================================
+
+	return (
+		<div className="unified-success-step">
+			{/* Success Header */}
+			<div className="success-header">
+				<div className="success-icon">
+					<span className="icon-large">{config.icon}</span>
+					<span className="checkmark">✓</span>
+				</div>
+				<h2 className="success-title">Device Registered Successfully!</h2>
+				<p className="success-subtitle">
+					Your {config.displayName} device is now active and ready to use for multi-factor
+					authentication.
+				</p>
+			</div>
+
+			{/* Device Details Card */}
+			<div className="device-details">
+				<h3>Device Details</h3>
+
+				<div className="detail-row">
+					<span className="detail-label">Device Type:</span>
+					<span className="detail-value">
+						{config.icon} {config.displayName}
+					</span>
+				</div>
+
+				{deviceName && (
+					<div className="detail-row">
+						<span className="detail-label">Device Name:</span>
+						<span className="detail-value">{deviceName}</span>
+					</div>
+				)}
+
+				{mfaState.deviceId && (
+					<div className="detail-row">
+						<span className="detail-label">Device ID:</span>
+						<span className="detail-value device-id">{mfaState.deviceId}</span>
+					</div>
+				)}
+
+				<div className="detail-row">
+					<span className="detail-label">Status:</span>
+					<span
+						className={`detail-value status-badge ${
+							mfaState.deviceStatus === 'ACTIVE' ? 'status-active' : 'status-activation-required'
+						}`}
+					>
+						{mfaState.deviceStatus || 'ACTIVE'}
+					</span>
+				</div>
+
+				{contactInfo && (
+					<div className="detail-row">
+						<span className="detail-label">Contact:</span>
+						<span className="detail-value">{contactInfo}</span>
+					</div>
+				)}
+
+				{credentials.environmentId && (
+					<div className="detail-row">
+						<span className="detail-label">Environment:</span>
+						<span className="detail-value environment-id">{credentials.environmentId}</span>
+					</div>
+				)}
+
+				{credentials.username && (
+					<div className="detail-row">
+						<span className="detail-label">Username:</span>
+						<span className="detail-value">{credentials.username}</span>
+					</div>
+				)}
+			</div>
+
+			{/* Next Steps Information */}
+			<div className="next-steps-info">
+				<h4>What's Next?</h4>
+				<ul>
+					<li>
+						Your {config.displayName} device will be used for multi-factor authentication when you
+						sign in.
+					</li>
+					{config.deviceType === 'SMS' && (
+						<li>You'll receive a one-time code via SMS each time you need to authenticate.</li>
+					)}
+					{config.deviceType === 'EMAIL' && (
+						<li>You'll receive a one-time code via email each time you need to authenticate.</li>
+					)}
+					{config.deviceType === 'WHATSAPP' && (
+						<li>You'll receive a one-time code via WhatsApp each time you need to authenticate.</li>
+					)}
+					{config.deviceType === 'TOTP' && (
+						<li>
+							Open your authenticator app and enter the code shown when you need to authenticate.
+						</li>
+					)}
+					{config.deviceType === 'FIDO2' && (
+						<li>Use your security key or biometric when prompted during authentication.</li>
+					)}
+					{config.deviceType === 'MOBILE' && (
+						<li>Approve authentication requests in the PingOne Mobile app when prompted.</li>
+					)}
+					<li>You can register additional devices for backup authentication methods.</li>
+				</ul>
+			</div>
+
+			{/* Action Buttons */}
+			<div className="action-buttons">
+				<button type="button" onClick={handleRegisterAnother} className="btn-secondary">
+					← Register Another Device
+				</button>
+
+				<a
+					href="https://apidocs.pingidentity.com/pingone/platform/v1/api/"
+					target="_blank"
+					rel="noopener noreferrer"
+					className="btn-secondary"
+					style={{
+						display: 'inline-flex',
+						alignItems: 'center',
+						gap: '8px',
+						textDecoration: 'none',
+					}}
+				>
+					 View API Docs
+				</a>
+
+				<button
+					type="button"
+					onClick={() => {
+						logger.info(`${MODULE_TAG} User finished registration flow`, 'Logger info');
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'Registration complete!',
+							duration: 3000,
+						});
+					}}
+					className="btn-primary"
+				>
+					Finish
+				</button>
+			</div>
+
+			{/* Token Status Info */}
+			{tokenStatus.isValid && (
+				<output className="token-info">
+					<small>
+						✓ Worker token is valid and will expire{' '}
+						{tokenStatus.expiresAt ? new Date(tokenStatus.expiresAt).toLocaleString() : 'soon'}
+					</small>
+				</output>
+			)}
+		</div>
+	);
+};
+
+export default UnifiedSuccessStep;

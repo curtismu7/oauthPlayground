@@ -9,7 +9,7 @@ import { V9_COLORS } from '../../platform/V9ColorStandards';
  */
 
 import React, { useState } from 'react';
-import { type SpecVersion, SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
+import { type SpecVersion, SpecVersionServiceV8 } from '@/mfa/services/specVersionServiceV8';
 import { FiHelpCircle } from '../../icons';
 
 import { logger } from '../../utils/logger';

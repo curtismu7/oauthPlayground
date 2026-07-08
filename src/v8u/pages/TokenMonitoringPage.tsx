@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 import TokenDisplayService from '../../services/tokenDisplayService';
 import { logger } from '../../utils/logger';
-import { WorkerTokenExpiryBannerV8 } from '../../v8/components/WorkerTokenExpiryBannerV8';
+import { WorkerTokenExpiryBannerV8 } from '../../mfa/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { useUnifiedFlowState } from '../services/enhancedStateManagement';
 import {

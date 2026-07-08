@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### Version consolidation Phase 4: rename `src/v8` → `src/mfa` (2026-07-08)
+
+- **What:** Moved unified MFA module from `src/v8` to `src/mfa`; updated `@/v8/*` path aliases to `@/mfa/*` in `tsconfig.json` and `vite.config.ts`; updated import paths across `src/`.
+- **Cause:** Phase 1 canonical route is `/mfa`; folder name should match. Legacy `/v8/*` URL routes remain for redirects and bookmarks.
+- **Fix:** `git mv`; bulk `@/v8/` and relative path replace; `V8*` component/service names deferred to Phase 8.
+- **Files:** `src/mfa/**`, `tsconfig.json`, `vite.config.ts`, `package.json`, `biome.json`, `src/App.tsx`, `src/v8u/**`, `src/platform/**`, docs
+- **Regression check:** (1) `npm run build` passes. (2) `/mfa` loads; `/v8/unified-mfa` redirects. (3) Worker token modal and MFA flows resolve `@/mfa/*` imports.
+
 ### Version consolidation Phase 3: rename `src/services/v9` → `src/platform` (2026-07-08)
 
 - **What:** Moved platform services folder out of versioned path; updated ~190 import sites to `@/platform/*` or relative `platform/*`.

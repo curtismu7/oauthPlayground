@@ -1,0 +1,678 @@
+/**
+ * @file DeviceComponentRegistry.tsx
+ * @module v8/flows/unified/components
+ * @description Registry of device-specific custom components for complex flows
+ * @version 8.0.0
+ * @since 2026-01-29
+ *
+ * Purpose: Handle the 20% of device flows that are too complex for dynamic forms.
+ * TOTP needs QR code display, FIDO2 needs WebAuthn, Mobile needs app pairing.
+ *
+ * Architecture:
+ * - Each component receives standard props (credentials, mfaState, callbacks)
+ * - Components manage their own device-specific UI
+ * - Registry maps device types to components (null = use DynamicFormRenderer)
+ *
+ * @example
+ * const CustomComponent = DeviceComponentRegistry[deviceType];
+ * if (CustomComponent) {
+ *   return <CustomComponent {...props} />;
+ * } else {
+ *   return <DynamicFormRenderer {...props} />;
+ * }
+ */
+
+import React, { useCallback, useEffect, useState } from 'react';
+import type { DeviceConfigKey, DeviceFlowConfig } from '@/mfa/config/deviceFlowConfigTypes';
+import type { MFAFlowController } from '@/mfa/flows/controllers/MFAFlowController';
+import type { MFACredentials, MFAState } from '@/mfa/flows/shared/MFATypes';
+
+import { logger } from '../../../../utils/logger';
+
+const MODULE_TAG = '[ DEVICE-COMPONENT-REGISTRY]';
+
+// ============================================================================
+// SHARED PROPS INTERFACE
+// ============================================================================
+
+/**
+ * Props passed to device-specific custom components
+ */
+export interface DeviceComponentProps {
+	/** MFA credentials */
+	credentials: MFACredentials;
+
+	/** MFA state (contains device-specific data like QR codes) */
+	mfaState: MFAState;
+
+	/** Update MFA state */
+	setMfaState: (state: MFAState | ((prev: MFAState) => MFAState)) => void;
+
+	/** Success callback */
+	onSuccess: (data: Record<string, unknown>) => void;
+
+	/** Error callback */
+	onError: (error: string) => void;
+
+	/** Device controller */
+	controller: MFAFlowController;
+
+	/** Device configuration */
+	config: DeviceFlowConfig;
+}
+
+// ============================================================================
+// SAFE EDUCATIONAL CONTENT RENDERER
+// ============================================================================
+
+interface EducationalContentRendererProps {
+	content: string;
+	className?: string;
+}
+
+/**
+ * Safe educational content renderer that parses markdown-like content
+ * and renders it as React components instead of using dangerouslySetInnerHTML
+ */
+const EducationalContentRenderer: React.FC<EducationalContentRendererProps> = ({
+	content,
+	className = '',
+}) => {
+	const renderContent = () => {
+		if (!content) return null;
+
+		return content.split('\n').map((line, index) => {
+			// Handle headers (## and ###)
+			if (line.startsWith('## ')) {
+				return (
+					<h3
+						key={index}
+						style={{
+							fontSize: '16px',
+							fontWeight: '700',
+							color: '#111827',
+							marginTop: index === 0 ? '0' : '16px',
+							marginBottom: '8px',
+						}}
+					>
+						{line.replace('## ', '')}
+					</h3>
+				);
+			}
+			if (line.startsWith('### ')) {
+				return (
+					<h4
+						key={index}
+						style={{
+							fontSize: '14px',
+							fontWeight: '600',
+							color: '#1f2937',
+							marginTop: '12px',
+							marginBottom: '6px',
+						}}
+					>
+						{line.replace('### ', '')}
+					</h4>
+				);
+			}
+			// Handle list items (- *)
+			if (line.trim().startsWith('- ')) {
+				return (
+					<li
+						key={index}
+						style={{
+							marginLeft: '20px',
+							marginBottom: '4px',
+							color: '#4b5563',
+						}}
+					>
+						{line.replace(/^- /, '')}
+					</li>
+				);
+			}
+			// Handle numbered lists (1. 2. etc.)
+			if (/^\d+\.\s/.test(line.trim())) {
+				return (
+					<li
+						key={index}
+						style={{
+							marginLeft: '20px',
+							marginBottom: '4px',
+							color: '#4b5563',
+						}}
+					>
+						{line.replace(/^\d+\.\s/, '')}
+					</li>
+				);
+			}
+			// Handle paragraphs (non-empty lines)
+			if (line.trim()) {
+				return (
+					<p
+						key={index}
+						style={{
+							marginBottom: '8px',
+							color: '#4b5563',
+							lineHeight: '1.6',
+						}}
+					>
+						{line}
+					</p>
+				);
+			}
+			// Handle empty lines
+			return <br key={index} />;
+		});
+	};
+
+	return <div className={className}>{renderContent()}</div>;
+};
+
+// ============================================================================
+// TOTP REGISTRATION COMPONENT
+// ============================================================================
+
+/**
+ * TOTP Registration Component
+ *
+ * Displays QR code and secret key for authenticator app setup.
+ * Used for Google Authenticator, Authy, Microsoft Authenticator, etc.
+ */
+export const TOTPRegistrationComponent: React.FC<DeviceComponentProps> = ({
+	mfaState,
+	config,
+	onError,
+}) => {
+	logger.info(`${MODULE_TAG} Rendering TOTP registration component`, {
+		hasQRCode: !!mfaState.qrCodeUrl,
+		hasSecret: !!mfaState.totpSecret,
+	});
+
+	const [showSecret, setShowSecret] = useState(false);
+	const [copied, setCopied] = useState(false);
+
+	// Handle copy secret to clipboard
+	const handleCopySecret = useCallback(() => {
+		if (mfaState.totpSecret) {
+			navigator.clipboard
+				.writeText(mfaState.totpSecret)
+				.then(() => {
+					logger.info(`${MODULE_TAG} Secret copied to clipboard`, 'Logger info');
+					setCopied(true);
+					setTimeout(() => setCopied(false), 2000);
+				})
+				.catch((err) => {
+					logger.error(`${MODULE_TAG} Failed to copy secret:`, err);
+					onError('Failed to copy secret to clipboard');
+				});
+		}
+	}, [mfaState.totpSecret, onError]);
+
+	return (
+		<div className="totp-registration-component">
+			{/* Header */}
+			<div className="totp-header">
+				<h3>{config.icon} Set Up Authenticator App</h3>
+				<p className="totp-description">
+					Scan the QR code below with your authenticator app, or enter the secret key manually.
+				</p>
+			</div>
+
+			{/* QR Code Display */}
+			{mfaState.qrCodeUrl && (
+				<div className="qr-code-section">
+					<div className="qr-code-container">
+						<img src={mfaState.qrCodeUrl} alt="TOTP QR Code" className="qr-code-image" />
+					</div>
+					<p className="qr-instruction">Scan this QR code with your authenticator app</p>
+				</div>
+			)}
+
+			{/* Manual Entry Section */}
+			{mfaState.totpSecret && (
+				<div className="manual-entry-section">
+					<button
+						type="button"
+						onClick={() => setShowSecret(!showSecret)}
+						className="toggle-secret-button"
+					>
+						{showSecret ? 'Hide' : 'Show'} Manual Entry Key
+					</button>
+
+					{showSecret && (
+						<div className="secret-display">
+							<label htmlFor="totp-secret">Secret Key:</label>
+							<div className="secret-input-group">
+								<input
+									id="totp-secret"
+									type="text"
+									value={mfaState.totpSecret}
+									readOnly
+									className="secret-input"
+									onClick={(e) => e.currentTarget.select()}
+								/>
+								<button
+									type="button"
+									onClick={handleCopySecret}
+									className="copy-button"
+									aria-label="Copy secret to clipboard"
+								>
+									{copied ? '✓ Copied' : ' Copy'}
+								</button>
+							</div>
+							<p className="secret-hint">
+								Enter this key manually in your authenticator app if you can't scan the QR code.
+							</p>
+						</div>
+					)}
+				</div>
+			)}
+
+			{/* Supported Apps */}
+			<details className="supported-apps">
+				<summary>Supported Authenticator Apps</summary>
+				<ul>
+					<li>Google Authenticator</li>
+					<li>Microsoft Authenticator</li>
+					<li>Authy</li>
+					<li>1Password</li>
+					<li>LastPass Authenticator</li>
+					<li>Any TOTP-compatible app</li>
+				</ul>
+			</details>
+
+			{/* Educational Content */}
+			{config.educationalContent && (
+				<details className="totp-education">
+					<summary>Learn more about TOTP</summary>
+					<EducationalContentRenderer
+						content={config.educationalContent}
+						className="education-content"
+					/>
+				</details>
+			)}
+
+			{/* No QR Code Warning */}
+			{!mfaState.qrCodeUrl && !mfaState.totpSecret && (
+				<div className="no-data-warning">
+					<p>⚠️ QR code and secret not available yet.</p>
+					<p>Please complete device registration first.</p>
+				</div>
+			)}
+		</div>
+	);
+};
+
+// ============================================================================
+// FIDO2 REGISTRATION COMPONENT
+// ============================================================================
+
+/**
+ * FIDO2 Registration Component
+ *
+ * Triggers WebAuthn credential registration for security keys and biometrics.
+ * Used for YubiKey, Windows Hello, Touch ID, Face ID, etc.
+ */
+export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
+	credentials,
+	mfaState,
+	setMfaState,
+	onSuccess,
+	onError,
+	controller,
+	config,
+}) => {
+	logger.info(`${MODULE_TAG} Rendering FIDO2 registration component`, {
+		hasOptions: !!mfaState.publicKeyCredentialCreationOptions,
+	});
+
+	const [isRegistering, setIsRegistering] = useState(false);
+	const [browserSupported, setBrowserSupported] = useState(true);
+
+	// Check browser support on mount
+	useEffect(() => {
+		const supported =
+			window.PublicKeyCredential !== undefined && navigator.credentials !== undefined;
+
+		logger.info(`${MODULE_TAG} WebAuthn support:`, supported);
+		setBrowserSupported(supported);
+
+		if (!supported) {
+			onError(
+				'Your browser does not support FIDO2/WebAuthn. Please use a modern browser like Chrome, Firefox, Safari, or Edge.'
+			);
+		}
+	}, [onError]);
+
+	/**
+	 * Handle WebAuthn registration
+	 * Calls the FIDO2FlowController to complete the full registration flow:
+	 * 1. Call navigator.credentials.create() with PingOne options
+	 * 2. Send attestation back to PingOne to activate device
+	 */
+	const handleWebAuthnRegistration = useCallback(async () => {
+		logger.info(`${MODULE_TAG} Starting WebAuthn registration`, 'Logger info');
+		setIsRegistering(true);
+
+		try {
+			// Check if we have device ID and credential creation options
+			if (!mfaState.deviceId) {
+				throw new Error('Device ID is missing. Please try registering again.');
+			}
+
+			const options = mfaState.publicKeyCredentialCreationOptions;
+
+			if (!options) {
+				throw new Error(
+					'Missing WebAuthn credential creation options. Please complete device registration first.'
+				);
+			}
+
+			logger.info(
+				`${MODULE_TAG} Calling controller.registerFIDO2Device with deviceId:`,
+				mfaState.deviceId
+			);
+
+			// Import FIDO2FlowController
+			const { FIDO2FlowController } = await import('@/mfa/flows/controllers/FIDO2FlowController');
+
+			// Check if controller is FIDO2FlowController instance, otherwise create one
+			const fido2Controller =
+				controller instanceof FIDO2FlowController
+					? controller
+					: new FIDO2FlowController({
+							onError: (error: string) => logger.error('FIDO2 Controller Error:', error),
+						});
+
+			// Call the full FIDO2 registration flow (WebAuthn + activation)
+			const result = await fido2Controller.registerFIDO2Device(
+				credentials,
+				mfaState.deviceId,
+				JSON.stringify(options)
+			);
+
+			logger.info(`${MODULE_TAG} FIDO2 registration complete:`, result);
+
+			// Update state with final device status
+			setMfaState((prev) => ({
+				...prev,
+				deviceStatus: result.status,
+				credentialId: result.credentialId,
+			}));
+
+			// Call success callback - this will trigger navigation to next step
+			onSuccess({
+				deviceId: result.deviceId,
+				status: result.status,
+				credentialId: result.credentialId,
+			});
+		} catch (error: unknown) {
+			logger.error(`${MODULE_TAG} WebAuthn registration failed:`, error);
+
+			// Handle common errors
+			let errorMessage = 'Biometric registration failed';
+
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+
+			onError(errorMessage);
+		} finally {
+			setIsRegistering(false);
+		}
+	}, [mfaState, setMfaState, onSuccess, onError, controller, credentials]);
+
+	return (
+		<div className="fido2-registration-component">
+			{/* Header */}
+			<div className="fido2-header">
+				<h3>{config.icon} Register Security Key or Biometric</h3>
+				<p className="fido2-description">
+					Use a hardware security key or your device's biometric authentication (fingerprint, facial
+					recognition).
+				</p>
+			</div>
+
+			{/* Browser Support Check */}
+			{!browserSupported && (
+				<div className="browser-not-supported">
+					<p>❌ Your browser does not support FIDO2/WebAuthn</p>
+					<p>Please use Chrome, Firefox, Safari, or Edge</p>
+				</div>
+			)}
+
+			{/* Registration Button */}
+			{browserSupported && (
+				<div className="fido2-registration-section">
+					<button
+						type="button"
+						onClick={handleWebAuthnRegistration}
+						disabled={
+							isRegistering || !mfaState.publicKeyCredentialCreationOptions || !mfaState.deviceId
+						}
+						className="webauthn-register-button"
+					>
+						{isRegistering ? ' Authenticating...' : ' Complete Biometric Registration'}
+					</button>
+
+					{isRegistering && (
+						<p className="registration-hint">
+							 Follow the prompts from your browser to use your security key or biometric
+							(TouchID/FaceID)...
+						</p>
+					)}
+
+					{!mfaState.publicKeyCredentialCreationOptions && (
+						<p className="no-options-warning">
+							⚠️ Waiting for device creation... Click "Next Step" above to create the device first.
+						</p>
+					)}
+
+					{!!mfaState.publicKeyCredentialCreationOptions && !isRegistering && (
+						<p className="registration-ready">
+							✅ Device created. Click the button above to complete biometric registration.
+						</p>
+					)}
+				</div>
+			)}
+
+			{/* Supported Authenticators */}
+			<details className="supported-authenticators">
+				<summary>Supported Authenticators</summary>
+				<div className="authenticator-lists">
+					<div>
+						<h4>Hardware Security Keys</h4>
+						<ul>
+							<li>YubiKey (5 Series, Security Key)</li>
+							<li>Google Titan Security Key</li>
+							<li>Feitian ePass FIDO2</li>
+							<li>Thetis FIDO2 Security Key</li>
+						</ul>
+					</div>
+					<div>
+						<h4>Platform Authenticators</h4>
+						<ul>
+							<li>Windows Hello (fingerprint, facial recognition)</li>
+							<li>Touch ID (MacBook, iMac)</li>
+							<li>Face ID (iPhone, iPad)</li>
+							<li>Android Biometrics</li>
+						</ul>
+					</div>
+				</div>
+			</details>
+
+			{/* Educational Content */}
+			{config.educationalContent && (
+				<details className="fido2-education">
+					<summary>Learn more about FIDO2</summary>
+					<EducationalContentRenderer
+						content={config.educationalContent}
+						className="education-content"
+					/>
+				</details>
+			)}
+		</div>
+	);
+};
+
+// ============================================================================
+// MOBILE REGISTRATION COMPONENT
+// ============================================================================
+
+/**
+ * Mobile Registration Component
+ *
+ * Displays QR code for PingOne Mobile app pairing.
+ * Used for mobile push notifications.
+ */
+export const MobileRegistrationComponent: React.FC<DeviceComponentProps> = ({
+	mfaState,
+	config,
+}) => {
+	logger.info(`${MODULE_TAG} Rendering Mobile registration component`, {
+		hasQRCode: !!mfaState.qrCodeUrl,
+		hasPairingKey: !!mfaState.pairingKey,
+	});
+
+	const [copied, setCopied] = useState(false);
+
+	// Handle copy pairing key to clipboard
+	const handleCopyPairingKey = useCallback(() => {
+		if (mfaState.pairingKey) {
+			navigator.clipboard
+				.writeText(mfaState.pairingKey)
+				.then(() => {
+					logger.info(`${MODULE_TAG} Pairing key copied to clipboard`, 'Logger info');
+					setCopied(true);
+					setTimeout(() => setCopied(false), 2000);
+				})
+				.catch((err) => {
+					logger.error(`${MODULE_TAG} Failed to copy pairing key:`, err);
+				});
+		}
+	}, [mfaState.pairingKey]);
+
+	return (
+		<div className="mobile-registration-component">
+			{/* Header */}
+			<div className="mobile-header">
+				<h3>{config.icon} Pair PingOne Mobile App</h3>
+				<p className="mobile-description">
+					Scan the QR code below with the PingOne Mobile app to pair your device.
+				</p>
+			</div>
+
+			{/* QR Code Display */}
+			{mfaState.qrCodeUrl && (
+				<div className="pairing-qr-section">
+					<div className="pairing-qr-container">
+						<img
+							src={mfaState.qrCodeUrl}
+							alt="Mobile Pairing QR Code"
+							className="pairing-qr-image"
+						/>
+					</div>
+					<p className="qr-instruction">Open PingOne Mobile app and scan this QR code</p>
+				</div>
+			)}
+
+			{/* Manual Pairing Key */}
+			{mfaState.pairingKey && (
+				<div className="pairing-key-section">
+					<h4>Manual Pairing</h4>
+					<p>If you can't scan the QR code, enter this pairing key manually:</p>
+
+					<div className="pairing-key-display">
+						<input
+							type="text"
+							value={mfaState.pairingKey}
+							readOnly
+							className="pairing-key-input"
+							onClick={(e) => e.currentTarget.select()}
+						/>
+						<button
+							type="button"
+							onClick={handleCopyPairingKey}
+							className="copy-button"
+							aria-label="Copy pairing key to clipboard"
+						>
+							{copied ? '✓ Copied' : ' Copy'}
+						</button>
+					</div>
+				</div>
+			)}
+
+			{/* App Download Instructions */}
+			<div className="app-download-section">
+				<h4>Don't have the app?</h4>
+				<p>Download PingOne Mobile from your app store:</p>
+				<div className="app-store-buttons">
+					<a
+						href="https://apps.apple.com/app/pingone/id1063305932"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="app-store-link"
+					>
+						 Download for iOS
+					</a>
+					<a
+						href="https://play.google.com/store/apps/details?id=com.pingidentity.pingone"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="app-store-link"
+					>
+						 Download for Android
+					</a>
+				</div>
+			</div>
+
+			{/* Educational Content */}
+			{config.educationalContent && (
+				<details className="mobile-education">
+					<summary>Learn more about Mobile Push</summary>
+					<EducationalContentRenderer
+						content={config.educationalContent}
+						className="education-content"
+					/>
+				</details>
+			)}
+
+			{/* No QR Code Warning */}
+			{!mfaState.qrCodeUrl && !mfaState.pairingKey && (
+				<div className="no-data-warning">
+					<p>⚠️ Pairing QR code and key not available yet.</p>
+					<p>Please complete device registration first.</p>
+				</div>
+			)}
+		</div>
+	);
+};
+
+// ============================================================================
+// DEVICE COMPONENT REGISTRY
+// ============================================================================
+
+/**
+ * Device Component Registry
+ *
+ * Maps device types to custom components.
+ * - null = use DynamicFormRenderer (SMS, Email, WhatsApp)
+ * - Component = use custom component (TOTP, FIDO2, Mobile)
+ */
+export const DeviceComponentRegistry: Record<
+	DeviceConfigKey,
+	React.FC<DeviceComponentProps> | null
+> = {
+	SMS: null, // Use DynamicFormRenderer
+	EMAIL: null, // Use DynamicFormRenderer
+	WHATSAPP: null, // Use DynamicFormRenderer
+	TOTP: null, // Use DynamicFormRenderer - Registration happens first, QR shown in activation step
+	FIDO2: FIDO2RegistrationComponent,
+	MOBILE: MobileRegistrationComponent,
+};
+
+// ============================================================================
+// EXPORTS
+// ============================================================================
+
+export default DeviceComponentRegistry;

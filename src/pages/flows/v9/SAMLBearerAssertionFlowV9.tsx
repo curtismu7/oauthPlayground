@@ -21,7 +21,7 @@ import V9FlowHeader from '../../../platform/v9FlowHeaderService';
 import { credentialManager } from '../../../utils/credentialManager';
 import { logger } from '../../../utils/logger';
 import { V7MMockBanner } from '../../../v7/components/V7MMockBanner';
-import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
+import type { DiscoveredApp } from '../../../mfa/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 // Get UI components from FlowUIService

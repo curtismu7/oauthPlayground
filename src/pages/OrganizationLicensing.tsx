@@ -21,7 +21,7 @@ import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { getOAuthTokens } from '../utils/tokenStorage';
-import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
+import WorkerTokenStatusDisplayV8 from '../mfa/components/WorkerTokenStatusDisplayV8';
 
 type CredentialsState = {
 	environmentId: string;

@@ -18,7 +18,7 @@ import {
 	PageHeaderGradients,
 	PageHeaderTextColors,
 	PageHeaderV8,
-} from '@/v8/components/shared/PageHeaderV8';
+} from '@/mfa/components/shared/PageHeaderV8';
 
 const _MODULE_TAG = '[ UNIFIED-FLOW-HELPER-V8U]';
 

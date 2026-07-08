@@ -14,7 +14,7 @@
  */
 
 import React, { useState } from 'react';
-import { type DecodedJWT, TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
+import { type DecodedJWT, TokenDisplayServiceV8 } from '@/mfa/services/tokenDisplayServiceV8';
 
 const _MODULE_TAG = '[ TOKEN-DISPLAY-V8U]';
 

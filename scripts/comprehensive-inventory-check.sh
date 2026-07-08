@@ -41,13 +41,13 @@ if [ -f "PRODUCTION_INVENTORY.md" ]; then
     grep -rn "localStorage.*token" src/v8u/services/tokenMonitoringService.ts | wc -l && echo "✅ Token persistence found" || echo "⚠️  Token persistence check"
     
     # Device Management
-    grep -rn "policy.*deviceCount\|deviceLimit" src/v8/pages/DeleteAllDevicesUtilityV8.tsx | wc -l && echo "✅ Device count display found" || echo "⚠️  Device count check"
+    grep -rn "policy.*deviceCount\|deviceLimit" src/mfa/pages/DeleteAllDevicesUtilityV8.tsx | wc -l && echo "✅ Device count display found" || echo "⚠️  Device count check"
     
     # Dropdown functionality
     grep -rn "All Tokens\|selectedTokenType.*all" src/v8u/pages/TokenMonitoringPage.tsx | wc -l && echo "✅ Dropdown functionality found" || echo "⚠️  Dropdown check"
     
     # Controlled inputs
-    grep -rn "checked.*??.*false" src/v8/components/SilentApiConfigCheckboxV8.tsx | wc -l && echo "✅ Controlled input fixed" || echo "⚠️  Controlled input check"
+    grep -rn "checked.*??.*false" src/mfa/components/SilentApiConfigCheckboxV8.tsx | wc -l && echo "✅ Controlled input fixed" || echo "⚠️  Controlled input check"
     
     # Null safety
     grep -rn "environments\?" src/pages/EnvironmentManagementPageV8.tsx | wc -l && echo "✅ Null safety implemented" || echo "⚠️  Null safety check"
@@ -68,10 +68,10 @@ if [ -f "UNIFIED_MFA_INVENTORY.md" ]; then
     fi
     
     # Silent API configuration
-    grep -rn "setShowWorkerTokenModal(true)" src/v8/ --include="*.tsx" --include="*.ts" | grep -v "workerTokenModalHelperV8" | wc -l && echo "⚠️  Direct modal calls found (should be 0)" || echo "✅ No direct modal calls"
+    grep -rn "setShowWorkerTokenModal(true)" src/mfa/ --include="*.tsx" --include="*.ts" | grep -v "workerTokenModalHelperV8" | wc -l && echo "⚠️  Direct modal calls found (should be 0)" || echo "✅ No direct modal calls"
     
     # Flow type determination
-    grep -rn "registrationFlowType" src/v8/flows/unified/ | wc -l && echo "✅ Flow type logic found" || echo "⚠️  Flow type check"
+    grep -rn "registrationFlowType" src/mfa/flows/unified/ | wc -l && echo "✅ Flow type logic found" || echo "⚠️  Flow type check"
     
     # Redirect URI routing
     grep -rn "ReturnTargetServiceV8U" src/v8u/components/CallbackHandlerV8U.tsx | wc -l && echo "✅ Return target service found" || echo "⚠️  Return target check"
@@ -87,7 +87,7 @@ if [ -f "UNIFIED_OAUTH_INVENTORY.md" ]; then
     grep -rn "oauth.*callback\|callback.*handler" src/v8u/ --include="*.tsx" | wc -l && echo "✅ OAuth callbacks found" || echo "⚠️  OAuth callback check"
     
     # Token exchange
-    grep -rn "TokenExchangeService" src/v8/ | wc -l && echo "✅ Token exchange service found" || echo "⚠️  Token exchange check"
+    grep -rn "TokenExchangeService" src/mfa/ | wc -l && echo "✅ Token exchange service found" || echo "⚠️  Token exchange check"
 fi
 
 # PROTECT PORTAL INVENTORY CHECKS
@@ -113,10 +113,10 @@ if [ -f "USER_MANAGEMENT_INVENTORY.md" ]; then
     echo "📋 Checking User Management for regressions..."
     
     # User login modal
-    grep -rn "UserLoginModal" src/v8/components/ --include="*.tsx" | wc -l && echo "✅ User login modal found" || echo "⚠️  User login check"
+    grep -rn "UserLoginModal" src/mfa/components/ --include="*.tsx" | wc -l && echo "✅ User login modal found" || echo "⚠️  User login check"
     
     # User authentication
-    grep -rn "user.*auth\|authentication" src/v8/services/ --include="*.ts" | wc -l && echo "✅ User auth services found" || echo "⚠️  User auth check"
+    grep -rn "user.*auth\|authentication" src/mfa/services/ --include="*.ts" | wc -l && echo "✅ User auth services found" || echo "⚠️  User auth check"
 fi
 
 # SDK EXAMPLES INVENTORY CHECKS
@@ -139,7 +139,7 @@ if [ -f "SWE-15_PRODUCTION_INVENTORY.md" ]; then
     echo "✅ SWE-15 principles documented"
     
     # Interface segregation
-    grep -rn "interface.*Props" src/v8/ --include="*.tsx" | wc -l && echo "✅ Interface patterns found" || echo "⚠️  Interface check"
+    grep -rn "interface.*Props" src/mfa/ --include="*.tsx" | wc -l && echo "✅ Interface patterns found" || echo "⚠️  Interface check"
 fi
 
 echo ""

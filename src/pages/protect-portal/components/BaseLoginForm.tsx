@@ -18,7 +18,7 @@ import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
 import { FiLockIcon } from '../../../icons';
 import { logger } from '../../../utils/logger';
-import { UserSearchDropdownV8 } from '../../../v8/components/UserSearchDropdownV8';
+import { UserSearchDropdownV8 } from '../../../mfa/components/UserSearchDropdownV8';
 import PingOneLoginService from '../services/pingOneLoginService';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import re
 
-with open('/Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/MFAConfigurationPageV8.tsx') as f:
+with open('/Users/cmuir/P1Import-apps/oauth-playground/src/mfa/flows/MFAConfigurationPageV8.tsx') as f:
     lines = f.readlines()
 
 for i, line in enumerate(lines, 1):

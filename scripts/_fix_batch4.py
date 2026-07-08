@@ -120,7 +120,7 @@ fix('src/utils/parameterValidation.ts', [
 
 # ── 6. MFAConfigurationStepV8.tsx ─────────────────────────────────────────────
 print('6. MFAConfigurationStepV8.tsx')
-fix('src/v8/flows/shared/MFAConfigurationStepV8.tsx', [
+fix('src/mfa/flows/shared/MFAConfigurationStepV8.tsx', [
     # Add import for MFAConfigurationServiceV8 (after last import)
     ("import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';",
      "import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';\nimport type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';"),

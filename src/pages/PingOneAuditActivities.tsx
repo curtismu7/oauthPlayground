@@ -14,9 +14,9 @@ import { apiRequestModalService } from '../services/apiRequestModalService';
 import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { logger } from '../utils/logger';
-import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
-import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
-import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
+import { ShowTokenConfigCheckboxV8 } from '../mfa/components/ShowTokenConfigCheckboxV8';
+import { SilentApiConfigCheckboxV8 } from '../mfa/components/SilentApiConfigCheckboxV8';
+import { WorkerTokenSectionV8 } from '../mfa/components/WorkerTokenSectionV8';
 
 const styles = {
 	pageContainer: {

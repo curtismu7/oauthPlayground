@@ -16,7 +16,7 @@ import {
 } from '../../platform/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
-import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
+import WorkerTokenStatusDisplayV8 from '../../mfa/components/WorkerTokenStatusDisplayV8';
 
 // Test Configuration for all flow types
 interface AllFlowsTestConfig {

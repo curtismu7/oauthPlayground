@@ -6,12 +6,12 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
-import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
-import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
+import { ShowTokenConfigCheckboxV8 } from '@/mfa/components/ShowTokenConfigCheckboxV8';
+import { SilentApiConfigCheckboxV8 } from '@/mfa/components/SilentApiConfigCheckboxV8';
 import {
 	ApiDisplayCheckbox,
 	SuperSimpleApiDisplayV8,
-} from '@/v8/components/SuperSimpleApiDisplayV8';
+} from '@/mfa/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { FlowHeader } from '../../services/flowHeaderService';
 

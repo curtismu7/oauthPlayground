@@ -5,7 +5,7 @@
 | Path | Files | Role | Phase 1 status |
 |------|------:|------|----------------|
 | `src/flows` | 67 | OAuth/OIDC flows (real PingOne) | **Phase 2 done** — folder + routes `/flows/*` |
-| `src/v8` | 261 | Unified MFA + shared modals | **`/mfa` alias** |
+| `src/mfa` | 261 | Unified MFA + shared modals | **Phase 4 done** — was `v8`; routes `/mfa` + legacy `/v8/*` |
 | `src/v8u` | 88 | OAuth lab UI | **`/lab/*` aliases** |
 | `src/v7` | 10 | Mock settings (legacy) | Unchanged — delete Phase 6 |
 | `src/pages/flows/v9` | ~28 | Specialty flows | Unchanged — migrate Phase 7 |
@@ -71,6 +71,13 @@ Constants: `src/config/canonicalRoutes.ts`
 - All `@/services/v9/*` and relative import paths updated across `src/` and `scripts/`
 - Service class names (`V9*`) unchanged — symbol rename is Phase 8
 
+## Phase 4 (done)
+
+- `git mv src/v8` → `src/mfa`
+- `@/v8/*` path aliases → `@/mfa/*` in `tsconfig.json` and `vite.config.ts`
+- ~200+ import sites updated; URL routes `/v8/*` unchanged (legacy redirects)
+- `V8*` symbol names unchanged — Phase 8
+
 ## Next phases
 
-Phase 4 `v8` → `mfa` folder; Phase 5 retire `v8u`; Phase 6 delete `v7`.
+Phase 5 retire `v8u`; Phase 6 delete `v7`.

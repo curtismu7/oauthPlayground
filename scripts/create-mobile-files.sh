@@ -5,7 +5,7 @@
 
 set -e
 
-SRC_DIR="src/v8/flows/types"
+SRC_DIR="src/mfa/flows/types"
 SMS_FLOW="$SRC_DIR/SMSFlowV8.tsx"
 SMS_CONFIG="$SRC_DIR/SMSOTPConfigurationPageV8.tsx"
 MOBILE_FLOW="$SRC_DIR/MobileFlowV8.tsx"

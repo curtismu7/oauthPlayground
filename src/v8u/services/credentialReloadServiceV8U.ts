@@ -17,9 +17,9 @@
  * - Other: postLogoutRedirectUri, logoutUri, responseType, useRedirectless (deprecated)
  */
 
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import { SharedCredentialsServiceV8 } from '@/v8/services/sharedCredentialsServiceV8';
+import { CredentialsServiceV8 } from '@/mfa/services/credentialsServiceV8';
+import { EnvironmentIdServiceV8 } from '@/mfa/services/environmentIdServiceV8';
+import { SharedCredentialsServiceV8 } from '@/mfa/services/sharedCredentialsServiceV8';
 import type { UnifiedFlowCredentials } from '@/v8u/services/unifiedFlowIntegrationV8U';
 import { logger } from '../../utils/logger';
 
@@ -275,7 +275,7 @@ export async function reloadCredentialsAfterReset(
 			allKeys: Object.keys(flowSpecific),
 		});
 		// #region agent log
-		import('@/v8/utils/analyticsV8')
+		import('@/mfa/utils/analyticsV8')
 			.then(({ analytics }) => {
 				analytics.log({
 					location: 'credentialReloadServiceV8U.ts:190',
@@ -360,7 +360,7 @@ export async function reloadCredentialsAfterReset(
 			hasPrivateKey: !!merged.privateKey,
 		});
 		// #region agent log
-		import('@/v8/utils/analyticsV8')
+		import('@/mfa/utils/analyticsV8')
 			.then(({ analytics }) => {
 				analytics.log({
 					location: 'credentialReloadServiceV8U.ts:232',

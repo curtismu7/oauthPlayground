@@ -21,7 +21,7 @@
 			"!biome_issues.json",
 			"!user-cache",
 			"!src/styles/vendor",
-			"!src/v8/lockdown/fido2/snapshot",
+			"!src/mfa/lockdown/fido2/snapshot",
 			"!node_modules",
 			"!dist",
 			"!.vite",

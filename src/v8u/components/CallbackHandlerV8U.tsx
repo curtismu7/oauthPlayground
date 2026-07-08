@@ -17,7 +17,7 @@ import { trackOAuthFlow } from '@/utils/activityTracker';
 import {
 	checkPingOneAuthentication,
 	performDetailedAuthenticationCheck,
-} from '@/v8/services/pingOneAuthenticationServiceV8';
+} from '@/mfa/services/pingOneAuthenticationServiceV8';
 import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 import { logger } from '../../utils/logger';
 import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';

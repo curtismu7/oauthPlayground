@@ -31,13 +31,13 @@ import { EducationPreferenceService } from '@/services/educationPreferenceServic
 import { type PKCECodes, PKCEService } from '@/services/pkceService';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { createModuleLogger } from '@/utils/consoleMigrationHelper';
-import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import type { TokenResponse } from '@/v8/services/oauthIntegrationServiceV8';
-import { OidcDiscoveryServiceV8 } from '@/v8/services/oidcDiscoveryServiceV8';
-import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
-import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
-import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
+import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/mfa/components/WorkerTokenVsClientCredentialsEducationModalV8';
+import { CredentialsServiceV8 } from '@/mfa/services/credentialsServiceV8';
+import type { TokenResponse } from '@/mfa/services/oauthIntegrationServiceV8';
+import { OidcDiscoveryServiceV8 } from '@/mfa/services/oidcDiscoveryServiceV8';
+import { type FlowType, type SpecVersion } from '@/mfa/services/specVersionServiceV8';
+import { TokenDisplayServiceV8 } from '@/mfa/services/tokenDisplayServiceV8';
+import { TokenOperationsServiceV8 } from '@/mfa/services/tokenOperationsServiceV8';
 
 // Create module-specific logger
 const _log = createModuleLogger('src/v8u/components/UnifiedFlowSteps.tsx');
@@ -800,7 +800,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		const checkTokenStatus = async () => {
 			try {
 				// Import both services to check token from different sources
-				const { checkWorkerTokenStatus } = await import('@/v8/services/workerTokenStatusServiceV8');
+				const { checkWorkerTokenStatus } = await import('@/mfa/services/workerTokenStatusServiceV8');
 				const { unifiedWorkerTokenService } = await import('@/services/unifiedWorkerTokenService');
 
 				// Get detailed status
@@ -3359,16 +3359,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																		setLoadingMessage(' Fixing errors...');
 
 																		const { uiNotificationServiceV8 } = await import(
-																			'@/v8/services/uiNotificationServiceV8'
+																			'@/mfa/services/uiNotificationServiceV8'
 																		);
 																		const { PreFlightValidationServiceV8 } = await import(
-																			'@/v8/services/preFlightValidationServiceV8'
+																			'@/mfa/services/preFlightValidationServiceV8'
 																		);
 																		const { workerTokenServiceV8 } = await import(
-																			'@/v8/services/workerTokenServiceV8'
+																			'@/mfa/services/workerTokenServiceV8'
 																		);
 																		const { CredentialsServiceV8 } = await import(
-																			'@/v8/services/credentialsServiceV8'
+																			'@/mfa/services/credentialsServiceV8'
 																		);
 
 																		const fixableErrors =
@@ -3459,7 +3459,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																			// Also save shared credentials (environmentId, clientId, clientAuthMethod) to backup storage
 																			// This ensures fixes persist across all flows and browser restarts
 																			const { SharedCredentialsServiceV8 } = await import(
-																				'@/v8/services/sharedCredentialsServiceV8'
+																				'@/mfa/services/sharedCredentialsServiceV8'
 																			);
 																			const sharedCreds =
 																				SharedCredentialsServiceV8.extractSharedCredentials(
@@ -4437,7 +4437,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						// If userId is not available, try to look it up by username
 						try {
 							// Get worker token for user lookup
-							const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+							const { workerTokenServiceV8 } = await import('@/mfa/services/workerTokenServiceV8');
 							const workerToken = await workerTokenServiceV8.getToken();
 
 							// Look up user by username
@@ -4673,7 +4673,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			try {
 				// For MUST_CHANGE_PASSWORD during login, we need to use worker token
 				// since we don't have user access token yet
-				const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+				const { workerTokenServiceV8 } = await import('@/mfa/services/workerTokenServiceV8');
 				const workerToken = await workerTokenServiceV8.getToken();
 
 				// Use PUT endpoint to set new password (admin operation with worker token)
@@ -5203,9 +5203,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			} | null = null;
 			try {
 				const { PreFlightValidationServiceV8 } = await import(
-					'@/v8/services/preFlightValidationServiceV8'
+					'@/mfa/services/preFlightValidationServiceV8'
 				);
-				const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+				const { workerTokenServiceV8 } = await import('@/mfa/services/workerTokenServiceV8');
 
 				setPreFlightStatus(' Retrieving worker token...');
 				let workerToken = await workerTokenServiceV8.getToken();
@@ -5214,7 +5214,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				if (!workerToken) {
 					try {
 						const { handleShowWorkerTokenModal } = await import(
-							'@/v8/utils/workerTokenModalHelperV8'
+							'@/mfa/utils/workerTokenModalHelperV8'
 						);
 						await handleShowWorkerTokenModal(
 							setShowWorkerTokenModal,
@@ -5283,7 +5283,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						// If there are fixable errors, offer to fix them
 						if (fixableErrors.length > 0) {
 							const { uiNotificationServiceV8 } = await import(
-								'@/v8/services/uiNotificationServiceV8'
+								'@/mfa/services/uiNotificationServiceV8'
 							);
 
 							// Build fix description message
@@ -5357,7 +5357,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								}
 
 								// Save updated credentials to flow-specific storage (IndexedDB, localStorage, backend)
-								const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
+								const { CredentialsServiceV8 } = await import('@/mfa/services/credentialsServiceV8');
 								const flowKey = `${specVersion}-${flowType}-v8u`;
 								// updatedCredentials is compatible with Credentials interface
 								CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
@@ -5365,7 +5365,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								// Also save shared credentials (environmentId, clientId, clientAuthMethod) to backup storage
 								// This ensures fixes persist across all flows and browser restarts
 								const { SharedCredentialsServiceV8 } = await import(
-									'@/v8/services/sharedCredentialsServiceV8'
+									'@/mfa/services/sharedCredentialsServiceV8'
 								);
 								const sharedCreds =
 									SharedCredentialsServiceV8.extractSharedCredentials(updatedCredentials);
@@ -5980,10 +5980,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 													// Import worker token modal helper
 													const { handleShowWorkerTokenModal } = await import(
-														'@/v8/utils/workerTokenModalHelperV8'
+														'@/mfa/utils/workerTokenModalHelperV8'
 													);
 													const { WorkerTokenStatusServiceV8 } = await import(
-														'@/v8/services/workerTokenStatusServiceV8'
+														'@/mfa/services/workerTokenStatusServiceV8'
 													);
 
 													// User clicked "Get Worker Token" — show modal (respect Silent checkbox only for automatic fetches)
@@ -6009,10 +6009,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 														// Re-run pre-flight validation
 														setLoadingMessage(' Re-validating Configuration...');
 														const { PreFlightValidationServiceV8 } = await import(
-															'@/v8/services/preFlightValidationServiceV8'
+															'@/mfa/services/preFlightValidationServiceV8'
 														);
 														const { workerTokenServiceV8 } = await import(
-															'@/v8/services/workerTokenServiceV8'
+															'@/mfa/services/workerTokenServiceV8'
 														);
 
 														const newWorkerToken = await workerTokenServiceV8.getToken();
@@ -6961,13 +6961,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													setLoadingMessage(' Fixing errors...');
 
 													const { uiNotificationServiceV8 } = await import(
-														'@/v8/services/uiNotificationServiceV8'
+														'@/mfa/services/uiNotificationServiceV8'
 													);
 													const { CredentialsServiceV8 } = await import(
-														'@/v8/services/credentialsServiceV8'
+														'@/mfa/services/credentialsServiceV8'
 													);
 													const { SharedCredentialsServiceV8 } = await import(
-														'@/v8/services/sharedCredentialsServiceV8'
+														'@/mfa/services/sharedCredentialsServiceV8'
 													);
 
 													const fixableErrors = preFlightValidationResult.fixableErrors || [];
@@ -9199,9 +9199,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 		try {
 			const { PreFlightValidationServiceV8 } = await import(
-				'@/v8/services/preFlightValidationServiceV8'
+				'@/mfa/services/preFlightValidationServiceV8'
 			);
-			const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+			const { workerTokenServiceV8 } = await import('@/mfa/services/workerTokenServiceV8');
 
 			setPreFlightStatus(' Retrieving worker token...');
 			const workerToken = await workerTokenServiceV8.getToken();
@@ -9250,7 +9250,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const fixableErrors = validationResult.fixableErrors || [];
 
 				if (fixableErrors.length > 0) {
-					const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
+					const { uiNotificationServiceV8 } = await import('@/mfa/services/uiNotificationServiceV8');
 					const fixDescriptions = fixableErrors.map((fe) => `  • ${fe.fixDescription}`).join('\n');
 					const fixableCount = fixableErrors.length;
 
@@ -9282,7 +9282,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							}
 						}
 
-						const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
+						const { CredentialsServiceV8 } = await import('@/mfa/services/credentialsServiceV8');
 						const flowKey = `${specVersion}-${flowType}-v8u`;
 						CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
 
@@ -10982,9 +10982,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				try {
 					const { PreFlightValidationServiceV8 } = await import(
-						'@/v8/services/preFlightValidationServiceV8'
+						'@/mfa/services/preFlightValidationServiceV8'
 					);
-					const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+					const { workerTokenServiceV8 } = await import('@/mfa/services/workerTokenServiceV8');
 
 					setPreFlightStatus(' Retrieving worker token...');
 					const workerToken = await workerTokenServiceV8.getToken();
@@ -11008,7 +11008,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					if (workerToken && credentials.environmentId && credentials.clientId) {
 						try {
 							const { ConfigCheckerServiceV8 } = await import(
-								'@/v8/services/configCheckerServiceV8'
+								'@/mfa/services/configCheckerServiceV8'
 							);
 							const fetchedConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 								credentials.environmentId,
@@ -11067,7 +11067,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 						if (fixableErrors.length > 0) {
 							const { uiNotificationServiceV8 } = await import(
-								'@/v8/services/uiNotificationServiceV8'
+								'@/mfa/services/uiNotificationServiceV8'
 							);
 							const fixDescriptions = fixableErrors
 								.map((fe) => `  • ${fe.fixDescription}`)
@@ -11114,7 +11114,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									}
 								}
 
-								const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
+								const { CredentialsServiceV8 } = await import('@/mfa/services/credentialsServiceV8');
 								const flowKey = `${specVersion}-${flowType}-v8u`;
 								CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
 
@@ -12008,8 +12008,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				(!credentials.clientAuthMethod || credentials.clientAuthMethod === 'client_secret_post')
 			) {
 				try {
-					const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
-					const { ConfigCheckerServiceV8 } = await import('@/v8/services/configCheckerServiceV8');
+					const { workerTokenServiceV8 } = await import('@/mfa/services/workerTokenServiceV8');
+					const { ConfigCheckerServiceV8 } = await import('@/mfa/services/configCheckerServiceV8');
 					const workerToken = await workerTokenServiceV8.getToken();
 
 					if (workerToken) {
@@ -12744,7 +12744,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		setRefreshResult(null);
 
 		try {
-			const { OAuthIntegrationServiceV8 } = await import('@/v8/services/oauthIntegrationServiceV8');
+			const { OAuthIntegrationServiceV8 } = await import('@/mfa/services/oauthIntegrationServiceV8');
 
 			// Store old tokens for comparison
 			const oldTokens = {
@@ -15581,7 +15581,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						setShowWorkerTokenModal(false);
 						// After modal closes, check if token is available and re-run validation
 						const { WorkerTokenStatusServiceV8 } = await import(
-							'@/v8/services/workerTokenStatusServiceV8'
+							'@/mfa/services/workerTokenStatusServiceV8'
 						);
 						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 						if (tokenStatus.isValid) {
@@ -15590,9 +15590,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							setLoadingMessage(' Re-validating Configuration...');
 							try {
 								const { PreFlightValidationServiceV8 } = await import(
-									'@/v8/services/preFlightValidationServiceV8'
+									'@/mfa/services/preFlightValidationServiceV8'
 								);
-								const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+								const { workerTokenServiceV8 } = await import('@/mfa/services/workerTokenServiceV8');
 
 								const newWorkerToken = await workerTokenServiceV8.getToken();
 								const newValidationResult =

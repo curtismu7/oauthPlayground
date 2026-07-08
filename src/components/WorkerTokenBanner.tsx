@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { globalWorkerTokenService } from '../v8/services/globalWorkerTokenService';
+import { globalWorkerTokenService } from '../mfa/services/globalWorkerTokenService';
 
 const BannerContainer = styled.div<{ visible: boolean }>`
   display: ${props => props.visible ? 'flex' : 'none'};

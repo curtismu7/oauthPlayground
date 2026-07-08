@@ -18,13 +18,13 @@ VIOLATIONS=0
 
 # Check workerTokenModalHelperV8.ts - should delegate to tokenGatewayV8
 echo "  Checking workerTokenModalHelperV8.ts delegates to tokenGatewayV8..."
-if ! grep -q "tokenGatewayV8" src/v8/utils/workerTokenModalHelperV8.ts 2>/dev/null; then
+if ! grep -q "tokenGatewayV8" src/mfa/utils/workerTokenModalHelperV8.ts 2>/dev/null; then
     echo "❌ workerTokenModalHelperV8.ts should import and use tokenGatewayV8"
     VIOLATIONS=$((VIOLATIONS + 1))
 fi
 
 # Check that workerTokenModalHelperV8.ts doesn't have direct fetch
-DIRECT_FETCH=$(grep -n "fetch.*proxyEndpoint\|fetch.*\/api\/pingone" src/v8/utils/workerTokenModalHelperV8.ts 2>/dev/null || true)
+DIRECT_FETCH=$(grep -n "fetch.*proxyEndpoint\|fetch.*\/api\/pingone" src/mfa/utils/workerTokenModalHelperV8.ts 2>/dev/null || true)
 if [ -n "$DIRECT_FETCH" ]; then
     echo "❌ workerTokenModalHelperV8.ts has direct fetch instead of using tokenGatewayV8:"
     echo "$DIRECT_FETCH"
@@ -33,27 +33,27 @@ fi
 
 # Check mfaTokenManagerV8.ts - should delegate to tokenGatewayV8
 echo "  Checking mfaTokenManagerV8.ts delegates to tokenGatewayV8..."
-if ! grep -q "tokenGatewayV8" src/v8/services/mfaTokenManagerV8.ts 2>/dev/null; then
+if ! grep -q "tokenGatewayV8" src/mfa/services/mfaTokenManagerV8.ts 2>/dev/null; then
     echo "❌ mfaTokenManagerV8.ts should import and use tokenGatewayV8"
     VIOLATIONS=$((VIOLATIONS + 1))
 fi
 
 # Check that tokenGatewayV8.ts exists and has key methods
 echo "  Checking tokenGatewayV8.ts exists and has required methods..."
-if [ ! -f "src/v8/services/auth/tokenGatewayV8.ts" ]; then
+if [ ! -f "src/mfa/services/auth/tokenGatewayV8.ts" ]; then
     echo "❌ tokenGatewayV8.ts does not exist!"
     VIOLATIONS=$((VIOLATIONS + 1))
 else
     # Check for required methods
-    if ! grep -q "getWorkerToken" src/v8/services/auth/tokenGatewayV8.ts; then
+    if ! grep -q "getWorkerToken" src/mfa/services/auth/tokenGatewayV8.ts; then
         echo "❌ tokenGatewayV8.ts missing getWorkerToken method"
         VIOLATIONS=$((VIOLATIONS + 1))
     fi
-    if ! grep -q "getWorkerTokenStatus" src/v8/services/auth/tokenGatewayV8.ts; then
+    if ! grep -q "getWorkerTokenStatus" src/mfa/services/auth/tokenGatewayV8.ts; then
         echo "❌ tokenGatewayV8.ts missing getWorkerTokenStatus method"
         VIOLATIONS=$((VIOLATIONS + 1))
     fi
-    if ! grep -q "subscribe" src/v8/services/auth/tokenGatewayV8.ts; then
+    if ! grep -q "subscribe" src/mfa/services/auth/tokenGatewayV8.ts; then
         echo "❌ tokenGatewayV8.ts missing subscribe method"
         VIOLATIONS=$((VIOLATIONS + 1))
     fi
@@ -61,7 +61,7 @@ fi
 
 # Check that test file exists
 echo "  Checking tokenGatewayV8.test.ts exists..."
-if [ ! -f "src/v8/services/auth/__tests__/tokenGatewayV8.test.ts" ]; then
+if [ ! -f "src/mfa/services/auth/__tests__/tokenGatewayV8.test.ts" ]; then
     echo "⚠️  tokenGatewayV8.test.ts does not exist (warning only)"
 fi
 

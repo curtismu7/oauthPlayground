@@ -20,8 +20,8 @@ fi
 # Check if source file exists
 if [ -f "src/pages/flows/v7/${FEATURE_NAME}V7.tsx" ]; then
   SOURCE_FILE="src/pages/flows/v7/${FEATURE_NAME}V7.tsx"
-elif [ -f "src/v8/flows/${FEATURE_NAME}V8.tsx" ]; then
-  SOURCE_FILE="src/v8/flows/${FEATURE_NAME}V8.tsx"
+elif [ -f "src/mfa/flows/${FEATURE_NAME}V8.tsx" ]; then
+  SOURCE_FILE="src/mfa/flows/${FEATURE_NAME}V8.tsx"
 elif [ -f "src/pages/flows/${FEATURE_NAME}V7.tsx" ]; then
   SOURCE_FILE="src/pages/flows/${FEATURE_NAME}V7.tsx"
 elif [ -f "src/pages/flows/JWTBearerTokenFlowV7.tsx" ] && [ "$FEATURE_NAME" = "JWTBearerTokenFlowV9" ]; then

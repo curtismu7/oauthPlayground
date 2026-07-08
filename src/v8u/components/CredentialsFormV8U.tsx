@@ -31,47 +31,47 @@ import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import type { ResponseMode } from '@/services/responseModeService';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { V9RedirectUriService as RedirectUriServiceV8 } from '@/platform/V9RedirectUriService';
-import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
-import { ClientTypeRadioV8 } from '@/v8/components/ClientTypeRadioV8';
-import { type DisplayMode, DisplayModeDropdownV8 } from '@/v8/components/DisplayModeDropdownV8';
-import { IssuerURLInputV8 } from '@/v8/components/IssuerURLInputV8';
-import { MaxAgeInputV8 } from '@/v8/components/MaxAgeInputV8';
+import type { DiscoveredApp } from '@/mfa/components/AppPickerV8';
+import { ClientTypeRadioV8 } from '@/mfa/components/ClientTypeRadioV8';
+import { type DisplayMode, DisplayModeDropdownV8 } from '@/mfa/components/DisplayModeDropdownV8';
+import { IssuerURLInputV8 } from '@/mfa/components/IssuerURLInputV8';
+import { MaxAgeInputV8 } from '@/mfa/components/MaxAgeInputV8';
 import {
 	OidcDiscoveryModalV8,
 	type OidcDiscoveryResult,
-} from '@/v8/components/OidcDiscoveryModalV8';
-import { PKCEEnforcementDropdownV8 } from '@/v8/components/PKCEEnforcementDropdownV8';
-import { PKCEInputV8, type PKCEMode } from '@/v8/components/PKCEInputV8';
+} from '@/mfa/components/OidcDiscoveryModalV8';
+import { PKCEEnforcementDropdownV8 } from '@/mfa/components/PKCEEnforcementDropdownV8';
+import { PKCEInputV8, type PKCEMode } from '@/mfa/components/PKCEInputV8';
 import {
 	type RefreshTokenType,
 	RefreshTokenTypeDropdownV8,
-} from '@/v8/components/RefreshTokenTypeDropdownV8';
-import { ResponseModeDropdownV8 } from '@/v8/components/ResponseModeDropdownV8';
-import { ResponseTypeDropdownV8 } from '@/v8/components/ResponseTypeDropdownV8';
-import { TokenEndpointAuthMethodDropdownV8 } from '@/v8/components/TokenEndpointAuthMethodDropdownV8';
-import { TooltipV8 } from '@/v8/components/TooltipV8';
-import { UserSearchDropdownV8 as _UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
-import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
-import { useWorkerTokenConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
-import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
-import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import { FlowOptionsServiceV8 } from '@/v8/services/flowOptionsServiceV8';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
-import { OidcDiscoveryServiceV8 } from '@/v8/services/oidcDiscoveryServiceV8';
-import { ResponseTypeServiceV8 } from '@/v8/services/responseTypeServiceV8';
-import { SharedCredentialsServiceV8 } from '@/v8/services/sharedCredentialsServiceV8';
+} from '@/mfa/components/RefreshTokenTypeDropdownV8';
+import { ResponseModeDropdownV8 } from '@/mfa/components/ResponseModeDropdownV8';
+import { ResponseTypeDropdownV8 } from '@/mfa/components/ResponseTypeDropdownV8';
+import { TokenEndpointAuthMethodDropdownV8 } from '@/mfa/components/TokenEndpointAuthMethodDropdownV8';
+import { TooltipV8 } from '@/mfa/components/TooltipV8';
+import { UserSearchDropdownV8 as _UserSearchDropdownV8 } from '@/mfa/components/UserSearchDropdownV8';
+import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/mfa/components/WorkerTokenVsClientCredentialsEducationModalV8';
+import { useWorkerTokenConfigV8 } from '@/mfa/hooks/useSilentApiConfigV8';
+import { AppDiscoveryServiceV8 } from '@/mfa/services/appDiscoveryServiceV8';
+import { ConfigCheckerServiceV8 } from '@/mfa/services/configCheckerServiceV8';
+import { CredentialsServiceV8 } from '@/mfa/services/credentialsServiceV8';
+import { EnvironmentIdServiceV8 } from '@/mfa/services/environmentIdServiceV8';
+import { FlowOptionsServiceV8 } from '@/mfa/services/flowOptionsServiceV8';
+import { MFAConfigurationServiceV8 } from '@/mfa/services/mfaConfigurationServiceV8';
+import { OidcDiscoveryServiceV8 } from '@/mfa/services/oidcDiscoveryServiceV8';
+import { ResponseTypeServiceV8 } from '@/mfa/services/responseTypeServiceV8';
+import { SharedCredentialsServiceV8 } from '@/mfa/services/sharedCredentialsServiceV8';
 import {
 	type FlowType,
 	type SpecVersion,
 	SpecVersionServiceV8,
-} from '@/v8/services/specVersionServiceV8';
-import { TokenEndpointAuthMethodServiceV8 } from '@/v8/services/tokenEndpointAuthMethodServiceV8';
-import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
-import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { analytics } from '@/v8/utils/analyticsV8';
+} from '@/mfa/services/specVersionServiceV8';
+import { TokenEndpointAuthMethodServiceV8 } from '@/mfa/services/tokenEndpointAuthMethodServiceV8';
+import { TooltipContentServiceV8 } from '@/mfa/services/tooltipContentServiceV8';
+import { UnifiedFlowOptionsServiceV8 } from '@/mfa/services/unifiedFlowOptionsServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/mfa/services/workerTokenStatusServiceV8';
+import { analytics } from '@/mfa/utils/analyticsV8';
 import { logger } from '../../utils/logger';
 import { AppDiscoveryModalV8U } from './AppDiscoveryModalV8U';
 

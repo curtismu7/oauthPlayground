@@ -7,7 +7,7 @@ import {
 	UnifiedFlowCollapsibleTitle,
 	UnifiedFlowCollapsibleToggleIcon,
 } from '@/services/collapsibleHeaderService';
-import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
+import { type FlowType, type SpecVersion } from '@/mfa/services/specVersionServiceV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { FiInfo, FiShield } from '../../icons';
 

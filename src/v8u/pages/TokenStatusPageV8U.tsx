@@ -19,14 +19,14 @@ import styled from 'styled-components';
 import {
 	ApiDisplayCheckbox,
 	SuperSimpleApiDisplayV8,
-} from '@/v8/components/SuperSimpleApiDisplayV8';
-import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
-import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+} from '@/mfa/components/SuperSimpleApiDisplayV8';
+import { WorkerTokenExpiryBannerV8 } from '@/mfa/components/WorkerTokenExpiryBannerV8';
+import WorkerTokenStatusDisplayV8 from '@/mfa/components/WorkerTokenStatusDisplayV8';
+import { MFAConfigurationServiceV8 } from '@/mfa/services/mfaConfigurationServiceV8';
 import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
-} from '@/v8/services/workerTokenStatusServiceV8';
+} from '@/mfa/services/workerTokenStatusServiceV8';
 import UserTokenStatusDisplayV8U from '@/v8u/components/UserTokenStatusDisplayV8U';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 
