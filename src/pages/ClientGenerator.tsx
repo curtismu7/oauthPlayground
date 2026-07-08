@@ -1,4 +1,4 @@
-import { V9_COLORS } from '../platform/V9ColorStandards';
+import { COLORS } from '../platform/ColorStandards';
 
 const WorkerActions: React.FC<{
 	onNext: () => void;
@@ -81,13 +81,13 @@ const FormContainer = styled.div`
 	padding: 2rem;
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 	margin-bottom: 2rem;
-	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 `;
 
 const FormTitle = styled.h2`
 	font-size: 1.5rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1.5rem;
 	display: flex;
 	align-items: center;
@@ -103,13 +103,13 @@ const FormGroup = styled.div`
 const Label = styled.label`
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const Select = styled.select`
 	padding: 0.75rem;
-	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	background: white;
@@ -144,7 +144,7 @@ const Button = styled.button.withConfig({
 	`
 			: variant === 'danger'
 				? `
-		background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.RED} 0%, ${V9_COLORS.PRIMARY.RED_DARK} 100%);
+		background: linear-gradient(135deg, ${COLORS.PRIMARY.RED} 0%, ${COLORS.PRIMARY.RED_DARK} 100%);
 		color: white;
 		box-shadow: 0 12px 28px -18px rgba(220, 38, 38, 0.55);
 		&:hover {
@@ -155,10 +155,10 @@ const Button = styled.button.withConfig({
 				: `
 		background: white;
 		color: ${theme.colors.gray700};
-		border-color: ${V9_COLORS.TEXT.GRAY_LIGHTER};
+		border-color: ${COLORS.TEXT.GRAY_LIGHTER};
 		&:hover {
-			background: ${V9_COLORS.BG.GRAY_LIGHT};
-			border-color: ${V9_COLORS.TEXT.GRAY_LIGHT};
+			background: ${COLORS.BG.GRAY_LIGHT};
+			border-color: ${COLORS.TEXT.GRAY_LIGHT};
 		}
 	`}
 	&:disabled {
@@ -180,8 +180,8 @@ const ActionButton = styled.button`
 	border: none;
 	background: linear-gradient(
 		135deg,
-		${V9_COLORS.PRIMARY.GREEN} 0%,
-		${V9_COLORS.PRIMARY.GREEN_DARK} 100%
+		${COLORS.PRIMARY.GREEN} 0%,
+		${COLORS.PRIMARY.GREEN_DARK} 100%
 	);
 	box-shadow: 0 12px 30px -15px rgba(22, 163, 74, 0.6);
 	color: white;
@@ -207,9 +207,9 @@ const LoadingSpinner = styled.div`
 	display: inline-block;
 	width: 20px;
 	height: 20px;
-	border: 2px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border: 2px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 50%;
-	border-top-color: ${V9_COLORS.PRIMARY.BLUE};
+	border-top-color: ${COLORS.PRIMARY.BLUE};
 	animation: spin 1s ease-in-out infinite;
 
 	@keyframes spin {
@@ -662,7 +662,7 @@ const ClientGenerator: React.FC = () => {
 					<div
 						style={{
 							background: '#f0fdf4',
-							border: '1px solid V9_COLORS.PRIMARY.GREEN',
+							border: '1px solid COLORS.PRIMARY.GREEN',
 							borderRadius: '0.75rem',
 							padding: '1.25rem',
 						}}
@@ -742,7 +742,7 @@ const ClientGenerator: React.FC = () => {
 									style={{
 										padding: '0.5rem',
 										borderRadius: '0.375rem',
-										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+										border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 										background: 'white',
 										cursor: 'pointer',
 										display: 'flex',
@@ -800,7 +800,7 @@ const ClientGenerator: React.FC = () => {
 									style={{
 										padding: '0.5rem',
 										borderRadius: '0.375rem',
-										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+										border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 										background: 'white',
 										cursor: 'pointer',
 										display: 'flex',
@@ -824,7 +824,7 @@ const ClientGenerator: React.FC = () => {
 								<div
 									style={{
 										background: '#fef3c7',
-										border: '1px solid V9_COLORS.PRIMARY.YELLOW',
+										border: '1px solid COLORS.PRIMARY.YELLOW',
 										borderRadius: '0.5rem',
 										padding: '1rem',
 										marginTop: '0.5rem',
@@ -868,7 +868,7 @@ const ClientGenerator: React.FC = () => {
 						<div
 							style={{
 								background: '#f8fafc',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '0.75rem',
 								padding: '1.25rem',
 							}}
@@ -906,7 +906,7 @@ const ClientGenerator: React.FC = () => {
 										style={{
 											padding: '0.75rem',
 											background: 'white',
-											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+											border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 											borderRadius: '0.5rem',
 										}}
 									>
@@ -921,7 +921,7 @@ const ClientGenerator: React.FC = () => {
 										style={{
 											padding: '0.75rem',
 											background: 'white',
-											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+											border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 											borderRadius: '0.5rem',
 										}}
 									>
@@ -936,7 +936,7 @@ const ClientGenerator: React.FC = () => {
 										style={{
 											padding: '0.75rem',
 											background: 'white',
-											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+											border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 											borderRadius: '0.5rem',
 										}}
 									>
@@ -955,7 +955,7 @@ const ClientGenerator: React.FC = () => {
 										style={{
 											padding: '0.75rem',
 											background: 'white',
-											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+											border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 											borderRadius: '0.5rem',
 										}}
 									>
@@ -1037,7 +1037,7 @@ const ClientGenerator: React.FC = () => {
 										marginBottom: '1rem',
 										padding: '1rem',
 										background: '#fef3c7',
-										border: '1px solid V9_COLORS.PRIMARY.YELLOW',
+										border: '1px solid COLORS.PRIMARY.YELLOW',
 										borderRadius: '0.5rem',
 									}}
 								>
@@ -1059,7 +1059,7 @@ const ClientGenerator: React.FC = () => {
 								style={{
 									padding: '1rem',
 									background: '#f0fdf4',
-									border: '1px solid V9_COLORS.PRIMARY.GREEN',
+									border: '1px solid COLORS.PRIMARY.GREEN',
 									borderRadius: '0.5rem',
 								}}
 							>
@@ -1084,7 +1084,7 @@ const ClientGenerator: React.FC = () => {
 					<div
 						style={{
 							background: '#f0fdf4',
-							border: '1px solid V9_COLORS.PRIMARY.GREEN',
+							border: '1px solid COLORS.PRIMARY.GREEN',
 							borderRadius: '0.75rem',
 							padding: '1.25rem',
 						}}
@@ -1121,7 +1121,7 @@ const ClientGenerator: React.FC = () => {
 								marginBottom: '1rem',
 								padding: '1rem',
 								background: '#fef3c7',
-								border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
+								border: '1px solid COLORS.PRIMARY.YELLOW_LIGHT',
 								borderRadius: '0.5rem',
 							}}
 						>

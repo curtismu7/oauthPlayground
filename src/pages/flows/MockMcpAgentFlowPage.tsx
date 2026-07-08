@@ -6,10 +6,10 @@ import { Link } from 'react-router-dom';
 import { CodeExamplesSection } from '../../components/CodeExamplesSection';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { callTool, listTools, type MockToolCallResult } from '../../services/mockMcpAgentService';
-import { V9_COLORS } from '../../platform/V9ColorStandards';
+import { COLORS } from '../../platform/ColorStandards';
 import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
 import V9FlowHeader from '../../platform/v9FlowHeaderService';
-import { V7MMockBanner } from '../../flows/mock-ui/V7MMockBanner';
+import { MockBanner } from '../../flows/mock-ui/MockBanner';
 import {
 	getSectionHeaderStyle,
 	MOCK_FLOW_CONTAINER_STYLE,
@@ -97,7 +97,7 @@ const MockMcpAgentFlowPage: React.FC = () => {
 
 	return (
 		<div style={MOCK_FLOW_CONTAINER_STYLE}>
-			<V7MMockBanner description="This flow simulates an AI Agent using MCP tools and Token Exchange. No real APIs are called. Learn how Host, Client, Agent, and MCP Server use tokens securely." />
+			<MockBanner description="This flow simulates an AI Agent using MCP tools and Token Exchange. No real APIs are called. Learn how Host, Client, Agent, and MCP Server use tokens securely." />
 			<V9FlowHeader flowId="mock-mcp-agent-flow" customConfig={{ flowType: 'pingone' }} />
 			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
 				<V9FlowRestartButton onRestart={handleReset} label="Reset flow" />
@@ -127,7 +127,7 @@ const MockMcpAgentFlowPage: React.FC = () => {
 					</p>
 					<Link
 						to="/documentation/mcp"
-						style={{ color: V9_COLORS.PRIMARY.BLUE, fontSize: 14, marginTop: 12, display: 'block' }}
+						style={{ color: COLORS.PRIMARY.BLUE, fontSize: 14, marginTop: 12, display: 'block' }}
 					>
 						MCP Documentation →
 					</Link>

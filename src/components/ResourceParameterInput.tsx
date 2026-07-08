@@ -23,7 +23,7 @@ const Label = styled.label`
 	gap: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
@@ -34,7 +34,7 @@ const LabelIcon = styled.div`
 
 const ResourceList = styled.div`
 	background: #f9fafb;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin-bottom: 1rem;
@@ -46,8 +46,8 @@ const ResourceItem = styled.div`
 	gap: 0.75rem;
 	margin-bottom: 0.75rem;
 	padding: 0.75rem;
-	background: V9_COLORS.TEXT.WHITE;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.WHITE;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	transition: all 0.2s;
 
@@ -88,7 +88,7 @@ const RemoveButton = styled.button`
 	justify-content: center;
 	width: 2rem;
 	height: 2rem;
-	color: V9_COLORS.PRIMARY.RED;
+	color: COLORS.PRIMARY.RED;
 	background: transparent;
 	border: none;
 	border-radius: 0.375rem;
@@ -96,8 +96,8 @@ const RemoveButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: V9_COLORS.BG.ERROR;
-		color: V9_COLORS.PRIMARY.RED_DARK;
+		background: COLORS.BG.ERROR;
+		color: COLORS.PRIMARY.RED_DARK;
 	}
 
 	&:disabled {
@@ -115,7 +115,7 @@ const AddButton = styled.button`
 	padding: 0.875rem 1.25rem;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
 	border: none;
 	border-radius: 0.5rem;
@@ -210,7 +210,7 @@ const DiscoveryBadge = styled.span`
 	align-items: center;
 	gap: 0.25rem;
 	padding: 0.125rem 0.375rem;
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: COLORS.PRIMARY.BLUE;
 	color: white;
 	border-radius: 0.25rem;
 	font-size: 0.625rem;
@@ -241,13 +241,13 @@ const InfoIcon = styled.div<{ $variant?: 'info' | 'warning' }>`
 const _EmptyState = styled.div`
 	text-align: center;
 	padding: 2rem 1rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-style: italic;
 `;
 
 const EducationalHeader = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
-	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.BG.GRAY_LIGHT 100%);
+	border: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin-bottom: 1.5rem;
@@ -260,17 +260,17 @@ const EducationalTitle = styled.h3`
 	margin: 0 0 1rem 0;
 	font-size: 1.125rem;
 	font-weight: 700;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 
 	svg {
-		color: V9_COLORS.PRIMARY.BLUE;
+		color: COLORS.PRIMARY.BLUE;
 		font-size: 1.5rem;
 	}
 `;
 
 const EducationalContent = styled.div`
 	font-size: 0.9375rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	line-height: 1.7;
 
 	p {
@@ -292,7 +292,7 @@ const EducationalContent = styled.div`
 		border-radius: 0.25rem;
 		font-family: 'Monaco', 'Menlo', monospace;
 		font-size: 0.875rem;
-		color: V9_COLORS.PRIMARY.BLUE_DARK;
+		color: COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 
@@ -310,15 +310,15 @@ const UseCaseList = styled.ul`
 `;
 
 const ExampleScenario = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.WHITE;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin-top: 1rem;
 
 	strong {
 		display: block;
-		color: V9_COLORS.PRIMARY.BLUE;
+		color: COLORS.PRIMARY.BLUE;
 		margin-bottom: 0.5rem;
 		font-size: 0.875rem;
 	}
@@ -545,7 +545,7 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 						width: '100%',
 						marginTop: '0.75rem',
 						padding: '0.875rem 1rem',
-						border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+						border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 						borderRadius: '0.5rem',
 						fontSize: '0.875rem',
 						fontFamily: 'Monaco, Menlo, monospace',

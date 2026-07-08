@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { V9_COLORS } from '@/platform/V9ColorStandards';
+import { COLORS } from '@/platform/ColorStandards';
 import { PingIcon } from '../components/PingIcon';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
@@ -116,7 +116,7 @@ const TermsGrid = styled.div`
 `;
 
 const TermItem = styled.div`
-	border-left: 4px solid ${V9_COLORS.PRIMARY.BLUE}66;
+	border-left: 4px solid ${COLORS.PRIMARY.BLUE}66;
 	padding-left: clamp(1rem, 2.5vw, 1.25rem);
 	display: grid;
 	gap: 0.6rem;
@@ -165,8 +165,8 @@ const RelatedTerms = styled.div`
 	gap: 0.4rem;
 
 	span {
-		background: ${V9_COLORS.PRIMARY.BLUE}26;
-		color: ${V9_COLORS.PRIMARY.BLUE};
+		background: ${COLORS.PRIMARY.BLUE}26;
+		color: ${COLORS.PRIMARY.BLUE};
 		padding: 0.2rem 0.55rem;
 		border-radius: 999px;
 		font-size: 0.85rem;

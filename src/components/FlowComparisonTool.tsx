@@ -64,17 +64,17 @@ const FlowOption = styled.button<{ $selected: boolean; $added: boolean }>`
 	transition: all 0.2s;
 
 	&:hover {
-		border-color: V9_COLORS.PRIMARY.RED_DARK;
-		background-color: V9_COLORS.BG.ERROR;
-		color: V9_COLORS.PRIMARY.RED_DARK;
+		border-color: COLORS.PRIMARY.RED_DARK;
+		background-color: COLORS.BG.ERROR;
+		color: COLORS.PRIMARY.RED_DARK;
 	}
 
 	&:disabled {
 		opacity: 0.5;
 		cursor: not-allowed;
 		background-color: #f9fafb;
-		color: V9_COLORS.TEXT.GRAY_LIGHT;
-		border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
+		color: COLORS.TEXT.GRAY_LIGHT;
+		border-color: COLORS.TEXT.GRAY_LIGHTER;
 	}
 `;
 
@@ -179,23 +179,23 @@ const SecurityBadge = styled.span<{ $level: string }>`
 		switch ($level) {
 			case 'high':
 				return `
-          background-color: V9_COLORS.BG.SUCCESS;
-          color: V9_COLORS.PRIMARY.GREEN;
+          background-color: COLORS.BG.SUCCESS;
+          color: COLORS.PRIMARY.GREEN;
         `;
 			case 'medium':
 				return `
-          background-color: V9_COLORS.BG.WARNING;
-          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          background-color: COLORS.BG.WARNING;
+          color: COLORS.PRIMARY.YELLOW_DARK;
         `;
 			case 'low':
 				return `
-          background-color: V9_COLORS.BG.ERROR;
-          color: V9_COLORS.PRIMARY.RED_DARK;
+          background-color: COLORS.BG.ERROR;
+          color: COLORS.PRIMARY.RED_DARK;
         `;
 			default:
 				return `
           background-color: #f3f4f6;
-          color: V9_COLORS.TEXT.GRAY_DARK;
+          color: COLORS.TEXT.GRAY_DARK;
         `;
 		}
 	}}
@@ -214,23 +214,23 @@ const ComplexityBadge = styled.span<{ $level: string }>`
 		switch ($level) {
 			case 'low':
 				return `
-          background-color: V9_COLORS.BG.SUCCESS;
-          color: V9_COLORS.PRIMARY.GREEN;
+          background-color: COLORS.BG.SUCCESS;
+          color: COLORS.PRIMARY.GREEN;
         `;
 			case 'medium':
 				return `
-          background-color: V9_COLORS.BG.WARNING;
-          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          background-color: COLORS.BG.WARNING;
+          color: COLORS.PRIMARY.YELLOW_DARK;
         `;
 			case 'high':
 				return `
-          background-color: V9_COLORS.BG.ERROR;
-          color: V9_COLORS.PRIMARY.RED_DARK;
+          background-color: COLORS.BG.ERROR;
+          color: COLORS.PRIMARY.RED_DARK;
         `;
 			default:
 				return `
           background-color: #f3f4f6;
-          color: V9_COLORS.TEXT.GRAY_DARK;
+          color: COLORS.TEXT.GRAY_DARK;
         `;
 		}
 	}}
@@ -285,7 +285,7 @@ const ActionButton = styled(Link)`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.75rem 1.5rem;
-	background-color: V9_COLORS.PRIMARY.RED_DARK;
+	background-color: COLORS.PRIMARY.RED_DARK;
 	color: white !important;
 	border-radius: 0.5rem;
 	text-decoration: none;
@@ -293,11 +293,11 @@ const ActionButton = styled(Link)`
 	transition: all 0.2s;
 	width: 100%;
 	justify-content: center;
-	border: 2px solid V9_COLORS.PRIMARY.RED_DARK;
+	border: 2px solid COLORS.PRIMARY.RED_DARK;
 
 	&:hover {
-		background-color: V9_COLORS.PRIMARY.RED_DARK;
-		border-color: V9_COLORS.PRIMARY.RED_DARK;
+		background-color: COLORS.PRIMARY.RED_DARK;
+		border-color: COLORS.PRIMARY.RED_DARK;
 		color: white !important;
 		transform: translateY(-1px);
 		box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);

@@ -34,8 +34,8 @@ const Header = styled.button`
 	align-items: center;
 	justify-content: space-between;
 	padding: 1rem;
-	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.BG.GRAY_LIGHT 100%);
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	cursor: pointer;
 	transition: all 0.2s;
@@ -43,8 +43,8 @@ const Header = styled.button`
 	&:hover {
 		background: linear-gradient(
 			135deg,
-			V9_COLORS.BG.GRAY_LIGHT 0%,
-			V9_COLORS.TEXT.GRAY_LIGHTER 100%
+			COLORS.BG.GRAY_LIGHT 0%,
+			COLORS.TEXT.GRAY_LIGHTER 100%
 		);
 	}
 `;
@@ -57,36 +57,36 @@ const HeaderLeft = styled.div`
 
 const HeaderIcon = styled.div`
 	font-size: 1.25rem;
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: COLORS.PRIMARY.BLUE;
 `;
 
 const HeaderTitle = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	text-align: left;
 `;
 
 const HeaderSubtitle = styled.div`
 	font-size: 0.75rem;
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: COLORS.PRIMARY.BLUE;
 	text-align: left;
 	margin-top: 0.25rem;
 `;
 
 const Content = styled.div`
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-top: none;
 	border-radius: 0 0 0.5rem 0.5rem;
 	padding: 1.5rem;
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 `;
 
 const TabContainer = styled.div`
 	display: flex;
 	gap: 0.5rem;
 	margin-bottom: 1.5rem;
-	border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-bottom: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Tab = styled.button<{ $active: boolean }>`
@@ -102,8 +102,8 @@ const Tab = styled.button<{ $active: boolean }>`
 	transition: all 0.2s;
 
 	&:hover {
-		color: V9_COLORS.PRIMARY.BLUE;
-		background: V9_COLORS.BG.GRAY_LIGHT;
+		color: COLORS.PRIMARY.BLUE;
+		background: COLORS.BG.GRAY_LIGHT;
 	}
 `;
 
@@ -121,20 +121,20 @@ const ClaimRow = styled.div`
 	align-items: center;
 	padding: 1rem;
 	background: #f9fafb;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 `;
 
 const ClaimInput = styled.input`
 	padding: 0.5rem 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	font-family: 'Monaco', 'Menlo', monospace;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
 	}
 `;
@@ -161,7 +161,7 @@ const EssentialToggle = styled.button<{ $essential: boolean }>`
 
 const DeleteButton = styled.button`
 	padding: 0.5rem;
-	color: V9_COLORS.PRIMARY.RED;
+	color: COLORS.PRIMARY.RED;
 	background: transparent;
 	border: none;
 	border-radius: 0.375rem;
@@ -169,7 +169,7 @@ const DeleteButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: V9_COLORS.BG.ERROR;
+		background: COLORS.BG.ERROR;
 	}
 `;
 
@@ -181,8 +181,8 @@ const AddButton = styled.button`
 	padding: 0.875rem 1.25rem;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.WHITE;
-	background: linear-gradient(135deg, #0ea5e9 0%, V9_COLORS.PRIMARY.BLUE 100%);
+	color: COLORS.TEXT.WHITE;
+	background: linear-gradient(135deg, #0ea5e9 0%, COLORS.PRIMARY.BLUE 100%);
 	border: none;
 	border-radius: 0.5rem;
 	cursor: pointer;
@@ -190,7 +190,7 @@ const AddButton = styled.button`
 	box-shadow: 0 2px 8px rgba(2, 132, 199, 0.2);
 
 	&:hover {
-		background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE 100%);
+		background: linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE 100%);
 		transform: translateY(-1px);
 		box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
 	}
@@ -206,23 +206,23 @@ const AddClaimHelper = styled.div`
 	gap: 0.5rem;
 	padding: 0.75rem 1rem;
 	margin-bottom: 0.75rem;
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.8125rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	line-height: 1.5;
 
 	svg {
 		flex-shrink: 0;
-		color: V9_COLORS.PRIMARY.BLUE;
+		color: COLORS.PRIMARY.BLUE;
 	}
 `;
 
 const JSONPreview = styled.pre`
 	padding: 1rem;
 	background: #1e293b;
-	color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	color: COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	line-height: 1.6;
@@ -240,7 +240,7 @@ const JSONPreview = styled.pre`
 	}
 
 	.json-number {
-		color: V9_COLORS.PRIMARY.YELLOW_LIGHT; /* Amber for numbers */
+		color: COLORS.PRIMARY.YELLOW_LIGHT; /* Amber for numbers */
 	}
 
 	.json-boolean {
@@ -248,7 +248,7 @@ const JSONPreview = styled.pre`
 	}
 
 	.json-null {
-		color: V9_COLORS.PRIMARY.RED_LIGHT; /* Red for null */
+		color: COLORS.PRIMARY.RED_LIGHT; /* Red for null */
 	}
 
 	.json-punctuation {
@@ -345,8 +345,8 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' }>`
 const CommonClaimsContainer = styled.div`
 	margin-bottom: 1.5rem;
 	padding: 1rem;
-	background: linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%);
-	border: 2px solid V9_COLORS.PRIMARY.YELLOW_LIGHT;
+	background: linear-gradient(135deg, COLORS.BG.WARNING 0%, COLORS.BG.WARNING_BORDER 100%);
+	border: 2px solid COLORS.PRIMARY.YELLOW_LIGHT;
 	border-radius: 0.75rem;
 `;
 
@@ -356,7 +356,7 @@ const CommonClaimsTitle = styled.div`
 	gap: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.PRIMARY.YELLOW_DARK;
+	color: COLORS.PRIMARY.YELLOW_DARK;
 	margin-bottom: 0.75rem;
 `;
 
@@ -378,8 +378,8 @@ const DraggableClaim = styled.div<{ $isDragging?: boolean }>`
 	opacity: ${(props) => (props.$isDragging ? 0.5 : 1)};
 
 	&:hover {
-		border-color: V9_COLORS.PRIMARY.BLUE;
-		background: V9_COLORS.BG.GRAY_LIGHT;
+		border-color: COLORS.PRIMARY.BLUE;
+		background: COLORS.BG.GRAY_LIGHT;
 		transform: translateY(-2px);
 		box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 	}
@@ -393,19 +393,19 @@ const ClaimName = styled.div`
 	font-family: 'Monaco', 'Menlo', monospace;
 	font-size: 0.8125rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 `;
 
 const ClaimDescription = styled.div`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.4;
 `;
 
 const ClaimCategory = styled.div`
 	font-size: 0.6875rem;
-	color: V9_COLORS.TEXT.GRAY_LIGHT;
+	color: COLORS.TEXT.GRAY_LIGHT;
 	text-transform: uppercase;
 	letter-spacing: 0.025em;
 	margin-top: 0.25rem;
@@ -616,7 +616,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 								padding: '0.75rem',
 								background: '#f8fafc',
 								borderRadius: '0.5rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<strong>Understanding Claim Values:</strong>
@@ -749,8 +749,8 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 						marginTop: '1.5rem',
 						padding: '1rem',
 						background:
-							'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)',
-						border: '2px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
+							'linear-gradient(135deg, COLORS.BG.WARNING 0%, COLORS.BG.WARNING_BORDER 100%)',
+						border: '2px solid COLORS.PRIMARY.YELLOW_LIGHT',
 						borderRadius: '0.75rem',
 						fontSize: '0.85rem',
 					}}
@@ -779,7 +779,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 								background: 'white',
 								padding: '0.75rem',
 								borderRadius: '0.5rem',
-								border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
+								border: '1px solid COLORS.PRIMARY.YELLOW_LIGHT',
 							}}
 						>
 							<div
@@ -818,7 +818,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 								background: 'white',
 								padding: '0.75rem',
 								borderRadius: '0.5rem',
-								border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
+								border: '1px solid COLORS.PRIMARY.YELLOW_LIGHT',
 							}}
 						>
 							<div

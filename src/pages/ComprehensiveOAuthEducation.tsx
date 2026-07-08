@@ -16,7 +16,7 @@ const Header = styled.div`
   h1 {
     font-size: 3rem;
     font-weight: 700;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
@@ -26,7 +26,7 @@ const Header = styled.div`
 
   p {
     font-size: 1.25rem;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
+    color: COLORS.TEXT.GRAY_MEDIUM;
     max-width: 800px;
     margin: 0 auto;
     line-height: 1.6;
@@ -45,7 +45,7 @@ const EducationCard = styled.div`
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
@@ -60,7 +60,7 @@ const CardHeader = styled.div`
   h2 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
     margin-bottom: 0.5rem;
     display: flex;
     align-items: center;
@@ -68,7 +68,7 @@ const CardHeader = styled.div`
   }
 
   p {
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
+    color: COLORS.TEXT.GRAY_MEDIUM;
     line-height: 1.6;
   }
 `;
@@ -85,7 +85,7 @@ const TopicItem = styled.li`
   gap: 0.75rem;
   padding: 0.75rem 0;
   border-bottom: 1px solid #f3f4f6;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
 
   &:last-child {
@@ -93,7 +93,7 @@ const TopicItem = styled.li`
   }
 
   svg {
-    color: V9_COLORS.PRIMARY.GREEN;
+    color: COLORS.PRIMARY.GREEN;
     flex-shrink: 0;
   }
 `;
@@ -103,7 +103,7 @@ const ActionButton = styled.a`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: V9_COLORS.PRIMARY.BLUE;
+  background-color: COLORS.PRIMARY.BLUE;
   color: white !important;
   text-decoration: none;
   border-radius: 0.5rem;
@@ -113,13 +113,13 @@ const ActionButton = styled.a`
   margin-top: 1rem;
 
   &:hover {
-    background-color: V9_COLORS.PRIMARY.BLUE_DARK;
+    background-color: COLORS.PRIMARY.BLUE_DARK;
     color: white !important;
   }
 `;
 
 const FlowSection = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+  background: linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.TEXT.GRAY_LIGHTER 100%);
   border-radius: 1rem;
   padding: 2rem;
   margin-bottom: 2rem;
@@ -137,7 +137,7 @@ const FlowCard = styled.div`
   border-radius: 0.75rem;
   padding: 1.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   transition: transform 0.2s ease;
 
   &:hover {
@@ -147,12 +147,12 @@ const FlowCard = styled.div`
   h3 {
     font-size: 1.125rem;
     font-weight: 600;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
     margin-bottom: 0.5rem;
   }
 
   p {
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
+    color: COLORS.TEXT.GRAY_MEDIUM;
     font-size: 0.875rem;
     line-height: 1.5;
     margin-bottom: 1rem;
@@ -376,7 +376,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 					style={{
 						marginTop: '1rem',
 						backgroundColor: '#fef3c7',
-						border: '1px solid V9_COLORS.PRIMARY.YELLOW',
+						border: '1px solid COLORS.PRIMARY.YELLOW',
 					}}
 				>
 					<CardHeader>

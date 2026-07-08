@@ -25,9 +25,9 @@ const LoadingContainer = styled.div`
   justify-content: center;
   min-height: 400px;
   padding: 2rem;
-  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+  background: linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.TEXT.GRAY_LIGHTER 100%);
   border-radius: 12px;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   animation: ${slideIn} 0.3s ease-out;
 `;
 
@@ -38,7 +38,7 @@ const LoadingSpinner = styled.div`
   width: 60px;
   height: 60px;
   margin-bottom: 1.5rem;
-  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+  background: linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_DARK 100%);
   border-radius: 50%;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
   animation: ${spin} 1s linear infinite;
@@ -61,7 +61,7 @@ const LoadingTitle = styled.h3`
 const LoadingSubtitle = styled.p`
   margin: 0 0 1.5rem 0;
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   text-align: center;
   max-width: 300px;
   line-height: 1.5;
@@ -111,7 +111,7 @@ const StepText = styled.span<{ completed?: boolean; active?: boolean }>`
 const LoadingProgress = styled.div`
   width: 100%;
   height: 4px;
-  background: V9_COLORS.TEXT.GRAY_LIGHTER;
+  background: COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 2px;
   overflow: hidden;
   margin-top: 1rem;
@@ -119,7 +119,7 @@ const LoadingProgress = styled.div`
 
 const ProgressBar = styled.div<{ progress: number }>`
   height: 100%;
-  background: linear-gradient(90deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+  background: linear-gradient(90deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_DARK 100%);
   border-radius: 2px;
   width: ${(props) => props.progress}%;
   transition: width 0.3s ease;

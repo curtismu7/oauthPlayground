@@ -17,7 +17,7 @@ interface WorkerTokenDetectedBannerProps {
 const BannerContainer = styled.div`
 	padding: 1rem;
 	background: #f0fdf4;
-	border: 2px solid V9_COLORS.PRIMARY.GREEN;
+	border: 2px solid COLORS.PRIMARY.GREEN;
 	border-radius: 0.75rem;
 	margin-bottom: 1rem;
 	max-width: 100%;
@@ -31,7 +31,7 @@ const TitleRow = styled.div`
 `;
 
 const Title = styled.strong`
-	color: V9_COLORS.PRIMARY.GREEN_DARK;
+	color: COLORS.PRIMARY.GREEN_DARK;
 	font-size: 0.95rem;
 `;
 
@@ -40,11 +40,11 @@ const TokenBadge = styled.div`
 	align-items: center;
 	gap: 0.35rem;
 	padding: 0.35rem 0.75rem;
-	background: V9_COLORS.BG.SUCCESS;
+	background: COLORS.BG.SUCCESS;
 	border: 1px solid #6ee7b7;
 	border-radius: 0.5rem;
 	font-size: 0.8rem;
-	color: V9_COLORS.PRIMARY.GREEN_DARK;
+	color: COLORS.PRIMARY.GREEN_DARK;
 	font-family: 'Monaco', 'Courier New', monospace;
 `;
 

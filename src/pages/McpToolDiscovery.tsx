@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
 import { usePageScroll } from '../hooks/usePageScroll';
-import { V9_COLORS } from '../platform/V9ColorStandards';
+import { COLORS } from '../platform/ColorStandards';
 import V9FlowHeader from '../platform/v9FlowHeaderService';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -1158,14 +1158,14 @@ const SearchInput = styled.input`
 	flex: 1;
 	min-width: 200px;
 	padding: 0.75rem;
-	border: 1px solid ${V9_COLORS.BORDER.GRAY};
+	border: 1px solid ${COLORS.BORDER.GRAY};
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	transition: border-color 0.2s;
 
 	&:focus {
 		outline: none;
-		border-color: ${V9_COLORS.PRIMARY.BLUE};
+		border-color: ${COLORS.PRIMARY.BLUE};
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -1179,9 +1179,9 @@ const FilterButtons = styled.div`
 
 const FilterButton = styled.button<{ $active: boolean }>`
 	padding: 0.5rem 1rem;
-	border: 1px solid ${({ $active }) => ($active ? V9_COLORS.PRIMARY.BLUE : V9_COLORS.BORDER.GRAY)};
-	background-color: ${({ $active }) => ($active ? V9_COLORS.PRIMARY.BLUE : 'white')};
-	color: ${({ $active }) => ($active ? 'white' : V9_COLORS.TEXT.GRAY_DARK)};
+	border: 1px solid ${({ $active }) => ($active ? COLORS.PRIMARY.BLUE : COLORS.BORDER.GRAY)};
+	background-color: ${({ $active }) => ($active ? COLORS.PRIMARY.BLUE : 'white')};
+	color: ${({ $active }) => ($active ? 'white' : COLORS.TEXT.GRAY_DARK)};
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	font-weight: 600;
@@ -1189,14 +1189,14 @@ const FilterButton = styled.button<{ $active: boolean }>`
 	transition: all 0.2s;
 
 	&:hover {
-		border-color: ${V9_COLORS.PRIMARY.BLUE};
-		background-color: ${({ $active }) => ($active ? V9_COLORS.PRIMARY.BLUE_DARK : V9_COLORS.BG.GRAY_LIGHT)};
+		border-color: ${COLORS.PRIMARY.BLUE};
+		background-color: ${({ $active }) => ($active ? COLORS.PRIMARY.BLUE_DARK : COLORS.BG.GRAY_LIGHT)};
 	}
 `;
 
 const StatsText = styled.div`
 	font-size: 0.875rem;
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	margin-bottom: 1.5rem;
 `;
 
@@ -1211,11 +1211,11 @@ const ToolCard = styled.div`
 	background: white;
 	padding: 1rem;
 	border-radius: 0.375rem;
-	border: 1px solid ${V9_COLORS.BORDER.GRAY_LIGHT};
+	border: 1px solid ${COLORS.BORDER.GRAY_LIGHT};
 	transition: all 0.2s;
 
 	&:hover {
-		border-color: ${V9_COLORS.BORDER.INFO};
+		border-color: ${COLORS.BORDER.INFO};
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 	}
 `;
@@ -1224,7 +1224,7 @@ const ToolName = styled.div`
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: ${V9_COLORS.PRIMARY.BLUE};
+	color: ${COLORS.PRIMARY.BLUE};
 	margin-bottom: 0.5rem;
 	word-break: break-word;
 `;
@@ -1249,7 +1249,7 @@ const ToolServer = styled.span<{ $server: string }>`
 			case 'Security & Compliance':
 				return '#ecfdf5';
 			default:
-				return V9_COLORS.BG.GRAY_LIGHT;
+				return COLORS.BG.GRAY_LIGHT;
 		}
 	}};
 	color: ${({ $server }) => {
@@ -1269,7 +1269,7 @@ const ToolServer = styled.span<{ $server: string }>`
 			case 'Security & Compliance':
 				return '#065f46';
 			default:
-				return V9_COLORS.TEXT.GRAY_DARK;
+				return COLORS.TEXT.GRAY_DARK;
 		}
 	}};
 	border-radius: 0.25rem;
@@ -1284,8 +1284,8 @@ const ToolServer = styled.span<{ $server: string }>`
 const ToolCategory = styled.span`
 	display: inline-block;
 	padding: 0.125rem 0.5rem;
-	background: ${V9_COLORS.BG.INFO_LIGHT};
-	color: ${V9_COLORS.TEXT.INFO};
+	background: ${COLORS.BG.INFO_LIGHT};
+	color: ${COLORS.TEXT.INFO};
 	border-radius: 0.25rem;
 	font-size: 0.65rem;
 	font-weight: 600;
@@ -1294,7 +1294,7 @@ const ToolCategory = styled.span`
 
 const ToolDescription = styled.div`
 	font-size: 0.875rem;
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	line-height: 1.4;
 	margin-bottom: 0.75rem;
 `;
@@ -1304,11 +1304,11 @@ const ToolMeta = styled.div`
 	gap: 0.5rem;
 	flex-wrap: wrap;
 	font-size: 0.75rem;
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 `;
 
 const ParamPill = styled.span`
-	background: ${V9_COLORS.BG.GRAY_LIGHT};
+	background: ${COLORS.BG.GRAY_LIGHT};
 	padding: 0.25rem 0.5rem;
 	border-radius: 0.25rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -1317,14 +1317,14 @@ const ParamPill = styled.span`
 const ExternalSection = styled.div`
 	margin-top: 3rem;
 	padding-top: 2rem;
-	border-top: 2px solid ${V9_COLORS.BORDER.GRAY};
+	border-top: 2px solid ${COLORS.BORDER.GRAY};
 `;
 
 const ExternalTitle = styled.h3`
 	margin: 0 0 1.5rem 0;
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 `;
 
 const ExternalGrid = styled.div`
@@ -1337,21 +1337,21 @@ const ExternalCard = styled.a`
 	display: block;
 	padding: 1rem;
 	background: white;
-	border: 1px solid ${V9_COLORS.BORDER.GRAY_LIGHT};
+	border: 1px solid ${COLORS.BORDER.GRAY_LIGHT};
 	border-radius: 0.375rem;
 	text-decoration: none;
 	color: inherit;
 	transition: all 0.2s;
 
 	&:hover {
-		border-color: ${V9_COLORS.BORDER.INFO};
+		border-color: ${COLORS.BORDER.INFO};
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 	}
 `;
 
 const ExternalName = styled.div`
 	font-weight: 600;
-	color: ${V9_COLORS.PRIMARY.BLUE};
+	color: ${COLORS.PRIMARY.BLUE};
 	margin-bottom: 0.5rem;
 	word-break: break-word;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -1360,13 +1360,13 @@ const ExternalName = styled.div`
 
 const ExternalAuthor = styled.div`
 	font-size: 0.75rem;
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	margin-bottom: 0.5rem;
 `;
 
 const ExternalDescription = styled.div`
 	font-size: 0.875rem;
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	line-height: 1.4;
 `;
 
@@ -1410,10 +1410,10 @@ const McpToolDiscovery: React.FC = () => {
 
 			<Card>
 				<CardBody>
-					<h2 style={{ margin: '0 0 1.5rem 0', color: V9_COLORS.TEXT.GRAY_DARK }}>
+					<h2 style={{ margin: '0 0 1.5rem 0', color: COLORS.TEXT.GRAY_DARK }}>
 						MCP Tool Discovery
 					</h2>
-					<p style={{ fontSize: '0.875rem', color: V9_COLORS.TEXT.GRAY_MEDIUM, marginBottom: '2rem' }}>
+					<p style={{ fontSize: '0.875rem', color: COLORS.TEXT.GRAY_MEDIUM, marginBottom: '2rem' }}>
 						Explore all available MCP tools across multiple servers. Filter by server, search by name or
 						description, and discover tool capabilities.
 					</p>
@@ -1428,7 +1428,7 @@ const McpToolDiscovery: React.FC = () => {
 					</SearchContainer>
 
 					<div style={{ marginBottom: '1.5rem' }}>
-						<div style={{ fontSize: '0.875rem', color: V9_COLORS.TEXT.GRAY_MEDIUM, marginBottom: '0.75rem' }}>
+						<div style={{ fontSize: '0.875rem', color: COLORS.TEXT.GRAY_MEDIUM, marginBottom: '0.75rem' }}>
 							Filter by Server:
 						</div>
 						<FilterButtons>
@@ -1451,7 +1451,7 @@ const McpToolDiscovery: React.FC = () => {
 
 					{Object.entries(toolsByServer).map(([server, tools]) => (
 						<div key={server} style={{ marginBottom: '2.5rem' }}>
-							<h3 style={{ margin: '0 0 1rem 0', color: V9_COLORS.TEXT.GRAY_DARK, fontSize: '1rem' }}>
+							<h3 style={{ margin: '0 0 1rem 0', color: COLORS.TEXT.GRAY_DARK, fontSize: '1rem' }}>
 								{server} ({tools.length})
 							</h3>
 							<ToolGrid>

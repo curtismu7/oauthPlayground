@@ -7,7 +7,7 @@ import {
 	formatBytes,
 	formatUptime,
 } from '../services/serverHealthService';
-import { V9_COLORS } from '../platform/V9ColorStandards';
+import { COLORS } from '../platform/ColorStandards';
 import { logger } from '../utils/logger';
 
 const PageContainer = styled.div`
@@ -36,7 +36,7 @@ const StatusCard = styled.div`
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 `;
 
 const CardHeader = styled.div`
@@ -49,7 +49,7 @@ const CardHeader = styled.div`
 const CardTitle = styled.h3`
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	margin: 0;
 `;
 
@@ -71,13 +71,13 @@ const StatRow = styled.div`
 `;
 
 const StatLabel = styled.span`
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	font-size: 0.875rem;
 `;
 
 const StatValue = styled.span`
 	font-weight: 500;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	font-size: 0.875rem;
 `;
 
@@ -108,7 +108,7 @@ const RefreshButton = styled.button`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.75rem 1.5rem;
-	background: ${V9_COLORS.PRIMARY.BLUE};
+	background: ${COLORS.PRIMARY.BLUE};
 	color: white;
 	border: none;
 	border-radius: 0.5rem;
@@ -117,7 +117,7 @@ const RefreshButton = styled.button`
 	transition: background-color 0.2s;
 
 	&:hover:not(:disabled) {
-		background: ${V9_COLORS.PRIMARY.BLUE_DARK};
+		background: ${COLORS.PRIMARY.BLUE_DARK};
 	}
 
 	&:disabled {
@@ -152,7 +152,7 @@ const ApiStatusPage: React.FC = () => {
 		return (
 			<PageContainer>
 				<FlowHeader flowId="api-status" />
-				<p style={{ color: V9_COLORS.TEXT.GRAY_MEDIUM, marginTop: '1.5rem' }}>
+				<p style={{ color: COLORS.TEXT.GRAY_MEDIUM, marginTop: '1.5rem' }}>
 					Loading server health information...
 				</p>
 			</PageContainer>
@@ -205,7 +205,7 @@ const ApiStatusPage: React.FC = () => {
 									marginBottom: '1rem',
 									padding: '0.5rem',
 									backgroundColor: '#fef2f2',
-									border: '1px solid V9_COLORS.BG.ERROR_BORDER',
+									border: '1px solid COLORS.BG.ERROR_BORDER',
 									borderRadius: '0.25rem',
 									color: '#dc2626',
 									fontSize: '0.875rem',

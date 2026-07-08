@@ -11,7 +11,7 @@ import styled from 'styled-components';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { type FlowType, type SpecVersion } from '@/mfa/services/specVersionServiceV8';
-import { V9_COLORS } from '../../platform/V9ColorStandards';
+import { COLORS } from '../../platform/ColorStandards';
 import { type UnifiedFlowCredentials } from '../services/unifiedFlowIntegrationV8U';
 import { TokenDisplayV8U } from './TokenDisplayV8U';
 
@@ -32,9 +32,9 @@ const SuccessHeader = styled.div`
 	text-align: center;
 	margin-bottom: 3rem;
 	padding: 2rem;
-	background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.GREEN} 0%, ${V9_COLORS.PRIMARY.GREEN_DARK} 100%);
+	background: linear-gradient(135deg, ${COLORS.PRIMARY.GREEN} 0%, ${COLORS.PRIMARY.GREEN_DARK} 100%);
 	border-radius: 1rem;
-	color: ${V9_COLORS.TEXT.WHITE};
+	color: ${COLORS.TEXT.WHITE};
 `;
 
 const SuccessTitle = styled.h1`
@@ -54,18 +54,18 @@ const SuccessSubtitle = styled.p`
 `;
 
 const Section = styled.section`
-	background: ${V9_COLORS.BG.WHITE};
+	background: ${COLORS.BG.WHITE};
 	padding: 2rem;
 	margin-bottom: 2rem;
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 `;
 
 const SectionTitle = styled.h2`
 	font-size: 1.5rem;
 	font-weight: 600;
 	margin-bottom: 1.5rem;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -79,8 +79,8 @@ const GridContainer = styled.div`
 `;
 
 const InfoCard = styled.div`
-	background: ${V9_COLORS.BG.GRAY_MEDIUM};
-	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	background: ${COLORS.BG.GRAY_MEDIUM};
+	border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 `;
@@ -89,14 +89,14 @@ const InfoCardTitle = styled.h3`
 	font-size: 1.1rem;
 	font-weight: 600;
 	margin-bottom: 1rem;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 `;
 
 const InfoCardContent = styled.div`
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	line-height: 1.6;
 `;
 
@@ -114,18 +114,18 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	${({ $variant = 'primary' }) =>
 		$variant === 'primary'
 			? `
-		background: ${V9_COLORS.PRIMARY.GREEN};
-		color: ${V9_COLORS.TEXT.WHITE};
+		background: ${COLORS.PRIMARY.GREEN};
+		color: ${COLORS.TEXT.WHITE};
 		&:hover {
-			background: ${V9_COLORS.PRIMARY.GREEN_DARK};
+			background: ${COLORS.PRIMARY.GREEN_DARK};
 		}
 	`
 			: `
-		background: ${V9_COLORS.TEXT.GRAY_LIGHTER};
-		color: ${V9_COLORS.TEXT.GRAY_DARK};
-		border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHT};
+		background: ${COLORS.TEXT.GRAY_LIGHTER};
+		color: ${COLORS.TEXT.GRAY_DARK};
+		border: 1px solid ${COLORS.TEXT.GRAY_LIGHT};
 		&:hover {
-			background: ${V9_COLORS.TEXT.GRAY_LIGHTER};
+			background: ${COLORS.TEXT.GRAY_LIGHTER};
 		}
 	`}
 `;
@@ -139,8 +139,8 @@ const ActionButtonsContainer = styled.div`
 `;
 
 const LearningSection = styled.div`
-	background: linear-gradient(135deg, ${V9_COLORS.BG.GRAY_LIGHT} 0%, #dbeafe 100%);
-	border: 1px solid ${V9_COLORS.PRIMARY.BLUE};
+	background: linear-gradient(135deg, ${COLORS.BG.GRAY_LIGHT} 0%, #dbeafe 100%);
+	border: 1px solid ${COLORS.PRIMARY.BLUE};
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin-top: 1rem;
@@ -150,7 +150,7 @@ const LearningTitle = styled.h3`
 	font-size: 1.1rem;
 	font-weight: 600;
 	margin-bottom: 1rem;
-	color: ${V9_COLORS.PRIMARY.BLUE_DARK};
+	color: ${COLORS.PRIMARY.BLUE_DARK};
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -159,7 +159,7 @@ const LearningTitle = styled.h3`
 const LearningContent = styled.ul`
 	margin: 0;
 	padding-left: 1.5rem;
-	color: ${V9_COLORS.PRIMARY.BLUE_DARK};
+	color: ${COLORS.PRIMARY.BLUE_DARK};
 	line-height: 1.6;
 
 	li {
@@ -167,7 +167,7 @@ const LearningContent = styled.ul`
 	}
 
 	a {
-		color: ${V9_COLORS.PRIMARY.BLUE};
+		color: ${COLORS.PRIMARY.BLUE};
 		text-decoration: none;
 		font-weight: 500;
 

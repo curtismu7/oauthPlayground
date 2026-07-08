@@ -103,23 +103,23 @@ const DifficultyBadge = styled.span<{ $level: string }>`
 		switch ($level) {
 			case 'beginner':
 				return `
-          background-color: V9_COLORS.BG.SUCCESS;
-          color: V9_COLORS.PRIMARY.GREEN;
+          background-color: COLORS.BG.SUCCESS;
+          color: COLORS.PRIMARY.GREEN;
         `;
 			case 'intermediate':
 				return `
-          background-color: V9_COLORS.BG.WARNING;
-          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          background-color: COLORS.BG.WARNING;
+          color: COLORS.PRIMARY.YELLOW_DARK;
         `;
 			case 'advanced':
 				return `
-          background-color: V9_COLORS.BG.ERROR;
-          color: V9_COLORS.PRIMARY.RED_DARK;
+          background-color: COLORS.BG.ERROR;
+          color: COLORS.PRIMARY.RED_DARK;
         `;
 			default:
 				return `
           background-color: #f3f4f6;
-          color: V9_COLORS.TEXT.GRAY_DARK;
+          color: COLORS.TEXT.GRAY_DARK;
         `;
 		}
 	}}
@@ -245,23 +245,23 @@ const SecurityBadge = styled.span<{ $level: string }>`
 		switch ($level) {
 			case 'high':
 				return `
-          background-color: V9_COLORS.BG.SUCCESS;
-          color: V9_COLORS.PRIMARY.GREEN;
+          background-color: COLORS.BG.SUCCESS;
+          color: COLORS.PRIMARY.GREEN;
         `;
 			case 'medium':
 				return `
-          background-color: V9_COLORS.BG.WARNING;
-          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          background-color: COLORS.BG.WARNING;
+          color: COLORS.PRIMARY.YELLOW_DARK;
         `;
 			case 'low':
 				return `
-          background-color: V9_COLORS.BG.ERROR;
-          color: V9_COLORS.PRIMARY.RED_DARK;
+          background-color: COLORS.BG.ERROR;
+          color: COLORS.PRIMARY.RED_DARK;
         `;
 			default:
 				return `
           background-color: #f3f4f6;
-          color: V9_COLORS.TEXT.GRAY_DARK;
+          color: COLORS.TEXT.GRAY_DARK;
         `;
 		}
 	}}
@@ -276,7 +276,7 @@ const RecommendedBadge = styled.span`
 	font-weight: 500;
 	border-radius: 0.25rem;
 	background-color: #dbeafe;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const QuickStartSection = styled.div`

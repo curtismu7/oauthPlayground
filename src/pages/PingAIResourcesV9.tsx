@@ -4,7 +4,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import { V9_COLORS } from '@/platform/V9ColorStandards';
+import { COLORS } from '@/platform/ColorStandards';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowHeader } from '../services/flowHeaderService';
@@ -15,7 +15,7 @@ const Container = styled.div`
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
-	background: linear-gradient(135deg, ${V9_COLORS.BG.GRAY_LIGHT} 0%, ${V9_COLORS.TEXT.GRAY_LIGHTER} 100%);
+	background: linear-gradient(135deg, ${COLORS.BG.GRAY_LIGHT} 0%, ${COLORS.TEXT.GRAY_LIGHTER} 100%);
 `;
 
 const ContentWrapper = styled.div`
@@ -31,7 +31,7 @@ const Header = styled.div`
 	h1 {
 		font-size: 3rem;
 		font-weight: 700;
-		color: ${V9_COLORS.PRIMARY.BLUE};
+		color: ${COLORS.PRIMARY.BLUE};
 		margin-bottom: 1rem;
 		display: flex;
 		align-items: center;
@@ -41,7 +41,7 @@ const Header = styled.div`
 
 	p {
 		font-size: 1.25rem;
-		color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+		color: ${COLORS.TEXT.GRAY_MEDIUM};
 		max-width: 800px;
 		margin: 0 auto;
 		line-height: 1.6;
@@ -64,8 +64,8 @@ const ResourceGrid = styled.div`
 `;
 
 const ResourceCard = styled.a`
-	background: linear-gradient(135deg, ${V9_COLORS.TEXT.WHITE} 0%, ${V9_COLORS.BG.GRAY_LIGHT} 100%);
-	border: 2px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	background: linear-gradient(135deg, ${COLORS.TEXT.WHITE} 0%, ${COLORS.BG.GRAY_LIGHT} 100%);
+	border: 2px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	text-decoration: none;
@@ -76,7 +76,7 @@ const ResourceCard = styled.a`
 	gap: 0.75rem;
 
 	&:hover {
-		border-color: ${V9_COLORS.PRIMARY.BLUE};
+		border-color: ${COLORS.PRIMARY.BLUE};
 		transform: translateY(-2px);
 		box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
 	}
@@ -84,7 +84,7 @@ const ResourceCard = styled.a`
 	h3 {
 		font-size: 1.125rem;
 		font-weight: 600;
-		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		color: ${COLORS.TEXT.GRAY_DARK};
 		margin: 0;
 		display: flex;
 		align-items: center;
@@ -92,7 +92,7 @@ const ResourceCard = styled.a`
 	}
 
 	p {
-		color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+		color: ${COLORS.TEXT.GRAY_MEDIUM};
 		line-height: 1.6;
 		margin: 0;
 		flex-grow: 1;
@@ -104,7 +104,7 @@ const ResourceCard = styled.a`
 	}
 
 	.external-link {
-		color: ${V9_COLORS.PRIMARY.BLUE};
+		color: ${COLORS.PRIMARY.BLUE};
 		font-weight: 500;
 		font-size: 0.875rem;
 		display: flex;

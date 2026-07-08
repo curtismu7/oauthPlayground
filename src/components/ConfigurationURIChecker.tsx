@@ -30,8 +30,8 @@ interface URIStatus {
 const Container = styled.div`
 	margin: 1.5rem 0;
 	padding: 1.5rem;
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 `;
 
@@ -50,7 +50,7 @@ const Title = styled.h3`
 `;
 
 const InfoIcon = styled.span`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	cursor: help;
 `;
 
@@ -61,14 +61,14 @@ const Table = styled.table`
 `;
 
 const TableHeader = styled.thead`
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 `;
 
 const TableRow = styled.tr<{ $isEven?: boolean }>`
 	background: ${({ $isEven }) => ($isEven ? '#f8f9fa' : '#ffffff')};
 
 	&:hover {
-		background: V9_COLORS.BG.GRAY_MEDIUM;
+		background: COLORS.BG.GRAY_MEDIUM;
 	}
 `;
 
@@ -77,8 +77,8 @@ const TableBody = styled.tbody``;
 const TableCell = styled.td`
 	padding: 0.75rem;
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	color: COLORS.TEXT.GRAY_DARK;
+	border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const TableHeaderCell = styled.th`
@@ -86,8 +86,8 @@ const TableHeaderCell = styled.th`
 	text-align: left;
 	font-size: 0.875rem;
 	font-weight: 700;
-	color: V9_COLORS.TEXT.GRAY_DARK;
-	border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	color: COLORS.TEXT.GRAY_DARK;
+	border-bottom: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const URICell = styled(TableCell)`
@@ -164,14 +164,14 @@ const LoadingSpinner = styled.span`
 `;
 
 const ErrorMessage = styled.div`
-	color: V9_COLORS.PRIMARY.RED_DARK;
+	color: COLORS.PRIMARY.RED_DARK;
 	font-size: 0.875rem;
 	margin-top: 0.5rem;
 `;
 
 const HelperText = styled.p`
 	margin: 0;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 `;
 
@@ -180,10 +180,10 @@ const CopyButton = styled.button`
 	align-items: center;
 	gap: 0.25rem;
 	padding: 0.25rem 0.5rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.25rem;
 	background: white;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	cursor: pointer;
 	transition: background 120ms ease;
 	font-size: 0.75rem;
@@ -191,7 +191,7 @@ const CopyButton = styled.button`
 
 	&:hover {
 		background: #f9fafb;
-		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+		border-color: COLORS.TEXT.GRAY_LIGHT;
 	}
 `;
 
@@ -538,7 +538,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 				style={{
 					marginTop: '2rem',
 					paddingTop: '2rem',
-					borderTop: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+					borderTop: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 				}}
 			>
 				<div style={{ marginBottom: '1rem' }}>

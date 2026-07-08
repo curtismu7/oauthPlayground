@@ -56,7 +56,7 @@ const StepDescription = styled.p`
 `;
 
 const CodeBlock = styled.pre`
-	background-color: V9_COLORS.TEXT.GRAY_DARK;
+	background-color: COLORS.TEXT.GRAY_DARK;
 	color: #f9fafb;
 	padding: 1rem;
 	border-radius: 0.375rem;
@@ -64,7 +64,7 @@ const CodeBlock = styled.pre`
 	font-size: 0.875rem;
 	margin: 1rem 0;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-	border: 1px solid V9_COLORS.TEXT.GRAY_DARK;
+	border: 1px solid COLORS.TEXT.GRAY_DARK;
 	white-space: pre-wrap;
 	position: relative;
 `;
@@ -80,16 +80,16 @@ const StepActions = styled.div`
 const StepResult = styled.div`
 	margin-top: 1rem;
 	padding: 1rem;
-	background-color: V9_COLORS.TEXT.GRAY_DARK;
-	border: 1px solid V9_COLORS.TEXT.GRAY_DARK;
+	background-color: COLORS.TEXT.GRAY_DARK;
+	border: 1px solid COLORS.TEXT.GRAY_DARK;
 	border-radius: 0.5rem;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	font-family: monospace;
 	font-size: 0.875rem;
 
 	h4 {
 		margin: 0 0 0.5rem 0;
-		color: V9_COLORS.TEXT.WHITE;
+		color: COLORS.TEXT.WHITE;
 		font-size: 1rem;
 		font-weight: 600;
 	}
@@ -104,7 +104,7 @@ const StepResult = styled.div`
 		white-space: pre-wrap;
 		word-break: break-all;
 		overflow: visible;
-		color: V9_COLORS.TEXT.WHITE !important;
+		color: COLORS.TEXT.WHITE !important;
 	}
 `;
 
@@ -272,7 +272,7 @@ const StatusIndicator = styled.div<{ $status: 'idle' | 'loading' | 'success' | '
 			case 'idle':
 				return 'background-color: #e9ecef; color: #495057;';
 			case 'loading':
-				return 'background-color: V9_COLORS.TEXT.WHITE3cd; color: #856404;';
+				return 'background-color: COLORS.TEXT.WHITE3cd; color: #856404;';
 			case 'success':
 				return 'background-color: #d4edda; color: #155724;';
 			case 'error':

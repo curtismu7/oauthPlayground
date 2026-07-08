@@ -19,9 +19,9 @@ import { logger } from '../../utils/logger';
 
 const MasterSectionContainer = styled.div`
 	margin-bottom: 24px;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	overflow: hidden;
 `;
 
@@ -30,14 +30,14 @@ const SectionHeader = styled.button`
 	padding: 16px 20px;
 	background: #f9fafb;
 	border: none;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	font-size: 16px;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	transition: background-color 0.2s ease;
 
 	&:hover {
@@ -45,7 +45,7 @@ const SectionHeader = styled.button`
 	}
 
 	&:focus {
-		outline: 2px solid V9_COLORS.PRIMARY.BLUE;
+		outline: 2px solid COLORS.PRIMARY.BLUE;
 		outline-offset: -2px;
 	}
 `;
@@ -76,9 +76,9 @@ const ContentInner = styled.div`
 const EducationSection = styled.div`
 	margin-bottom: 24px;
 	padding: 16px;
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	background: COLORS.BG.GRAY_LIGHT;
 	border-radius: 6px;
-	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
+	border-left: 4px solid COLORS.PRIMARY.BLUE;
 
 	&:last-child {
 		margin-bottom: 0;
@@ -89,14 +89,14 @@ const SectionTitle = styled.h3`
 	margin: 0 0 12px 0;
 	font-size: 16px;
 	font-weight: 600;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	display: flex;
 	align-items: center;
 	gap: 8px;
 `;
 
 const EducationContent = styled.div`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	line-height: 1.6;
 
 	p {
@@ -116,7 +116,7 @@ const EducationContent = styled.div`
 	}
 
 	code {
-		background: V9_COLORS.TEXT.GRAY_LIGHTER;
+		background: COLORS.TEXT.GRAY_LIGHTER;
 		padding: 2px 6px;
 		border-radius: 3px;
 		font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -124,21 +124,21 @@ const EducationContent = styled.div`
 	}
 
 	strong {
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
 const CompactSection = styled.div`
 	padding: 12px 16px;
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	background: COLORS.BG.GRAY_LIGHT;
 	border-radius: 6px;
-	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
+	border-left: 4px solid COLORS.PRIMARY.BLUE;
 	margin-bottom: 8px;
 	cursor: pointer;
 	transition: background-color 0.2s ease;
 
 	&:hover {
-		background: V9_COLORS.TEXT.GRAY_LIGHTER;
+		background: COLORS.TEXT.GRAY_LIGHTER;
 	}
 
 	&:last-child {
@@ -148,7 +148,7 @@ const CompactSection = styled.div`
 
 const CompactTitle = styled.div`
 	font-weight: 600;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	margin-bottom: 4px;
 	display: flex;
 	align-items: center;
@@ -157,7 +157,7 @@ const CompactTitle = styled.div`
 
 const CompactContent = styled.div`
 	font-size: 14px;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 export interface EducationSectionData {
@@ -275,7 +275,7 @@ export const MasterEducationSection: React.FC<MasterEducationSectionProps> = ({
 								style={{
 									marginTop: '12px',
 									paddingTop: '12px',
-									borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									borderTop: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 								}}
 							>
 								<EducationContent>{section.content}</EducationContent>

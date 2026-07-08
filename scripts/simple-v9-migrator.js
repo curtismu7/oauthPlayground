@@ -5,25 +5,25 @@ console.log('Starting V9 Color Migration...');
 
 // Simple color mappings
 const colors = {
-  '#3b82f6': 'V9_COLORS.PRIMARY.BLUE',
-  '#2563eb': 'V9_COLORS.PRIMARY.BLUE_DARK',
-  '#10b981': 'V9_COLORS.PRIMARY.GREEN',
-  '#059669': 'V9_COLORS.PRIMARY.GREEN_DARK',
-  '#ef4444': 'V9_COLORS.PRIMARY.RED',
-  '#dc2626': 'V9_COLORS.PRIMARY.RED_DARK',
-  '#f59e0b': 'V9_COLORS.PRIMARY.YELLOW',
-  '#d97706': 'V9_COLORS.PRIMARY.YELLOW_DARK',
-  '#1f2937': 'V9_COLORS.TEXT.GRAY_DARK',
-  '#374151': 'V9_COLORS.TEXT.GRAY_DARK',
-  '#6b7280': 'V9_COLORS.TEXT.GRAY_MEDIUM',
-  '#475569': 'V9_COLORS.TEXT.GRAY_MEDIUM',
-  '#64748b': 'V9_COLORS.TEXT.GRAY_MEDIUM',
-  '#e5e7eb': 'V9_COLORS.TEXT.GRAY_LIGHTER',
-  '#d1d5db': 'V9_COLORS.TEXT.GRAY_LIGHTER',
-  '#e2e8f0': 'V9_COLORS.TEXT.GRAY_LIGHTER',
-  '#f8fafc': 'V9_COLORS.BG.GRAY_LIGHT',
-  '#ffffff': 'V9_COLORS.BG.WHITE',
-  '#000000': 'V9_COLORS.TEXT.BLACK'
+  '#3b82f6': 'COLORS.PRIMARY.BLUE',
+  '#2563eb': 'COLORS.PRIMARY.BLUE_DARK',
+  '#10b981': 'COLORS.PRIMARY.GREEN',
+  '#059669': 'COLORS.PRIMARY.GREEN_DARK',
+  '#ef4444': 'COLORS.PRIMARY.RED',
+  '#dc2626': 'COLORS.PRIMARY.RED_DARK',
+  '#f59e0b': 'COLORS.PRIMARY.YELLOW',
+  '#d97706': 'COLORS.PRIMARY.YELLOW_DARK',
+  '#1f2937': 'COLORS.TEXT.GRAY_DARK',
+  '#374151': 'COLORS.TEXT.GRAY_DARK',
+  '#6b7280': 'COLORS.TEXT.GRAY_MEDIUM',
+  '#475569': 'COLORS.TEXT.GRAY_MEDIUM',
+  '#64748b': 'COLORS.TEXT.GRAY_MEDIUM',
+  '#e5e7eb': 'COLORS.TEXT.GRAY_LIGHTER',
+  '#d1d5db': 'COLORS.TEXT.GRAY_LIGHTER',
+  '#e2e8f0': 'COLORS.TEXT.GRAY_LIGHTER',
+  '#f8fafc': 'COLORS.BG.GRAY_LIGHT',
+  '#ffffff': 'COLORS.BG.WHITE',
+  '#000000': 'COLORS.TEXT.BLACK'
 };
 
 function processFile(filePath) {
@@ -33,7 +33,7 @@ function processFile(filePath) {
     let colorCount = 0;
 
     // Add import if needed
-    if (!content.includes('V9_COLORS') && content.includes('#')) {
+    if (!content.includes('COLORS') && content.includes('#')) {
       const lines = content.split('\n');
       let importIndex = 0;
       
@@ -45,8 +45,8 @@ function processFile(filePath) {
         }
       }
       
-      const relativePath = path.relative(path.dirname(filePath), 'src/platform/V9ColorStandards').replace(/\\/g, '/');
-      lines.splice(importIndex, 0, `import { V9_COLORS } from '${relativePath}';`);
+      const relativePath = path.relative(path.dirname(filePath), 'src/platform/ColorStandards').replace(/\\/g, '/');
+      lines.splice(importIndex, 0, `import { COLORS } from '${relativePath}';`);
       content = lines.join('\n');
       changed = true;
     }

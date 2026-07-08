@@ -346,10 +346,10 @@ const PROVIDERS: Record<ProviderId, ProviderConfig> = {
 };
 
 const PlaygroundContainer = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
+	background: linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.BG.GRAY_LIGHT 100%);
 	border-radius: 1rem;
 	padding: 2rem;
-	border: 2px solid V9_COLORS.PRIMARY.BLUE_DARK;
+	border: 2px solid COLORS.PRIMARY.BLUE_DARK;
 	box-shadow: 0 10px 28px rgba(37, 99, 235, 0.15);
 `;
 
@@ -370,7 +370,7 @@ const Title = styled.h2`
 `;
 
 const Intro = styled.p`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin: 0;
 	line-height: 1.6;
 	font-size: 1.05rem;
@@ -389,7 +389,7 @@ const ProviderButton = styled.button<{ $selected: boolean }>`
 	border: 2px solid ${({ $selected }) => ($selected ? '#2563eb' : '#c7d2fe')};
 	background: ${({ $selected }) =>
 		$selected
-			? 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK, V9_COLORS.PRIMARY.BLUE_DARK)'
+			? 'linear-gradient(135deg, COLORS.PRIMARY.BLUE_DARK, COLORS.PRIMARY.BLUE_DARK)'
 			: '#ffffff'};
 	color: ${({ $selected }) => ($selected ? '#ffffff' : '#1e3a8a')};
 	font-weight: 600;
@@ -417,7 +417,7 @@ const ContentLayout = styled.div`
 `;
 
 const ScopeLibraryPanel = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	border: 1px solid #dbeafe;
@@ -430,7 +430,7 @@ const PanelTitle = styled.h3`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	margin: 0;
 	font-size: 1.1rem;
 `;
@@ -480,8 +480,8 @@ const ScopeChip = styled.button<{ $selected: boolean; $risk: ScopeDefinition['ri
 const EmptyState = styled.div`
 	text-align: center;
 	padding: 2rem 1rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
-	border: 2px dashed V9_COLORS.TEXT.GRAY_LIGHTER;
+	color: COLORS.TEXT.GRAY_MEDIUM;
+	border: 2px dashed COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 `;
 
@@ -492,10 +492,10 @@ const DetailsPanel = styled.div`
 `;
 
 const RiskSummaryCard = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, #1e293b 100%);
+	background: linear-gradient(135deg, COLORS.TEXT.GRAY_DARK 0%, #1e293b 100%);
 	border-radius: 0.75rem;
 	padding: 1.5rem;
-	color: V9_COLORS.BG.GRAY_MEDIUM;
+	color: COLORS.BG.GRAY_MEDIUM;
 	box-shadow: 0 10px 28px rgba(15, 23, 42, 0.4);
 	display: flex;
 	flex-direction: column;
@@ -521,25 +521,25 @@ const MetricLabel = styled.span`
 	font-size: 0.8rem;
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
-	color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	color: COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const MetricValue = styled.span`
 	font-size: 1.5rem;
 	font-weight: 700;
-	color: V9_COLORS.PRIMARY.YELLOW_LIGHT;
+	color: COLORS.PRIMARY.YELLOW_LIGHT;
 `;
 
 const MetricDetail = styled.span`
 	font-size: 0.85rem;
-	color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	color: COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const AppliedBundle = styled.div`
-	background: V9_COLORS.BG.GRAY_MEDIUM;
+	background: COLORS.BG.GRAY_MEDIUM;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const BundleTitle = styled.div`
@@ -562,7 +562,7 @@ const BundleBadge = styled.span`
 	align-items: center;
 	gap: 0.35rem;
 	background: rgba(37, 99, 235, 0.12);
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	padding: 0.35rem 0.75rem;
 	border-radius: 999px;
 	font-weight: 600;
@@ -570,9 +570,9 @@ const BundleBadge = styled.span`
 `;
 
 const ScopeDetailCard = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	padding: 1.25rem;
 	display: flex;
 	flex-direction: column;
@@ -584,13 +584,13 @@ const ScopeHeading = styled.div`
 	align-items: center;
 	gap: 0.5rem;
 	font-weight: 700;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 1.05rem;
 `;
 
 const ScopeDescription = styled.p`
 	margin: 0;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.6;
 `;
 
@@ -604,10 +604,10 @@ const ApiExampleRow = styled.div`
 	display: grid;
 	grid-template-columns: 0.8fr 1.2fr;
 	gap: 0.75rem;
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	background: COLORS.BG.GRAY_LIGHT;
 	border-radius: 0.5rem;
 	padding: 0.75rem 1rem;
-	border-left: 4px solid V9_COLORS.PRIMARY.BLUE_DARK;
+	border-left: 4px solid COLORS.PRIMARY.BLUE_DARK;
 
 	@media (max-width: 640px) {
 		grid-template-columns: 1fr;
@@ -615,13 +615,13 @@ const ApiExampleRow = styled.div`
 `;
 
 const ApiLabel = styled.div`
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	font-weight: 600;
 	font-size: 0.9rem;
 `;
 
 const ApiDescription = styled.div`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.9rem;
 	line-height: 1.5;
 `;
@@ -631,7 +631,7 @@ const BestPractice = styled.div`
 	align-items: flex-start;
 	gap: 0.75rem;
 	background: rgba(16, 185, 129, 0.12);
-	border-left: 4px solid V9_COLORS.PRIMARY.GREEN;
+	border-left: 4px solid COLORS.PRIMARY.GREEN;
 	padding: 1rem;
 	border-radius: 0.5rem;
 	color: #047857;
@@ -644,7 +644,7 @@ const DependencyNotice = styled.div`
 	gap: 0.5rem;
 	padding: 0.75rem;
 	background: rgba(59, 130, 246, 0.12);
-	border-left: 4px solid V9_COLORS.PRIMARY.BLUE_DARK;
+	border-left: 4px solid COLORS.PRIMARY.BLUE_DARK;
 	border-radius: 0.5rem;
 	color: #1e3a8a;
 	font-size: 0.9rem;

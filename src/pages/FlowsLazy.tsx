@@ -300,7 +300,7 @@ const FlowsLazy: React.FC = () => {
 				<div
 					style={{
 						background: '#fef2f2',
-						border: '1px solid V9_COLORS.BG.ERROR_BORDER',
+						border: '1px solid COLORS.BG.ERROR_BORDER',
 						borderRadius: '8px',
 						padding: '1rem',
 						marginTop: '1rem',

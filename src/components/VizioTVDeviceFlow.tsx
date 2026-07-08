@@ -11,14 +11,14 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // VIZIO TV Physical Housing
 const VizioTVContainer = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
+	background: linear-gradient(135deg, COLORS.TEXT.GRAY_DARK 0%, COLORS.TEXT.GRAY_DARK 100%);
 	border-radius: 1.5rem;
 	padding: 2rem;
 	margin: 2rem 0;
 	box-shadow:
 		0 25px 50px rgba(0, 0, 0, 0.4),
 		inset 0 1px 0 rgba(255, 255, 255, 0.1);
-	border: 12px solid V9_COLORS.TEXT.GRAY_DARK;
+	border: 12px solid COLORS.TEXT.GRAY_DARK;
 	position: relative;
 	max-width: 800px;
 	margin-left: auto;
@@ -33,7 +33,7 @@ const VizioTVContainer = styled.div`
 		transform: translateX(-50%);
 		width: 200px;
 		height: 40px;
-		background: linear-gradient(180deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
+		background: linear-gradient(180deg, COLORS.TEXT.GRAY_DARK 0%, COLORS.TEXT.GRAY_DARK 100%);
 		border-radius: 0 0 20px 20px;
 		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 	}
@@ -43,7 +43,7 @@ const VizioTVContainer = styled.div`
 const TVScreen = styled.div<{ $showContent?: boolean }>`
 	background: ${({ $showContent }) =>
 		$showContent ? 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%)' : '#000000'};
-	border: 3px solid V9_COLORS.TEXT.GRAY_DARK;
+	border: 3px solid COLORS.TEXT.GRAY_DARK;
 	border-radius: 0.75rem;
 	padding: ${({ $showContent }) => ($showContent ? '2rem' : '3rem')};
 	margin-bottom: 1rem;
@@ -71,13 +71,13 @@ const VizioBranding = styled.div`
 const VizioLogo = styled.div`
 	font-size: 1.5rem;
 	font-weight: 900;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 `;
 
 const VizioModel = styled.div`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_LIGHT;
+	color: COLORS.TEXT.GRAY_LIGHT;
 	text-transform: uppercase;
 	letter-spacing: 0.1em;
 `;
@@ -112,11 +112,11 @@ const StatusIndicator = styled.div<{ $active: boolean; $color: string }>`
 
 // VIZIO SmartCast Interface
 const SmartCastInterface = styled.div`
-	background: linear-gradient(135deg, #1e293b 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
+	background: linear-gradient(135deg, #1e293b 0%, COLORS.TEXT.GRAY_DARK 100%);
 	border-radius: 1rem;
 	padding: 2rem;
 	margin: 1rem 0;
-	border: 2px solid V9_COLORS.TEXT.GRAY_DARK;
+	border: 2px solid COLORS.TEXT.GRAY_DARK;
 	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 `;
 
@@ -126,13 +126,13 @@ const SmartCastHeader = styled.div`
 	justify-content: space-between;
 	margin-bottom: 1.5rem;
 	padding-bottom: 1rem;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_DARK;
+	border-bottom: 1px solid COLORS.TEXT.GRAY_DARK;
 `;
 
 const SmartCastTitle = styled.div`
 	font-size: 1.25rem;
 	font-weight: 700;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -153,7 +153,7 @@ const SmartCastStatus = styled.div<{ $status: string }>`
 				return '#6b7280';
 		}
 	}};
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	padding: 0.5rem 1rem;
 	border-radius: 9999px;
 	font-size: 0.75rem;
@@ -179,7 +179,7 @@ const AppIcon = styled.div<{ $color: string }>`
 	align-items: center;
 	justify-content: center;
 	font-size: 1.5rem;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 	cursor: pointer;
 	transition: transform 0.2s ease;
@@ -199,7 +199,7 @@ const AppLabel = styled.div`
 
 // Authorization Code Display
 const AuthCodeDisplay = styled.div`
-	background: V9_COLORS.TEXT.BLACK;
+	background: COLORS.TEXT.BLACK;
 	color: #00ff00;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 2rem;
@@ -218,31 +218,31 @@ const AuthCodeDisplay = styled.div`
 
 // QR Code Section
 const QRCodeSection = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	text-align: center;
 	margin: 1rem 0;
-	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const QRTitle = styled.div`
 	font-size: 1rem;
 	font-weight: 700;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const QRSubtitle = styled.div`
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	margin-bottom: 1rem;
 `;
 
 const QRCodeContainer = styled.div`
 	display: inline-block;
 	padding: 1rem;
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border-radius: 0.5rem;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
@@ -258,7 +258,7 @@ const ActionButtons = styled.div`
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
 	background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	border: none;
 	border-radius: 0.5rem;
 	padding: 0.75rem 1.25rem;
@@ -286,14 +286,14 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
 const SuccessDisplay = styled.div`
 	background: linear-gradient(
 		135deg,
-		V9_COLORS.PRIMARY.GREEN 0%,
-		V9_COLORS.PRIMARY.GREEN_DARK 100%
+		COLORS.PRIMARY.GREEN 0%,
+		COLORS.PRIMARY.GREEN_DARK 100%
 	);
 	border-radius: 1rem;
 	padding: 1.5rem;
 	margin-top: 1rem;
 	text-align: center;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
 `;
 
@@ -390,11 +390,11 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
 
 					{/* Status Indicators */}
 					<StatusIndicators>
-						<StatusIndicator $active={true} $color="V9_COLORS.PRIMARY.GREEN" />
-						<StatusIndicator $active={true} $color="V9_COLORS.PRIMARY.BLUE" />
+						<StatusIndicator $active={true} $color="COLORS.PRIMARY.GREEN" />
+						<StatusIndicator $active={true} $color="COLORS.PRIMARY.BLUE" />
 						<StatusIndicator
 							$active={state.status === 'authorized'}
-							$color="V9_COLORS.PRIMARY.YELLOW"
+							$color="COLORS.PRIMARY.YELLOW"
 						/>
 					</StatusIndicators>
 
@@ -433,8 +433,8 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
 							<QRCodeSVG
 								value={state.verificationUriComplete}
 								size={180}
-								bgColor="V9_COLORS.TEXT.WHITE"
-								fgColor="V9_COLORS.TEXT.GRAY_DARK"
+								bgColor="COLORS.TEXT.WHITE"
+								fgColor="COLORS.TEXT.GRAY_DARK"
 								level="H"
 								includeMargin={true}
 							/>
@@ -469,7 +469,7 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.2)"
 				borderColor="#3a3a3c"
-				headerTextColor="V9_COLORS.TEXT.WHITE"
+				headerTextColor="COLORS.TEXT.WHITE"
 			/>
 		</>
 	);

@@ -29,8 +29,8 @@ import WorkerTokenModalV9 from './WorkerTokenModalV9';
 // ---------------------------------------------------------------------------
 
 const Section = styled.div<{ $compact?: boolean }>`
-	background: V9_COLORS.TEXT.WHITE;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.WHITE;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: ${({ $compact }) => ($compact ? '1rem' : '1.5rem')};
 	margin-bottom: ${({ $compact }) => ($compact ? '1rem' : '1.5rem')};
@@ -48,12 +48,12 @@ const Title = styled.h3`
 	margin: 0;
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const Badge = styled.span`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	background: #f3f4f6;
 	padding: 0.125rem 0.5rem;
 	border-radius: 0.75rem;
@@ -62,7 +62,7 @@ const Badge = styled.span`
 const Description = styled.p`
 	margin: 0 0 1rem;
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.5;
 `;
 
@@ -92,7 +92,7 @@ const StatusSub = styled.div`
 
 const ExpiryText = styled.div`
 	font-size: 0.75rem;
-	color: V9_COLORS.PRIMARY.GREEN;
+	color: COLORS.PRIMARY.GREEN;
 	margin-top: 0.25rem;
 `;
 
@@ -102,11 +102,11 @@ const RefreshBtn = styled.button`
 	gap: 0.25rem;
 	padding: 0.375rem 0.5rem;
 	background: transparent;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.25rem;
 	cursor: pointer;
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	flex-shrink: 0;
 	&:hover {
 		background: #f9fafb;

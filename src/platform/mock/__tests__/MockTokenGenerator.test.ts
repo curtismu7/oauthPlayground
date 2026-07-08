@@ -4,11 +4,11 @@
  * @description Unit tests for V7M token generator (access, ID, refresh tokens)
  */
 
-import type { V9MockTokenSeed, V9MockTokenTtls } from '../V9MockTokenGenerator';
-import { generateV9MockTokens } from '../V9MockTokenGenerator';
+import type { MockTokenSeed, MockTokenTtls } from '../MockTokenGenerator';
+import { generateMockTokens } from '../MockTokenGenerator';
 
-describe('V9MockTokenGenerator', () => {
-	const baseSeed: V9MockTokenSeed = {
+describe('MockTokenGenerator', () => {
+	const baseSeed: MockTokenSeed = {
 		clientId: 'test-client',
 		environmentId: 'env-123',
 		issuer: 'https://mock.issuer/v7m',
@@ -19,17 +19,17 @@ describe('V9MockTokenGenerator', () => {
 		audience: 'test-client',
 	};
 
-	const defaultTtls: V9MockTokenTtls = {
+	const defaultTtls: MockTokenTtls = {
 		accessTokenSeconds: 3600,
 		idTokenSeconds: 3600,
 		refreshTokenSeconds: 86400,
 	};
 
-	describe('generateV9MockTokens', () => {
+	describe('generateMockTokens', () => {
 		it('should generate deterministic tokens from same seed', () => {
 			const now = Math.floor(Date.now() / 1000);
-			const tokens1 = generateV9MockTokens(baseSeed, now, defaultTtls, true, undefined);
-			const tokens2 = generateV9MockTokens(baseSeed, now, defaultTtls, true, undefined);
+			const tokens1 = generateMockTokens(baseSeed, now, defaultTtls, true, undefined);
+			const tokens2 = generateMockTokens(baseSeed, now, defaultTtls, true, undefined);
 
 			expect(tokens1.access_token).toBe(tokens2.access_token);
 			expect(tokens1.id_token).toBe(tokens2.id_token);
@@ -38,7 +38,7 @@ describe('V9MockTokenGenerator', () => {
 
 		it('should generate ID token when includeIdToken is true', () => {
 			const now = Math.floor(Date.now() / 1000);
-			const tokens = generateV9MockTokens(baseSeed, now, defaultTtls, true, undefined);
+			const tokens = generateMockTokens(baseSeed, now, defaultTtls, true, undefined);
 
 			expect(tokens.id_token).toBeDefined();
 			expect(tokens.id_token?.startsWith('eyJ')).toBe(true);
@@ -46,14 +46,14 @@ describe('V9MockTokenGenerator', () => {
 
 		it('should not generate ID token when includeIdToken is false', () => {
 			const now = Math.floor(Date.now() / 1000);
-			const tokens = generateV9MockTokens(baseSeed, now, defaultTtls, false, undefined);
+			const tokens = generateMockTokens(baseSeed, now, defaultTtls, false, undefined);
 
 			expect(tokens.id_token).toBeUndefined();
 		});
 
 		it('should generate refresh token', () => {
 			const now = Math.floor(Date.now() / 1000);
-			const tokens = generateV9MockTokens(baseSeed, now, defaultTtls, false, undefined);
+			const tokens = generateMockTokens(baseSeed, now, defaultTtls, false, undefined);
 
 			expect(tokens.refresh_token).toBeDefined();
 			expect(typeof tokens.refresh_token).toBe('string');
@@ -61,26 +61,26 @@ describe('V9MockTokenGenerator', () => {
 
 		it('should include expires_in for access token', () => {
 			const now = Math.floor(Date.now() / 1000);
-			const tokens = generateV9MockTokens(baseSeed, now, defaultTtls, false, undefined);
+			const tokens = generateMockTokens(baseSeed, now, defaultTtls, false, undefined);
 
 			expect(tokens.expires_in).toBe(3600);
 		});
 
 		it('should use custom TTLs when provided', () => {
 			const now = Math.floor(Date.now() / 1000);
-			const customTtls: V9MockTokenTtls = {
+			const customTtls: MockTokenTtls = {
 				accessTokenSeconds: 1800,
 				idTokenSeconds: 1800,
 				refreshTokenSeconds: 43200,
 			};
-			const tokens = generateV9MockTokens(baseSeed, now, customTtls, false, undefined);
+			const tokens = generateMockTokens(baseSeed, now, customTtls, false, undefined);
 
 			expect(tokens.expires_in).toBe(1800);
 		});
 
 		it('should include at_hash in ID token when access token exists', () => {
 			const now = Math.floor(Date.now() / 1000);
-			const tokens = generateV9MockTokens(baseSeed, now, defaultTtls, true, undefined);
+			const tokens = generateMockTokens(baseSeed, now, defaultTtls, true, undefined);
 
 			if (tokens.id_token) {
 				const parts = tokens.id_token.split('.');
@@ -93,7 +93,7 @@ describe('V9MockTokenGenerator', () => {
 		it('should include c_hash in ID token when authorization code provided', () => {
 			const now = Math.floor(Date.now() / 1000);
 			const code = 'abc123code';
-			const tokens = generateV9MockTokens(baseSeed, now, defaultTtls, true, code);
+			const tokens = generateMockTokens(baseSeed, now, defaultTtls, true, code);
 
 			if (tokens.id_token) {
 				const parts = tokens.id_token.split('.');

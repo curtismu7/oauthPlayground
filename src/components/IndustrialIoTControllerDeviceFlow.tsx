@@ -47,7 +47,7 @@ const ControlPanelHeader = styled.div`
 const PanelTitle = styled.div`
   font-size: 1.25rem;
   font-weight: 700;
-  color: V9_COLORS.TEXT.WHITE;
+  color: COLORS.TEXT.WHITE;
   margin-bottom: 0.25rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -83,7 +83,7 @@ const StatusIndicator = styled.div<{ $active: boolean; $color: string }>`
 
 // Main Display Area
 const MainDisplay = styled.div`
-  background: V9_COLORS.TEXT.BLACK;
+  background: COLORS.TEXT.BLACK;
   border: 3px solid #666666;
   border-radius: 0.5rem;
   padding: 1.5rem;
@@ -102,7 +102,7 @@ const DisplayLabel = styled.div`
 `;
 
 const UserCodeDisplay = styled.div`
-  background: V9_COLORS.TEXT.BLACK;
+  background: COLORS.TEXT.BLACK;
   color: #00ff00;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 2rem;
@@ -131,7 +131,7 @@ const QRCodeSection = styled.div`
 const QRCodeLabel = styled.div`
   font-size: 0.875rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.WHITE;
+  color: COLORS.TEXT.WHITE;
   margin-bottom: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -252,7 +252,7 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
   font-size: 1rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.WHITE;
+  color: COLORS.TEXT.WHITE;
   margin-bottom: 0.25rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -260,7 +260,7 @@ const StatusText = styled.div`
 
 const StatusMessage = styled.div`
   font-size: 0.75rem;
-  color: V9_COLORS.TEXT.WHITE;
+  color: COLORS.TEXT.WHITE;
 `;
 
 // Industrial Labels
@@ -378,8 +378,8 @@ const IndustrialIoTControllerDeviceFlow: React.FC<IndustrialIoTControllerDeviceF
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={160}
-							bgColor="V9_COLORS.TEXT.WHITE"
-							fgColor="V9_COLORS.TEXT.BLACK"
+							bgColor="COLORS.TEXT.WHITE"
+							fgColor="COLORS.TEXT.BLACK"
 							level="M"
 							includeMargin={true}
 						/>
@@ -426,7 +426,7 @@ const IndustrialIoTControllerDeviceFlow: React.FC<IndustrialIoTControllerDeviceF
 			<StandardizedTokenDisplay
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.4)"
-				borderColor="V9_COLORS.TEXT.GRAY_DARK"
+				borderColor="COLORS.TEXT.GRAY_DARK"
 				headerTextColor="#00ff00"
 			/>
 		</>

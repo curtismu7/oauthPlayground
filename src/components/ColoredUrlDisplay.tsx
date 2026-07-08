@@ -18,7 +18,7 @@ interface ColoredUrlDisplayProps {
 
 const UrlContainer = styled.div`
 	background: #f0fdf4; /* Light green for generated content */
-	border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
+	border: 1px solid COLORS.PRIMARY.GREEN_DARK;
 	border-radius: 8px;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -32,7 +32,7 @@ const UrlContainer = styled.div`
 const UrlLabel = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.75rem;
 	display: flex;
 	align-items: center;
@@ -41,7 +41,7 @@ const UrlLabel = styled.div`
 
 const UrlContent = styled.div<{ $height?: string }>`
 	background: #f0fdf4; /* Light green for generated content */
-	border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
+	border: 1px solid COLORS.PRIMARY.GREEN_DARK;
 	border-radius: 8px;
 	padding: 2.5rem 8rem 1rem 1rem; /* Extra space so buttons do not overlap URL text */
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -60,8 +60,8 @@ const UrlContent = styled.div<{ $height?: string }>`
 `;
 
 const EditableUrlTextarea = styled.textarea<{ $height?: string }>`
-	background: V9_COLORS.TEXT.WHITE;
-	border: 2px solid V9_COLORS.PRIMARY.GREEN_DARK;
+	background: COLORS.TEXT.WHITE;
+	border: 2px solid COLORS.PRIMARY.GREEN_DARK;
 	border-radius: 8px;
 	padding: 1rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -70,7 +70,7 @@ const EditableUrlTextarea = styled.textarea<{ $height?: string }>`
 	width: 100%;
 	min-height: ${({ $height }) => $height || '150px'};
 	resize: vertical;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	box-sizing: border-box;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
@@ -153,7 +153,7 @@ const InfoModalTitle = styled.h3`
 	margin: 0;
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const CloseButton = styled.button`
@@ -161,11 +161,11 @@ const CloseButton = styled.button`
 	border: none;
 	font-size: 1.5rem;
 	cursor: pointer;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	padding: 0.25rem;
 
 	&:hover {
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
@@ -177,26 +177,26 @@ const ParameterList = styled.div`
 
 const ParameterItem = styled.div`
 	padding: 1rem;
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	background: COLORS.BG.GRAY_LIGHT;
 	border-radius: 8px;
-	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
+	border-left: 4px solid COLORS.PRIMARY.BLUE;
 `;
 
 const ParameterName = styled.div`
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 `;
 
 const ParameterDescription = styled.div`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 	line-height: 1.5;
 `;
 
 const ParameterValue = styled.div`
-	color: V9_COLORS.PRIMARY.GREEN_DARK;
+	color: COLORS.PRIMARY.GREEN_DARK;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
 	margin-top: 0.25rem;
@@ -533,7 +533,7 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 						style={{
 							marginTop: '1.5rem',
 							paddingTop: '1rem',
-							borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							borderTop: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							textAlign: 'center',
 						}}
 					>

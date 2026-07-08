@@ -10,7 +10,7 @@ const ErrorContainer = styled.div`
   z-index: 9999;
   max-width: 500px;
   background: white;
-  border: 2px solid V9_COLORS.PRIMARY.RED;
+  border: 2px solid COLORS.PRIMARY.RED;
   border-radius: 0.5rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   padding: 1rem;
@@ -36,7 +36,7 @@ const ErrorHeader = styled.div`
 `;
 
 const ErrorIcon = styled.div`
-  color: V9_COLORS.PRIMARY.RED;
+  color: COLORS.PRIMARY.RED;
   font-size: 1.5rem;
   margin-right: 0.5rem;
 `;
@@ -45,14 +45,14 @@ const ErrorTitle = styled.h3`
   margin: 0;
   font-size: 1.125rem;
   font-weight: 600;
-  color: V9_COLORS.PRIMARY.RED;
+  color: COLORS.PRIMARY.RED;
   flex: 1;
 `;
 
 const DismissButton = styled.button`
   background: none;
   border: none;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   cursor: pointer;
   padding: 0.25rem;
   border-radius: 0.25rem;
@@ -62,28 +62,28 @@ const DismissButton = styled.button`
   
   &:hover {
     background: #f3f4f6;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
   }
 `;
 
 const ErrorMessage = styled.p`
   margin: 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   line-height: 1.5;
   font-size: 0.875rem;
 `;
 
 const ErrorSuggestion = styled.div`
-  background: V9_COLORS.BG.ERROR;
+  background: COLORS.BG.ERROR;
   border-radius: 0.375rem;
   padding: 0.75rem;
   margin: 0.75rem 0 0 0;
-  border-left: 4px solid V9_COLORS.PRIMARY.RED;
+  border-left: 4px solid COLORS.PRIMARY.RED;
 `;
 
 const SuggestionLabel = styled.div`
   font-weight: 600;
-  color: V9_COLORS.PRIMARY.RED_DARK;
+  color: COLORS.PRIMARY.RED_DARK;
   margin-bottom: 0.25rem;
   font-size: 0.75rem;
 `;

@@ -27,7 +27,7 @@ const BackButton = styled(Link)`
 	align-items: center;
 	gap: 0.5rem;
 	background: #6c757d;
-	color: V9_COLORS.TEXT.WHITE !important;
+	color: COLORS.TEXT.WHITE !important;
 	padding: 0.75rem 1.5rem;
 	border-radius: 4px;
 	text-decoration: none;
@@ -37,7 +37,7 @@ const BackButton = styled(Link)`
 
 	&:hover {
 		background: #545b62;
-		color: V9_COLORS.TEXT.WHITE !important;
+		color: COLORS.TEXT.WHITE !important;
 	}
 `;
 
@@ -79,7 +79,7 @@ const DocDescription = styled.p`
 const DocLink = styled.a`
 	display: inline-block;
 	background: #007bff;
-	color: V9_COLORS.TEXT.WHITE !important;
+	color: COLORS.TEXT.WHITE !important;
 	padding: 0.75rem 1.5rem;
 	border-radius: 4px;
 	text-decoration: none;
@@ -88,7 +88,7 @@ const DocLink = styled.a`
 
 	&:hover {
 		background: #0056b3;
-		color: V9_COLORS.TEXT.WHITE !important;
+		color: COLORS.TEXT.WHITE !important;
 	}
 `;
 
@@ -107,7 +107,7 @@ const StatusBadge = styled.span<{ status: 'available' | 'coming-soon' }>`
     color: #155724;
   `
 			: `
-    background: V9_COLORS.TEXT.WHITE3cd;
+    background: COLORS.TEXT.WHITE3cd;
     color: #856404;
   `}
 `;

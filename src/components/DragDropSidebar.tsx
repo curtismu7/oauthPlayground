@@ -33,8 +33,8 @@ const ColoredIcon = styled.div<{ $color: string }>`
 
 const MigrationBadge = styled.span`
 	background: rgba(34, 197, 94, 0.9);
-	border: 1px solid V9_COLORS.PRIMARY.GREEN;
-	color: V9_COLORS.TEXT.WHITE;
+	border: 1px solid COLORS.PRIMARY.GREEN;
+	color: COLORS.TEXT.WHITE;
 	padding: 0.125rem 0.375rem;
 	border-radius: 0.375rem;
 	font-size: 0.75rem;
@@ -367,7 +367,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/api-status',
 						label: ' API Status',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
+							<ColoredIcon $color="COLORS.PRIMARY.BLUE">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -383,7 +383,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v8u/flow-comparison',
 						label: 'Flow Comparison Tool',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 								<i className="bi bi-question-circle"></i>
 							</ColoredIcon>
 						),
@@ -398,7 +398,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v8/resources-api',
 						label: 'Resources API Tutorial',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -413,7 +413,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/spiffe-spire-v9',
 						label: 'SPIFFE/SPIRE Mock',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -430,7 +430,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/postman-collection-generator',
 						label: 'Postman Collection Generator',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -448,7 +448,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v8/unified-mfa',
 						label: ' New Unified MFA',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
+							<ColoredIcon $color="COLORS.PRIMARY.RED">
 								<i className="bi bi-question-circle"></i>
 							</ColoredIcon>
 						),
@@ -466,7 +466,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v8u/unified',
 						label: 'Unified OAuth & OIDC',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -485,7 +485,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v8/delete-all-devices',
 						label: 'Delete All Devices',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
+							<ColoredIcon $color="COLORS.PRIMARY.RED">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -498,7 +498,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/protect-portal',
 						label: 'Protect Portal App',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.RED_DARK">
+							<ColoredIcon $color="COLORS.PRIMARY.RED_DARK">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -516,7 +516,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/environments',
 						label: 'Environment Management',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
+							<ColoredIcon $color="COLORS.PRIMARY.BLUE">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -531,7 +531,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/admin/create-company',
 						label: ' Create Company',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 								<span>⚙️</span>
 							</ColoredIcon>
 						),
@@ -546,7 +546,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/sdk-examples',
 						label: 'SDK Examples',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 								<i className="bi bi-question-circle"></i>
 							</ColoredIcon>
 						),
@@ -599,7 +599,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v8/unified-mfa',
 						label: ' New Unified MFA',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
+							<ColoredIcon $color="COLORS.PRIMARY.RED">
 								<i className="bi bi-question-circle"></i>
 							</ColoredIcon>
 						),
@@ -689,7 +689,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/ciba-v9',
 						label: 'CIBA Flow (V9)',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -719,7 +719,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/ping-ai-resources',
 						label: 'Ping AI Resources',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -735,7 +735,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				id: 'oauth-flows',
 				label: 'OAuth 2.0 Flows',
 				icon: (
-					<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
+					<ColoredIcon $color="COLORS.PRIMARY.RED">
 						<span></span>
 					</ColoredIcon>
 				),
@@ -776,7 +776,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/device-authorization-v7',
 						label: 'Device Authorization (V7)',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
+							<ColoredIcon $color="COLORS.PRIMARY.YELLOW">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -791,7 +791,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/client-credentials-v7',
 						label: 'Client Credentials (V7)',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -807,7 +807,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				id: 'oidc-flows',
 				label: 'OpenID Connect',
 				icon: (
-					<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+					<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 						<span></span>
 					</ColoredIcon>
 				),
@@ -848,7 +848,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/device-authorization-v7?variant=oidc',
 						label: 'Device Authorization (V7 – OIDC)',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
+							<ColoredIcon $color="COLORS.PRIMARY.YELLOW">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -863,7 +863,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/oidc-hybrid-v7',
 						label: 'Hybrid Flow (V7)',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 								<i className="bi bi-question-circle"></i>
 							</ColoredIcon>
 						),
@@ -905,7 +905,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/pingone-complete-mfa-v7',
 						label: 'PingOne MFA (V7)',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN_DARK">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -920,7 +920,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/pingone-mfa-workflow-library-v7',
 						label: 'PingOne MFA Workflow Library (V7)',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN_DARK">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -950,7 +950,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/pingone-authentication',
 						label: 'PingOne Authentication',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN_DARK">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -980,7 +980,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/par',
 						label: 'PAR Flow',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
+							<ColoredIcon $color="COLORS.PRIMARY.BLUE">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -1022,7 +1022,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/worker-token-tester',
 						label: 'Worker Token Check',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
+							<ColoredIcon $color="COLORS.PRIMARY.YELLOW">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -1052,7 +1052,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v2/flows/token-introspection',
 						label: 'Token Introspection',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
+							<ColoredIcon $color="COLORS.PRIMARY.BLUE">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -1067,7 +1067,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v2/flows/authorization-code-redesign',
 						label: 'Authorization Code (Redesigned)',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
+							<ColoredIcon $color="COLORS.PRIMARY.BLUE">
 								<span>✨</span>
 							</ColoredIcon>
 						),
@@ -1082,7 +1082,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/token-revocation',
 						label: 'Token Revocation',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
+							<ColoredIcon $color="COLORS.PRIMARY.RED">
 								<span>❌</span>
 							</ColoredIcon>
 						),
@@ -1097,7 +1097,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/userinfo',
 						label: 'UserInfo Flow',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -1112,7 +1112,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/pingone-logout',
 						label: 'PingOne Logout',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
+							<ColoredIcon $color="COLORS.PRIMARY.RED">
 								<i className="bi bi-question-circle"></i>
 							</ColoredIcon>
 						),
@@ -1128,7 +1128,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				id: 'mock-educational-flows',
 				label: 'Mock & Educational Flows',
 				icon: (
-					<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
+					<ColoredIcon $color="COLORS.PRIMARY.YELLOW">
 						<span>⚠️</span>
 					</ColoredIcon>
 				),
@@ -1271,7 +1271,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						id: 'oauth-mock-flows',
 						label: 'OAuth Mock Flows',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
+							<ColoredIcon $color="COLORS.PRIMARY.YELLOW">
 								<span>⚠️</span>
 							</ColoredIcon>
 						),
@@ -1282,7 +1282,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/flows/jwt-bearer-token-v7',
 								label: 'JWT Bearer Token (V7)',
 								icon: (
-									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
+									<ColoredIcon $color="COLORS.PRIMARY.YELLOW">
 										<span></span>
 									</ColoredIcon>
 								),
@@ -1327,7 +1327,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/flows/oauth2-resource-owner-password',
 								label: 'OAuth2 ROPC (Legacy)',
 								icon: (
-									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
+									<ColoredIcon $color="COLORS.PRIMARY.YELLOW">
 										<span></span>
 									</ColoredIcon>
 								),
@@ -1342,7 +1342,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/flows/advanced-oauth-params-demo',
 								label: 'Advanced OAuth Parameters Demo',
 								icon: (
-									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
+									<ColoredIcon $color="COLORS.PRIMARY.YELLOW">
 										<span>⚙️</span>
 									</ColoredIcon>
 								),
@@ -1357,7 +1357,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/flows/mock-oidc-ropc',
 								label: 'Mock OIDC ROPC',
 								icon: (
-									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
+									<ColoredIcon $color="COLORS.PRIMARY.YELLOW">
 										<span></span>
 									</ColoredIcon>
 								),
@@ -1372,7 +1372,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/flows/oauth-authorization-code-v7-condensed-mock',
 								label: 'Auth Code Condensed (Mock)',
 								icon: (
-									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
+									<ColoredIcon $color="COLORS.PRIMARY.YELLOW">
 										<span></span>
 									</ColoredIcon>
 								),
@@ -1387,7 +1387,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/flows/v7-condensed-mock',
 								label: 'V7 Condensed (Prototype)',
 								icon: (
-									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
+									<ColoredIcon $color="COLORS.PRIMARY.YELLOW">
 										<i className="bi bi-question-circle"></i>
 									</ColoredIcon>
 								),
@@ -1414,7 +1414,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/flows/dpop',
 								label: 'DPoP (Educational/Mock)',
 								icon: (
-									<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
+									<ColoredIcon $color="COLORS.PRIMARY.GREEN_DARK">
 										<span></span>
 									</ColoredIcon>
 								),
@@ -1462,7 +1462,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				id: 'pingone-tools',
 				label: 'PingOne Tools',
 				icon: (
-					<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
+					<ColoredIcon $color="COLORS.PRIMARY.BLUE">
 						<i className="bi bi-question-circle"></i>
 					</ColoredIcon>
 				),
@@ -1499,7 +1499,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/pingone-dashboard',
 								label: 'Platform Dashboard',
 								icon: (
-									<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+									<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 										<i className="bi bi-question-circle"></i>
 									</ColoredIcon>
 								),
@@ -1514,7 +1514,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/security/password-reset',
 								label: 'Password Reset',
 								icon: (
-									<ColoredIcon $color="V9_COLORS.PRIMARY.RED_DARK">
+									<ColoredIcon $color="COLORS.PRIMARY.RED_DARK">
 										<span></span>
 									</ColoredIcon>
 								),
@@ -1530,7 +1530,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						id: 'pingone-monitoring',
 						label: 'PingOne Monitoring',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
+							<ColoredIcon $color="COLORS.PRIMARY.BLUE">
 								<i className="bi bi-question-circle"></i>
 							</ColoredIcon>
 						),
@@ -1556,7 +1556,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/organization-licensing',
 								label: 'Organization Licensing',
 								icon: (
-									<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+									<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 										<span></span>
 									</ColoredIcon>
 								),
@@ -1612,7 +1612,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						id: 'developer-utilities',
 						label: 'Developer Utilities',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
+							<ColoredIcon $color="COLORS.PRIMARY.YELLOW">
 								<i className="bi bi-question-circle"></i>
 							</ColoredIcon>
 						),
@@ -1623,7 +1623,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/jwks-troubleshooting',
 								label: 'JWKS Troubleshooting',
 								icon: (
-									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
+									<ColoredIcon $color="COLORS.PRIMARY.YELLOW">
 										<i className="bi bi-question-circle"></i>
 									</ColoredIcon>
 								),
@@ -1653,7 +1653,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/oauth-code-generator-hub',
 								label: 'OAuth Code Generator Hub',
 								icon: (
-									<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+									<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 										<i className="bi bi-question-circle"></i>
 									</ColoredIcon>
 								),
@@ -1668,7 +1668,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/application-generator',
 								label: 'Application Generator',
 								icon: (
-									<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
+									<ColoredIcon $color="COLORS.PRIMARY.BLUE">
 										<span>⚙️</span>
 									</ColoredIcon>
 								),
@@ -1731,7 +1731,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				id: 'security-guides',
 				label: 'Security Guides',
 				icon: (
-					<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
+					<ColoredIcon $color="COLORS.PRIMARY.BLUE">
 						<span></span>
 					</ColoredIcon>
 				),
@@ -1742,7 +1742,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/oauth-2-1',
 						label: 'OAuth 2.1',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
+							<ColoredIcon $color="COLORS.PRIMARY.BLUE">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -1757,7 +1757,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/oidc-session-management',
 						label: 'OIDC Session Management',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -1772,7 +1772,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/pingone-sessions-api',
 						label: 'PingOne Sessions API',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
+							<ColoredIcon $color="COLORS.PRIMARY.BLUE">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -1788,7 +1788,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				id: 'reference-materials-docs',
 				label: 'Reference Materials',
 				icon: (
-					<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
+					<ColoredIcon $color="COLORS.PRIMARY.GREEN_DARK">
 						<span></span>
 					</ColoredIcon>
 				),
@@ -1799,7 +1799,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/par-vs-rar',
 						label: 'RAR vs PAR and DPoP Guide',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN_DARK">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -1829,7 +1829,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/pingone-mock-features',
 						label: 'Mock & Educational Features',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
+							<ColoredIcon $color="COLORS.PRIMARY.YELLOW">
 								<i className="bi bi-question-circle"></i>
 							</ColoredIcon>
 						),
@@ -1859,7 +1859,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/ping-ai-resources',
 						label: 'Ping AI Resources',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -1875,7 +1875,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				id: 'oauth-oidc-docs',
 				label: 'OAuth/OIDC Documentation',
 				icon: (
-					<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
+					<ColoredIcon $color="COLORS.PRIMARY.BLUE">
 						<span></span>
 					</ColoredIcon>
 				),
@@ -1886,7 +1886,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/documentation/oidc-overview',
 						label: 'OIDC Overview',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
+							<ColoredIcon $color="COLORS.PRIMARY.BLUE">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -1901,7 +1901,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/docs/oidc-specs',
 						label: 'OIDC Specifications',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
+							<ColoredIcon $color="COLORS.PRIMARY.BLUE">
 								<i className="bi bi-question-circle"></i>
 							</ColoredIcon>
 						),
@@ -1916,7 +1916,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/docs/oauth2-security-best-practices',
 						label: 'OAuth 2.0 Security Best Practices',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.RED_DARK">
+							<ColoredIcon $color="COLORS.PRIMARY.RED_DARK">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -2003,7 +2003,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/docs/ping-view-on-ai',
 						label: 'PingOne AI Perspective',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN_DARK">
 								<span></span>
 							</ColoredIcon>
 						),
@@ -2041,7 +2041,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/sdk-sample-app',
 						label: 'SDK Sample App',
 						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
+							<ColoredIcon $color="COLORS.PRIMARY.GREEN">
 								<i className="bi bi-question-circle"></i>
 							</ColoredIcon>
 						),
@@ -2636,7 +2636,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					style={{
 						padding: '0.5rem 1rem',
 						background: '#f8fafc',
-						borderBottom: '1px solid V9_COLORS.BG.GRAY_LIGHT',
+						borderBottom: '1px solid COLORS.BG.GRAY_LIGHT',
 						fontSize: '0.875rem',
 						color: '#3b82f6',
 					}}
@@ -2697,7 +2697,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						padding: '1rem',
 						backgroundColor: '#ecfdf5',
 						borderRadius: '0.5rem',
-						border: '2px solid V9_COLORS.PRIMARY.GREEN',
+						border: '2px solid COLORS.PRIMARY.GREEN',
 						boxShadow: '0 4px 12px rgba(34, 197, 94, 0.15)',
 					}}
 				>
@@ -2973,7 +2973,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 												gap: '0.5rem',
 												padding: '0.5rem 0.75rem',
 												background:
-													'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_LIGHT 0%, V9_COLORS.PRIMARY.BLUE 100%)',
+													'linear-gradient(135deg, COLORS.PRIMARY.BLUE_LIGHT 0%, COLORS.PRIMARY.BLUE 100%)',
 												borderRadius: '0.375rem',
 												marginBottom: '0.25rem',
 												cursor: 'pointer',
@@ -2987,13 +2987,13 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 											}}
 											onMouseEnter={(e) => {
 												e.currentTarget.style.background =
-													'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)';
+													'linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_DARK 100%)';
 												e.currentTarget.style.transform = 'translateY(-1px)';
 												e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.3)';
 											}}
 											onMouseLeave={(e) => {
 												e.currentTarget.style.background =
-													'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_LIGHT 0%, V9_COLORS.PRIMARY.BLUE 100%)';
+													'linear-gradient(135deg, COLORS.PRIMARY.BLUE_LIGHT 0%, COLORS.PRIMARY.BLUE 100%)';
 												e.currentTarget.style.transform = 'translateY(0px)';
 												e.currentTarget.style.boxShadow = '0 1px 3px rgba(59, 130, 246, 0.2)';
 											}}
@@ -3136,10 +3136,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 																	dropTarget &&
 																	dropTarget.groupId === group.id &&
 																	dropTarget.index === itemIndex + 1
-																		? '3px solid V9_COLORS.PRIMARY.RED'
+																		? '3px solid COLORS.PRIMARY.RED'
 																		: isActive(item.path)
-																			? '3px solid V9_COLORS.PRIMARY.YELLOW'
-																			: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+																			? '3px solid COLORS.PRIMARY.YELLOW'
+																			: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 																fontWeight: isActive(item.path) ? '700' : '400',
 																boxShadow:
 																	dropTarget &&
@@ -3438,10 +3438,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 												dropTarget &&
 												dropTarget.groupId === group.id &&
 												dropTarget.index === itemIndex + 1
-													? '3px solid V9_COLORS.PRIMARY.RED'
+													? '3px solid COLORS.PRIMARY.RED'
 													: isActive(item.path)
-														? '3px solid V9_COLORS.PRIMARY.YELLOW'
-														: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+														? '3px solid COLORS.PRIMARY.YELLOW'
+														: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 											fontWeight: isActive(item.path) ? '700' : '400',
 											boxShadow:
 												dropTarget &&

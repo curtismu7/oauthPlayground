@@ -1,29 +1,29 @@
-// src/flows/mock-ui/V7MMockBanner.tsx
+// src/flows/mock-ui/MockBanner.tsx
 // Shared educational mock mode banner for all Mock Flows.
 
 import React from 'react';
 import { MOCK_FLOW_BANNER_DESC_STYLE, MOCK_FLOW_BANNER_STYLE } from './mockFlowStyles';
 
-export interface V7MMockBannerDeprecation {
+export interface MockBannerDeprecation {
 	short: string;
 	learnMoreUrl?: string;
 	/** When set, "Learn more" is a button that calls this (e.g. open modal). Use when no URL. */
 	onLearnMoreClick?: () => void;
 }
 
-export interface V7MMockBannerProps {
+export interface MockBannerProps {
 	description: string;
-	deprecation?: V7MMockBannerDeprecation;
+	deprecation?: MockBannerDeprecation;
 }
 
 /**
  * Renders the standard "Educational Mock Mode" banner used on every Mock Flow.
  * Optionally shows a deprecation line with "Learn more" link or button.
  */
-export function V7MMockBanner({
+export function MockBanner({
 	description,
 	deprecation,
-}: V7MMockBannerProps): React.ReactElement {
+}: MockBannerProps): React.ReactElement {
 	return (
 		<div style={MOCK_FLOW_BANNER_STYLE}>
 			<strong> Educational Mock Mode</strong>

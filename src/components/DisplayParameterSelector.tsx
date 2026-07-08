@@ -21,7 +21,7 @@ const Label = styled.label`
 	display: block;
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
@@ -68,7 +68,7 @@ const DisplayTitle = styled.div<{ $selected: boolean }>`
 
 const DisplayDescription = styled.div`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	text-align: center;
 	line-height: 1.4;
 `;
@@ -77,18 +77,18 @@ const InfoBox = styled.div`
 	display: flex;
 	gap: 0.75rem;
 	padding: 1rem;
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	line-height: 1.5;
 `;
 
 const InfoIcon = styled.div`
 	flex-shrink: 0;
 	font-size: 1.25rem;
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: COLORS.PRIMARY.BLUE;
 `;
 
 const displayModes: Array<{

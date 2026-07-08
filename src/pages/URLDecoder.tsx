@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { V9_COLORS } from '@/platform/V9ColorStandards';
+import { COLORS } from '@/platform/ColorStandards';
 import { showFlowError, showFlowSuccess } from '../components/CentralizedSuccessMessage';
 import { FiRefreshCw } from '../icons';
 import { FlowHeader } from '../services/flowHeaderService';
@@ -11,7 +11,7 @@ import { copyToClipboard } from '../utils/clipboard';
 // Styled components
 const Container = styled.div<{ $sidebarWidth?: number }>`
 	min-height: 100vh;
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	background: COLORS.BG.GRAY_LIGHT;
 	padding-top: 100px; /* Account for fixed Navbar (80px height + 20px spacing) */
 	padding-bottom: 4rem;
 	padding-left: 1rem;
@@ -40,7 +40,7 @@ const _Header = styled.div`
 	text-align: center;
 	margin: 0 auto 3rem auto;
 	max-width: 90rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 
 	@media (min-width: 768px) {
 		width: calc(100% - 2rem);
@@ -51,7 +51,7 @@ const _Title = styled.h1`
 	font-size: 2.5rem;
 	font-weight: 700;
 	margin: 0 0 1rem 0;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -60,7 +60,7 @@ const _Title = styled.h1`
 
 const _Subtitle = styled.p`
 	font-size: 1.125rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0;
 	max-width: 600px;
 	margin-left: auto;
@@ -75,7 +75,7 @@ const ContentCard = styled.div`
 	padding: 2rem;
 	margin: 0 auto 2rem auto;
 	max-width: 90rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 
 	/* Ensure content is visible even when sidebar is open */
 	@media (min-width: 768px) {
@@ -92,7 +92,7 @@ const CardHeader = styled.div`
 const CardTitle = styled.h2`
 	font-size: 1.5rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin: 0 0 0.5rem 0;
 	display: flex;
 	align-items: center;
@@ -100,7 +100,7 @@ const CardTitle = styled.h2`
 `;
 
 const CardDescription = styled.p`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0;
 	font-size: 0.875rem;
 `;
@@ -112,7 +112,7 @@ const FormField = styled.div`
 const FormLabel = styled.label`
 	display: block;
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 	font-size: 0.875rem;
 `;
@@ -121,7 +121,7 @@ const TextArea = styled.textarea`
 	width: 100%;
 	min-height: 120px;
 	padding: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -130,7 +130,7 @@ const TextArea = styled.textarea`
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -153,30 +153,30 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' | 
 		switch ($variant) {
 			case 'primary':
 				return `
-          background: ${V9_COLORS.PRIMARY.BLUE};
+          background: ${COLORS.PRIMARY.BLUE};
           color: white;
-          &:hover { background: ${V9_COLORS.PRIMARY.BLUE_DARK}; }
-          &:disabled { background: ${V9_COLORS.TEXT.GRAY_LIGHT}; cursor: not-allowed; }
+          &:hover { background: ${COLORS.PRIMARY.BLUE_DARK}; }
+          &:disabled { background: ${COLORS.TEXT.GRAY_LIGHT}; cursor: not-allowed; }
         `;
 			case 'secondary':
 				return `
-          background: ${V9_COLORS.TEXT.WHITE};
-          color: ${V9_COLORS.PRIMARY.BLUE};
-          border: 1px solid ${V9_COLORS.PRIMARY.BLUE};
-          &:hover { background: ${V9_COLORS.BG.GRAY_LIGHT}; border-color: ${V9_COLORS.PRIMARY.BLUE_DARK}; color: ${V9_COLORS.PRIMARY.BLUE_DARK}; }
-          &:disabled { background: ${V9_COLORS.TEXT.GRAY_LIGHT}; color: ${V9_COLORS.TEXT.GRAY_MEDIUM}; cursor: not-allowed; }
+          background: ${COLORS.TEXT.WHITE};
+          color: ${COLORS.PRIMARY.BLUE};
+          border: 1px solid ${COLORS.PRIMARY.BLUE};
+          &:hover { background: ${COLORS.BG.GRAY_LIGHT}; border-color: ${COLORS.PRIMARY.BLUE_DARK}; color: ${COLORS.PRIMARY.BLUE_DARK}; }
+          &:disabled { background: ${COLORS.TEXT.GRAY_LIGHT}; color: ${COLORS.TEXT.GRAY_MEDIUM}; cursor: not-allowed; }
         `;
 			case 'success':
 				return `
-          background: ${V9_COLORS.PRIMARY.GREEN};
+          background: ${COLORS.PRIMARY.GREEN};
           color: white;
-          &:hover { background: ${V9_COLORS.PRIMARY.GREEN_DARK}; }
+          &:hover { background: ${COLORS.PRIMARY.GREEN_DARK}; }
         `;
 			case 'danger':
 				return `
-          background: ${V9_COLORS.PRIMARY.RED};
+          background: ${COLORS.PRIMARY.RED};
           color: white;
-          &:hover { background: ${V9_COLORS.PRIMARY.RED_DARK}; }
+          &:hover { background: ${COLORS.PRIMARY.RED_DARK}; }
         `;
 		}
 	}}
@@ -190,8 +190,8 @@ const ButtonGroup = styled.div`
 `;
 
 const ResultCard = styled.div`
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin-top: 1rem;
@@ -200,7 +200,7 @@ const ResultCard = styled.div`
 const ResultTitle = styled.h3`
 	font-size: 1rem;
 	font-weight: 600;
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: COLORS.PRIMARY.BLUE;
 	margin: 0 0 0.75rem 0;
 	display: flex;
 	align-items: center;
@@ -208,12 +208,12 @@ const ResultTitle = styled.h3`
 `;
 
 const ResultContent = styled.pre`
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	background: COLORS.BG.GRAY_LIGHT;
 	border: 1px solid #90cdf4;
 	border-radius: 0.375rem;
 	padding: 0.75rem;
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	white-space: pre-wrap;
 	word-break: break-all;
 	margin: 0;
@@ -231,27 +231,27 @@ const InfoBox = styled.div<{ type?: 'info' | 'warning' | 'error' | 'success' }>`
 		switch (type) {
 			case 'info':
 				return `
-          background: V9_COLORS.BG.GRAY_LIGHT;
-          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-          color: V9_COLORS.PRIMARY.BLUE;
+          background: COLORS.BG.GRAY_LIGHT;
+          border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
+          color: COLORS.PRIMARY.BLUE;
         `;
 			case 'warning':
 				return `
-          background: V9_COLORS.BG.WARNING;
+          background: COLORS.BG.WARNING;
           border: 1px solid #fde047;
-          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          color: COLORS.PRIMARY.YELLOW_DARK;
         `;
 			case 'error':
 				return `
-          background: V9_COLORS.BG.ERROR;
-          border: 1px solid V9_COLORS.BG.ERROR_BORDER;
-          color: V9_COLORS.PRIMARY.RED_DARK;
+          background: COLORS.BG.ERROR;
+          border: 1px solid COLORS.BG.ERROR_BORDER;
+          color: COLORS.PRIMARY.RED_DARK;
         `;
 			case 'success':
 				return `
           background: #f0fdf4;
-          border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
-          color: V9_COLORS.PRIMARY.GREEN;
+          border: 1px solid COLORS.BG.SUCCESS_BORDER;
+          color: COLORS.PRIMARY.GREEN;
         `;
 		}
 	}}

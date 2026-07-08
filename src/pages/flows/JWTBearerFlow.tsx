@@ -90,45 +90,45 @@ const ActionButton = styled.button<{
 		switch (props.$variant) {
 			case 'primary':
 				return `
-          background: V9_COLORS.PRIMARY.BLUE;
+          background: COLORS.PRIMARY.BLUE;
           color: white;
-          &:hover { background: V9_COLORS.PRIMARY.BLUE_DARK; }
+          &:hover { background: COLORS.PRIMARY.BLUE_DARK; }
           &:focus { outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         `;
 			case 'secondary':
 				return `
-          background: V9_COLORS.TEXT.GRAY_MEDIUM;
+          background: COLORS.TEXT.GRAY_MEDIUM;
           color: white;
           &:hover { background: #4b5563; }
           &:focus { outline: none; box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1); }
         `;
 			case 'success':
 				return `
-          background: V9_COLORS.PRIMARY.GREEN;
+          background: COLORS.PRIMARY.GREEN;
           color: white;
-          &:hover { background: V9_COLORS.PRIMARY.GREEN_DARK; }
+          &:hover { background: COLORS.PRIMARY.GREEN_DARK; }
           &:focus { outline: none; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
         `;
 			case 'danger':
 				return `
-          background: V9_COLORS.PRIMARY.RED;
+          background: COLORS.PRIMARY.RED;
           color: white;
-          &:hover { background: V9_COLORS.PRIMARY.RED_DARK; }
+          &:hover { background: COLORS.PRIMARY.RED_DARK; }
           &:focus { outline: none; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1); }
         `;
 			case 'outline':
 				return `
           background: white;
-          color: V9_COLORS.PRIMARY.BLUE;
-          border: 2px solid V9_COLORS.PRIMARY.BLUE;
-          &:hover { background: V9_COLORS.BG.GRAY_LIGHT; }
+          color: COLORS.PRIMARY.BLUE;
+          border: 2px solid COLORS.PRIMARY.BLUE;
+          &:hover { background: COLORS.BG.GRAY_LIGHT; }
           &:focus { outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         `;
 			default:
 				return `
           background: #f3f4f6;
-          color: V9_COLORS.TEXT.GRAY_DARK;
-          &:hover { background: V9_COLORS.TEXT.GRAY_LIGHTER; }
+          color: COLORS.TEXT.GRAY_DARK;
+          &:hover { background: COLORS.TEXT.GRAY_LIGHTER; }
           &:focus { outline: none; box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.1); }
         `;
 		}
@@ -172,13 +172,13 @@ const StatusIndicator = styled.div<{
   ${(props) => {
 		switch (props.$status) {
 			case 'completed':
-				return 'background: V9_COLORS.BG.SUCCESS; color: V9_COLORS.PRIMARY.GREEN;';
+				return 'background: COLORS.BG.SUCCESS; color: COLORS.PRIMARY.GREEN;';
 			case 'active':
-				return 'background: #dbeafe; color: V9_COLORS.PRIMARY.BLUE_DARK;';
+				return 'background: #dbeafe; color: COLORS.PRIMARY.BLUE_DARK;';
 			case 'error':
-				return 'background: V9_COLORS.BG.ERROR; color: V9_COLORS.PRIMARY.RED_DARK;';
+				return 'background: COLORS.BG.ERROR; color: COLORS.PRIMARY.RED_DARK;';
 			default:
-				return 'background: #f3f4f6; color: V9_COLORS.TEXT.GRAY_MEDIUM;';
+				return 'background: #f3f4f6; color: COLORS.TEXT.GRAY_MEDIUM;';
 		}
 	}}
 `;
@@ -573,7 +573,7 @@ const JWTBearerFlow: React.FC = () => {
 					<div
 						style={{
 							background: '#fef3c7',
-							border: '1px solid V9_COLORS.PRIMARY.YELLOW',
+							border: '1px solid COLORS.PRIMARY.YELLOW',
 							borderRadius: '0.5rem',
 							padding: '1rem',
 							marginBottom: '1rem',
@@ -638,7 +638,7 @@ const JWTBearerFlow: React.FC = () => {
 						<div
 							style={{
 								background: '#fef2f2',
-								border: '1px solid V9_COLORS.BG.ERROR_BORDER',
+								border: '1px solid COLORS.BG.ERROR_BORDER',
 								borderRadius: '0.5rem',
 								padding: '1rem',
 								color: '#dc2626',
@@ -696,7 +696,7 @@ const JWTBearerFlow: React.FC = () => {
 					<div
 						style={{
 							background: '#f8fafc',
-							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.5rem',
 							padding: '1rem',
 							marginBottom: '1rem',

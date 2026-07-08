@@ -23,12 +23,12 @@ const Label = styled.label`
 	gap: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.75rem;
 `;
 
 const LabelIcon = styled.div`
-	color: V9_COLORS.PRIMARY.GREEN_DARK;
+	color: COLORS.PRIMARY.GREEN_DARK;
 	font-size: 1rem;
 `;
 
@@ -53,7 +53,7 @@ const PromptOption = styled.button<{ $selected: boolean }>`
 	text-align: left;
 
 	&:hover {
-		border-color: V9_COLORS.PRIMARY.GREEN_DARK;
+		border-color: COLORS.PRIMARY.GREEN_DARK;
 		background-color: ${(props) => (props.$selected ? '#f0fdf4' : '#f9fafb')};
 	}
 
@@ -81,13 +81,13 @@ const PromptTitle = styled.div`
 
 const PromptDescription = styled.div`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.4;
 `;
 
 const SelectedIndicator = styled.div<{ $selected: boolean }>`
 	opacity: ${(props) => (props.$selected ? 1 : 0)};
-	color: V9_COLORS.PRIMARY.GREEN_DARK;
+	color: COLORS.PRIMARY.GREEN_DARK;
 	font-size: 1rem;
 `;
 
@@ -96,23 +96,23 @@ const InfoBox = styled.div`
 	gap: 0.75rem;
 	padding: 1rem;
 	background: #f0fdf4;
-	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
+	border: 1px solid COLORS.BG.SUCCESS_BORDER;
 	border-radius: 0.5rem;
 	margin-top: 1rem;
 	font-size: 0.875rem;
-	color: V9_COLORS.PRIMARY.GREEN_DARK;
+	color: COLORS.PRIMARY.GREEN_DARK;
 	line-height: 1.5;
 `;
 
 const InfoIcon = styled.div`
 	flex-shrink: 0;
 	font-size: 1.25rem;
-	color: V9_COLORS.PRIMARY.GREEN_DARK;
+	color: COLORS.PRIMARY.GREEN_DARK;
 `;
 
 const HelperText = styled.div`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	margin-bottom: 0.75rem;
 	line-height: 1.5;
 `;

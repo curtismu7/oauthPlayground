@@ -32,7 +32,7 @@ const ActionButton = styled.button`
   margin-top: 0.5rem;
 
   &:hover {
-    background: V9_COLORS.PRIMARY.BLUE;
+    background: COLORS.PRIMARY.BLUE;
   }
 `;
 

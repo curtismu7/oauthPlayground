@@ -24,7 +24,7 @@ import { usePageScroll } from '../../hooks/usePageScroll';
 import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
 import { V9FlowHeader } from '../../platform/v9FlowHeaderService';
 import { logger } from '../../utils/logger';
-import { V7MMockBanner } from '../../flows/mock-ui/V7MMockBanner';
+import { MockBanner } from '../../flows/mock-ui/MockBanner';
 
 const MODULE_TAG = '[ SPIFFE-SPIRE-FLOW-V8U]';
 
@@ -1153,7 +1153,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 
 	return (
 		<OuterWrapper>
-			<V7MMockBanner description="This flow demonstrates SPIFFE/SPIRE workload identity integration with PingOne OAuth/OIDC. No real SPIRE agents or servers are used — SVID generation and token exchange are simulated for learning." />
+			<MockBanner description="This flow demonstrates SPIFFE/SPIRE workload identity integration with PingOne OAuth/OIDC. No real SPIRE agents or servers are used — SVID generation and token exchange are simulated for learning." />
 			<V9FlowHeader flowId="spiffe-spire-v9" customConfig={{ flowType: 'pingone' }} />
 			<div style={{ padding: '0 1rem' }}>
 				<V9FlowRestartButton

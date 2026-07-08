@@ -39,26 +39,26 @@ const CleanlinessDashboardWorking = lazy(() =>
 );
 const CodeExamplesDemo = lazy(() => import('./components/CodeExamplesDemo'));
 // flows — clean-core rebuild (real PingOne), canonical routes under /flows/* (legacy /v2/flows/* redirects)
-const Flows2ClientCredentials = lazy(() => import('./flows/flows/clientCredentials.flow'));
-const Flows2AuthorizationCode = lazy(() => import('./flows/flows/authorizationCode.flow'));
-const Flows2UseCases = lazy(() => import('./flows/use-cases/UseCasesPage'));
-const Flows2AuthorizationCodeEducational = lazy(() => import('./flows/flows/AuthorizationCodeEducational'));
-const Flows2AuthCallback = lazy(() => import('./flows/flows/AuthCallback'));
-const Flows2DeviceAuthorization = lazy(() => import('./flows/flows/deviceAuthorization.flow'));
-const Flows2TokenExchange = lazy(() => import('./flows/flows/tokenExchange.flow'));
-const Flows2TokenIntrospection = lazy(() => import('./flows/flows/tokenIntrospection.flow'));
-const Flows2UserInfo = lazy(() => import('./flows/flows/userInfo.flow'));
-const Flows2TokenRevocation = lazy(() => import('./flows/flows/tokenRevocation.flow'));
-const Flows2Par = lazy(() => import('./flows/flows/par.flow'));
-const Flows2RefreshToken = lazy(() => import('./flows/flows/refreshToken.flow'));
-const Flows2OidcDiscovery = lazy(() => import('./flows/flows/oidcDiscovery.flow'));
-const Flows2Dpop = lazy(() => import('./flows/flows/dpop.flow'));
-const Flows2Redirectless = lazy(() => import('./flows/flows/redirectless.flow'));
-const Flows2ImplicitHybrid = lazy(() => import('./flows/flows/implicitHybrid.flow'));
-const Flows2ImplicitHybridCallback = lazy(() => import('./flows/flows/ImplicitHybridCallback'));
-const Flows2Hybrid = lazy(() => import('./flows/flows/hybrid.flow'));
-const Flows2Ropc = lazy(() => import('./flows/flows/ropc.flow'));
-const Flows2SAMLBearerAssertion = lazy(() => import('./flows/flows/samlBearerAssertion.flow'));
+const FlowsClientCredentials = lazy(() => import('./flows/flows/clientCredentials.flow'));
+const FlowsAuthorizationCode = lazy(() => import('./flows/flows/authorizationCode.flow'));
+const FlowsUseCases = lazy(() => import('./flows/use-cases/UseCasesPage'));
+const FlowsAuthorizationCodeEducational = lazy(() => import('./flows/flows/AuthorizationCodeEducational'));
+const FlowsAuthCallback = lazy(() => import('./flows/flows/AuthCallback'));
+const FlowsDeviceAuthorization = lazy(() => import('./flows/flows/deviceAuthorization.flow'));
+const FlowsTokenExchange = lazy(() => import('./flows/flows/tokenExchange.flow'));
+const FlowsTokenIntrospection = lazy(() => import('./flows/flows/tokenIntrospection.flow'));
+const FlowsUserInfo = lazy(() => import('./flows/flows/userInfo.flow'));
+const FlowsTokenRevocation = lazy(() => import('./flows/flows/tokenRevocation.flow'));
+const FlowsPar = lazy(() => import('./flows/flows/par.flow'));
+const FlowsRefreshToken = lazy(() => import('./flows/flows/refreshToken.flow'));
+const FlowsOidcDiscovery = lazy(() => import('./flows/flows/oidcDiscovery.flow'));
+const FlowsDpop = lazy(() => import('./flows/flows/dpop.flow'));
+const FlowsRedirectless = lazy(() => import('./flows/flows/redirectless.flow'));
+const FlowsImplicitHybrid = lazy(() => import('./flows/flows/implicitHybrid.flow'));
+const FlowsImplicitHybridCallback = lazy(() => import('./flows/flows/ImplicitHybridCallback'));
+const FlowsHybrid = lazy(() => import('./flows/flows/hybrid.flow'));
+const FlowsRopc = lazy(() => import('./flows/flows/ropc.flow'));
+const FlowsSAMLBearerAssertion = lazy(() => import('./flows/flows/samlBearerAssertion.flow'));
 const CombinedTokenPage = lazy(() => import('./pages/CombinedTokenPage'));
 const CredentialSetupModal = lazy(() => import('./components/CredentialSetupModal'));
 const EnhancedFloatingLogViewer = lazy(() =>
@@ -1642,45 +1642,45 @@ const AppRoutes: React.FC = () => {
 									<Route path="/token-management" element={<TokenMonitoringPage />} />
 									<Route path="/token/operations" element={<CombinedTokenPage />} />
 									{/* flows2 — canonical /flows/* ; legacy /v2/flows/* redirects */}
-									<Route path="/flows/client-credentials" element={<Flows2ClientCredentials />} />
+									<Route path="/flows/client-credentials" element={<FlowsClientCredentials />} />
 									<Route path="/v2/flows/client-credentials" element={<Navigate to="/flows/client-credentials" replace />} />
-									<Route path="/use-cases" element={<Flows2UseCases />} />
+									<Route path="/use-cases" element={<FlowsUseCases />} />
 									<Route path="/v2/use-cases" element={<Navigate to="/use-cases" replace />} />
-									<Route path="/flows/authorization-code" element={<Flows2AuthorizationCode />} />
+									<Route path="/flows/authorization-code" element={<FlowsAuthorizationCode />} />
 									<Route path="/v2/flows/authorization-code" element={<Navigate to="/flows/authorization-code" replace />} />
-									<Route path="/flows/authorization-code-educational" element={<Flows2AuthorizationCodeEducational />} />
+									<Route path="/flows/authorization-code-educational" element={<FlowsAuthorizationCodeEducational />} />
 									<Route path="/v2/flows/authorization-code-educational" element={<Navigate to="/flows/authorization-code-educational" replace />} />
-									<Route path="/flows/authz-callback" element={<Flows2AuthCallback />} />
+									<Route path="/flows/authz-callback" element={<FlowsAuthCallback />} />
 									<Route path="/v2/flows/authz-callback" element={<Navigate to="/flows/authz-callback" replace />} />
-									<Route path="/flows/device-authorization" element={<Flows2DeviceAuthorization />} />
+									<Route path="/flows/device-authorization" element={<FlowsDeviceAuthorization />} />
 									<Route path="/v2/flows/device-authorization" element={<Navigate to="/flows/device-authorization" replace />} />
-									<Route path="/flows/token-exchange" element={<Flows2TokenExchange />} />
+									<Route path="/flows/token-exchange" element={<FlowsTokenExchange />} />
 									<Route path="/v2/flows/token-exchange" element={<Navigate to="/flows/token-exchange" replace />} />
-									<Route path="/flows/token-introspection" element={<Flows2TokenIntrospection />} />
+									<Route path="/flows/token-introspection" element={<FlowsTokenIntrospection />} />
 									<Route path="/v2/flows/token-introspection" element={<Navigate to="/flows/token-introspection" replace />} />
-									<Route path="/flows/userinfo" element={<Flows2UserInfo />} />
+									<Route path="/flows/userinfo" element={<FlowsUserInfo />} />
 									<Route path="/v2/flows/userinfo" element={<Navigate to="/flows/userinfo" replace />} />
-									<Route path="/flows/token-revocation" element={<Flows2TokenRevocation />} />
+									<Route path="/flows/token-revocation" element={<FlowsTokenRevocation />} />
 									<Route path="/v2/flows/token-revocation" element={<Navigate to="/flows/token-revocation" replace />} />
-									<Route path="/flows/par" element={<Flows2Par />} />
+									<Route path="/flows/par" element={<FlowsPar />} />
 									<Route path="/v2/flows/par" element={<Navigate to="/flows/par" replace />} />
-									<Route path="/flows/refresh-token" element={<Flows2RefreshToken />} />
+									<Route path="/flows/refresh-token" element={<FlowsRefreshToken />} />
 									<Route path="/v2/flows/refresh-token" element={<Navigate to="/flows/refresh-token" replace />} />
-									<Route path="/flows/oidc-discovery" element={<Flows2OidcDiscovery />} />
+									<Route path="/flows/oidc-discovery" element={<FlowsOidcDiscovery />} />
 									<Route path="/v2/flows/oidc-discovery" element={<Navigate to="/flows/oidc-discovery" replace />} />
-									<Route path="/flows/dpop" element={<Flows2Dpop />} />
+									<Route path="/flows/dpop" element={<FlowsDpop />} />
 									<Route path="/v2/flows/dpop" element={<Navigate to="/flows/dpop" replace />} />
-									<Route path="/flows/redirectless" element={<Flows2Redirectless />} />
+									<Route path="/flows/redirectless" element={<FlowsRedirectless />} />
 									<Route path="/v2/flows/redirectless" element={<Navigate to="/flows/redirectless" replace />} />
-									<Route path="/flows/implicit-hybrid" element={<Flows2ImplicitHybrid />} />
+									<Route path="/flows/implicit-hybrid" element={<FlowsImplicitHybrid />} />
 									<Route path="/v2/flows/implicit-hybrid" element={<Navigate to="/flows/implicit-hybrid" replace />} />
-									<Route path="/flows/implicit-hybrid-callback" element={<Flows2ImplicitHybridCallback />} />
+									<Route path="/flows/implicit-hybrid-callback" element={<FlowsImplicitHybridCallback />} />
 									<Route path="/v2/flows/implicit-hybrid-callback" element={<Navigate to="/flows/implicit-hybrid-callback" replace />} />
-									<Route path="/flows/hybrid" element={<Flows2Hybrid />} />
+									<Route path="/flows/hybrid" element={<FlowsHybrid />} />
 									<Route path="/v2/flows/hybrid" element={<Navigate to="/flows/hybrid" replace />} />
-									<Route path="/flows/ropc" element={<Flows2Ropc />} />
+									<Route path="/flows/ropc" element={<FlowsRopc />} />
 									<Route path="/v2/flows/ropc" element={<Navigate to="/flows/ropc" replace />} />
-									<Route path="/flows/saml-bearer" element={<Flows2SAMLBearerAssertion />} />
+									<Route path="/flows/saml-bearer" element={<FlowsSAMLBearerAssertion />} />
 									<Route path="/v2/flows/saml-bearer" element={<Navigate to="/flows/saml-bearer" replace />} />
 									<Route
 										path="/postman-collection-generator"

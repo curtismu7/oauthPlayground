@@ -92,13 +92,13 @@ const HealthTitle = styled.h3`
 	margin: 0;
 	font-size: 1rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const HealthMessage = styled.p`
 	margin: 0;
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	line-height: 1.4;
 `;
 
@@ -109,7 +109,7 @@ const HealthActions = styled.div`
 `;
 
 const HealthButton = styled.button`
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: COLORS.PRIMARY.BLUE;
 	color: white;
 	border: none;
 	border-radius: 0.375rem;
@@ -123,19 +123,19 @@ const HealthButton = styled.button`
 	transition: background-color 0.2s;
 
 	&:hover {
-		background: V9_COLORS.PRIMARY.BLUE_DARK;
+		background: COLORS.PRIMARY.BLUE_DARK;
 	}
 
 	&:disabled {
-		background: V9_COLORS.TEXT.GRAY_LIGHT;
+		background: COLORS.TEXT.GRAY_LIGHT;
 		cursor: not-allowed;
 	}
 `;
 
 const DismissButton = styled.button`
 	background: transparent;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	color: COLORS.TEXT.GRAY_MEDIUM;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	padding: 0.5rem 0.75rem;
 	font-size: 0.75rem;
@@ -145,7 +145,7 @@ const DismissButton = styled.button`
 
 	&:hover {
 		background: #f3f4f6;
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
@@ -161,21 +161,21 @@ const ModalBackdrop = styled.div`
 `;
 
 const ModalDialog = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	max-width: 420px;
 	box-shadow:
 		0 20px 25px -5px rgba(0, 0, 0, 0.1),
 		0 10px 10px -5px rgba(0, 0, 0, 0.04);
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ModalTitle = styled.h2`
 	margin: 0 0 0.5rem 0;
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -184,7 +184,7 @@ const ModalTitle = styled.h2`
 const ModalBody = styled.p`
 	margin: 0 0 1rem 0;
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	line-height: 1.5;
 `;
 

@@ -11,7 +11,7 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Smart Speaker Main Container - Audio/Speaker aesthetics
 const SmartSpeakerContainer = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, #1e293b 50%, #334155 100%);
+	background: linear-gradient(135deg, COLORS.TEXT.GRAY_DARK 0%, #1e293b 50%, #334155 100%);
 	border-radius: 1rem;
 	padding: 2rem;
 	margin: 2rem 0;
@@ -21,7 +21,7 @@ const SmartSpeakerContainer = styled.div`
 		inset 0 1px 0 rgba(255, 255, 255, 0.1);
 	position: relative;
 	overflow: hidden;
-	border: 2px solid V9_COLORS.PRIMARY.BLUE;
+	border: 2px solid COLORS.PRIMARY.BLUE;
 
 	&::before {
 		content: '';
@@ -42,7 +42,7 @@ const SmartSpeakerContainer = styled.div`
 
 // Speaker Header
 const SpeakerHeader = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE 100%);
+	background: linear-gradient(135deg, COLORS.PRIMARY.BLUE_DARK 0%, COLORS.PRIMARY.BLUE 100%);
 	border: 2px solid #22d3ee;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
@@ -100,7 +100,7 @@ const AudioWave = styled.div<{ $active: boolean; $color: string; $height: number
 
 // Speaker Display Screen
 const SpeakerDisplayScreen = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1e293b 100%);
+	background: linear-gradient(135deg, COLORS.TEXT.BLACK 0%, #1e293b 100%);
 	border: 3px solid #22d3ee;
 	border-radius: 0.75rem;
 	padding: 2rem;
@@ -122,8 +122,8 @@ const ScreenLabel = styled.div`
 `;
 
 const UserCodeDisplay = styled.div`
-	background: V9_COLORS.TEXT.BLACK;
-	color: V9_COLORS.PRIMARY.YELLOW;
+	background: COLORS.TEXT.BLACK;
+	color: COLORS.PRIMARY.YELLOW;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 2.5rem;
 	font-weight: 700;
@@ -131,8 +131,8 @@ const UserCodeDisplay = styled.div`
 	border-radius: 0.5rem;
 	margin-bottom: 1.5rem;
 	letter-spacing: 0.2em;
-	text-shadow: 0 0 10px V9_COLORS.PRIMARY.YELLOW;
-	border: 2px solid V9_COLORS.PRIMARY.YELLOW;
+	text-shadow: 0 0 10px COLORS.PRIMARY.YELLOW;
+	border: 2px solid COLORS.PRIMARY.YELLOW;
 	box-shadow:
 		inset 0 0 20px rgba(245, 158, 11, 0.2),
 		0 0 20px rgba(245, 158, 11, 0.3);
@@ -233,15 +233,15 @@ const StatusDisplay = styled.div<{ $status: string }>`
 	background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.YELLOW 0%, COLORS.PRIMARY.YELLOW_DARK 100%)';
 			case 'authorized':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.YELLOW 0%, COLORS.PRIMARY.YELLOW_DARK 100%)';
 			case 'denied':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.RED 0%, COLORS.PRIMARY.RED_DARK 100%)';
 			case 'expired':
-				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 			default:
-				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 		}
 	}};
 	border: 2px solid
@@ -273,7 +273,7 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	margin-bottom: 0.5rem;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
@@ -281,12 +281,12 @@ const StatusText = styled.div`
 
 const StatusMessage = styled.div`
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 `;
 
 // Speaker Base
 const SpeakerBase = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE 100%);
+	background: linear-gradient(135deg, COLORS.PRIMARY.BLUE_DARK 0%, COLORS.PRIMARY.BLUE 100%);
 	height: 1.5rem;
 	border-radius: 0 0 0.75rem 0.75rem;
 	margin: 0 -2rem -2rem -2rem;
@@ -371,52 +371,52 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 				<AudioWaveIndicators>
 					<AudioWave
 						$active={state.status === 'pending'}
-						$color="V9_COLORS.PRIMARY.YELLOW"
+						$color="COLORS.PRIMARY.YELLOW"
 						$height={20}
 					/>
 					<AudioWave
 						$active={state.status === 'authorized'}
-						$color="V9_COLORS.PRIMARY.YELLOW"
+						$color="COLORS.PRIMARY.YELLOW"
 						$height={30}
 					/>
 					<AudioWave
 						$active={state.status === 'denied'}
-						$color="V9_COLORS.PRIMARY.RED"
+						$color="COLORS.PRIMARY.RED"
 						$height={15}
 					/>
 					<AudioWave
 						$active={state.status === 'expired'}
-						$color="V9_COLORS.TEXT.GRAY_MEDIUM"
+						$color="COLORS.TEXT.GRAY_MEDIUM"
 						$height={10}
 					/>
 					<AudioWave
 						$active={state.status === 'pending'}
-						$color="V9_COLORS.PRIMARY.YELLOW"
+						$color="COLORS.PRIMARY.YELLOW"
 						$height={25}
 					/>
 					<AudioWave
 						$active={state.status === 'authorized'}
-						$color="V9_COLORS.PRIMARY.YELLOW"
+						$color="COLORS.PRIMARY.YELLOW"
 						$height={35}
 					/>
 					<AudioWave
 						$active={state.status === 'denied'}
-						$color="V9_COLORS.PRIMARY.RED"
+						$color="COLORS.PRIMARY.RED"
 						$height={18}
 					/>
 					<AudioWave
 						$active={state.status === 'expired'}
-						$color="V9_COLORS.TEXT.GRAY_MEDIUM"
+						$color="COLORS.TEXT.GRAY_MEDIUM"
 						$height={12}
 					/>
 					<AudioWave
 						$active={state.status === 'pending'}
-						$color="V9_COLORS.PRIMARY.YELLOW"
+						$color="COLORS.PRIMARY.YELLOW"
 						$height={22}
 					/>
 					<AudioWave
 						$active={state.status === 'authorized'}
-						$color="V9_COLORS.PRIMARY.YELLOW"
+						$color="COLORS.PRIMARY.YELLOW"
 						$height={28}
 					/>
 				</AudioWaveIndicators>
@@ -437,8 +437,8 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={180}
-							bgColor="V9_COLORS.TEXT.WHITE"
-							fgColor="V9_COLORS.TEXT.BLACK"
+							bgColor="COLORS.TEXT.WHITE"
+							fgColor="COLORS.TEXT.BLACK"
 							level="M"
 							includeMargin={true}
 						/>
@@ -486,7 +486,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 								justifyContent: 'space-between',
 								marginBottom: '1.5rem',
 								paddingBottom: '1rem',
-								borderBottom: '2px solid V9_COLORS.TEXT.GRAY_MEDIUM',
+								borderBottom: '2px solid COLORS.TEXT.GRAY_MEDIUM',
 							}}
 						>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -535,7 +535,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 								borderRadius: '0.75rem',
 								padding: '1.5rem',
 								marginBottom: '1.5rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_MEDIUM',
+								border: '1px solid COLORS.TEXT.GRAY_MEDIUM',
 							}}
 						>
 							<div
@@ -551,7 +551,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 										width: '60px',
 										height: '60px',
 										background:
-											'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
+											'linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_DARK 100%)',
 										borderRadius: '0.5rem',
 										display: 'flex',
 										alignItems: 'center',
@@ -644,7 +644,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 									background: 'rgba(255, 255, 255, 0.1)',
 									padding: '1rem',
 									borderRadius: '0.75rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_MEDIUM',
+									border: '1px solid COLORS.TEXT.GRAY_MEDIUM',
 								}}
 							>
 								<div
@@ -681,7 +681,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 									background: 'rgba(255, 255, 255, 0.1)',
 									padding: '1rem',
 									borderRadius: '0.75rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_MEDIUM',
+									border: '1px solid COLORS.TEXT.GRAY_MEDIUM',
 								}}
 							>
 								<div
@@ -721,7 +721,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 								borderRadius: '0.75rem',
 								padding: '1.5rem',
 								marginBottom: '1.5rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_MEDIUM',
+								border: '1px solid COLORS.TEXT.GRAY_MEDIUM',
 							}}
 						>
 							<div
@@ -804,7 +804,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 								type="button"
 								style={{
 									background:
-										'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
+										'linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_DARK 100%)',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.5rem',
@@ -824,7 +824,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 								type="button"
 								style={{
 									background:
-										'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)',
+										'linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, COLORS.PRIMARY.GREEN_DARK 100%)',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.5rem',
@@ -852,8 +852,8 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 			<StandardizedTokenDisplay
 				tokens={state.tokens}
 				backgroundColor="rgba(255, 255, 255, 0.1)"
-				borderColor="V9_COLORS.TEXT.GRAY_MEDIUM"
-				headerTextColor="V9_COLORS.TEXT.GRAY_LIGHTER"
+				borderColor="COLORS.TEXT.GRAY_MEDIUM"
+				headerTextColor="COLORS.TEXT.GRAY_LIGHTER"
 			/>
 		</>
 	);

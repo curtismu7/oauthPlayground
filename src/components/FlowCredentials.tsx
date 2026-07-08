@@ -79,8 +79,8 @@ interface FlowCredentialsData {
 }
 
 const CredentialsContainer = styled.div`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  background: COLORS.BG.GRAY_LIGHT;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   margin-bottom: 1.5rem;
 `;
@@ -90,7 +90,7 @@ const CredentialsHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background: V9_COLORS.PRIMARY.BLUE;
+  background: COLORS.PRIMARY.BLUE;
   color: white;
   border-radius: 0.5rem 0.5rem 0 0;
   cursor: pointer;
@@ -119,7 +119,7 @@ const CollapseIcon = styled.div<{ $isCollapsed: boolean }>`
   
   &:hover {
     background: rgba(255, 255, 255, 0.2);
-    color: V9_COLORS.TEXT.WHITE;
+    color: COLORS.TEXT.WHITE;
   }
 `;
 
@@ -136,7 +136,7 @@ const GlobalToggle = styled.div`
   gap: 0.5rem;
   margin-bottom: 0.75rem;
   padding: 0.5rem;
-  background: V9_COLORS.BG.GRAY_MEDIUM;
+  background: COLORS.BG.GRAY_MEDIUM;
   border-radius: 0.375rem;
   border: 1px solid #cbd5e1;
 `;
@@ -147,7 +147,7 @@ const ToggleLabel = styled.label`
   gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   cursor: pointer;
   flex: 1;
 `;
@@ -155,7 +155,7 @@ const ToggleLabel = styled.label`
 const ToggleInput = styled.input`
   width: 1rem;
   height: 1rem;
-  accent-color: V9_COLORS.PRIMARY.BLUE;
+  accent-color: COLORS.PRIMARY.BLUE;
 `;
 
 const FormGrid = styled.div`
@@ -219,7 +219,7 @@ const Input = styled.input`
   width: 100%;
   min-width: 400px;
   padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -229,25 +229,25 @@ const Input = styled.input`
   
   &:focus {
     outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
+    border-color: COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
   
   &:disabled {
     background-color: #f9fafb;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
+    color: COLORS.TEXT.GRAY_MEDIUM;
     cursor: not-allowed;
   }
   
   &.is-invalid {
-    border-color: V9_COLORS.PRIMARY.RED_DARK;
+    border-color: COLORS.PRIMARY.RED_DARK;
   }
 `;
 
 const _Textarea = styled.textarea`
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.75rem;
   line-height: 1.2;
@@ -261,18 +261,18 @@ const _Textarea = styled.textarea`
   
   &:focus {
     outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
+    border-color: COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
   
   &:disabled {
     background-color: #f9fafb;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
+    color: COLORS.TEXT.GRAY_MEDIUM;
     cursor: not-allowed;
   }
   
   &.is-invalid {
-    border-color: V9_COLORS.PRIMARY.RED_DARK;
+    border-color: COLORS.PRIMARY.RED_DARK;
   }
 `;
 
@@ -280,7 +280,7 @@ const Label = styled.label`
   display: block;
   font-size: 0.75rem;
   font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.25rem;
 `;
 
@@ -292,7 +292,7 @@ const Button = styled.button`
   height: 1.75rem;
   border: none;
   border-radius: 0.25rem;
-  background: V9_COLORS.TEXT.GRAY_MEDIUM;
+  background: COLORS.TEXT.GRAY_MEDIUM;
   color: white;
   cursor: pointer;
   transition: all 0.2s;
@@ -302,8 +302,8 @@ const Button = styled.button`
   }
   
   &:disabled {
-    background: V9_COLORS.TEXT.GRAY_LIGHTER;
-    color: V9_COLORS.TEXT.GRAY_LIGHT;
+    background: COLORS.TEXT.GRAY_LIGHTER;
+    color: COLORS.TEXT.GRAY_LIGHT;
     cursor: not-allowed;
   }
   
@@ -331,7 +331,7 @@ const SaveIndicator = styled.div<{ $isVisible: boolean }>`
   position: fixed;
   top: 20px;
   right: 20px;
-  background: V9_COLORS.PRIMARY.GREEN;
+  background: COLORS.PRIMARY.GREEN;
   color: white;
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
@@ -912,7 +912,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 									style={{
 										width: '100%',
 										padding: '0.75rem',
-										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+										border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 										borderRadius: '0.5rem',
 										fontSize: '0.875rem',
 										backgroundColor: 'white',
@@ -940,7 +940,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 					<div
 						style={{
 							padding: '1rem',
-							borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							borderTop: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							display: 'flex',
 							justifyContent: 'center',
 							gap: '1rem',
@@ -981,7 +981,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 									padding: '0.75rem 1.5rem',
 									backgroundColor: 'transparent',
 									color: '#6b7280',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.375rem',
 									fontSize: '0.875rem',
 									fontWeight: '500',

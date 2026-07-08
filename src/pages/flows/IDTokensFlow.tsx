@@ -504,7 +504,7 @@ logger.info('ID token is valid!', "Logger info");`,
 					<div
 						style={{
 							background: '#f8fafc',
-							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.5rem',
 							padding: '1rem',
 							fontSize: '0.875rem',

@@ -6,8 +6,8 @@ import styled from 'styled-components';
 import { type ApiCallType, ApiCallTypeDetector } from '../utils/apiCallTypeDetector';
 
 const LegendContainer = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
-	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.WHITE;
+	border: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 12px;
 	padding: 1.25rem;
 	margin: 1rem 0;
@@ -18,7 +18,7 @@ const LegendTitle = styled.h4`
 	margin: 0 0 1rem 0;
 	font-size: 1rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -66,12 +66,12 @@ const LegendText = styled.div`
 	strong {
 		font-size: 0.875rem;
 		font-weight: 600;
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: COLORS.TEXT.GRAY_DARK;
 	}
 
 	span {
 		font-size: 0.8rem;
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		color: COLORS.TEXT.GRAY_MEDIUM;
 		line-height: 1.4;
 	}
 `;

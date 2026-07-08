@@ -1,8 +1,8 @@
-// src/services/v7m/V9MockStateStore.ts
+// src/platform/mock/MockStateStore.ts
 // Ephemeral in-memory + sessionStorage-backed store for V7M mock flows.
 // Tracks authorization codes, tokens, nonces with expirations and safe consumption.
 
-export type V9MockAuthorizationCodeRecord = {
+export type MockAuthorizationCodeRecord = {
 	code: string;
 	clientId: string;
 	redirectUri: string;
@@ -18,7 +18,7 @@ export type V9MockAuthorizationCodeRecord = {
 	consumed: boolean;
 };
 
-export type V9MockTokenRecord = {
+export type MockTokenRecord = {
 	accessToken: string;
 	refreshToken?: string;
 	clientId: string;
@@ -28,7 +28,7 @@ export type V9MockTokenRecord = {
 	expiresAt: number;
 };
 
-export type V9MockDeviceCodeRecord = {
+export type MockDeviceCodeRecord = {
 	deviceCode: string;
 	userCode: string;
 	clientId: string;
@@ -42,21 +42,21 @@ export type V9MockDeviceCodeRecord = {
 };
 
 type StoreShape = {
-	authCodes: Record<string, V9MockAuthorizationCodeRecord>;
-	tokens: Record<string, V9MockTokenRecord>;
-	deviceCodes: Record<string, V9MockDeviceCodeRecord>;
+	authCodes: Record<string, MockAuthorizationCodeRecord>;
+	tokens: Record<string, MockTokenRecord>;
+	deviceCodes: Record<string, MockDeviceCodeRecord>;
 };
 
 const SESSION_KEY = 'v9mock:state';
 let memoryStore: StoreShape = loadFromSession();
 
-export const V9MockStateStore = {
+export const MockStateStore = {
 	// Authorization Codes
-	saveAuthorizationCode(record: V9MockAuthorizationCodeRecord): void {
+	saveAuthorizationCode(record: MockAuthorizationCodeRecord): void {
 		memoryStore.authCodes[record.code] = record;
 		persist();
 	},
-	getAuthorizationCode(code: string): V9MockAuthorizationCodeRecord | undefined {
+	getAuthorizationCode(code: string): MockAuthorizationCodeRecord | undefined {
 		const rec = memoryStore.authCodes[code];
 		if (!rec) return undefined;
 		if (isExpired(rec.expiresAt)) {
@@ -66,7 +66,7 @@ export const V9MockStateStore = {
 		}
 		return rec;
 	},
-	consumeAuthorizationCode(code: string): V9MockAuthorizationCodeRecord | undefined {
+	consumeAuthorizationCode(code: string): MockAuthorizationCodeRecord | undefined {
 		const rec = this.getAuthorizationCode(code);
 		if (!rec) return undefined;
 		if (rec.consumed) return undefined;
@@ -76,11 +76,11 @@ export const V9MockStateStore = {
 	},
 
 	// Tokens
-	saveToken(key: string, record: V9MockTokenRecord): void {
+	saveToken(key: string, record: MockTokenRecord): void {
 		memoryStore.tokens[key] = record;
 		persist();
 	},
-	getToken(key: string): V9MockTokenRecord | undefined {
+	getToken(key: string): MockTokenRecord | undefined {
 		const rec = memoryStore.tokens[key];
 		if (!rec) return undefined;
 		if (isExpired(rec.expiresAt)) {
@@ -96,11 +96,11 @@ export const V9MockStateStore = {
 	},
 
 	// Device Codes (RFC 8628)
-	saveDeviceCode(record: V9MockDeviceCodeRecord): void {
+	saveDeviceCode(record: MockDeviceCodeRecord): void {
 		memoryStore.deviceCodes[record.deviceCode] = record;
 		persist();
 	},
-	getDeviceCode(deviceCode: string): V9MockDeviceCodeRecord | undefined {
+	getDeviceCode(deviceCode: string): MockDeviceCodeRecord | undefined {
 		const rec = memoryStore.deviceCodes[deviceCode];
 		if (!rec) return undefined;
 		if (isExpired(rec.expiresAt)) {
@@ -110,7 +110,7 @@ export const V9MockStateStore = {
 		}
 		return rec;
 	},
-	getDeviceCodeByUserCode(userCode: string): V9MockDeviceCodeRecord | undefined {
+	getDeviceCodeByUserCode(userCode: string): MockDeviceCodeRecord | undefined {
 		for (const rec of Object.values(memoryStore.deviceCodes)) {
 			if (rec.userCode === userCode && !isExpired(rec.expiresAt)) {
 				return rec;

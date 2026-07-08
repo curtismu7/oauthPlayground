@@ -41,10 +41,10 @@ const IconContainer = styled.div<{ $success: boolean; $error: boolean }>`
   margin: 0 auto 2rem;
   background: ${({ $success, $error }) =>
 		$success
-			? 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN, V9_COLORS.PRIMARY.GREEN_DARK)'
+			? 'linear-gradient(135deg, COLORS.PRIMARY.GREEN, COLORS.PRIMARY.GREEN_DARK)'
 			: $error
-				? 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED, V9_COLORS.PRIMARY.RED_DARK)'
-				: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.BLUE_DARK)'};
+				? 'linear-gradient(135deg, COLORS.PRIMARY.RED, COLORS.PRIMARY.RED_DARK)'
+				: 'linear-gradient(135deg, COLORS.PRIMARY.BLUE, COLORS.PRIMARY.BLUE_DARK)'};
 `;
 
 const Spinner = styled.div`
@@ -65,36 +65,36 @@ const Title = styled.h1<{ $success: boolean; $error: boolean }>`
 
 const Message = styled.p`
   font-size: 1rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   margin: 0 0 2rem 0;
   line-height: 1.6;
 `;
 
 const CodeDisplay = styled.div`
   background: #f0fdf4; /* Light green for generated content */
-  border: 2px solid V9_COLORS.PRIMARY.GREEN_DARK;
+  border: 2px solid COLORS.PRIMARY.GREEN_DARK;
   border-radius: 0.5rem;
   padding: 1rem;
   margin: 1rem 0;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
   word-break: break-all;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const ErrorDetails = styled.div`
-  background: V9_COLORS.BG.ERROR;
-  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+  background: COLORS.BG.ERROR;
+  border: 1px solid COLORS.BG.ERROR_BORDER;
   border-radius: 0.5rem;
   padding: 1rem;
   margin: 1rem 0;
-  color: V9_COLORS.PRIMARY.RED_DARK;
+  color: COLORS.PRIMARY.RED_DARK;
   font-size: 0.875rem;
 `;
 
 const RedirectingMessage = styled.div`
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   font-style: italic;
 `;
 

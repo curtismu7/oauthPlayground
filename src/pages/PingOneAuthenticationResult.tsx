@@ -142,22 +142,22 @@ const TokenCard = styled.div`
 `;
 
 const FlowItem = styled.div`
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 0.75rem;
   margin-bottom: 0.75rem;
-  background: V9_COLORS.TEXT.WHITE;
+  background: COLORS.TEXT.WHITE;
 `;
 
 const FlowLabel = styled.div`
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.25rem;
 `;
 
 const FlowMono = styled.pre`
   background: #f9fafb;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 6px;
   padding: 0.5rem;
   font-size: 0.8rem;
@@ -166,7 +166,7 @@ const FlowMono = styled.pre`
 `;
 
 const _ContextCard = styled.div`
-  background: V9_COLORS.TEXT.WHITE3cd;
+  background: COLORS.TEXT.WHITE3cd;
   border: 1px solid #ffeaa7;
   border-radius: 12px;
   padding: 2rem;
@@ -184,12 +184,12 @@ const PrevButton = styled.button`
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
   border-radius: 8px;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   background: #f3f4f6;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   cursor: pointer;
   font-weight: 600;
-  &:hover { background: V9_COLORS.TEXT.GRAY_LIGHTER; }
+  &:hover { background: COLORS.TEXT.GRAY_LIGHTER; }
 `;
 
 const _ContextTitle = styled.h3`
@@ -256,7 +256,7 @@ const PingOneAuthenticationResult: React.FC = () => {
 				<path d="M12 2l7 3v5c0 5.25-3.5 9.75-7 11-3.5-1.25-7-5.75-7-11V5l7-3z" fill="#E31837" />
 				<path
 					d="M12 5l4 1.7V10.5c0 3.2-2.1 6.1-4 7-1.9-.9-4-3.8-4-7V6.7L12 5z"
-					fill="V9_COLORS.TEXT.WHITE"
+					fill="COLORS.TEXT.WHITE"
 				/>
 			</svg>
 		</span>

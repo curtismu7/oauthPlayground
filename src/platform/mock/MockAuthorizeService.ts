@@ -1,13 +1,13 @@
-// src/services/v7m/V7MAuthorizeService.ts
+// src/platform/mock/V7MAuthorizeService.ts
 // lint-file-disable: token-value-in-jsx
 // Authorization endpoint simulator for V7M.
-// Validates request params and issues an authorization code stored in V9MockStateStore.
+// Validates request params and issues an authorization code stored in MockStateStore.
 // Also supports implicit flow (tokens in fragment).
 
-import { V9MockAuthorizationCodeRecord, V9MockStateStore } from './V9MockStateStore';
-import { generateV9MockTokens, V9MockTokenSeed, V9MockTokenTtls } from './V9MockTokenGenerator';
+import { MockAuthorizationCodeRecord, MockStateStore } from './MockStateStore';
+import { generateMockTokens, MockTokenSeed, MockTokenTtls } from './MockTokenGenerator';
 
-export type V9MockAuthorizeRequest = {
+export type MockAuthorizeRequest = {
 	response_type:
 		| 'code'
 		| 'id_token token'
@@ -29,10 +29,10 @@ export type V9MockAuthorizeRequest = {
 	issuer?: string;
 	environmentId?: string;
 	includeIdToken?: boolean;
-	ttls?: Partial<V9MockTokenTtls>;
+	ttls?: Partial<MockTokenTtls>;
 };
 
-export type V9MockAuthorizeResult =
+export type MockAuthorizeResult =
 	| {
 			type: 'redirect';
 			url: string;
@@ -52,10 +52,10 @@ export type V9MockAuthorizeResult =
  * For implicit flow (response_type includes 'token' or 'id_token' without 'code'), returns tokens in fragment.
  */
 export function authorizeIssueCode(
-	req: V9MockAuthorizeRequest,
+	req: MockAuthorizeRequest,
 	nowEpochSeconds: number,
 	codeTtlSeconds: number
-): V9MockAuthorizeResult {
+): MockAuthorizeResult {
 	const validationError = validateAuthorizeRequest(req);
 	if (validationError) return validationError;
 
@@ -66,7 +66,7 @@ export function authorizeIssueCode(
 
 	// Authorization code flow: generate code
 	const code = buildCode(req, nowEpochSeconds);
-	const record: V9MockAuthorizationCodeRecord = {
+	const record: MockAuthorizationCodeRecord = {
 		code,
 		clientId: req.client_id,
 		redirectUri: req.redirect_uri,
@@ -81,7 +81,7 @@ export function authorizeIssueCode(
 		expiresAt: nowEpochSeconds + codeTtlSeconds,
 		consumed: false,
 	};
-	V9MockStateStore.saveAuthorizationCode(record);
+	MockStateStore.saveAuthorizationCode(record);
 
 	const url = appendToUrl(req.redirect_uri, {
 		code,
@@ -95,10 +95,10 @@ export function authorizeIssueCode(
  * Tokens are returned in the URL fragment instead of authorization codes.
  */
 function authorizeIssueTokens(
-	req: V9MockAuthorizeRequest,
+	req: MockAuthorizeRequest,
 	nowEpochSeconds: number
-): V9MockAuthorizeResult {
-	const DEFAULT_TTLS: V9MockTokenTtls = {
+): MockAuthorizeResult {
+	const DEFAULT_TTLS: MockTokenTtls = {
 		accessTokenSeconds: 3600,
 		idTokenSeconds: 3600,
 		refreshTokenSeconds: 86400,
@@ -113,7 +113,7 @@ function authorizeIssueTokens(
 	const needsAccessToken = req.response_type.includes('token');
 	const needsIdToken = req.response_type.includes('id_token') || req.includeIdToken;
 
-	const seed: V9MockTokenSeed = {
+	const seed: MockTokenSeed = {
 		clientId: req.client_id,
 		...(req.environmentId ? { environmentId: req.environmentId } : {}),
 		issuer: req.issuer ?? 'https://mock.issuer/v7m',
@@ -123,7 +123,7 @@ function authorizeIssueTokens(
 		nonce: req.nonce,
 	};
 
-	const tokens = generateV9MockTokens(seed, nowEpochSeconds, ttls, needsIdToken);
+	const tokens = generateMockTokens(seed, nowEpochSeconds, ttls, needsIdToken);
 	const expiresIn = tokens.expires_in;
 
 	const fragmentParams: Record<string, string> = {};
@@ -164,7 +164,7 @@ function isImplicitFlow(responseType: string): boolean {
 	);
 }
 
-export function authorizeAccessDenied(req: V9MockAuthorizeRequest): V9MockAuthorizeResult {
+export function authorizeAccessDenied(req: MockAuthorizeRequest): MockAuthorizeResult {
 	return {
 		type: 'redirect',
 		url: appendToUrl(req.redirect_uri, {
@@ -177,7 +177,7 @@ export function authorizeAccessDenied(req: V9MockAuthorizeRequest): V9MockAuthor
 
 // ─── Hybrid Flow (OIDC Hybrid, deprecated per RFC 9700) ───────────────────────
 
-export type V9MockHybridAuthorizeResult =
+export type MockHybridAuthorizeResult =
 	| {
 			type: 'hybrid';
 			code: string;
@@ -198,18 +198,18 @@ export type V9MockHybridAuthorizeResult =
  * Note: Hybrid flow is deprecated per RFC 9700 / OAuth 2.0 Security BCP.
  */
 export function authorizeIssueHybrid(
-	req: Omit<V9MockAuthorizeRequest, 'response_type'> & {
+	req: Omit<MockAuthorizeRequest, 'response_type'> & {
 		response_type: 'code id_token' | 'code token' | 'code id_token token';
 	},
 	nowEpochSeconds: number,
 	codeTtlSeconds: number
-): V9MockHybridAuthorizeResult {
-	const validationError = validateAuthorizeRequest(req as V9MockAuthorizeRequest);
-	if (validationError) return validationError as V9MockHybridAuthorizeResult;
+): MockHybridAuthorizeResult {
+	const validationError = validateAuthorizeRequest(req as MockAuthorizeRequest);
+	if (validationError) return validationError as MockHybridAuthorizeResult;
 
 	// Issue a code and store it (can still be exchanged at token endpoint)
-	const code = buildCode(req as V9MockAuthorizeRequest, nowEpochSeconds);
-	const record: V9MockAuthorizationCodeRecord = {
+	const code = buildCode(req as MockAuthorizeRequest, nowEpochSeconds);
+	const record: MockAuthorizationCodeRecord = {
 		code,
 		clientId: req.client_id,
 		redirectUri: req.redirect_uri,
@@ -224,10 +224,10 @@ export function authorizeIssueHybrid(
 		expiresAt: nowEpochSeconds + codeTtlSeconds,
 		consumed: false,
 	};
-	V9MockStateStore.saveAuthorizationCode(record);
+	MockStateStore.saveAuthorizationCode(record);
 
 	// Generate immediate tokens with c_hash (hash of code) for binding
-	const DEFAULT_TTLS: V9MockTokenTtls = {
+	const DEFAULT_TTLS: MockTokenTtls = {
 		accessTokenSeconds: 3600,
 		idTokenSeconds: 3600,
 		refreshTokenSeconds: 86400,
@@ -236,7 +236,7 @@ export function authorizeIssueHybrid(
 	const needsAccessToken = req.response_type.includes('token');
 	const needsIdToken = req.response_type.includes('id_token');
 
-	const seed: V9MockTokenSeed = {
+	const seed: MockTokenSeed = {
 		clientId: req.client_id,
 		issuer: req.issuer ?? 'https://mock.issuer/v7m',
 		userEmail: req.userEmail ?? 'jane.doe@example.com',
@@ -246,7 +246,7 @@ export function authorizeIssueHybrid(
 	};
 
 	// Pass code so token generator can compute c_hash for the id_token
-	const tokens = generateV9MockTokens(seed, nowEpochSeconds, ttls, needsIdToken, code);
+	const tokens = generateMockTokens(seed, nowEpochSeconds, ttls, needsIdToken, code);
 
 	return {
 		type: 'hybrid',
@@ -261,7 +261,7 @@ export function authorizeIssueHybrid(
 	};
 }
 
-function validateAuthorizeRequest(req: V9MockAuthorizeRequest): V9MockAuthorizeResult | undefined {
+function validateAuthorizeRequest(req: MockAuthorizeRequest): MockAuthorizeResult | undefined {
 	if (!req.response_type) return error('invalid_request', 'Missing response_type');
 	if (!req.client_id) return error('invalid_request', 'Missing client_id');
 	if (!req.redirect_uri) return error('invalid_request', 'Missing redirect_uri');
@@ -275,11 +275,11 @@ function validateAuthorizeRequest(req: V9MockAuthorizeRequest): V9MockAuthorizeR
 	return undefined;
 }
 
-function error(errorCode: string, description?: string): V9MockAuthorizeResult {
+function error(errorCode: string, description?: string): MockAuthorizeResult {
 	return { type: 'error', error: errorCode, error_description: description };
 }
 
-function buildCode(req: V9MockAuthorizeRequest, nowEpochSeconds: number): string {
+function buildCode(req: MockAuthorizeRequest, nowEpochSeconds: number): string {
 	const raw = [
 		'v7m',
 		req.client_id,

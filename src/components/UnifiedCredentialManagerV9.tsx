@@ -28,8 +28,8 @@ const _MODULE_TAG = '[ UNIFIED-CREDENTIAL-MANAGER-V9]';
 
 // Styled components
 const Container = styled.div`
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	margin-bottom: 1.5rem;
 	overflow: hidden;
@@ -40,14 +40,14 @@ const Header = styled.div<{ $isExpanded: boolean }>`
 	align-items: center;
 	justify-content: space-between;
 	padding: 1rem;
-	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_MEDIUM 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
-	border-bottom: ${({ $isExpanded }) => ($isExpanded ? '1px solid V9_COLORS.TEXT.GRAY_LIGHTER' : 'none')};
+	background: linear-gradient(135deg, COLORS.BG.GRAY_MEDIUM 0%, COLORS.TEXT.GRAY_LIGHTER 100%);
+	border-bottom: ${({ $isExpanded }) => ($isExpanded ? '1px solid COLORS.TEXT.GRAY_LIGHTER' : 'none')};
 	cursor: pointer;
 	user-select: none;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_LIGHTER 0%, #cbd5e1 100%);
+		background: linear-gradient(135deg, COLORS.TEXT.GRAY_LIGHTER 0%, #cbd5e1 100%);
 	}
 `;
 
@@ -56,7 +56,7 @@ const HeaderTitle = styled.div`
 	align-items: center;
 	gap: 0.5rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const HeaderActions = styled.div`
@@ -87,7 +87,7 @@ const SectionTitle = styled.h4`
 	margin: 0 0 0.75rem 0;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 `;
@@ -133,9 +133,9 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'outli
 const AppList = styled.div`
 	max-height: 300px;
 	overflow-y: auto;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 `;
 
 const AppItem = styled.button`
@@ -145,7 +145,7 @@ const AppItem = styled.button`
 	padding: 0.75rem;
 	border: none;
 	border-bottom: 1px solid #f3f4f6;
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	text-align: left;
 	cursor: pointer;
 	transition: all 0.2s ease;
@@ -155,12 +155,12 @@ const AppItem = styled.button`
 	}
 
 	&:hover {
-		background: V9_COLORS.BG.GRAY_LIGHT;
+		background: COLORS.BG.GRAY_LIGHT;
 		transform: translateX(2px);
 	}
 
 	&:active {
-		background: V9_COLORS.BG.GRAY_MEDIUM;
+		background: COLORS.BG.GRAY_MEDIUM;
 	}
 `;
 
@@ -170,13 +170,13 @@ const AppInfo = styled.div`
 
 const AppName = styled.div`
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 `;
 
 const AppDetails = styled.div`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const StatusMessage = styled.div<{ $type?: 'info' | 'success' | 'warning' | 'error' }>`
@@ -192,7 +192,7 @@ const StatusMessage = styled.div<{ $type?: 'info' | 'success' | 'warning' | 'err
 				: $type === 'error'
 					? '#ef4444'
 					: '#3b82f6'};
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 `;
 
 // Types

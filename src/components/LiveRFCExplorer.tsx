@@ -9,11 +9,11 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
 
 const ExplorerContainer = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	background: linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.TEXT.GRAY_LIGHTER 100%);
 	border-radius: 1rem;
 	padding: 2rem;
 	margin: 2rem 0;
-	border: 3px solid V9_COLORS.PRIMARY.BLUE_DARK;
+	border: 3px solid COLORS.PRIMARY.BLUE_DARK;
 	box-shadow: 0 8px 24px rgba(37, 99, 235, 0.2);
 `;
 
@@ -27,7 +27,7 @@ const Title = styled.h2`
 `;
 
 const Subtitle = styled.p`
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	margin: 0 0 2rem 0;
 	font-size: 1.05rem;
 	line-height: 1.6;
@@ -81,12 +81,12 @@ const SearchInput = styled.input`
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+		border-color: COLORS.PRIMARY.BLUE_DARK;
 		box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 	}
 
 	&::placeholder {
-		color: V9_COLORS.PRIMARY.BLUE;
+		color: COLORS.PRIMARY.BLUE;
 	}
 `;
 
@@ -95,7 +95,7 @@ const SearchIcon = styled.div`
 	left: 1rem;
 	top: 50%;
 	transform: translateY(-50%);
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const RFCGrid = styled.div`
@@ -118,14 +118,14 @@ const RFCCard = styled.button<{ $selected: boolean }>`
 
 	&:hover {
 		transform: translateY(-3px);
-		border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+		border-color: COLORS.PRIMARY.BLUE_DARK;
 		box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
 	}
 `;
 
 const RFCNumber = styled.div`
 	font-weight: 700;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	font-size: 0.875rem;
 	margin-bottom: 0.5rem;
 	display: flex;
@@ -142,7 +142,7 @@ const RFCTitle = styled.div`
 `;
 
 const RFCDescription = styled.div`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 	line-height: 1.5;
 `;
@@ -151,7 +151,7 @@ const ContentPanel = styled.div`
 	background: white;
 	border-radius: 0.75rem;
 	padding: 2rem;
-	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const SectionTitle = styled.h3`
@@ -168,7 +168,7 @@ const RFCMeta = styled.div`
 	display: flex;
 	gap: 1.5rem;
 	padding: 1rem;
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	background: COLORS.BG.GRAY_LIGHT;
 	border-radius: 0.5rem;
 	margin-bottom: 2rem;
 	flex-wrap: wrap;
@@ -178,7 +178,7 @@ const MetaItem = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.9rem;
 `;
 
@@ -206,7 +206,7 @@ const SubsectionTitle = styled.h4`
 `;
 
 const ContentText = styled.div`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.7;
 	font-size: 0.95rem;
 	margin-bottom: 1rem;
@@ -214,7 +214,7 @@ const ContentText = styled.div`
 
 const ExampleBox = styled.div`
 	background: #1e293b;
-	color: V9_COLORS.BG.GRAY_MEDIUM;
+	color: COLORS.BG.GRAY_MEDIUM;
 	padding: 1.5rem;
 	border-radius: 0.75rem;
 	font-family: 'Monaco', 'Menlo', monospace;
@@ -230,7 +230,7 @@ const CopyButton = styled.button`
 	top: 0.75rem;
 	right: 0.75rem;
 	padding: 0.5rem 0.75rem;
-	background: V9_COLORS.PRIMARY.BLUE_DARK;
+	background: COLORS.PRIMARY.BLUE_DARK;
 	color: white;
 	border: none;
 	border-radius: 0.5rem;
@@ -243,7 +243,7 @@ const CopyButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: V9_COLORS.PRIMARY.BLUE_DARK;
+		background: COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 
@@ -292,8 +292,8 @@ const LinkButton = styled.a`
 	padding: 0.75rem 1.5rem;
 	background: linear-gradient(
 		135deg,
-		V9_COLORS.PRIMARY.BLUE_DARK 0%,
-		V9_COLORS.PRIMARY.BLUE_DARK 100%
+		COLORS.PRIMARY.BLUE_DARK 0%,
+		COLORS.PRIMARY.BLUE_DARK 100%
 	);
 	color: white;
 	text-decoration: none;
@@ -314,7 +314,7 @@ const InsightList = styled.ul`
 	display: flex;
 	flex-direction: column;
 	gap: 0.35rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const CalloutCard = styled.div`
@@ -337,12 +337,12 @@ const ToolLinkCard = styled.a`
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
-	background: V9_COLORS.TEXT.WHITE;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.WHITE;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	padding: 1rem 1.25rem;
 	text-decoration: none;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
 	transition:
 		transform 0.2s,
@@ -356,11 +356,11 @@ const ToolLinkCard = styled.a`
 
 const ToolLinkTitle = styled.div`
 	font-weight: 700;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const ToolLinkDescription = styled.div`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.5;
 	font-size: 0.9rem;
 `;

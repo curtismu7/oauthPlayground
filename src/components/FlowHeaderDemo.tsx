@@ -20,10 +20,10 @@ const DemoSection = styled.div`
 const SectionTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border-bottom: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const FlowHeaderDemo: React.FC = () => {

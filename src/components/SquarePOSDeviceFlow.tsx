@@ -15,7 +15,7 @@ const SquarePOSContainer = styled.div<{ $authorized?: boolean }>`
 	background: ${({ $authorized }) =>
 		$authorized
 			? 'linear-gradient(135deg, #00ff88 0%, #00cc6a 50%, #00ff88 100%)'
-			: 'linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, #f8f9fa 100%)'};
+			: 'linear-gradient(135deg, COLORS.TEXT.WHITE 0%, #f8f9fa 100%)'};
 	border-radius: 1rem;
 	padding: 1.5rem;
 	margin: 2rem 0;
@@ -67,7 +67,7 @@ const SquareHeader = styled.div<{ $authorized?: boolean }>`
 	background: ${({ $authorized }) =>
 		$authorized
 			? 'linear-gradient(135deg, #00ff88 0%, #00cc6a 100%)'
-			: 'linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, #f8f9fa 100%)'};
+			: 'linear-gradient(135deg, COLORS.TEXT.WHITE 0%, #f8f9fa 100%)'};
 	border: 1px solid ${({ $authorized }) => ($authorized ? '#00ff88' : '#e5e7eb')};
 	border-radius: 0.5rem;
 	padding: 1rem;
@@ -101,8 +101,8 @@ const SquareSubtitle = styled.div<{ $authorized?: boolean }>`
 
 // POS Display Screen
 const POSDisplay = styled.div`
-	background: V9_COLORS.TEXT.BLACK;
-	border: 3px solid V9_COLORS.TEXT.GRAY_DARK;
+	background: COLORS.TEXT.BLACK;
+	border: 3px solid COLORS.TEXT.GRAY_DARK;
 	border-radius: 0.5rem;
 	padding: 1.5rem;
 	margin-bottom: 1rem;
@@ -126,13 +126,13 @@ const POSHeader = styled.div`
 	justify-content: space-between;
 	align-items: center;
 	padding: 0.5rem;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_DARK;
+	border-bottom: 1px solid COLORS.TEXT.GRAY_DARK;
 `;
 
 const POSLogo = styled.div`
 	font-size: 0.875rem;
 	font-weight: 700;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 `;
 
 const POSStatus = styled.div<{ $status: string }>`
@@ -150,7 +150,7 @@ const POSStatus = styled.div<{ $status: string }>`
 				return '#6b7280';
 		}
 	}};
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	padding: 0.25rem 0.5rem;
 	border-radius: 0.25rem;
 	font-size: 0.75rem;
@@ -172,16 +172,16 @@ const POSKey = styled.button<{ $type: 'number' | 'action' | 'special' }>`
 	background: ${(props) => {
 		switch (props.$type) {
 			case 'number':
-				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%)';
+				return 'linear-gradient(135deg, COLORS.TEXT.GRAY_DARK 0%, COLORS.TEXT.GRAY_DARK 100%)';
 			case 'action':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_DARK 100%)';
 			case 'special':
-				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 		}
 	}};
 	border: 2px solid #4b5563;
 	border-radius: 0.5rem;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	font-size: 1.25rem;
 	font-weight: 600;
 	cursor: pointer;
@@ -204,7 +204,7 @@ const POSKey = styled.button<{ $type: 'number' | 'action' | 'special' }>`
 
 // Card Reader
 const CardReader = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
+	background: linear-gradient(135deg, COLORS.TEXT.GRAY_DARK 0%, COLORS.TEXT.GRAY_DARK 100%);
 	border: 2px solid #4b5563;
 	border-radius: 0.5rem;
 	padding: 1rem;
@@ -221,23 +221,23 @@ const CardReader = styled.div`
 const CardReaderSlot = styled.div`
 	width: 60px;
 	height: 40px;
-	background: V9_COLORS.TEXT.BLACK;
+	background: COLORS.TEXT.BLACK;
 	border: 2px solid #4b5563;
 	border-radius: 0.25rem;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 1.5rem;
 `;
 
 // Status Display
 const StatusDisplay = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, #1e293b 100%);
+	background: linear-gradient(135deg, COLORS.TEXT.GRAY_DARK 0%, #1e293b 100%);
 	border-radius: 1rem;
 	padding: 1.5rem;
 	margin: 1rem 0;
-	border: 2px solid V9_COLORS.TEXT.GRAY_DARK;
+	border: 2px solid COLORS.TEXT.GRAY_DARK;
 	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 `;
 
@@ -246,7 +246,7 @@ const StatusRow = styled.div`
 	align-items: center;
 	justify-content: space-between;
 	padding: 0.75rem 0;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_DARK;
+	border-bottom: 1px solid COLORS.TEXT.GRAY_DARK;
 
 	&:last-child {
 		border-bottom: none;
@@ -256,7 +256,7 @@ const StatusRow = styled.div`
 const StatusLabel = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_LIGHT;
+	color: COLORS.TEXT.GRAY_LIGHT;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 `;
@@ -302,7 +302,7 @@ const StatusDot = styled.div<{ $active: boolean; $color: string }>`
 
 // Authorization Code Display
 const AuthCodeDisplay = styled.div`
-	background: V9_COLORS.TEXT.BLACK;
+	background: COLORS.TEXT.BLACK;
 	color: #00ff00;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 1.5rem;
@@ -321,31 +321,31 @@ const AuthCodeDisplay = styled.div`
 
 // QR Code Section
 const QRCodeSection = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	text-align: center;
 	margin: 1rem 0;
-	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const QRTitle = styled.div`
 	font-size: 1rem;
 	font-weight: 700;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const QRSubtitle = styled.div`
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	margin-bottom: 1rem;
 `;
 
 const QRCodeContainer = styled.div`
 	display: inline-block;
 	padding: 1rem;
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border-radius: 0.5rem;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
@@ -361,7 +361,7 @@ const ActionButtons = styled.div`
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
 	background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	border: none;
 	border-radius: 0.5rem;
 	padding: 0.75rem 1.25rem;
@@ -389,14 +389,14 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
 const SuccessDisplay = styled.div`
 	background: linear-gradient(
 		135deg,
-		V9_COLORS.PRIMARY.GREEN 0%,
-		V9_COLORS.PRIMARY.GREEN_DARK 100%
+		COLORS.PRIMARY.GREEN 0%,
+		COLORS.PRIMARY.GREEN_DARK 100%
 	);
 	border-radius: 1rem;
 	padding: 1.5rem;
 	margin-top: 1rem;
 	text-align: center;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
 `;
 
@@ -527,14 +527,14 @@ const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
 					<StatusRow>
 						<StatusLabel>Network</StatusLabel>
 						<StatusValue $status="connected">
-							<StatusDot $active={true} $color="V9_COLORS.PRIMARY.GREEN" />
+							<StatusDot $active={true} $color="COLORS.PRIMARY.GREEN" />
 							Connected
 						</StatusValue>
 					</StatusRow>
 					<StatusRow>
 						<StatusLabel>Power</StatusLabel>
 						<StatusValue>
-							<StatusDot $active={true} $color="V9_COLORS.PRIMARY.GREEN" />
+							<StatusDot $active={true} $color="COLORS.PRIMARY.GREEN" />
 							AC Power
 						</StatusValue>
 					</StatusRow>
@@ -555,8 +555,8 @@ const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={160}
-							bgColor="V9_COLORS.TEXT.WHITE"
-							fgColor="V9_COLORS.TEXT.GRAY_DARK"
+							bgColor="COLORS.TEXT.WHITE"
+							fgColor="COLORS.TEXT.GRAY_DARK"
 							level="H"
 							includeMargin={true}
 						/>
@@ -590,7 +590,7 @@ const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.2)"
 				borderColor="#333333"
-				headerTextColor="V9_COLORS.TEXT.WHITE"
+				headerTextColor="COLORS.TEXT.WHITE"
 			/>
 		</>
 	);

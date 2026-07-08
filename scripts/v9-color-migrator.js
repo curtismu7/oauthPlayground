@@ -11,83 +11,83 @@ import path from 'path';
 // V9 Color mappings
 const V9_COLOR_MAPPINGS = {
   // Primary colors
-  '#3b82f6': 'V9_COLORS.PRIMARY.BLUE',
-  '#2563eb': 'V9_COLORS.PRIMARY.BLUE_DARK', 
-  '#1d4ed8': 'V9_COLORS.PRIMARY.BLUE_DARK',
-  '#60a5fa': 'V9_COLORS.PRIMARY.BLUE_LIGHT',
+  '#3b82f6': 'COLORS.PRIMARY.BLUE',
+  '#2563eb': 'COLORS.PRIMARY.BLUE_DARK', 
+  '#1d4ed8': 'COLORS.PRIMARY.BLUE_DARK',
+  '#60a5fa': 'COLORS.PRIMARY.BLUE_LIGHT',
   
-  '#10b981': 'V9_COLORS.PRIMARY.GREEN',
-  '#059669': 'V9_COLORS.PRIMARY.GREEN_DARK',
-  '#34d399': 'V9_COLORS.PRIMARY.GREEN_LIGHT',
-  '#22c55e': 'V9_COLORS.PRIMARY.GREEN',
-  '#16a34a': 'V9_COLORS.PRIMARY.GREEN_DARK',
+  '#10b981': 'COLORS.PRIMARY.GREEN',
+  '#059669': 'COLORS.PRIMARY.GREEN_DARK',
+  '#34d399': 'COLORS.PRIMARY.GREEN_LIGHT',
+  '#22c55e': 'COLORS.PRIMARY.GREEN',
+  '#16a34a': 'COLORS.PRIMARY.GREEN_DARK',
   
-  '#ef4444': 'V9_COLORS.PRIMARY.RED',
-  '#dc2626': 'V9_COLORS.PRIMARY.RED_DARK',
-  '#f87171': 'V9_COLORS.PRIMARY.RED_LIGHT',
-  '#b91c1c': 'V9_COLORS.PRIMARY.RED_DARK',
-  '#991b1b': 'V9_COLORS.PRIMARY.RED_DARK',
+  '#ef4444': 'COLORS.PRIMARY.RED',
+  '#dc2626': 'COLORS.PRIMARY.RED_DARK',
+  '#f87171': 'COLORS.PRIMARY.RED_LIGHT',
+  '#b91c1c': 'COLORS.PRIMARY.RED_DARK',
+  '#991b1b': 'COLORS.PRIMARY.RED_DARK',
   
-  '#f59e0b': 'V9_COLORS.PRIMARY.YELLOW',
-  '#d97706': 'V9_COLORS.PRIMARY.YELLOW_DARK',
-  '#fbbf24': 'V9_COLORS.PRIMARY.YELLOW_LIGHT',
-  '#facc15': 'V9_COLORS.PRIMARY.YELLOW',
+  '#f59e0b': 'COLORS.PRIMARY.YELLOW',
+  '#d97706': 'COLORS.PRIMARY.YELLOW_DARK',
+  '#fbbf24': 'COLORS.PRIMARY.YELLOW_LIGHT',
+  '#facc15': 'COLORS.PRIMARY.YELLOW',
   
   // Text colors
-  '#1f2937': 'V9_COLORS.TEXT.GRAY_DARK',
-  '#374151': 'V9_COLORS.TEXT.GRAY_DARK',
-  '#111827': 'V9_COLORS.TEXT.GRAY_DARK',
-  '#0f172a': 'V9_COLORS.TEXT.GRAY_DARK',
-  '#0c4a6e': 'V9_COLORS.TEXT.GRAY_DARK',
+  '#1f2937': 'COLORS.TEXT.GRAY_DARK',
+  '#374151': 'COLORS.TEXT.GRAY_DARK',
+  '#111827': 'COLORS.TEXT.GRAY_DARK',
+  '#0f172a': 'COLORS.TEXT.GRAY_DARK',
+  '#0c4a6e': 'COLORS.TEXT.GRAY_DARK',
   
-  '#6b7280': 'V9_COLORS.TEXT.GRAY_MEDIUM',
-  '#475569': 'V9_COLORS.TEXT.GRAY_MEDIUM',
-  '#64748b': 'V9_COLORS.TEXT.GRAY_MEDIUM',
-  '#9ca3af': 'V9_COLORS.TEXT.GRAY_LIGHT',
+  '#6b7280': 'COLORS.TEXT.GRAY_MEDIUM',
+  '#475569': 'COLORS.TEXT.GRAY_MEDIUM',
+  '#64748b': 'COLORS.TEXT.GRAY_MEDIUM',
+  '#9ca3af': 'COLORS.TEXT.GRAY_LIGHT',
   
-  '#e5e7eb': 'V9_COLORS.TEXT.GRAY_LIGHTER',
-  '#d1d5db': 'V9_COLORS.TEXT.GRAY_LIGHTER',
-  '#e2e8f0': 'V9_COLORS.TEXT.GRAY_LIGHTER',
-  '#cbd5f5': 'V9_COLORS.TEXT.GRAY_LIGHTER',
-  '#bae6fd': 'V9_COLORS.TEXT.GRAY_LIGHTER',
-  '#bfdbfe': 'V9_COLORS.TEXT.GRAY_LIGHTER',
+  '#e5e7eb': 'COLORS.TEXT.GRAY_LIGHTER',
+  '#d1d5db': 'COLORS.TEXT.GRAY_LIGHTER',
+  '#e2e8f0': 'COLORS.TEXT.GRAY_LIGHTER',
+  '#cbd5f5': 'COLORS.TEXT.GRAY_LIGHTER',
+  '#bae6fd': 'COLORS.TEXT.GRAY_LIGHTER',
+  '#bfdbfe': 'COLORS.TEXT.GRAY_LIGHTER',
   
-  '#ffffff': 'V9_COLORS.BG.WHITE',
-  '#f8fafc': 'V9_COLORS.BG.GRAY_LIGHT',
-  '#f1f5f9': 'V9_COLORS.BG.GRAY_MEDIUM',
-  '#eff6ff': 'V9_COLORS.BG.GRAY_LIGHT',
-  '#f0f9ff': 'V9_COLORS.BG.GRAY_LIGHT',
-  '#e0f2fe': 'V9_COLORS.BG.GRAY_LIGHT',
+  '#ffffff': 'COLORS.BG.WHITE',
+  '#f8fafc': 'COLORS.BG.GRAY_LIGHT',
+  '#f1f5f9': 'COLORS.BG.GRAY_MEDIUM',
+  '#eff6ff': 'COLORS.BG.GRAY_LIGHT',
+  '#f0f9ff': 'COLORS.BG.GRAY_LIGHT',
+  '#e0f2fe': 'COLORS.BG.GRAY_LIGHT',
   
   // Success/Error/Warning backgrounds
-  '#d1fae5': 'V9_COLORS.BG.SUCCESS',
-  '#ecfdf5': 'V9_COLORS.BG.SUCCESS',
-  '#dcfce7': 'V9_COLORS.BG.SUCCESS',
-  '#bbf7d0': 'V9_COLORS.BG.SUCCESS_BORDER',
+  '#d1fae5': 'COLORS.BG.SUCCESS',
+  '#ecfdf5': 'COLORS.BG.SUCCESS',
+  '#dcfce7': 'COLORS.BG.SUCCESS',
+  '#bbf7d0': 'COLORS.BG.SUCCESS_BORDER',
   
-  '#fef2f2': 'V9_COLORS.BG.ERROR',
-  '#fee2e2': 'V9_COLORS.BG.ERROR',
-  '#fecaca': 'V9_COLORS.BG.ERROR_BORDER',
+  '#fef2f2': 'COLORS.BG.ERROR',
+  '#fee2e2': 'COLORS.BG.ERROR',
+  '#fecaca': 'COLORS.BG.ERROR_BORDER',
   
-  '#fef3c7': 'V9_COLORS.BG.WARNING',
-  '#fffbeb': 'V9_COLORS.BG.WARNING',
-  '#fde68a': 'V9_COLORS.BG.WARNING_BORDER',
+  '#fef3c7': 'COLORS.BG.WARNING',
+  '#fffbeb': 'COLORS.BG.WARNING',
+  '#fde68a': 'COLORS.BG.WARNING_BORDER',
   
   // Other common colors
-  '#000000': 'V9_COLORS.TEXT.BLACK',
-  '#000': 'V9_COLORS.TEXT.BLACK',
-  '#fff': 'V9_COLORS.TEXT.WHITE',
-  '#ffffff': 'V9_COLORS.TEXT.WHITE',
-  '#1a202c': 'V9_COLORS.TEXT.BLACK',
-  '#2d3748': 'V9_COLORS.TEXT.GRAY_MEDIUM',
-  '#0369a1': 'V9_COLORS.PRIMARY.BLUE',
-  '#1e40af': 'V9_COLORS.PRIMARY.BLUE_DARK',
-  '#166534': 'V9_COLORS.PRIMARY.GREEN',
-  '#065f46': 'V9_COLORS.PRIMARY.GREEN_DARK',
-  '#92400e': 'V9_COLORS.PRIMARY.YELLOW_DARK',
-  '#0284c7': 'V9_COLORS.PRIMARY.BLUE',
-  '#0891b2': 'V9_COLORS.PRIMARY.BLUE',
-  '#0e7490': 'V9_COLORS.PRIMARY.BLUE_DARK',
+  '#000000': 'COLORS.TEXT.BLACK',
+  '#000': 'COLORS.TEXT.BLACK',
+  '#fff': 'COLORS.TEXT.WHITE',
+  '#ffffff': 'COLORS.TEXT.WHITE',
+  '#1a202c': 'COLORS.TEXT.BLACK',
+  '#2d3748': 'COLORS.TEXT.GRAY_MEDIUM',
+  '#0369a1': 'COLORS.PRIMARY.BLUE',
+  '#1e40af': 'COLORS.PRIMARY.BLUE_DARK',
+  '#166534': 'COLORS.PRIMARY.GREEN',
+  '#065f46': 'COLORS.PRIMARY.GREEN_DARK',
+  '#92400e': 'COLORS.PRIMARY.YELLOW_DARK',
+  '#0284c7': 'COLORS.PRIMARY.BLUE',
+  '#0891b2': 'COLORS.PRIMARY.BLUE',
+  '#0e7490': 'COLORS.PRIMARY.BLUE_DARK',
 };
 
 class V9ColorMigrator {
@@ -126,11 +126,11 @@ class V9ColorMigrator {
   }
 
   hasV9Import(content) {
-    return content.includes('V9_COLORS') || content.includes('v9/V9ColorStandards');
+    return content.includes('COLORS') || content.includes('v9/ColorStandards');
   }
 
   addV9Import(content, filePath) {
-    if (content.includes('import { V9_COLORS }')) {
+    if (content.includes('import { COLORS }')) {
       return content;
     }
     
@@ -148,9 +148,9 @@ class V9ColorMigrator {
     
     // Calculate relative path
     const fileDir = path.dirname(filePath);
-    const relativePath = path.relative(fileDir, 'src/platform/V9ColorStandards').replace(/\\/g, '/');
+    const relativePath = path.relative(fileDir, 'src/platform/ColorStandards').replace(/\\/g, '/');
     
-    lines.splice(insertIndex, 0, `import { V9_COLORS } from '${relativePath}';`);
+    lines.splice(insertIndex, 0, `import { COLORS } from '${relativePath}';`);
     return lines.join('\n');
   }
 

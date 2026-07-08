@@ -18,8 +18,8 @@ interface InlineTokenDisplayProps {
 }
 
 const TokenContainer = styled.div`
-  background: V9_COLORS.TEXT.WHITE;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  background: COLORS.TEXT.WHITE;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   margin-bottom: 0;
@@ -34,8 +34,8 @@ const TokenHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  background: COLORS.BG.GRAY_LIGHT;
+  border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const TokenLabel = styled.div`
@@ -43,7 +43,7 @@ const TokenLabel = styled.div`
   align-items: center;
   gap: 0.5rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
 `;
 
@@ -170,11 +170,11 @@ const TokenPreview = styled.div`
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.75rem;
   line-height: 1.4;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   background: #f0fdf4;
   padding: 0.5rem;
   border-radius: 6px;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   margin-bottom: 0.5rem;
   overflow-x: auto;
   white-space: nowrap;
@@ -188,11 +188,11 @@ const DecodedContent = styled.div`
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
   line-height: 1.5;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  background: V9_COLORS.BG.GRAY_LIGHT;
+  color: COLORS.TEXT.GRAY_DARK;
+  background: COLORS.BG.GRAY_LIGHT;
   padding: 1rem;
   border-radius: 8px;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-all;
@@ -205,10 +205,10 @@ const OpaqueMessage = styled.div`
   align-items: center;
   gap: 0.5rem;
   padding: 1rem;
-  background: V9_COLORS.BG.WARNING;
-  border: 1px solid V9_COLORS.PRIMARY.YELLOW;
+  background: COLORS.BG.WARNING;
+  border: 1px solid COLORS.PRIMARY.YELLOW;
   border-radius: 8px;
-  color: V9_COLORS.PRIMARY.YELLOW_DARK;
+  color: COLORS.PRIMARY.YELLOW_DARK;
   font-size: 0.875rem;
 `;
 

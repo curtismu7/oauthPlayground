@@ -770,8 +770,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 														padding: '1rem',
 														border:
 															selectedExistingDeviceId === device.id
-																? '2px solid V9_COLORS.PRIMARY.BLUE'
-																: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+																? '2px solid COLORS.PRIMARY.BLUE'
+																: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 														borderRadius: '0.5rem',
 														cursor: 'pointer',
 														marginBottom: '0.5rem',

@@ -11,12 +11,12 @@ import styled from 'styled-components';
 import { useApiKeyManager } from '../hooks/useApiKeyManager';
 import { type BackupStatus } from '../services/apiKeyBackupService';
 import { type ApiKeyConfig, type ApiKeyInfo, apiKeyService } from '../services/apiKeyService';
-import { V9_COLORS } from '../platform/V9ColorStandards';
+import { COLORS } from '../platform/ColorStandards';
 import { logger } from '../utils/logger';
 
 const Container = styled.div`
-	background: ${V9_COLORS.BG.WHITE};
-	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	background: ${COLORS.BG.WHITE};
+	border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 12px;
 	padding: 24px;
 	margin-bottom: 24px;
@@ -30,7 +30,7 @@ const Header = styled.div`
 `;
 
 const Title = styled.h3`
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	font-size: 18px;
 	font-weight: 600;
 	margin: 0;
@@ -40,7 +40,7 @@ const Title = styled.h3`
 `;
 
 const Description = styled.p`
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	font-size: 14px;
 	line-height: 1.5;
 	margin: 0 0 20px 0;
@@ -55,7 +55,7 @@ const ApiKeyList = styled.div`
 const BackupSection = styled.div`
 	margin-top: 24px;
 	padding-top: 20px;
-	border-top: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border-top: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 `;
 
 const BackupHeader = styled.div`
@@ -66,7 +66,7 @@ const BackupHeader = styled.div`
 `;
 
 const BackupTitle = styled.h4`
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	font-size: 16px;
 	font-weight: 600;
 	margin: 0;
@@ -84,13 +84,13 @@ const BackupItem = styled.div`
 	justify-content: space-between;
 	align-items: center;
 	padding: 8px 12px;
-	background: ${V9_COLORS.BG.GRAY_LIGHT};
+	background: ${COLORS.BG.GRAY_LIGHT};
 	border-radius: 6px;
 	font-size: 13px;
 `;
 
 const ServiceName = styled.span`
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	font-weight: 500;
 `;
 
@@ -104,8 +104,8 @@ const StatusIndicator = styled.span<{ $hasBackup: boolean }>`
 	border-radius: 4px;
 	font-size: 11px;
 	font-weight: 500;
-	background: ${(props) => (props.$hasBackup ? V9_COLORS.BG.SUCCESS : V9_COLORS.BG.ERROR)};
-	color: ${(props) => (props.$hasBackup ? V9_COLORS.PRIMARY.GREEN_DARK : V9_COLORS.PRIMARY.RED_DARK)};
+	background: ${(props) => (props.$hasBackup ? COLORS.BG.SUCCESS : COLORS.BG.ERROR)};
+	color: ${(props) => (props.$hasBackup ? COLORS.PRIMARY.GREEN_DARK : COLORS.PRIMARY.RED_DARK)};
 `;
 
 const BackupActions = styled.div`
@@ -115,8 +115,8 @@ const BackupActions = styled.div`
 `;
 
 const ApiKeyItem = styled.div`
-	background: ${V9_COLORS.BG.GRAY_LIGHT};
-	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	background: ${COLORS.BG.GRAY_LIGHT};
+	border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 8px;
 	padding: 16px;
 `;
@@ -133,14 +133,14 @@ const ApiKeyInfoStyled = styled.div`
 `;
 
 const ApiKeyName = styled.h4`
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	font-size: 16px;
 	font-weight: 600;
 	margin: 0 0 4px 0;
 `;
 
 const ApiKeyDescription = styled.p`
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	font-size: 13px;
 	line-height: 1.4;
 	margin: 0;
@@ -154,8 +154,8 @@ const ApiKeyStatus = styled.div<{ $hasKey: boolean }>`
 	border-radius: 20px;
 	font-size: 12px;
 	font-weight: 600;
-	background: ${(props) => (props.$hasKey ? V9_COLORS.BG.SUCCESS : V9_COLORS.BG.WARNING)};
-	color: ${(props) => (props.$hasKey ? V9_COLORS.PRIMARY.GREEN : V9_COLORS.PRIMARY.YELLOW)};
+	background: ${(props) => (props.$hasKey ? COLORS.BG.SUCCESS : COLORS.BG.WARNING)};
+	color: ${(props) => (props.$hasKey ? COLORS.PRIMARY.GREEN : COLORS.PRIMARY.YELLOW)};
 `;
 
 const ApiKeyActions = styled.div`
@@ -180,31 +180,31 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 		switch (props.$variant) {
 			case 'primary':
 				return `
-					background: ${V9_COLORS.BUTTON.PRIMARY.background};
-					border-color: ${V9_COLORS.BUTTON.PRIMARY.border};
-					color: ${V9_COLORS.BUTTON.PRIMARY.color};
+					background: ${COLORS.BUTTON.PRIMARY.background};
+					border-color: ${COLORS.BUTTON.PRIMARY.border};
+					color: ${COLORS.BUTTON.PRIMARY.color};
 					&:hover {
-						background: ${V9_COLORS.BUTTON.PRIMARY.backgroundHover};
+						background: ${COLORS.BUTTON.PRIMARY.backgroundHover};
 					}
 				`;
 			case 'danger':
 				return `
-					background: ${V9_COLORS.BUTTON.DANGER.background};
-					border-color: ${V9_COLORS.BUTTON.DANGER.border};
-					color: ${V9_COLORS.BUTTON.DANGER.color};
+					background: ${COLORS.BUTTON.DANGER.background};
+					border-color: ${COLORS.BUTTON.DANGER.border};
+					color: ${COLORS.BUTTON.DANGER.color};
 					&:hover {
-						background: ${V9_COLORS.BUTTON.DANGER.backgroundHover};
+						background: ${COLORS.BUTTON.DANGER.backgroundHover};
 					}
 				`;
 			default:
 				return `
-					background: ${V9_COLORS.BG.WHITE};
-					border: 1px solid ${V9_COLORS.PRIMARY.BLUE};
-					color: ${V9_COLORS.PRIMARY.BLUE};
+					background: ${COLORS.BG.WHITE};
+					border: 1px solid ${COLORS.PRIMARY.BLUE};
+					color: ${COLORS.PRIMARY.BLUE};
 					&:hover {
-						background: ${V9_COLORS.BG.GRAY_LIGHT};
-						border-color: ${V9_COLORS.PRIMARY.BLUE_DARK};
-						color: ${V9_COLORS.PRIMARY.BLUE_DARK};
+						background: ${COLORS.BG.GRAY_LIGHT};
+						border-color: ${COLORS.PRIMARY.BLUE_DARK};
+						color: ${COLORS.PRIMARY.BLUE_DARK};
 					}
 				`;
 		}
@@ -237,11 +237,11 @@ const EyeButton = styled.button`
 	border: none;
 	cursor: pointer;
 	padding: 2px 4px;
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	font-size: 16px;
 	line-height: 1;
 	&:hover {
-		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		color: ${COLORS.TEXT.GRAY_DARK};
 	}
 `;
 
@@ -250,7 +250,7 @@ const KeyValueRow = styled.div`
 	align-items: center;
 	gap: 6px;
 	font-size: 12px;
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	margin-bottom: 8px;
 	font-family: monospace;
 	word-break: break-all;
@@ -259,26 +259,26 @@ const KeyValueRow = styled.div`
 const Input = styled.input`
 	flex: 1;
 	padding: 8px 12px;
-	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 6px;
 	font-size: 13px;
 	outline: none;
 	transition: border-color 0.15s ease-in-out;
 
 	&:focus {
-		border-color: ${V9_COLORS.PRIMARY.BLUE};
-		box-shadow: 0 0 0 2px ${V9_COLORS.PRIMARY.BLUE}20;
+		border-color: ${COLORS.PRIMARY.BLUE};
+		box-shadow: 0 0 0 2px ${COLORS.PRIMARY.BLUE}20;
 	}
 
 	&::placeholder {
-		color: ${V9_COLORS.TEXT.GRAY_LIGHT};
+		color: ${COLORS.TEXT.GRAY_LIGHT};
 	}
 `;
 
 const ErrorMessage = styled.div`
-	background: ${V9_COLORS.BG.ERROR};
-	border: 1px solid ${V9_COLORS.BG.ERROR_BORDER};
-	color: ${V9_COLORS.PRIMARY.RED};
+	background: ${COLORS.BG.ERROR};
+	border: 1px solid ${COLORS.BG.ERROR_BORDER};
+	color: ${COLORS.PRIMARY.RED};
 	padding: 12px;
 	border-radius: 6px;
 	font-size: 13px;
@@ -286,9 +286,9 @@ const ErrorMessage = styled.div`
 `;
 
 const SuccessMessage = styled.div`
-	background: ${V9_COLORS.BG.SUCCESS};
-	border: 1px solid ${V9_COLORS.BG.SUCCESS_BORDER};
-	color: ${V9_COLORS.PRIMARY.GREEN};
+	background: ${COLORS.BG.SUCCESS};
+	border: 1px solid ${COLORS.BG.SUCCESS_BORDER};
+	color: ${COLORS.PRIMARY.GREEN};
 	padding: 12px;
 	border-radius: 6px;
 	font-size: 13px;

@@ -115,7 +115,7 @@ export const P1MFASamples: React.FC = () => {
 				style={{
 					marginTop: '2rem',
 					padding: '1.5rem',
-					backgroundColor: 'V9_COLORS.TEXT.WHITE3cd',
+					backgroundColor: 'COLORS.TEXT.WHITE3cd',
 					borderRadius: '8px',
 					border: '1px solid #ffc107',
 				}}

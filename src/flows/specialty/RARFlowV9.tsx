@@ -13,11 +13,11 @@ import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowUIService } from '../../services/flowUIService';
 import { V9FlowCredentialService } from '../../platform/core/V9FlowCredentialService';
 import { EnvironmentIdServiceV8 } from '../../platform/environmentIdServiceV9';
-import { V9_COLORS } from '../../platform/V9ColorStandards';
+import { COLORS } from '../../platform/ColorStandards';
 import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
 import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
 import V9FlowHeader from '../../platform/v9FlowHeaderService';
-import { V7MMockBanner } from '../mock-ui/V7MMockBanner';
+import { MockBanner } from '../mock-ui/MockBanner';
 import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
 import WorkerTokenStatusDisplayV8 from '../../mfa/components/WorkerTokenStatusDisplayV8';
 import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
@@ -60,14 +60,14 @@ const {
 	GeneratedContentBox,
 } = FlowUIService.getFlowUIComponents();
 
-// Color aliases for readability (V9_COLORS from V9ColorStandards)
-const PRIMARY_BLUE = V9_COLORS.PRIMARY.BLUE;
-const DARK_BLUE = V9_COLORS.PRIMARY.BLUE_DARK;
-const BORDER = V9_COLORS.TEXT.GRAY_LIGHTER;
-const LIGHT_BLUE_BG = V9_COLORS.BG.GRAY_LIGHT;
-const WHITE = V9_COLORS.TEXT.WHITE;
-const TEXT_PRIMARY = V9_COLORS.TEXT.GRAY_DARK;
-const TEXT_SECONDARY = V9_COLORS.TEXT.GRAY_MEDIUM;
+// Color aliases for readability (COLORS from ColorStandards)
+const PRIMARY_BLUE = COLORS.PRIMARY.BLUE;
+const DARK_BLUE = COLORS.PRIMARY.BLUE_DARK;
+const BORDER = COLORS.TEXT.GRAY_LIGHTER;
+const LIGHT_BLUE_BG = COLORS.BG.GRAY_LIGHT;
+const WHITE = COLORS.TEXT.WHITE;
+const TEXT_PRIMARY = COLORS.TEXT.GRAY_DARK;
+const TEXT_SECONDARY = COLORS.TEXT.GRAY_MEDIUM;
 
 // Custom responsive container for RAR flow with V9 colors
 const ResponsiveContainer = styled(Container)`
@@ -862,7 +862,7 @@ const RARFlowV9: React.FC = () => {
 	return (
 		<ResponsiveContainer>
 			<ResponsiveContentWrapper>
-				<V7MMockBanner description="This is a mock/educational implementation demonstrating RAR concepts. In a real implementation, the authorization server would process the RAR parameters and return tokens with the approved authorization details." />
+				<MockBanner description="This is a mock/educational implementation demonstrating RAR concepts. In a real implementation, the authorization server would process the RAR parameters and return tokens with the approved authorization details." />
 				<V9FlowHeader flowId="rar-v9" customConfig={{ flowType: 'pingone' }} />
 				<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
 					<V9FlowRestartButton
@@ -963,11 +963,11 @@ const RARFlowV9: React.FC = () => {
 							width: '100%',
 							padding: '16px 20px',
 							background: isWorkerTokenStatusCollapsed
-								? `linear-gradient(135deg, ${V9_COLORS.BG.GRAY_LIGHT} 0%, ${V9_COLORS.BG.GRAY_MEDIUM} 100%)`
-								: `linear-gradient(135deg, ${V9_COLORS.TEXT.WHITE} 0%, ${V9_COLORS.BG.GRAY_LIGHT} 100%)`,
+								? `linear-gradient(135deg, ${COLORS.BG.GRAY_LIGHT} 0%, ${COLORS.BG.GRAY_MEDIUM} 100%)`
+								: `linear-gradient(135deg, ${COLORS.TEXT.WHITE} 0%, ${COLORS.BG.GRAY_LIGHT} 100%)`,
 							border: 'none',
 							borderBottom: isWorkerTokenStatusCollapsed
-								? `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`
+								? `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`
 								: 'none',
 							cursor: 'pointer',
 							display: 'flex',
@@ -976,13 +976,13 @@ const RARFlowV9: React.FC = () => {
 							transition: 'all 0.3s ease',
 						}}
 						onMouseEnter={(e) => {
-							e.currentTarget.style.background = `linear-gradient(135deg, ${V9_COLORS.TEXT.WHITE} 0%, ${V9_COLORS.BG.GRAY_MEDIUM} 100%)`;
+							e.currentTarget.style.background = `linear-gradient(135deg, ${COLORS.TEXT.WHITE} 0%, ${COLORS.BG.GRAY_MEDIUM} 100%)`;
 							e.currentTarget.style.color = TEXT_PRIMARY;
 						}}
 						onMouseLeave={(e) => {
 							e.currentTarget.style.background = isWorkerTokenStatusCollapsed
-								? `linear-gradient(135deg, ${V9_COLORS.BG.GRAY_LIGHT} 0%, ${V9_COLORS.BG.GRAY_MEDIUM} 100%)`
-								: `linear-gradient(135deg, ${V9_COLORS.TEXT.WHITE} 0%, ${V9_COLORS.BG.GRAY_LIGHT} 100%)`;
+								? `linear-gradient(135deg, ${COLORS.BG.GRAY_LIGHT} 0%, ${COLORS.BG.GRAY_MEDIUM} 100%)`
+								: `linear-gradient(135deg, ${COLORS.TEXT.WHITE} 0%, ${COLORS.BG.GRAY_LIGHT} 100%)`;
 							e.currentTarget.style.color = TEXT_PRIMARY;
 						}}
 					>

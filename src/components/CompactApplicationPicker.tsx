@@ -22,33 +22,33 @@ const SearchBox = styled.div`
 const SearchIcon = styled.span`
 	position: absolute;
 	left: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_LIGHT;
+	color: COLORS.TEXT.GRAY_LIGHT;
 	pointer-events: none;
 `;
 
 const SearchInput = styled.input`
 	width: 100%;
 	padding: 0.5rem 0.75rem 0.5rem 2.5rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	transition: all 0.15s;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 
 	&::placeholder {
-		color: V9_COLORS.TEXT.GRAY_LIGHT;
+		color: COLORS.TEXT.GRAY_LIGHT;
 	}
 `;
 
 const AppList = styled.div`
 	max-height: 300px;
 	overflow-y: auto;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	background: white;
 `;
@@ -97,7 +97,7 @@ const AppInfo = styled.div`
 const AppName = styled.div`
 	font-weight: 500;
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -105,7 +105,7 @@ const AppName = styled.div`
 
 const AppId = styled.div`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-family: 'Monaco', 'Menlo', monospace;
 	white-space: nowrap;
 	overflow: hidden;
@@ -117,7 +117,7 @@ const LoadingState = styled.div`
 	align-items: center;
 	justify-content: center;
 	padding: 2rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 	gap: 0.5rem;
 `;
@@ -127,17 +127,17 @@ const ErrorState = styled.div`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 1rem;
-	background: V9_COLORS.BG.ERROR;
-	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+	background: COLORS.BG.ERROR;
+	border: 1px solid COLORS.BG.ERROR_BORDER;
 	border-radius: 0.375rem;
-	color: V9_COLORS.PRIMARY.RED_DARK;
+	color: COLORS.PRIMARY.RED_DARK;
 	font-size: 0.875rem;
 `;
 
 const EmptyState = styled.div`
 	padding: 2rem;
 	text-align: center;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 `;
 
@@ -146,10 +146,10 @@ const RefreshButton = styled.button`
 	align-items: center;
 	gap: 0.375rem;
 	padding: 0.375rem 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	background: white;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 0.8125rem;
 	font-weight: 500;
 	cursor: pointer;
@@ -157,7 +157,7 @@ const RefreshButton = styled.button`
 
 	&:hover {
 		background: #f9fafb;
-		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+		border-color: COLORS.TEXT.GRAY_LIGHT;
 	}
 
 	svg {
@@ -184,7 +184,7 @@ const Header = styled.div`
 const Title = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 interface CompactApplicationPickerProps {

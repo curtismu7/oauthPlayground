@@ -26,7 +26,7 @@ const MobilePhoneContainer = styled.div`
 	max-width: 390px;
 	margin-left: auto;
 	margin-right: auto;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 
 	/* iPhone 17 Pro Triple Camera Bump */
 	&::before {
@@ -67,12 +67,12 @@ const MobilePhoneContainer = styled.div`
 
 // iPhone 17 Pro Screen - iOS 18 Design with Dynamic Island
 const PhoneScreen = styled.div`
-	background: linear-gradient(180deg, V9_COLORS.TEXT.BLACK 0%, #1c1c1e 100%);
+	background: linear-gradient(180deg, COLORS.TEXT.BLACK 0%, #1c1c1e 100%);
 	border-radius: 3.25rem;
 	padding: 3rem 1.25rem 1.5rem;
 	position: relative;
 	box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	min-height: 780px;
 	display: flex;
 	flex-direction: column;
@@ -89,7 +89,7 @@ const PhoneScreen = styled.div`
 		transform: translateX(-50%);
 		width: 120px;
 		height: 35px;
-		background: V9_COLORS.TEXT.BLACK;
+		background: COLORS.TEXT.BLACK;
 		border-radius: 1.75rem;
 		z-index: 100;
 		box-shadow:
@@ -105,7 +105,7 @@ const PhoneScreen = styled.div`
 		left: 1.5rem;
 		font-size: 0.875rem;
 		font-weight: 600;
-		color: V9_COLORS.TEXT.WHITE;
+		color: COLORS.TEXT.WHITE;
 		z-index: 101;
 		font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
 	}
@@ -128,33 +128,33 @@ const SignalIcon = styled.div`
 	height: 12px;
 	background: linear-gradient(
 		to right,
-		V9_COLORS.TEXT.WHITE 0%,
-		V9_COLORS.TEXT.WHITE 20%,
+		COLORS.TEXT.WHITE 0%,
+		COLORS.TEXT.WHITE 20%,
 		transparent 20%,
 		transparent 25%,
-		V9_COLORS.TEXT.WHITE 25%,
-		V9_COLORS.TEXT.WHITE 45%,
+		COLORS.TEXT.WHITE 25%,
+		COLORS.TEXT.WHITE 45%,
 		transparent 45%,
 		transparent 50%,
-		V9_COLORS.TEXT.WHITE 50%,
-		V9_COLORS.TEXT.WHITE 70%,
+		COLORS.TEXT.WHITE 50%,
+		COLORS.TEXT.WHITE 70%,
 		transparent 70%,
 		transparent 75%,
-		V9_COLORS.TEXT.WHITE 75%,
-		V9_COLORS.TEXT.WHITE 95%
+		COLORS.TEXT.WHITE 75%,
+		COLORS.TEXT.WHITE 95%
 	);
 `;
 
 const WifiIcon = styled.div`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	font-weight: 600;
 `;
 
 const BatteryIndicator = styled.div`
 	width: 24px;
 	height: 11px;
-	border: 2px solid V9_COLORS.TEXT.WHITE;
+	border: 2px solid COLORS.TEXT.WHITE;
 	border-radius: 3px;
 	position: relative;
 	display: flex;
@@ -177,7 +177,7 @@ const BatteryIndicator = styled.div`
 		transform: translateY(-50%);
 		width: 2px;
 		height: 5px;
-		background: V9_COLORS.TEXT.WHITE;
+		background: COLORS.TEXT.WHITE;
 		border-radius: 0 2px 2px 0;
 	}
 `;
@@ -192,7 +192,7 @@ const AppHeader = styled.div`
 const AppTitle = styled.div`
 	font-size: 1.25rem;
 	font-weight: 700;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	margin-bottom: 0.25rem;
 `;
 
@@ -327,7 +327,7 @@ const StatusDisplay = styled.div<{ $status: string }>`
 const StatusText = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	margin-bottom: 0.25rem;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
@@ -335,7 +335,7 @@ const StatusText = styled.div`
 
 const StatusMessage = styled.div`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 `;
 
 // Home Button
@@ -349,7 +349,7 @@ const HomeButton = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	font-size: 1.25rem;
 `;
 
@@ -427,8 +427,8 @@ const MobilePhoneDeviceFlow: React.FC<MobilePhoneDeviceFlowProps> = ({ state }) 
 							<QRCodeSVG
 								value={state.verificationUriComplete}
 								size={120}
-								bgColor="V9_COLORS.TEXT.WHITE"
-								fgColor="V9_COLORS.TEXT.BLACK"
+								bgColor="COLORS.TEXT.WHITE"
+								fgColor="COLORS.TEXT.BLACK"
 								level="M"
 								includeMargin={true}
 							/>
@@ -487,9 +487,9 @@ const MobilePhoneDeviceFlow: React.FC<MobilePhoneDeviceFlowProps> = ({ state }) 
 			{/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
 			<StandardizedTokenDisplay
 				tokens={state.tokens}
-				backgroundColor="V9_COLORS.TEXT.BLACK"
-				borderColor="V9_COLORS.TEXT.GRAY_DARK"
-				headerTextColor="V9_COLORS.TEXT.WHITE"
+				backgroundColor="COLORS.TEXT.BLACK"
+				borderColor="COLORS.TEXT.GRAY_DARK"
+				headerTextColor="COLORS.TEXT.WHITE"
 			/>
 		</>
 	);

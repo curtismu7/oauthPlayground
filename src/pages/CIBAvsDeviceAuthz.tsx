@@ -29,8 +29,8 @@ const ComparisonCard = styled(Card)<{ $type: 'ciba' | 'device' }>`
 `;
 
 const CodeBlock = styled.pre`
-	background-color: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background-color: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	padding: 1rem;
 	font-size: 0.875rem;
@@ -49,7 +49,7 @@ const CodeBlockHeader = styled.div`
 	margin-bottom: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const CopyButton = styled.button`
@@ -76,13 +76,13 @@ const FlowStep = styled.div`
 	margin: 1.5rem 0;
 	padding: 1rem;
 	background: #f9fafb;
-	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
+	border-left: 4px solid COLORS.PRIMARY.BLUE;
 	border-radius: 0.25rem;
 `;
 
 const FlowStepNumber = styled.span`
 	display: inline-block;
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: COLORS.PRIMARY.BLUE;
 	color: white;
 	width: 1.5rem;
 	height: 1.5rem;
@@ -96,18 +96,18 @@ const FlowStepNumber = styled.span`
 
 const FlowStepTitle = styled.h4`
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const FlowStepDescription = styled.p`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0;
 `;
 
 const InfoBox = styled.div`
-	background-color: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background-color: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -117,7 +117,7 @@ const InfoBox = styled.div`
 `;
 
 const InfoIcon = styled.div`
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: COLORS.PRIMARY.BLUE;
 	font-size: 1.25rem;
 	flex-shrink: 0;
 	margin-top: 0.125rem;
@@ -128,7 +128,7 @@ const InfoContent = styled.div`
 
 	h4 {
 		font-weight: 600;
-		color: V9_COLORS.PRIMARY.BLUE_DARK;
+		color: COLORS.PRIMARY.BLUE_DARK;
 		margin-bottom: 0.5rem;
 	}
 
@@ -139,15 +139,15 @@ const InfoContent = styled.div`
 `;
 
 const WarningBox = styled(InfoBox)`
-	background-color: V9_COLORS.BG.WARNING;
+	background-color: COLORS.BG.WARNING;
 	border-color: #fcd34d;
 
 	${InfoIcon} {
-		color: V9_COLORS.PRIMARY.YELLOW;
+		color: COLORS.PRIMARY.YELLOW;
 	}
 
 	h4 {
-		color: V9_COLORS.PRIMARY.YELLOW_DARK;
+		color: COLORS.PRIMARY.YELLOW_DARK;
 	}
 
 	p {
@@ -165,17 +165,17 @@ const Table = styled.table`
 	td {
 		padding: 0.75rem;
 		text-align: left;
-		border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+		border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	}
 
 	th {
 		background-color: #f9fafb;
 		font-weight: 600;
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: COLORS.TEXT.GRAY_DARK;
 	}
 
 	td {
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: COLORS.TEXT.GRAY_DARK;
 	}
 
 	tr:nth-child(even) {
@@ -185,7 +185,7 @@ const Table = styled.table`
 
 const UseCaseCard = styled(Card)`
 	margin: 1rem 0;
-	border-left: 4px solid V9_COLORS.PRIMARY.GREEN;
+	border-left: 4px solid COLORS.PRIMARY.GREEN;
 `;
 
 // Layout components at module scope — styled-components v6 calls useContext

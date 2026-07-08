@@ -284,7 +284,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 		top: '100%',
 		right: '-8px',
 		marginTop: getV9Spacing('xs'),
-		border: `1px solid V9_COLORS.TEXT.GRAY_LIGHTER`, // V9 border color
+		border: `1px solid COLORS.TEXT.GRAY_LIGHTER`, // V9 border color
 		borderRadius: '8px', // V9 standard border radius
 		background: 'white',
 		boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', // V9 shadow
@@ -381,7 +381,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 					<div
 						style={{
 							padding: getV9Spacing('sm'),
-							borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							borderBottom: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							display: 'flex',
 							alignItems: 'center',
 							gap: getV9Spacing('sm'),
@@ -444,7 +444,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 									style={{
 										width: '100%',
 										padding: `${getV9Spacing('sm')} ${getV9Spacing('md')}`,
-										borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+										borderBottom: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 										cursor: 'pointer',
 										background: 'white',
 										border: 'none',

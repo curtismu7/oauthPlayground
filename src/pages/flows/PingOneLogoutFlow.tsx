@@ -36,14 +36,14 @@ const FlowContainer = styled.div`
 `;
 
 const FlowTitle = styled.h1`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 2rem;
 	font-weight: 700;
 	margin-bottom: 0.5rem;
 `;
 
 const FlowDescription = styled.p`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 1.125rem;
 	margin-bottom: 2rem;
 	line-height: 1.6;
@@ -51,7 +51,7 @@ const FlowDescription = styled.p`
 
 const FormContainer = styled.div`
 	background: #f9fafb;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1.5rem;
 	margin: 1rem 0;
@@ -65,20 +65,20 @@ const Label = styled.label`
 	display: block;
 	margin-bottom: 0.5rem;
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -86,7 +86,7 @@ const Input = styled.input`
 const TextArea = styled.textarea`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -95,7 +95,7 @@ const TextArea = styled.textarea`
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -120,27 +120,27 @@ const Button = styled.button<{
 		switch ($variant) {
 			case 'primary':
 				return `
-          background-color: V9_COLORS.PRIMARY.BLUE;
+          background-color: COLORS.PRIMARY.BLUE;
           color: white;
-          &:hover { background-color: V9_COLORS.PRIMARY.BLUE_DARK; }
+          &:hover { background-color: COLORS.PRIMARY.BLUE_DARK; }
         `;
 			case 'secondary':
 				return `
-          background-color: V9_COLORS.TEXT.GRAY_MEDIUM;
+          background-color: COLORS.TEXT.GRAY_MEDIUM;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
 			case 'success':
 				return `
-          background-color: V9_COLORS.PRIMARY.GREEN;
+          background-color: COLORS.PRIMARY.GREEN;
           color: white;
-          &:hover { background-color: V9_COLORS.PRIMARY.GREEN_DARK; }
+          &:hover { background-color: COLORS.PRIMARY.GREEN_DARK; }
         `;
 			case 'danger':
 				return `
-          background-color: V9_COLORS.PRIMARY.RED;
+          background-color: COLORS.PRIMARY.RED;
           color: white;
-          &:hover { background-color: V9_COLORS.PRIMARY.RED_DARK; }
+          &:hover { background-color: COLORS.PRIMARY.RED_DARK; }
         `;
 		}
 	}}
@@ -152,7 +152,7 @@ const Button = styled.button<{
 `;
 
 const CodeBlock = styled.pre`
-	background: V9_COLORS.TEXT.GRAY_DARK;
+	background: COLORS.TEXT.GRAY_DARK;
 	color: #f9fafb;
 	padding: 1rem;
 	border-radius: 0.375rem;
@@ -171,12 +171,12 @@ const ResponseContainer = styled.div`
 `;
 
 const ErrorContainer = styled.div`
-	background: V9_COLORS.BG.ERROR;
-	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+	background: COLORS.BG.ERROR;
+	border: 1px solid COLORS.BG.ERROR_BORDER;
 	border-radius: 0.375rem;
 	padding: 1rem;
 	margin: 1rem 0;
-	color: V9_COLORS.PRIMARY.RED_DARK;
+	color: COLORS.PRIMARY.RED_DARK;
 `;
 
 const InfoContainer = styled.div`
@@ -185,21 +185,21 @@ const InfoContainer = styled.div`
 	border-radius: 0.375rem;
 	padding: 1rem;
 	margin: 1rem 0;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const WarningContainer = styled.div`
-	background: V9_COLORS.BG.WARNING;
-	border: 1px solid V9_COLORS.PRIMARY.YELLOW;
+	background: COLORS.BG.WARNING;
+	border: 1px solid COLORS.PRIMARY.YELLOW;
 	border-radius: 0.375rem;
 	padding: 1rem;
 	margin: 1rem 0;
-	color: V9_COLORS.PRIMARY.YELLOW_DARK;
+	color: COLORS.PRIMARY.YELLOW_DARK;
 `;
 
 const LogoutUrlContainer = styled.div`
 	background: white;
-	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1.5rem;
 	margin: 1rem 0;
@@ -207,7 +207,7 @@ const LogoutUrlContainer = styled.div`
 
 const LogoutUrlTitle = styled.h4`
 	margin: 0 0 1rem 0;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 1.125rem;
 	font-weight: 600;
 	display: flex;

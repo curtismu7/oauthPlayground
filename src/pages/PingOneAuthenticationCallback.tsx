@@ -20,9 +20,9 @@ const Page = styled.div`
   align-items: center;
   justify-content: center;
   padding: 3rem 1.5rem;
-  background: radial-gradient(circle at top left, V9_COLORS.BG.WARNING_BORDER 0%, transparent 55%),
+  background: radial-gradient(circle at top left, COLORS.BG.WARNING_BORDER 0%, transparent 55%),
     rgba(15, 23, 42, 0.95);
-  color: V9_COLORS.BG.GRAY_LIGHT;
+  color: COLORS.BG.GRAY_LIGHT;
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
@@ -67,7 +67,7 @@ const Button = styled.button`
   padding: 0.85rem 1.4rem;
   border: none;
   background: linear-gradient(135deg, rgba(13, 148, 136, 0.95), rgba(59, 130, 246, 0.95));
-  color: V9_COLORS.BG.GRAY_LIGHT;
+  color: COLORS.BG.GRAY_LIGHT;
   font-weight: 600;
   letter-spacing: 0.02em;
   cursor: pointer;

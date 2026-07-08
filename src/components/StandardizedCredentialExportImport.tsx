@@ -8,7 +8,7 @@ import {
 	importStandardizedCredentials,
 	type StandardizedCredentialExport,
 } from '@/services/standardizedCredentialExportService';
-import { V9_COLORS } from '@/platform/V9ColorStandards';
+import { COLORS } from '@/platform/ColorStandards';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { logger } from '../utils/logger';
 
@@ -19,11 +19,11 @@ const ButtonContainer = styled.div`
 	margin-top: 15px;
 `;
 
-// Explicit hex fallbacks so buttons are never grey when enabled (V9_COLORS may be undefined in some bundles)
-const EXPORT_GREEN = V9_COLORS?.PRIMARY?.GREEN ?? '#10b981';
-const EXPORT_GREEN_DARK = V9_COLORS?.PRIMARY?.GREEN_DARK ?? '#059669';
-const IMPORT_BLUE = V9_COLORS?.PRIMARY?.BLUE ?? '#3b82f6';
-const IMPORT_BLUE_DARK = V9_COLORS?.PRIMARY?.BLUE_DARK ?? '#2563eb';
+// Explicit hex fallbacks so buttons are never grey when enabled (COLORS may be undefined in some bundles)
+const EXPORT_GREEN = COLORS?.PRIMARY?.GREEN ?? '#10b981';
+const EXPORT_GREEN_DARK = COLORS?.PRIMARY?.GREEN_DARK ?? '#059669';
+const IMPORT_BLUE = COLORS?.PRIMARY?.BLUE ?? '#3b82f6';
+const IMPORT_BLUE_DARK = COLORS?.PRIMARY?.BLUE_DARK ?? '#2563eb';
 
 const ExportButton = styled.button`
 	display: flex;

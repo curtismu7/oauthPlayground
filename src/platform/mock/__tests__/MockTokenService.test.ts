@@ -4,13 +4,13 @@
  * @description Unit tests for V7M token service (PKCE, client auth, error paths)
  */
 
-import { authorizeIssueCode } from '../V9MockAuthorizeService';
-import { V9MockStateStore } from '../V9MockStateStore';
-import { computePkceS256, tokenExchangeAuthorizationCode } from '../V9MockTokenService';
+import { authorizeIssueCode } from '../MockAuthorizeService';
+import { MockStateStore } from '../MockStateStore';
+import { computePkceS256, tokenExchangeAuthorizationCode } from '../MockTokenService';
 
-describe('V9MockTokenService', () => {
+describe('MockTokenService', () => {
 	beforeEach(() => {
-		V9MockStateStore.clearAll();
+		MockStateStore.clearAll();
 	});
 
 	describe('tokenExchangeAuthorizationCode - PKCE validation', () => {

@@ -27,7 +27,7 @@ import {
 	saveRegion,
 } from '../services/regionService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import { V9_COLORS } from '../platform/V9ColorStandards';
+import { COLORS } from '../platform/ColorStandards';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { WorkerTokenSectionV8 } from '../mfa/components/WorkerTokenSectionV8';
@@ -71,12 +71,12 @@ const styles = {
 		padding: '2rem',
 		boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
 		marginBottom: '2rem',
-		border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+		border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 	} as React.CSSProperties,
 	stepCard: {
 		background:
-			'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)',
-		border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+			'linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.TEXT.GRAY_LIGHTER 100%)',
+		border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 		borderRadius: '0.75rem',
 		padding: '1.5rem',
 		marginBottom: '1.5rem',
@@ -116,7 +116,7 @@ const styles = {
 		lineHeight: 1.6,
 		overflowX: 'auto',
 		margin: '1rem 0',
-		border: '1px solid V9_COLORS.TEXT.GRAY_DARK',
+		border: '1px solid COLORS.TEXT.GRAY_DARK',
 		position: 'relative',
 	} as React.CSSProperties,
 	copyButton: {
@@ -146,7 +146,7 @@ const styles = {
 		gap: '0.75rem',
 		padding: '0.75rem',
 		background: '#f8fafc',
-		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 		borderRadius: '0.5rem',
 	} as React.CSSProperties,
 	uriTable: {
@@ -162,12 +162,12 @@ const styles = {
 		fontSize: '0.9rem',
 		textTransform: 'uppercase',
 		letterSpacing: '0.05em',
-		borderBottom: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		borderBottom: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 	} as React.CSSProperties,
 	uriCell: {
 		padding: '0.85rem 1rem',
 		verticalAlign: 'top',
-		borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		borderBottom: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 	} as React.CSSProperties,
 	uriValue: {
 		display: 'flex',
@@ -182,7 +182,7 @@ const styles = {
 		background: '#f8fafc',
 		padding: '0.35rem 0.5rem',
 		borderRadius: '0.5rem',
-		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 		color: '#1f2937',
 		wordBreak: 'break-all',
 	} as React.CSSProperties,
@@ -202,7 +202,7 @@ const styles = {
 		width: '100%',
 		padding: '0.65rem 0.75rem',
 		borderRadius: '0.6rem',
-		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 		background: '#ffffff',
 		color: '#1f2937',
 		fontSize: '0.9rem',
@@ -1001,7 +1001,7 @@ const Configuration: React.FC = () => {
 							<div
 								style={{
 									background: '#ecfdf5',
-									border: '1px solid V9_COLORS.PRIMARY.GREEN',
+									border: '1px solid COLORS.PRIMARY.GREEN',
 									borderRadius: '0.5rem',
 									padding: '1rem',
 									marginBottom: '1.5rem',
@@ -1026,7 +1026,7 @@ const Configuration: React.FC = () => {
 							<div
 								style={{
 									background: '#fef3c7',
-									border: '1px solid V9_COLORS.PRIMARY.YELLOW',
+									border: '1px solid COLORS.PRIMARY.YELLOW',
 									borderRadius: '0.5rem',
 									padding: '1rem',
 									marginBottom: '1.5rem',
@@ -1733,7 +1733,7 @@ cd oauthPlayground`}
 								style={{
 									background: '#10b981',
 									color: 'white',
-									border: '1px solid V9_COLORS.TEXT.WHITE',
+									border: '1px solid COLORS.TEXT.WHITE',
 									borderRadius: '0.5rem',
 									padding: '0.75rem 1.5rem',
 									fontSize: '0.875rem',
@@ -1789,7 +1789,7 @@ cd oauthPlayground`}
 							style={{
 								padding: '1.5rem',
 								background:
-									'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%)',
+									'linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.BG.GRAY_LIGHT 100%)',
 								border: '2px solid #0ea5e9',
 								borderRadius: '0.75rem',
 							}}
@@ -1812,8 +1812,8 @@ cd oauthPlayground`}
 						<div
 							style={{
 								padding: '1.5rem',
-								background: 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)',
-								border: '2px solid V9_COLORS.PRIMARY.GREEN',
+								background: 'linear-gradient(135deg, #f0fdf4 0%, COLORS.BG.SUCCESS 100%)',
+								border: '2px solid COLORS.PRIMARY.GREEN',
 								borderRadius: '0.75rem',
 							}}
 						>
@@ -1836,8 +1836,8 @@ cd oauthPlayground`}
 							style={{
 								padding: '1.5rem',
 								background:
-									'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)',
-								border: '2px solid V9_COLORS.PRIMARY.YELLOW',
+									'linear-gradient(135deg, COLORS.BG.WARNING 0%, COLORS.BG.WARNING_BORDER 100%)',
+								border: '2px solid COLORS.PRIMARY.YELLOW',
 								borderRadius: '0.75rem',
 							}}
 						>
@@ -1868,8 +1868,8 @@ cd oauthPlayground`}
 					<div
 						style={{
 							padding: '1.5rem',
-							background: 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, #ddd6fe 100%)',
-							border: '2px solid V9_COLORS.PRIMARY.BLUE_DARK',
+							background: 'linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, #ddd6fe 100%)',
+							border: '2px solid COLORS.PRIMARY.BLUE_DARK',
 							borderRadius: '0.75rem',
 						}}
 					>
@@ -1958,7 +1958,7 @@ cd oauthPlayground`}
 								borderRadius: '0.5rem',
 								fontWeight: '600',
 								fontSize: '0.875rem',
-								border: '1px solid V9_COLORS.TEXT.WHITE',
+								border: '1px solid COLORS.TEXT.WHITE',
 								transition: 'all 0.2s',
 							}}
 							onMouseEnter={(e) => {
@@ -1989,7 +1989,7 @@ cd oauthPlayground`}
 								borderRadius: '0.5rem',
 								fontWeight: '600',
 								fontSize: '0.875rem',
-								border: '1px solid V9_COLORS.PRIMARY.BLUE',
+								border: '1px solid COLORS.PRIMARY.BLUE',
 								transition: 'all 0.2s',
 							}}
 							onMouseEnter={(e) => {
@@ -2020,7 +2020,7 @@ cd oauthPlayground`}
 								borderRadius: '0.5rem',
 								fontWeight: '600',
 								fontSize: '0.875rem',
-								border: '1px solid V9_COLORS.PRIMARY.BLUE',
+								border: '1px solid COLORS.PRIMARY.BLUE',
 								transition: 'all 0.2s',
 							}}
 							onMouseEnter={(e) => {

@@ -1,4 +1,4 @@
-import { V9_COLORS } from '../../platform/V9ColorStandards';
+import { COLORS } from '../../platform/ColorStandards';
 
 /**
  * @file SpecVersionSelector.tsx
@@ -115,7 +115,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 						display: 'block',
 						fontSize: '13px',
 						fontWeight: '600',
-						color: disabled ? V9_COLORS.TEXT.GRAY_LIGHT : V9_COLORS.TEXT.GRAY_DARK,
+						color: disabled ? COLORS.TEXT.GRAY_LIGHT : COLORS.TEXT.GRAY_DARK,
 					}}
 				>
 					Specification Version
@@ -125,7 +125,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 								marginLeft: '8px',
 								fontSize: '12px',
 								fontWeight: '400',
-								color: V9_COLORS.TEXT.GRAY_LIGHT,
+								color: COLORS.TEXT.GRAY_LIGHT,
 								fontStyle: 'italic',
 							}}
 							title="Specification version cannot be changed after starting the flow"
@@ -150,7 +150,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 						padding: '2px',
 						display: 'flex',
 						alignItems: 'center',
-						color: disabled ? V9_COLORS.TEXT.GRAY_LIGHT : V9_COLORS.TEXT.GRAY_MEDIUM,
+						color: disabled ? COLORS.TEXT.GRAY_LIGHT : COLORS.TEXT.GRAY_MEDIUM,
 						opacity: disabled ? 0.6 : 1,
 					}}
 					title={
@@ -166,13 +166,13 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 			{showGuidance && !selectedGuidance && (
 				<div
 					style={{
-						background: V9_COLORS.BG.GRAY_LIGHT,
-						border: `1px solid ${V9_COLORS.PRIMARY.BLUE}`,
+						background: COLORS.BG.GRAY_LIGHT,
+						border: `1px solid ${COLORS.PRIMARY.BLUE}`,
 						borderRadius: '6px',
 						padding: '12px',
 						marginBottom: '12px',
 						fontSize: '13px',
-						color: V9_COLORS.PRIMARY.BLUE_DARK,
+						color: COLORS.PRIMARY.BLUE_DARK,
 					}}
 				>
 					<div
@@ -183,7 +183,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 							marginBottom: '8px',
 						}}
 					>
-						<strong style={{ color: V9_COLORS.PRIMARY.BLUE_DARK }}>
+						<strong style={{ color: COLORS.PRIMARY.BLUE_DARK }}>
 							 Choosing a Specification Version
 						</strong>
 						<button
@@ -196,13 +196,13 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 								padding: '0',
 								display: 'flex',
 								alignItems: 'center',
-								color: V9_COLORS.PRIMARY.BLUE_DARK,
+								color: COLORS.PRIMARY.BLUE_DARK,
 							}}
 						>
 							<span style={{ fontSize: '16px' }}>❌</span>
 						</button>
 					</div>
-					<ul style={{ margin: '0', paddingLeft: '20px', color: V9_COLORS.PRIMARY.BLUE_DARK }}>
+					<ul style={{ margin: '0', paddingLeft: '20px', color: COLORS.PRIMARY.BLUE_DARK }}>
 						<li>
 							<strong>OpenID Connect Core 1.0:</strong> Use when you need user authentication and
 							identity information (ID tokens, openid scope, UserInfo endpoint). Adds identity layer
@@ -224,7 +224,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 						style={{
 							margin: '8px 0 0 0',
 							fontSize: '12px',
-							color: V9_COLORS.PRIMARY.BLUE_DARK,
+							color: COLORS.PRIMARY.BLUE_DARK,
 						}}
 					>
 						Click the{' '}
@@ -237,13 +237,13 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 			{showGuidance && selectedGuidance && currentGuidance && (
 				<div
 					style={{
-						background: V9_COLORS.PRIMARY.YELLOW,
-						border: `1px solid ${V9_COLORS.PRIMARY.YELLOW_DARK}`,
+						background: COLORS.PRIMARY.YELLOW,
+						border: `1px solid ${COLORS.PRIMARY.YELLOW_DARK}`,
 						borderRadius: '6px',
 						padding: '12px',
 						marginBottom: '12px',
 						fontSize: '13px',
-						color: V9_COLORS.TEXT.GRAY_DARK,
+						color: COLORS.TEXT.GRAY_DARK,
 					}}
 				>
 					<div
@@ -254,7 +254,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 							marginBottom: '8px',
 						}}
 					>
-						<strong style={{ color: V9_COLORS.TEXT.GRAY_DARK }}>
+						<strong style={{ color: COLORS.TEXT.GRAY_DARK }}>
 							 {SpecVersionServiceV8.getSpecLabel(selectedGuidance)} Guidance
 						</strong>
 						<button
@@ -270,14 +270,14 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 								padding: '0',
 								display: 'flex',
 								alignItems: 'center',
-								color: V9_COLORS.TEXT.GRAY_DARK,
+								color: COLORS.TEXT.GRAY_DARK,
 							}}
 						>
 							<span style={{ fontSize: '16px' }}>❌</span>
 						</button>
 					</div>
 					<div>
-						<strong style={{ color: V9_COLORS.TEXT.GRAY_DARK, fontSize: '12px' }}>
+						<strong style={{ color: COLORS.TEXT.GRAY_DARK, fontSize: '12px' }}>
 							Available flows:
 						</strong>
 						<span style={{ marginLeft: '6px', fontSize: '12px' }}>

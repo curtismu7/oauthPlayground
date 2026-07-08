@@ -14,13 +14,13 @@ import { FlowUIService } from '../../services/flowUIService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import SAMLAssertionService from '../../services/samlAssertionService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { V9_COLORS } from '../../platform/V9ColorStandards';
+import { COLORS } from '../../platform/ColorStandards';
 import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
 import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
 import V9FlowHeader from '../../platform/v9FlowHeaderService';
 import { credentialManager } from '../../utils/credentialManager';
 import { logger } from '../../utils/logger';
-import { V7MMockBanner } from '../mock-ui/V7MMockBanner';
+import { MockBanner } from '../mock-ui/MockBanner';
 import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
 
@@ -30,7 +30,7 @@ const ContentWrapper = FlowUIService.getContentWrapper();
 
 const SectionDivider = styled.div`
 	height: 1px;
-	background: linear-gradient(90deg, transparent, V9_COLORS.TEXT.GRAY_LIGHTER, transparent);
+	background: linear-gradient(90deg, transparent, COLORS.TEXT.GRAY_LIGHTER, transparent);
 	margin: 2rem 0;
 `;
 
@@ -104,14 +104,14 @@ const Label = styled.label`
 	display: block;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const Input = styled.input<{ $preFilled?: boolean }>`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid ${(p) => (p.$preFilled ? '#93c5fd' : V9_COLORS.TEXT.GRAY_LIGHTER)};
+	border: 1px solid ${(p) => (p.$preFilled ? '#93c5fd' : COLORS.TEXT.GRAY_LIGHTER)};
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: ${(p) => (p.$preFilled ? 600 : 400)};
@@ -123,7 +123,7 @@ const Input = styled.input<{ $preFilled?: boolean }>`
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -131,7 +131,7 @@ const Input = styled.input<{ $preFilled?: boolean }>`
 // Helper text component for form guidance
 const Helper = styled.div`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	margin-top: 0.5rem;
 	line-height: 1.4;
 `;
@@ -151,35 +151,35 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>
 	${(props) => {
 		if (props.$variant === 'primary') {
 			return `
-				background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE} 0%, ${V9_COLORS.PRIMARY.BLUE_DARK} 100%);
+				background: linear-gradient(135deg, ${COLORS.PRIMARY.BLUE} 0%, ${COLORS.PRIMARY.BLUE_DARK} 100%);
 				color: white;
 				
 				&:hover:not(:disabled) {
-					background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE_DARK} 0%, ${V9_COLORS.PRIMARY.BLUE_DARK} 100%);
+					background: linear-gradient(135deg, ${COLORS.PRIMARY.BLUE_DARK} 0%, ${COLORS.PRIMARY.BLUE_DARK} 100%);
 					transform: translateY(-1px);
 					box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 				}
 			`;
 		} else if (props.$variant === 'success') {
 			return `
-				background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE_DARK} 0%, ${V9_COLORS.PRIMARY.BLUE_DARK} 100%);
+				background: linear-gradient(135deg, ${COLORS.PRIMARY.BLUE_DARK} 0%, ${COLORS.PRIMARY.BLUE_DARK} 100%);
 				color: white;
 				
 				&:hover:not(:disabled) {
-					background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE_DARK} 0%, #1e3a8a 100%);
+					background: linear-gradient(135deg, ${COLORS.PRIMARY.BLUE_DARK} 0%, #1e3a8a 100%);
 				}
 			`;
 		} else {
 			// Secondary: outline primary (never grey when enabled)
 			return `
 				background: white;
-				color: ${V9_COLORS.PRIMARY.BLUE};
-				border: 2px solid ${V9_COLORS.PRIMARY.BLUE};
+				color: ${COLORS.PRIMARY.BLUE};
+				border: 2px solid ${COLORS.PRIMARY.BLUE};
 				
 				&:hover:not(:disabled) {
 					background: #eff6ff;
-					border-color: ${V9_COLORS.PRIMARY.BLUE_DARK};
-					color: ${V9_COLORS.PRIMARY.BLUE_DARK};
+					border-color: ${COLORS.PRIMARY.BLUE_DARK};
+					color: ${COLORS.PRIMARY.BLUE_DARK};
 				}
 			`;
 		}
@@ -195,8 +195,8 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>
 `;
 
 const GeneratedContentBox = styled.div`
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -212,7 +212,7 @@ const ParameterGrid = styled.div`
 const ParameterLabel = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const ParameterValue = styled.div`
@@ -220,7 +220,7 @@ const ParameterValue = styled.div`
 	font-size: 0.875rem;
 	color: #1e3a8a;
 	word-break: break-all;
-	background-color: V9_COLORS.BG.GRAY_LIGHT;
+	background-color: COLORS.BG.GRAY_LIGHT;
 	border: 1px solid #93c5fd;
 	padding: 0.5rem;
 	border-radius: 0.25rem;
@@ -954,7 +954,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 							<div
 								style={{
 									background: '#f8fafc',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									padding: '1rem',
 									marginTop: '0.5rem',
@@ -1003,7 +1003,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 							<div
 								style={{
 									background: '#f8fafc',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									padding: '1rem',
 									marginTop: '0.5rem',
@@ -1046,7 +1046,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 								<div
 									style={{
 										marginTop: '1rem',
-										background: 'V9_COLORS.TEXT.WHITE7ed',
+										background: 'COLORS.TEXT.WHITE7ed',
 										border: '1px solid #fed7aa',
 										borderRadius: '0.5rem',
 										padding: '1rem',
@@ -1141,7 +1141,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 								backgroundColor: '#fef2f2',
 								padding: '0.75rem',
 								borderRadius: '0.5rem',
-								border: '2px solid V9_COLORS.PRIMARY.RED',
+								border: '2px solid COLORS.PRIMARY.RED',
 							}}
 						>
 							<strong>⚠️ SIMULATION WARNING:</strong> PingOne does not support SAML Bearer
@@ -1332,7 +1332,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 	// Main render
 	return (
 		<Container>
-			<V7MMockBanner description="This flow simulates the OAuth 2.0 SAML Bearer Assertion flow (RFC 7522) in-browser. No external APIs are called. SAML assertions and token responses are generated for learning." />
+			<MockBanner description="This flow simulates the OAuth 2.0 SAML Bearer Assertion flow (RFC 7522) in-browser. No external APIs are called. SAML assertions and token responses are generated for learning." />
 			<V9FlowHeader flowId="saml-bearer-assertion-v7" customConfig={{ flowType: 'pingone' }} />
 			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
 				<V9FlowRestartButton

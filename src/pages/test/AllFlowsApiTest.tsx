@@ -73,25 +73,25 @@ const Header = styled.div`
 `;
 
 const Title = styled.h1`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const Subtitle = styled.p`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 1.1rem;
 `;
 
 const TestSection = styled.div`
 	margin-bottom: 2rem;
 	padding: 1.5rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 `;
 
 const SectionTitle = styled.h2`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1rem;
 	font-size: 1.25rem;
 `;
@@ -117,32 +117,32 @@ const FormGroup = styled.div`
 
 const Label = styled.label`
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 0.875rem;
 `;
 
 const Input = styled.input`
 	padding: 0.5rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.25rem;
 	font-size: 0.875rem;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
 
 const Select = styled.select`
 	padding: 0.5rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.25rem;
 	font-size: 0.875rem;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -162,35 +162,35 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 		switch (props.variant) {
 			case 'primary':
 				return `
-          background: V9_COLORS.PRIMARY.BLUE;
+          background: COLORS.PRIMARY.BLUE;
           color: white;
-          border: 1px solid V9_COLORS.PRIMARY.BLUE;
+          border: 1px solid COLORS.PRIMARY.BLUE;
 
           &:hover:not(:disabled) {
-            background: V9_COLORS.PRIMARY.BLUE_DARK;
-            border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+            background: COLORS.PRIMARY.BLUE_DARK;
+            border-color: COLORS.PRIMARY.BLUE_DARK;
           }
         `;
 			case 'danger':
 				return `
-          background: V9_COLORS.PRIMARY.RED;
+          background: COLORS.PRIMARY.RED;
           color: white;
-          border: 1px solid V9_COLORS.PRIMARY.RED;
+          border: 1px solid COLORS.PRIMARY.RED;
 
           &:hover:not(:disabled) {
-            background: V9_COLORS.PRIMARY.RED_DARK;
-            border-color: V9_COLORS.PRIMARY.RED_DARK;
+            background: COLORS.PRIMARY.RED_DARK;
+            border-color: COLORS.PRIMARY.RED_DARK;
           }
         `;
 			default:
 				return `
           background: white;
-          color: V9_COLORS.TEXT.GRAY_DARK;
-          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+          color: COLORS.TEXT.GRAY_DARK;
+          border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 
           &:hover:not(:disabled) {
             background: #f9fafb;
-            border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+            border-color: COLORS.TEXT.GRAY_LIGHT;
           }
         `;
 		}
@@ -214,7 +214,7 @@ const ResultsContainer = styled.div`
 `;
 
 const ResultCard = styled.div<{ success: boolean }>`
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin-bottom: 1rem;
@@ -236,11 +236,11 @@ const ResultTitle = styled.h3<{ success: boolean }>`
 
 const ResultTime = styled.span`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const CodeBlock = styled.pre`
-	background: V9_COLORS.TEXT.GRAY_DARK;
+	background: COLORS.TEXT.GRAY_DARK;
 	color: #f9fafb;
 	padding: 1rem;
 	border-radius: 0.25rem;

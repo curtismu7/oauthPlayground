@@ -11,7 +11,7 @@ import { V9CredentialStorageService } from '../../platform/V9CredentialStorageSe
 import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
 import { V9ModernMessagingService } from '../../platform/V9ModernMessagingService';
 import V9FlowHeader from '../../platform/v9FlowHeaderService';
-import { V7MMockBanner } from '../mock-ui/V7MMockBanner';
+import { MockBanner } from '../mock-ui/MockBanner';
 import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
 
@@ -432,7 +432,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 	// Render component (messaging from app-level V9ModernMessagingProvider to avoid duplicate banners)
 	return (
 		<div style={{ padding: '2rem', maxWidth: '90rem', margin: '0 auto' }}>
-			<V7MMockBanner description="This flow simulates the OAuth 2.0 JWT Bearer Token flow (RFC 7523) in-browser. No external APIs are called. JWT and token responses are generated for learning." />
+			<MockBanner description="This flow simulates the OAuth 2.0 JWT Bearer Token flow (RFC 7523) in-browser. No external APIs are called. JWT and token responses are generated for learning." />
 			<V9FlowHeader flowId="jwt-bearer-token-v7" />
 
 			{/* Restart Button */}
@@ -505,7 +505,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 								padding: '1.5rem',
 								borderRadius: '0.5rem',
 								marginBottom: '2rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<button
@@ -558,7 +558,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 								padding: '1.5rem',
 								borderRadius: '0.5rem',
 								marginBottom: '2rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<button
@@ -608,7 +608,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 											style={{
 												width: '100%',
 												padding: '0.5rem',
-												border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+												border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 												borderRadius: '0.25rem',
 											}}
 										/>
@@ -624,7 +624,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 								padding: '1.5rem',
 								borderRadius: '0.5rem',
 								marginBottom: '2rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<button
@@ -671,7 +671,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 											style={{
 												width: '100%',
 												padding: '0.5rem',
-												border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+												border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 												borderRadius: '0.25rem',
 											}}
 										/>
@@ -691,7 +691,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 											style={{
 												width: '100%',
 												padding: '0.5rem',
-												border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+												border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 												borderRadius: '0.25rem',
 											}}
 										/>
@@ -707,7 +707,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 								padding: '1.5rem',
 								borderRadius: '0.5rem',
 								marginBottom: '2rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<button
@@ -753,7 +753,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 											style={{
 												width: '100%',
 												padding: '0.5rem',
-												border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+												border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 												borderRadius: '0.25rem',
 											}}
 										>
@@ -781,7 +781,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 											style={{
 												width: '100%',
 												padding: '0.5rem',
-												border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+												border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 												borderRadius: '0.25rem',
 												fontFamily: 'monospace',
 												fontSize: '0.875rem',
@@ -804,7 +804,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 											style={{
 												width: '100%',
 												padding: '0.5rem',
-												border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+												border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 												borderRadius: '0.25rem',
 												fontFamily: 'monospace',
 												fontSize: '0.875rem',
@@ -842,7 +842,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 								padding: '1.5rem',
 								borderRadius: '0.5rem',
 								marginBottom: '2rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<h3 style={{ margin: '0 0 1rem 0' }}> JWT Generation</h3>
@@ -1037,7 +1037,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 								padding: '1.5rem',
 								borderRadius: '0.5rem',
 								marginBottom: '2rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<h3 style={{ margin: '0 0 1rem 0' }}> Token Request</h3>
@@ -1068,7 +1068,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 										background: '#fef3c7',
 										padding: '1rem',
 										borderRadius: '0.375rem',
-										border: '1px solid V9_COLORS.PRIMARY.YELLOW',
+										border: '1px solid COLORS.PRIMARY.YELLOW',
 										marginBottom: '1rem',
 									}}
 								>
@@ -1090,7 +1090,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 								padding: '1.5rem',
 								borderRadius: '0.5rem',
 								marginBottom: '2rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<h3 style={{ margin: '0 0 1rem 0' }}> Token Response</h3>
@@ -1120,7 +1120,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 										background: '#fef3c7',
 										padding: '1rem',
 										borderRadius: '0.375rem',
-										border: '1px solid V9_COLORS.PRIMARY.YELLOW',
+										border: '1px solid COLORS.PRIMARY.YELLOW',
 									}}
 								>
 									<p style={{ margin: 0, color: '#d97706' }}>
@@ -1314,7 +1314,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 					justifyContent: 'space-between',
 					marginTop: '2rem',
 					paddingTop: '2rem',
-					borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+					borderTop: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 				}}
 			>
 				<button

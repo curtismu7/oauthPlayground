@@ -137,10 +137,10 @@ const QUESTIONS: Question[] = [
 ];
 
 const WizardContainer = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
+	background: linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.BG.GRAY_LIGHT 100%);
 	border-radius: 1rem;
 	padding: 2rem;
-	border: 2px solid V9_COLORS.PRIMARY.BLUE_DARK;
+	border: 2px solid COLORS.PRIMARY.BLUE_DARK;
 	box-shadow: 0 12px 30px rgba(30, 64, 175, 0.18);
 `;
 
@@ -161,7 +161,7 @@ const Title = styled.h2`
 `;
 
 const Intro = styled.p`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin: 0;
 	line-height: 1.6;
 	font-size: 1.05rem;
@@ -178,7 +178,7 @@ const Stepper = styled.div`
 `;
 
 const QuestionCard = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
 	padding: 1.75rem;
 	border: 1px solid #c7d2fe;
@@ -191,14 +191,14 @@ const QuestionHeader = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	font-weight: 700;
 	font-size: 1.1rem;
 `;
 
 const QuestionDescription = styled.p`
 	margin: 0;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.6;
 `;
 
@@ -232,11 +232,11 @@ const OptionButton = styled.button<{ $selected: boolean }>`
 
 const OptionLabel = styled.div`
 	font-weight: 700;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const OptionDescription = styled.div`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.9rem;
 	line-height: 1.5;
 `;
@@ -251,7 +251,7 @@ const NavigationBar = styled.div`
 `;
 
 const StepIndicator = styled.div`
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	font-weight: 600;
 	font-size: 0.95rem;
 `;
@@ -268,11 +268,11 @@ const NavButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	gap: 0.5rem;
 	padding: 0.75rem 1.5rem;
 	border-radius: 0.5rem;
-	border: ${({ $variant }) => ($variant === 'secondary' ? '2px solid V9_COLORS.PRIMARY.BLUE_DARK' : 'none')};
+	border: ${({ $variant }) => ($variant === 'secondary' ? '2px solid COLORS.PRIMARY.BLUE_DARK' : 'none')};
 	background: ${({ $variant }) =>
 		$variant === 'secondary'
 			? '#ffffff'
-			: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)'};
+			: 'linear-gradient(135deg, COLORS.PRIMARY.BLUE_DARK 0%, COLORS.PRIMARY.BLUE_DARK 100%)'};
 	color: ${({ $variant }) => ($variant === 'secondary' ? '#2563eb' : '#ffffff')};
 	font-weight: 600;
 	cursor: pointer;
@@ -291,10 +291,10 @@ const NavButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 `;
 
 const RecommendationsPanel = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
@@ -333,7 +333,7 @@ const RecommendationCard = styled.div<{ $category: Recommendation['category'] }>
 	display: flex;
 	flex-direction: column;
 	gap: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const RecommendationTitle = styled.div`
@@ -355,7 +355,7 @@ const RecommendationActions = styled.ul`
 	display: flex;
 	flex-direction: column;
 	gap: 0.35rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatusBanner = styled.div`
@@ -365,7 +365,7 @@ const StatusBanner = styled.div`
 	padding: 1rem 1.25rem;
 	border-radius: 0.75rem;
 	background: rgba(16, 185, 129, 0.12);
-	border: 1px solid V9_COLORS.PRIMARY.GREEN_LIGHT;
+	border: 1px solid COLORS.PRIMARY.GREEN_LIGHT;
 	color: #047857;
 	font-weight: 600;
 `;
@@ -377,8 +377,8 @@ const WarningBanner = styled.div`
 	padding: 1rem 1.25rem;
 	border-radius: 0.75rem;
 	background: rgba(239, 68, 68, 0.12);
-	border: 1px solid V9_COLORS.PRIMARY.RED;
-	color: V9_COLORS.PRIMARY.RED_DARK;
+	border: 1px solid COLORS.PRIMARY.RED;
+	color: COLORS.PRIMARY.RED_DARK;
 	font-weight: 600;
 `;
 

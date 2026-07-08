@@ -4,7 +4,7 @@ import DocumentationHeader from '../components/DocumentationHeader';
 import { UnifiedTokenDisplayService } from '../services/unifiedTokenDisplayService';
 import { unifiedTokenStorage } from '../services/unifiedTokenStorageService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import { V9_COLORS } from '../platform/V9ColorStandards';
+import { COLORS } from '../platform/ColorStandards';
 import { logger } from '../utils/logger';
 import { TokenMonitoringPage } from '../lab/pages/TokenMonitoringPage';
 import TokenIntrospectionFlow from '../flows/flows/tokenIntrospection.flow';
@@ -15,7 +15,7 @@ const Container = styled.div`
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 2rem;
-	background: ${V9_COLORS.BG.WHITE};
+	background: ${COLORS.BG.WHITE};
 	border-radius: 12px;
 	box-shadow: 0 2px 16px rgba(31, 41, 55, 0.08);
 `;
@@ -23,13 +23,13 @@ const Container = styled.div`
 const Title = styled.h2`
 	font-size: 2rem;
 	font-weight: 700;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	margin-bottom: 24px;
 `;
 
 const TabBar = styled.div`
 	display: flex;
-	border-bottom: 2px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border-bottom: 2px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	margin-bottom: 24px;
 `;
 
@@ -37,7 +37,7 @@ const TabButton = styled.button<{ $active: boolean; $color: string }>`
 	padding: 12px 24px;
 	border: none;
 	background: ${({ $active, $color }) => ($active ? $color : 'transparent')};
-	color: ${({ $active }) => ($active ? V9_COLORS.TEXT.WHITE : V9_COLORS.TEXT.GRAY_DARK)};
+	color: ${({ $active }) => ($active ? COLORS.TEXT.WHITE : COLORS.TEXT.GRAY_DARK)};
 	font-weight: 600;
 	border-bottom: ${({ $active, $color }) => ($active ? `3px solid ${$color}` : 'none')};
 	cursor: pointer;
@@ -307,28 +307,28 @@ const CombinedTokenPage: React.FC = () => {
 			<TabBar>
 				<TabButton
 					$active={activeTab === 'management'}
-					$color={V9_COLORS.PRIMARY.RED}
+					$color={COLORS.PRIMARY.RED}
 					onClick={() => setActiveTab('management')}
 				>
 					Token Management
 				</TabButton>
 				<TabButton
 					$active={activeTab === 'introspection'}
-					$color={V9_COLORS.PRIMARY.BLUE}
+					$color={COLORS.PRIMARY.BLUE}
 					onClick={() => setActiveTab('introspection')}
 				>
 					Token Introspection
 				</TabButton>
 				<TabButton
 					$active={activeTab === 'revocation'}
-					$color={V9_COLORS.PRIMARY.GREEN}
+					$color={COLORS.PRIMARY.GREEN}
 					onClick={() => setActiveTab('revocation')}
 				>
 					Token Revocation
 				</TabButton>
 				<TabButton
 					$active={activeTab === 'monitoring'}
-					$color={V9_COLORS.PRIMARY.PURPLE}
+					$color={COLORS.PRIMARY.PURPLE}
 					onClick={() => setActiveTab('monitoring')}
 				>
 					Token Monitoring

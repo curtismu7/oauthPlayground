@@ -160,7 +160,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
 						style={{
 							width: '100%',
 							padding: '0.75rem',
-							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.375rem',
 							fontSize: '0.875rem',
 							backgroundColor: disabled ? '#f9fafb' : '#ffffff',

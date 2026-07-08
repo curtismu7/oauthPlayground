@@ -4,7 +4,7 @@ import { DraggableModal } from './DraggableModal';
 
 const ModalMessage = styled.p`
   margin: 0 0 1.5rem 0;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.5;
 `;
 
@@ -14,7 +14,7 @@ const ButtonGroup = styled.div`
   justify-content: flex-end;
   margin-top: 1.5rem;
   padding-top: 1rem;
-  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border-top: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
@@ -33,35 +33,35 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 		switch ($variant) {
 			case 'danger':
 				return `
-          background-color: V9_COLORS.PRIMARY.RED_DARK;
-          color: V9_COLORS.TEXT.WHITE;
-          border-color: V9_COLORS.PRIMARY.RED_DARK;
+          background-color: COLORS.PRIMARY.RED_DARK;
+          color: COLORS.TEXT.WHITE;
+          border-color: COLORS.PRIMARY.RED_DARK;
           
           &:hover:not(:disabled) {
-            background-color: V9_COLORS.PRIMARY.RED_DARK;
-            border-color: V9_COLORS.PRIMARY.RED_DARK;
+            background-color: COLORS.PRIMARY.RED_DARK;
+            border-color: COLORS.PRIMARY.RED_DARK;
           }
         `;
 			case 'primary':
 				return `
-          background-color: V9_COLORS.PRIMARY.BLUE;
-          color: V9_COLORS.TEXT.WHITE;
-          border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+          background-color: COLORS.PRIMARY.BLUE;
+          color: COLORS.TEXT.WHITE;
+          border-color: COLORS.PRIMARY.BLUE_DARK;
           
           &:hover:not(:disabled) {
-            background-color: V9_COLORS.PRIMARY.BLUE_DARK;
-            border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+            background-color: COLORS.PRIMARY.BLUE_DARK;
+            border-color: COLORS.PRIMARY.BLUE_DARK;
           }
         `;
 			default:
 				return `
-          background-color: V9_COLORS.PRIMARY.BLUE;
-          color: V9_COLORS.TEXT.WHITE;
-          border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+          background-color: COLORS.PRIMARY.BLUE;
+          color: COLORS.TEXT.WHITE;
+          border-color: COLORS.PRIMARY.BLUE_DARK;
           
           &:hover:not(:disabled) {
-            background-color: V9_COLORS.PRIMARY.BLUE_DARK;
-            border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+            background-color: COLORS.PRIMARY.BLUE_DARK;
+            border-color: COLORS.PRIMARY.BLUE_DARK;
           }
         `;
 		}

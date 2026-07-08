@@ -14,7 +14,7 @@ const GamingConsoleContainer = styled.div<{ $authorized?: boolean }>`
 	background: ${({ $authorized }) =>
 		$authorized
 			? 'linear-gradient(135deg, #00ff88 0%, #00cc6a 50%, #00ff88 100%)'
-			: 'linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, #f8f9fa 100%)'};
+			: 'linear-gradient(135deg, COLORS.TEXT.WHITE 0%, #f8f9fa 100%)'};
 	border-radius: 1.5rem;
 	padding: 2rem;
 	margin: 2rem 0;
@@ -129,7 +129,7 @@ const LEDIndicator = styled.div<{ $active: boolean; $color: string }>`
 
 // Main Display Screen
 const DisplayScreen = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1a1a1a 100%);
+	background: linear-gradient(135deg, COLORS.TEXT.BLACK 0%, #1a1a1a 100%);
 	border: 3px solid #0096ff;
 	border-radius: 0.75rem;
 	padding: 2rem;
@@ -151,7 +151,7 @@ const ScreenLabel = styled.div`
 `;
 
 const UserCodeDisplay = styled.div`
-	background: V9_COLORS.TEXT.BLACK;
+	background: COLORS.TEXT.BLACK;
 	color: #00ff00;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 2.5rem;
@@ -302,7 +302,7 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	margin-bottom: 0.5rem;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
@@ -310,7 +310,7 @@ const StatusText = styled.div`
 
 const StatusMessage = styled.div`
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 `;
 
 // Console Base
@@ -419,8 +419,8 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={180}
-							bgColor="V9_COLORS.TEXT.WHITE"
-							fgColor="V9_COLORS.TEXT.BLACK"
+							bgColor="COLORS.TEXT.WHITE"
+							fgColor="COLORS.TEXT.BLACK"
 							level="M"
 							includeMargin={true}
 						/>
@@ -495,7 +495,7 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.2)"
 				borderColor="#333333"
-				headerTextColor="V9_COLORS.TEXT.WHITE"
+				headerTextColor="COLORS.TEXT.WHITE"
 			/>
 		</>
 	);

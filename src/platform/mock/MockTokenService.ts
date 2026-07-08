@@ -1,12 +1,12 @@
-// src/services/v7m/V7MTokenService.ts
+// src/platform/mock/V7MTokenService.ts
 // lint-file-disable: token-value-in-jsx
 // Token endpoint simulator for V7M educational flows.
 // Supports authorization_code and refresh_token grants, PKCE checks, and client auth simulation.
 
-import { V9MockStateStore } from './V9MockStateStore';
-import { generateV9MockTokens, V9MockTokenSeed, V9MockTokenTtls } from './V9MockTokenGenerator';
+import { MockStateStore } from './MockStateStore';
+import { generateMockTokens, MockTokenSeed, MockTokenTtls } from './MockTokenGenerator';
 
-export type V9MockAuthorizationCodeGrantRequest = {
+export type MockAuthorizationCodeGrantRequest = {
 	grant_type: 'authorization_code';
 	code: string;
 	redirect_uri: string;
@@ -23,10 +23,10 @@ export type V9MockAuthorizationCodeGrantRequest = {
 	userId?: string;
 	includeIdToken?: boolean;
 	expectedClientSecret?: string; // the "stored" secret to validate against
-	ttls?: Partial<V9MockTokenTtls>;
+	ttls?: Partial<MockTokenTtls>;
 };
 
-export type V9MockRefreshTokenGrantRequest = {
+export type MockRefreshTokenGrantRequest = {
 	grant_type: 'refresh_token';
 	refresh_token: string;
 	client_id: string;
@@ -40,15 +40,15 @@ export type V9MockRefreshTokenGrantRequest = {
 	userEmail?: string;
 	userId?: string;
 	includeIdToken?: boolean;
-	ttls?: Partial<V9MockTokenTtls>;
+	ttls?: Partial<MockTokenTtls>;
 };
 
-export type V9MockTokenError = {
+export type MockTokenError = {
 	error: string;
 	error_description?: string;
 };
 
-export type V9MockTokenSuccess = {
+export type MockTokenSuccess = {
 	access_token: string;
 	id_token?: string;
 	refresh_token?: string;
@@ -57,15 +57,15 @@ export type V9MockTokenSuccess = {
 	scope?: string;
 };
 
-const DEFAULT_TTLS: V9MockTokenTtls = {
+const DEFAULT_TTLS: MockTokenTtls = {
 	accessTokenSeconds: 3600,
 	idTokenSeconds: 3600,
 	refreshTokenSeconds: 86400,
 };
 
 export function tokenExchangeAuthorizationCode(
-	req: V9MockAuthorizationCodeGrantRequest
-): V9MockTokenSuccess | V9MockTokenError {
+	req: MockAuthorizationCodeGrantRequest
+): MockTokenSuccess | MockTokenError {
 	if (req.grant_type !== 'authorization_code') {
 		return {
 			error: 'unsupported_grant_type',
@@ -83,7 +83,7 @@ export function tokenExchangeAuthorizationCode(
 		return { error: 'invalid_client', error_description: 'Client authentication failed' };
 
 	// Consume code
-	const rec = V9MockStateStore.consumeAuthorizationCode(req.code);
+	const rec = MockStateStore.consumeAuthorizationCode(req.code);
 	if (!rec)
 		return {
 			error: 'invalid_grant',
@@ -111,7 +111,7 @@ export function tokenExchangeAuthorizationCode(
 	const userEmail = rec.userEmail ?? req.userEmail;
 	const userId = rec.userId ?? req.userId;
 	const scope = rec.scope || req.scope;
-	const seed: V9MockTokenSeed = {
+	const seed: MockTokenSeed = {
 		clientId: req.client_id,
 		...(req.environmentId ? { environmentId: req.environmentId } : {}),
 		...(req.issuer ? { issuer: req.issuer } : {}),
@@ -121,13 +121,13 @@ export function tokenExchangeAuthorizationCode(
 		...(scope ? { scope } : {}),
 		audience: req.client_id,
 	};
-	const tokens = generateV9MockTokens(seed, now, ttls, !!req.includeIdToken, req.code);
+	const tokens = generateMockTokens(seed, now, ttls, !!req.includeIdToken, req.code);
 
 	const tokenScope = (tokens.scope ?? scope) || '';
 
 	// Save token by refresh token for refresh flow
 	if (tokens.refresh_token) {
-		V9MockStateStore.saveToken(tokens.refresh_token, {
+		MockStateStore.saveToken(tokens.refresh_token, {
 			accessToken: tokens.access_token,
 			refreshToken: tokens.refresh_token,
 			clientId: req.client_id,
@@ -138,7 +138,7 @@ export function tokenExchangeAuthorizationCode(
 		});
 	}
 	// Also store by access token for UserInfo/Introspection lookup
-	V9MockStateStore.saveToken(tokens.access_token, {
+	MockStateStore.saveToken(tokens.access_token, {
 		accessToken: tokens.access_token,
 		refreshToken: tokens.refresh_token,
 		clientId: req.client_id,
@@ -148,7 +148,7 @@ export function tokenExchangeAuthorizationCode(
 		expiresAt: tokens.issued_at + ttls.accessTokenSeconds,
 	});
 
-	const result: V9MockTokenSuccess = {
+	const result: MockTokenSuccess = {
 		access_token: tokens.access_token,
 		...(tokens.id_token ? { id_token: tokens.id_token } : {}),
 		...(tokens.refresh_token ? { refresh_token: tokens.refresh_token } : {}),
@@ -160,8 +160,8 @@ export function tokenExchangeAuthorizationCode(
 }
 
 export function tokenExchangeRefreshToken(
-	req: V9MockRefreshTokenGrantRequest
-): V9MockTokenSuccess | V9MockTokenError {
+	req: MockRefreshTokenGrantRequest
+): MockTokenSuccess | MockTokenError {
 	if (req.grant_type !== 'refresh_token') {
 		return { error: 'unsupported_grant_type', error_description: 'Only refresh_token supported' };
 	}
@@ -174,11 +174,11 @@ export function tokenExchangeRefreshToken(
 	if (!clientAuthOk)
 		return { error: 'invalid_client', error_description: 'Client authentication failed' };
 
-	const existing = V9MockStateStore.getToken(req.refresh_token);
+	const existing = MockStateStore.getToken(req.refresh_token);
 	const ttls = { ...DEFAULT_TTLS, ...(req.ttls || {}) };
 	const now = Math.floor(Date.now() / 1000);
 
-	let seed: V9MockTokenSeed;
+	let seed: MockTokenSeed;
 	if (existing) {
 		seed = {
 			clientId: existing.clientId,
@@ -196,14 +196,14 @@ export function tokenExchangeRefreshToken(
 			...(req.scope ? { scope: req.scope } : {}),
 		};
 	}
-	const tokens = generateV9MockTokens(seed, now, ttls, !!req.includeIdToken);
+	const tokens = generateMockTokens(seed, now, ttls, !!req.includeIdToken);
 
 	const seedScope = existing?.scope || req.scope || '';
 	const seedSubject = seed.userId ?? seed.userEmail ?? 'user';
 
 	// rotate refresh
 	if (tokens.refresh_token) {
-		V9MockStateStore.saveToken(tokens.refresh_token, {
+		MockStateStore.saveToken(tokens.refresh_token, {
 			accessToken: tokens.access_token,
 			refreshToken: tokens.refresh_token,
 			clientId: req.client_id,
@@ -213,10 +213,10 @@ export function tokenExchangeRefreshToken(
 			expiresAt: tokens.issued_at + ttls.accessTokenSeconds,
 		});
 		// delete old token if we had it
-		if (existing) V9MockStateStore.deleteToken(req.refresh_token);
+		if (existing) MockStateStore.deleteToken(req.refresh_token);
 	}
 	// store by new access token too
-	V9MockStateStore.saveToken(tokens.access_token, {
+	MockStateStore.saveToken(tokens.access_token, {
 		accessToken: tokens.access_token,
 		refreshToken: tokens.refresh_token,
 		clientId: req.client_id,
@@ -226,7 +226,7 @@ export function tokenExchangeRefreshToken(
 		expiresAt: tokens.issued_at + ttls.accessTokenSeconds,
 	});
 
-	const result: V9MockTokenSuccess = {
+	const result: MockTokenSuccess = {
 		access_token: tokens.access_token,
 		...(tokens.id_token ? { id_token: tokens.id_token } : {}),
 		...(tokens.refresh_token ? { refresh_token: tokens.refresh_token } : {}),
@@ -237,7 +237,7 @@ export function tokenExchangeRefreshToken(
 	return result;
 }
 
-export type V9MockDeviceCodeGrantRequest = {
+export type MockDeviceCodeGrantRequest = {
 	grant_type: 'urn:ietf:params:oauth:grant-type:device_code';
 	device_code: string;
 	client_id: string;
@@ -251,10 +251,10 @@ export type V9MockDeviceCodeGrantRequest = {
 	userEmail?: string;
 	userId?: string;
 	includeIdToken?: boolean;
-	ttls?: Partial<V9MockTokenTtls>;
+	ttls?: Partial<MockTokenTtls>;
 };
 
-export type V9MockClientCredentialsGrantRequest = {
+export type MockClientCredentialsGrantRequest = {
 	grant_type: 'client_credentials';
 	client_id: string;
 	scope?: string;
@@ -265,10 +265,10 @@ export type V9MockClientCredentialsGrantRequest = {
 	// For shaping tokens
 	issuer?: string;
 	environmentId?: string;
-	ttls?: Partial<V9MockTokenTtls>;
+	ttls?: Partial<MockTokenTtls>;
 };
 
-export type V9MockPasswordGrantRequest = {
+export type MockPasswordGrantRequest = {
 	grant_type: 'password';
 	username: string;
 	password: string;
@@ -283,12 +283,12 @@ export type V9MockPasswordGrantRequest = {
 	userEmail?: string; // If username is email, this can be the same
 	userId?: string;
 	includeIdToken?: boolean; // For OIDC variant
-	ttls?: Partial<V9MockTokenTtls>;
+	ttls?: Partial<MockTokenTtls>;
 };
 
 export function tokenExchangeDeviceCode(
-	req: V9MockDeviceCodeGrantRequest
-): V9MockTokenSuccess | V9MockTokenError {
+	req: MockDeviceCodeGrantRequest
+): MockTokenSuccess | MockTokenError {
 	if (req.grant_type !== 'urn:ietf:params:oauth:grant-type:device_code') {
 		return { error: 'unsupported_grant_type', error_description: 'Only device_code supported' };
 	}
@@ -304,7 +304,7 @@ export function tokenExchangeDeviceCode(
 		return { error: 'invalid_client', error_description: 'Client authentication failed' };
 
 	// Get device code
-	const deviceRec = V9MockStateStore.getDeviceCode(req.device_code);
+	const deviceRec = MockStateStore.getDeviceCode(req.device_code);
 	if (!deviceRec) {
 		return { error: 'invalid_grant', error_description: 'Invalid or expired device code' };
 	}
@@ -331,7 +331,7 @@ export function tokenExchangeDeviceCode(
 	const userId = deviceRec.userId ?? req.userId;
 	const scope = deviceRec.scope || req.scope || '';
 
-	const seed: V9MockTokenSeed = {
+	const seed: MockTokenSeed = {
 		clientId: deviceRec.clientId,
 		...(req.environmentId ? { environmentId: req.environmentId } : {}),
 		...(req.issuer ? { issuer: req.issuer } : {}),
@@ -340,12 +340,12 @@ export function tokenExchangeDeviceCode(
 		...(scope ? { scope } : {}),
 	};
 
-	const tokens = generateV9MockTokens(seed, now, ttls, !!req.includeIdToken);
+	const tokens = generateMockTokens(seed, now, ttls, !!req.includeIdToken);
 
 	const seedSubject = userId ?? userEmail ?? 'user';
 
 	// Store token
-	V9MockStateStore.saveToken(tokens.access_token, {
+	MockStateStore.saveToken(tokens.access_token, {
 		accessToken: tokens.access_token,
 		refreshToken: tokens.refresh_token,
 		clientId: deviceRec.clientId,
@@ -356,9 +356,9 @@ export function tokenExchangeDeviceCode(
 	});
 
 	// Delete device code after successful token exchange
-	V9MockStateStore.deleteDeviceCode(req.device_code);
+	MockStateStore.deleteDeviceCode(req.device_code);
 
-	const result: V9MockTokenSuccess = {
+	const result: MockTokenSuccess = {
 		access_token: tokens.access_token,
 		...(tokens.id_token ? { id_token: tokens.id_token } : {}),
 		...(tokens.refresh_token ? { refresh_token: tokens.refresh_token } : {}),
@@ -370,8 +370,8 @@ export function tokenExchangeDeviceCode(
 }
 
 export function tokenExchangeClientCredentials(
-	req: V9MockClientCredentialsGrantRequest
-): V9MockTokenSuccess | V9MockTokenError {
+	req: MockClientCredentialsGrantRequest
+): MockTokenSuccess | MockTokenError {
 	if (req.grant_type !== 'client_credentials') {
 		return {
 			error: 'unsupported_grant_type',
@@ -393,7 +393,7 @@ export function tokenExchangeClientCredentials(
 	const ttls = { ...DEFAULT_TTLS, ...(req.ttls || {}) };
 	const now = Math.floor(Date.now() / 1000);
 
-	const seed: V9MockTokenSeed = {
+	const seed: MockTokenSeed = {
 		clientId: req.client_id,
 		...(req.environmentId ? { environmentId: req.environmentId } : {}),
 		...(req.issuer ? { issuer: req.issuer } : {}),
@@ -401,10 +401,10 @@ export function tokenExchangeClientCredentials(
 		...(req.audience ? { audience: req.audience } : {}),
 	};
 
-	const tokens = generateV9MockTokens(seed, now, ttls, false); // No ID token for client_credentials
+	const tokens = generateMockTokens(seed, now, ttls, false); // No ID token for client_credentials
 
 	// Store token (no refresh for client_credentials)
-	V9MockStateStore.saveToken(tokens.access_token, {
+	MockStateStore.saveToken(tokens.access_token, {
 		accessToken: tokens.access_token,
 		clientId: req.client_id,
 		scope: tokens.scope ?? req.scope ?? '',
@@ -413,7 +413,7 @@ export function tokenExchangeClientCredentials(
 		expiresAt: tokens.issued_at + ttls.accessTokenSeconds,
 	});
 
-	const result: V9MockTokenSuccess = {
+	const result: MockTokenSuccess = {
 		access_token: tokens.access_token,
 		token_type: 'Bearer',
 		expires_in: tokens.expires_in,
@@ -423,8 +423,8 @@ export function tokenExchangeClientCredentials(
 }
 
 export function tokenExchangePassword(
-	req: V9MockPasswordGrantRequest
-): V9MockTokenSuccess | V9MockTokenError {
+	req: MockPasswordGrantRequest
+): MockTokenSuccess | MockTokenError {
 	if (req.grant_type !== 'password') {
 		return { error: 'unsupported_grant_type', error_description: 'Only password supported' };
 	}
@@ -452,7 +452,7 @@ export function tokenExchangePassword(
 	const userEmail = req.userEmail || (req.username.includes('@') ? req.username : undefined);
 	const userId = req.userId || (userEmail ? userEmail.split('@')[0] : req.username);
 
-	const seed: V9MockTokenSeed = {
+	const seed: MockTokenSeed = {
 		clientId: req.client_id,
 		...(req.environmentId ? { environmentId: req.environmentId } : {}),
 		...(req.issuer ? { issuer: req.issuer } : {}),
@@ -462,13 +462,13 @@ export function tokenExchangePassword(
 	};
 
 	const includeIdToken = req.includeIdToken || (req.scope?.includes('openid') ?? false);
-	const tokens = generateV9MockTokens(seed, now, ttls, includeIdToken);
+	const tokens = generateMockTokens(seed, now, ttls, includeIdToken);
 
 	const seedScope = req.scope || '';
 
 	// Store tokens (with refresh token for password grant)
 	if (tokens.refresh_token) {
-		V9MockStateStore.saveToken(tokens.refresh_token, {
+		MockStateStore.saveToken(tokens.refresh_token, {
 			accessToken: tokens.access_token,
 			refreshToken: tokens.refresh_token,
 			clientId: req.client_id,
@@ -479,7 +479,7 @@ export function tokenExchangePassword(
 		});
 	}
 	// Store by access token too
-	V9MockStateStore.saveToken(tokens.access_token, {
+	MockStateStore.saveToken(tokens.access_token, {
 		accessToken: tokens.access_token,
 		refreshToken: tokens.refresh_token,
 		clientId: req.client_id,
@@ -489,7 +489,7 @@ export function tokenExchangePassword(
 		expiresAt: tokens.issued_at + ttls.accessTokenSeconds,
 	});
 
-	const result: V9MockTokenSuccess = {
+	const result: MockTokenSuccess = {
 		access_token: tokens.access_token,
 		...(tokens.id_token ? { id_token: tokens.id_token } : {}),
 		...(tokens.refresh_token ? { refresh_token: tokens.refresh_token } : {}),

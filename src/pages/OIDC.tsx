@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';
-import { V9_COLORS } from '../platform/V9ColorStandards';
+import { COLORS } from '../platform/ColorStandards';
 
 const OIDCContainer = styled.div`
   max-width: 1200px;
@@ -146,15 +146,15 @@ const OIDC: React.FC = () => {
 					style={{
 						marginTop: '2rem',
 						padding: '1.5rem',
-						backgroundColor: V9_COLORS.BG.GRAY_LIGHT,
+						backgroundColor: COLORS.BG.GRAY_LIGHT,
 						borderRadius: '0.5rem',
-						border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+						border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 					}}
 				>
-					<h3 style={{ marginBottom: '1rem', color: V9_COLORS.TEXT.GRAY_DARK }}>
+					<h3 style={{ marginBottom: '1rem', color: COLORS.TEXT.GRAY_DARK }}>
 						What is OpenID Connect?
 					</h3>
-					<p style={{ color: V9_COLORS.TEXT.GRAY_MEDIUM, lineHeight: '1.6', marginBottom: '1rem' }}>
+					<p style={{ color: COLORS.TEXT.GRAY_MEDIUM, lineHeight: '1.6', marginBottom: '1rem' }}>
 						OpenID Connect (OIDC) is a simple identity layer on top of the OAuth 2.0 protocol. It
 						allows clients to verify the identity of end-users based on authentication performed by
 						an authorization server.
@@ -164,7 +164,7 @@ const OIDC: React.FC = () => {
 						target="_blank"
 						rel="noopener noreferrer"
 						style={{
-							color: V9_COLORS.PRIMARY.BLUE,
+							color: COLORS.PRIMARY.BLUE,
 							textDecoration: 'none',
 							fontWeight: '500',
 							display: 'inline-flex',

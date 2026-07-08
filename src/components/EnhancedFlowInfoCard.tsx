@@ -11,17 +11,17 @@ const CardContainer = styled.div<{ $colorScheme?: string; $fontSize?: string }>`
 	background: ${({ $colorScheme }) => {
 		switch ($colorScheme) {
 			case 'blue':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_LIGHT 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_LIGHT 100%)';
 			case 'green':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_LIGHT 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, COLORS.PRIMARY.GREEN_LIGHT 100%)';
 			case 'purple':
 				return 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)';
 			case 'orange':
 				return 'linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)';
 			case 'red':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_LIGHT 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.RED 0%, COLORS.PRIMARY.RED_LIGHT 100%)';
 			default:
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_LIGHT 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_LIGHT 100%)';
 		}
 	}};
 	border-radius: 12px;
@@ -67,7 +67,7 @@ const CardHeader = styled.div`
 	align-items: center;
 	gap: 0.5rem;
 	background: white;
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: COLORS.PRIMARY.BLUE;
 	padding: 0.5rem 1rem;
 	border-radius: 20px;
 	font-weight: 600;
@@ -139,7 +139,7 @@ const SectionTitle = styled.div`
 	font-weight: 600;
 	font-size: 0.75rem;
 	text-transform: uppercase;
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: COLORS.PRIMARY.BLUE;
 	margin-bottom: 0.5rem;
 	letter-spacing: 0.05em;
 	display: flex;
@@ -148,7 +148,7 @@ const SectionTitle = styled.div`
 `;
 
 const SectionContent = styled.div`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 0.875rem;
 	line-height: 1.5;
 `;
@@ -172,14 +172,14 @@ const AdditionalInfoItem = styled.div`
 const AdditionalInfoLabel = styled.span`
 	font-size: 0.75rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 `;
 
 const AdditionalInfoValue = styled.span`
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-weight: 500;
 `;
 
@@ -190,7 +190,7 @@ const List = styled.ul`
 
 const ListItem = styled.li`
 	margin-bottom: 0.25rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const SecurityNote = styled.div<{ $type: 'success' | 'warning' | 'error' | 'info' }>`
@@ -236,7 +236,7 @@ const DocumentationLink = styled.a`
 	display: inline-flex;
 	align-items: center;
 	gap: 0.25rem;
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: COLORS.PRIMARY.BLUE;
 	text-decoration: none;
 	font-size: 0.875rem;
 	

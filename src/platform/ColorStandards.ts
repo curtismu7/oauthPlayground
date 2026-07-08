@@ -1,7 +1,7 @@
 // V9 Color Standards - Accessibility Compliant
 // Ensures proper contrast ratios for all UI elements
 
-export const V9_COLORS = {
+export const COLORS = {
 	// Primary colors with proper contrast
 	PRIMARY: {
 		GREEN: '#10b981', // emerald-500
@@ -132,8 +132,8 @@ export const getButtonStyles = (
 ) => {
 	const buttonType = disabled
 		? 'DISABLED'
-		: (variant.toUpperCase() as keyof typeof V9_COLORS.BUTTON);
-	const styles = V9_COLORS.BUTTON[buttonType];
+		: (variant.toUpperCase() as keyof typeof COLORS.BUTTON);
+	const styles = COLORS.BUTTON[buttonType];
 
 	return {
 		background: styles.background,
@@ -146,8 +146,8 @@ export const getButtonStyles = (
 };
 
 export const getBannerStyles = (type: 'success' | 'error' | 'warning' | 'info') => {
-	const bannerType = type.toUpperCase() as keyof typeof V9_COLORS.BANNER;
-	const styles = V9_COLORS.BANNER[bannerType];
+	const bannerType = type.toUpperCase() as keyof typeof COLORS.BANNER;
+	const styles = COLORS.BANNER[bannerType];
 
 	return {
 		background: styles.background,
@@ -158,10 +158,10 @@ export const getBannerStyles = (type: 'success' | 'error' | 'warning' | 'info') 
 
 export const getStepStyles = (isActive: boolean, isCompleted: boolean) => {
 	if (isCompleted) {
-		return V9_COLORS.STEP.COMPLETED;
+		return COLORS.STEP.COMPLETED;
 	}
 	if (isActive) {
-		return V9_COLORS.STEP.ACTIVE;
+		return COLORS.STEP.ACTIVE;
 	}
-	return V9_COLORS.STEP.INACTIVE;
+	return COLORS.STEP.INACTIVE;
 };

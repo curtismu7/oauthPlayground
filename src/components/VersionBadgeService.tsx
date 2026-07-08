@@ -339,17 +339,17 @@ export const VERSION_BADGE_CSS = `
 
 /* Version badge variations */
 .version-badge--v9 {
-  --badge-color: V9_COLORS.PRIMARY.GREEN;
+  --badge-color: COLORS.PRIMARY.GREEN;
   --badge-bg-color: rgba(34, 197, 94, 0.9);
 }
 
 .version-badge--migrated {
-  --badge-color: V9_COLORS.PRIMARY.YELLOW;
+  --badge-color: COLORS.PRIMARY.YELLOW;
   --badge-bg-color: rgba(245, 158, 11, 0.9);
 }
 
 .version-badge--legacy {
-  --badge-color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  --badge-color: COLORS.TEXT.GRAY_MEDIUM;
   --badge-bg-color: rgba(107, 114, 128, 0.9);
 }
 `;

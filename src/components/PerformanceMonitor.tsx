@@ -44,7 +44,7 @@ const MonitorIcon = styled.div`
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+  background: linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_DARK 100%);
   border-radius: 8px;
   color: white;
   font-size: 18px;
@@ -429,7 +429,7 @@ export const PerformanceMonitor: React.FC = () => {
 							<ChartBar
 								key={index}
 								height={data.loadTime}
-								color="V9_COLORS.PRIMARY.BLUE"
+								color="COLORS.PRIMARY.BLUE"
 								title={`Load Time: ${data.loadTime.toFixed(0)}ms`}
 							/>
 						))}

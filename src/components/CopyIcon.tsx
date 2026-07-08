@@ -14,7 +14,7 @@ const Square = styled.div<{ $isForeground?: boolean }>`
   position: absolute;
   width: 12px;
   height: 12px;
-  border: 1.5px solid V9_COLORS.TEXT.GRAY_MEDIUM;
+  border: 1.5px solid COLORS.TEXT.GRAY_MEDIUM;
   border-radius: 2px;
   background: transparent;
   

@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { type PingOneRegion, REGIONS_FOR_UI } from '../services/regionService';
-import { V9_COLORS } from '../platform/V9ColorStandards';
+import { COLORS } from '../platform/ColorStandards';
 
 /** Normalize stored region value to REGIONS_FOR_UI value for display. */
 export function normalizeRegionForDisplay(r: string | null | undefined): PingOneRegion {
@@ -37,7 +37,7 @@ const PINGONE_REGION_DOC =
 
 const defaultSelectStyle: React.CSSProperties = {
 	padding: '0.75rem',
-	border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+	border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 	borderRadius: '0.5rem',
 	background: 'white',
 	color: '#1f2937',

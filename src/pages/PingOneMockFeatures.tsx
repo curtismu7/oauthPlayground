@@ -22,14 +22,14 @@ const CollapsibleHeader = styled.div`
   h2 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
     margin-bottom: 1rem;
   }
 `;
 
 const WarningBanner = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%);
-  border: 2px solid V9_COLORS.PRIMARY.YELLOW;
+  background: linear-gradient(135deg, COLORS.BG.WARNING 0%, COLORS.BG.WARNING_BORDER 100%);
+  border: 2px solid COLORS.PRIMARY.YELLOW;
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -38,7 +38,7 @@ const WarningBanner = styled.div`
   gap: 1rem;
 
   .warning-icon {
-    color: V9_COLORS.PRIMARY.YELLOW_DARK;
+    color: COLORS.PRIMARY.YELLOW_DARK;
     font-size: 1.5rem;
     margin-top: 0.25rem;
     flex-shrink: 0;
@@ -48,7 +48,7 @@ const WarningBanner = styled.div`
     flex: 1;
 
     h3 {
-      color: V9_COLORS.PRIMARY.YELLOW_DARK;
+      color: COLORS.PRIMARY.YELLOW_DARK;
       margin: 0 0 0.5rem 0;
       font-size: 1.25rem;
       font-weight: 700;
@@ -73,11 +73,11 @@ const FeatureCard = styled.div<{ $category: 'oauth' | 'oidc' | 'security' | 'adv
   background: ${(props) => {
 		switch (props.$category) {
 			case 'oauth':
-				return 'linear-gradient(135deg, V9_COLORS.BG.ERROR 0%, V9_COLORS.BG.ERROR 100%)';
+				return 'linear-gradient(135deg, COLORS.BG.ERROR 0%, COLORS.BG.ERROR 100%)';
 			case 'oidc':
-				return 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%)';
+				return 'linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%)';
 			case 'security':
-				return 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)';
+				return 'linear-gradient(135deg, #f0fdf4 0%, COLORS.BG.SUCCESS 100%)';
 			case 'advanced':
 				return 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)';
 			default:
@@ -180,12 +180,12 @@ const FeatureCard = styled.div<{ $category: 'oauth' | 'oidc' | 'security' | 'adv
 
     .reason-label {
       font-weight: 600;
-      color: V9_COLORS.TEXT.GRAY_DARK;
+      color: COLORS.TEXT.GRAY_DARK;
       margin-bottom: 0.5rem;
     }
 
     .reason-text {
-      color: V9_COLORS.TEXT.GRAY_MEDIUM;
+      color: COLORS.TEXT.GRAY_MEDIUM;
       font-size: 0.9rem;
       line-height: 1.5;
     }
@@ -218,7 +218,7 @@ const FeatureCard = styled.div<{ $category: 'oauth' | 'oidc' | 'security' | 'adv
 			}};
       border-radius: 6px;
       text-decoration: none;
-      color: V9_COLORS.TEXT.GRAY_DARK;
+      color: COLORS.TEXT.GRAY_DARK;
       font-size: 0.875rem;
       font-weight: 500;
       transition: all 0.2s ease;
@@ -240,11 +240,11 @@ const _InfoBox = styled.div<{ $type: 'info' | 'warning' | 'success' }>`
   background: ${(props) => {
 		switch (props.$type) {
 			case 'info':
-				return 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%)';
+				return 'linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%)';
 			case 'warning':
-				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)';
+				return 'linear-gradient(135deg, COLORS.BG.WARNING 0%, COLORS.BG.WARNING_BORDER 100%)';
 			case 'success':
-				return 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)';
+				return 'linear-gradient(135deg, #f0fdf4 0%, COLORS.BG.SUCCESS 100%)';
 			default:
 				return 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)';
 		}
@@ -390,7 +390,7 @@ const PingOneMockFeatures: React.FC = () => {
 									borderRadius: '8px',
 									padding: '1rem',
 									marginBottom: '1rem',
-									borderLeft: '4px solid V9_COLORS.PRIMARY.RED_LIGHT',
+									borderLeft: '4px solid COLORS.PRIMARY.RED_LIGHT',
 								}}
 							>
 								<div style={{ fontWeight: 600, color: '#1f2937', marginBottom: '0.5rem' }}>
@@ -465,7 +465,7 @@ const PingOneMockFeatures: React.FC = () => {
 									borderRadius: '8px',
 									padding: '1rem',
 									marginBottom: '1rem',
-									borderLeft: '4px solid V9_COLORS.PRIMARY.RED_LIGHT',
+									borderLeft: '4px solid COLORS.PRIMARY.RED_LIGHT',
 								}}
 							>
 								<div style={{ fontWeight: 600, color: '#1f2937', marginBottom: '0.5rem' }}>
@@ -522,7 +522,7 @@ const PingOneMockFeatures: React.FC = () => {
 									borderRadius: '8px',
 									padding: '1rem',
 									marginBottom: '1rem',
-									borderLeft: '4px solid V9_COLORS.PRIMARY.RED_LIGHT',
+									borderLeft: '4px solid COLORS.PRIMARY.RED_LIGHT',
 								}}
 							>
 								<div style={{ fontWeight: 600, color: '#1f2937', marginBottom: '0.5rem' }}>
@@ -599,7 +599,7 @@ const PingOneMockFeatures: React.FC = () => {
 									borderRadius: '8px',
 									padding: '1rem',
 									marginBottom: '1rem',
-									borderLeft: '4px solid V9_COLORS.PRIMARY.RED_LIGHT',
+									borderLeft: '4px solid COLORS.PRIMARY.RED_LIGHT',
 								}}
 							>
 								<div style={{ fontWeight: 600, color: '#1f2937', marginBottom: '0.5rem' }}>
@@ -676,7 +676,7 @@ const PingOneMockFeatures: React.FC = () => {
 									borderRadius: '8px',
 									padding: '1rem',
 									marginBottom: '1rem',
-									borderLeft: '4px solid V9_COLORS.PRIMARY.RED_LIGHT',
+									borderLeft: '4px solid COLORS.PRIMARY.RED_LIGHT',
 								}}
 							>
 								<div style={{ fontWeight: 600, color: '#1f2937', marginBottom: '0.5rem' }}>
@@ -967,7 +967,7 @@ const PingOneMockFeatures: React.FC = () => {
 
 				<div
 					style={{
-						background: 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)',
+						background: 'linear-gradient(135deg, #f0fdf4 0%, COLORS.BG.SUCCESS 100%)',
 						border: '2px solid #4ade80',
 						borderRadius: '12px',
 						padding: '1.5rem',
@@ -1020,8 +1020,8 @@ const PingOneMockFeatures: React.FC = () => {
 				<div
 					style={{
 						background:
-							'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)',
-						border: '2px solid V9_COLORS.PRIMARY.YELLOW',
+							'linear-gradient(135deg, COLORS.BG.WARNING 0%, COLORS.BG.WARNING_BORDER 100%)',
+						border: '2px solid COLORS.PRIMARY.YELLOW',
 						borderRadius: '12px',
 						padding: '1.5rem',
 					}}

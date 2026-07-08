@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { V9_COLORS } from '../../../platform/V9ColorStandards';
+import { COLORS } from '../../../platform/ColorStandards';
 
 // ─── Layout ───────────────────────────────────────────────────────────────────
 
@@ -68,7 +68,7 @@ const TABS: { id: DocTab; label: string; badge?: string }[] = [
 const TabBar = styled.nav`
 	display: flex;
 	gap: 0;
-	border-bottom: 2px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border-bottom: 2px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	margin-bottom: 2rem;
 	overflow-x: auto;
 `;
@@ -81,13 +81,13 @@ const TabButton = styled.button<{ $active: boolean }>`
 	border: none;
 	cursor: pointer;
 	background: transparent;
-	color: ${({ $active }) => ($active ? V9_COLORS.PRIMARY.RED : V9_COLORS.TEXT.GRAY_MEDIUM)};
-	border-bottom: 2px solid ${({ $active }) => ($active ? V9_COLORS.PRIMARY.RED : 'transparent')};
+	color: ${({ $active }) => ($active ? COLORS.PRIMARY.RED : COLORS.TEXT.GRAY_MEDIUM)};
+	border-bottom: 2px solid ${({ $active }) => ($active ? COLORS.PRIMARY.RED : 'transparent')};
 	margin-bottom: -2px;
 	transition: color 0.15s;
 
 	&:hover {
-		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		color: ${COLORS.TEXT.GRAY_DARK};
 	}
 `;
 
@@ -98,10 +98,10 @@ const DocContent = styled.div`
 const H2 = styled.h2`
 	font-size: 1.35rem;
 	font-weight: 700;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	margin: 2rem 0 0.75rem;
 	padding-bottom: 0.5rem;
-	border-bottom: 2px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border-bottom: 2px solid ${COLORS.TEXT.GRAY_LIGHTER};
 
 	&:first-child {
 		margin-top: 0;
@@ -111,12 +111,12 @@ const H2 = styled.h2`
 const H3 = styled.h3`
 	font-size: 1.05rem;
 	font-weight: 600;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	margin: 1.5rem 0 0.5rem;
 `;
 
 const P = styled.p`
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	line-height: 1.7;
 	margin-bottom: 1rem;
 	font-size: 0.9rem;
@@ -127,7 +127,7 @@ const UL = styled.ul`
 	margin-bottom: 1rem;
 
 	li {
-		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		color: ${COLORS.TEXT.GRAY_DARK};
 		font-size: 0.9rem;
 		line-height: 1.7;
 		margin-bottom: 0.3rem;
@@ -139,7 +139,7 @@ const OL = styled.ol`
 	margin-bottom: 1rem;
 
 	li {
-		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		color: ${COLORS.TEXT.GRAY_DARK};
 		font-size: 0.9rem;
 		line-height: 1.7;
 		margin-bottom: 0.3rem;
@@ -147,7 +147,7 @@ const OL = styled.ol`
 `;
 
 const Code = styled.code`
-	background: ${V9_COLORS.BG.GRAY_LIGHT};
+	background: ${COLORS.BG.GRAY_LIGHT};
 	color: #b91c1c;
 	padding: 0.15rem 0.4rem;
 	border-radius: 4px;
@@ -176,15 +176,15 @@ const Table = styled.table`
 	th,
 	td {
 		padding: 0.6rem 0.9rem;
-		border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+		border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 		text-align: left;
 		vertical-align: top;
 	}
 
 	th {
-		background: ${V9_COLORS.BG.GRAY_LIGHT};
+		background: ${COLORS.BG.GRAY_LIGHT};
 		font-weight: 600;
-		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		color: ${COLORS.TEXT.GRAY_DARK};
 	}
 
 	tr:nth-child(even) td {
@@ -232,7 +232,7 @@ const CheckList = styled.ul`
 
 	li {
 		font-size: 0.9rem;
-		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		color: ${COLORS.TEXT.GRAY_DARK};
 		line-height: 1.7;
 		margin-bottom: 0.3rem;
 		padding-left: 1.6rem;
@@ -242,7 +242,7 @@ const CheckList = styled.ul`
 			content: '☐';
 			position: absolute;
 			left: 0;
-			color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+			color: ${COLORS.TEXT.GRAY_MEDIUM};
 		}
 	}
 `;

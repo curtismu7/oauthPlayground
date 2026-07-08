@@ -19,7 +19,7 @@ const Header = styled.div`
 	margin-bottom: 16px;
 	padding: 16px;
 	background: white;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
@@ -28,14 +28,14 @@ const Title = styled.h3`
 	margin: 0;
 	font-size: 18px;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 8px;
 `;
 
 const CallCount = styled.span`
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: COLORS.PRIMARY.BLUE;
 	color: white;
 	padding: 4px 12px;
 	border-radius: 12px;
@@ -44,7 +44,7 @@ const CallCount = styled.span`
 `;
 
 const ClearButton = styled.button`
-	background: V9_COLORS.PRIMARY.RED;
+	background: COLORS.PRIMARY.RED;
 	color: white;
 	border: none;
 	padding: 8px 16px;
@@ -58,7 +58,7 @@ const ClearButton = styled.button`
 	gap: 6px;
 
 	&:hover {
-		background: V9_COLORS.PRIMARY.RED_DARK;
+		background: COLORS.PRIMARY.RED_DARK;
 		transform: translateY(-1px);
 	}
 
@@ -67,7 +67,7 @@ const ClearButton = styled.button`
 	}
 
 	&:disabled {
-		background: V9_COLORS.TEXT.GRAY_LIGHT;
+		background: COLORS.TEXT.GRAY_LIGHT;
 		cursor: not-allowed;
 		transform: none;
 	}
@@ -77,9 +77,9 @@ const EmptyState = styled.div`
 	text-align: center;
 	padding: 48px 32px;
 	background: white;
-	border: 2px dashed V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 2px dashed COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
-	color: V9_COLORS.TEXT.GRAY_LIGHT;
+	color: COLORS.TEXT.GRAY_LIGHT;
 	font-size: 14px;
 `;
 

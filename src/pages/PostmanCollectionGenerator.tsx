@@ -417,7 +417,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 					const originalBoxShadow = inputElement.style.boxShadow;
 
 					// Apply red highlight
-					inputElement.style.border = '2px solid V9_COLORS.PRIMARY.RED';
+					inputElement.style.border = '2px solid COLORS.PRIMARY.RED';
 					inputElement.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
 					inputElement.style.transition = 'border 0.2s ease, box-shadow 0.2s ease';
 
@@ -1555,7 +1555,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 								onClick={selectAllUseCases}
 								style={{
 									padding: '6px 12px',
-									border: '1px solid V9_COLORS.PRIMARY.GREEN',
+									border: '1px solid COLORS.PRIMARY.GREEN',
 									borderRadius: '6px',
 									background: 'white',
 									color: '#10b981',
@@ -1578,7 +1578,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 								onClick={unselectAllUseCases}
 								style={{
 									padding: '6px 12px',
-									border: '1px solid V9_COLORS.PRIMARY.RED',
+									border: '1px solid COLORS.PRIMARY.RED',
 									borderRadius: '6px',
 									background: 'white',
 									color: '#ef4444',
@@ -1693,7 +1693,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 								onClick={selectAllUnifiedSpecs}
 								style={{
 									padding: '6px 12px',
-									border: '1px solid V9_COLORS.PRIMARY.BLUE',
+									border: '1px solid COLORS.PRIMARY.BLUE',
 									borderRadius: '6px',
 									background: 'white',
 									color: '#3b82f6',
@@ -1716,7 +1716,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 								onClick={unselectAllUnifiedSpecs}
 								style={{
 									padding: '6px 12px',
-									border: '1px solid V9_COLORS.PRIMARY.RED',
+									border: '1px solid COLORS.PRIMARY.RED',
 									borderRadius: '6px',
 									background: 'white',
 									color: '#ef4444',
@@ -1744,7 +1744,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							marginBottom: '1rem',
 							padding: '12px',
 							background: '#f8fafc',
-							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '6px',
 							fontSize: '0.875rem',
 							color: '#2563eb',
@@ -1864,7 +1864,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						style={{
 							marginTop: '2rem',
 							paddingTop: '1.5rem',
-							borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							borderTop: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 						}}
 					>
 						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1898,7 +1898,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 										onClick={selectAllUnifiedVariations}
 										style={{
 											padding: '6px 12px',
-											border: '1px solid V9_COLORS.PRIMARY.BLUE',
+											border: '1px solid COLORS.PRIMARY.BLUE',
 											borderRadius: '6px',
 											background: 'white',
 											color: '#3b82f6',
@@ -1921,7 +1921,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 										onClick={unselectAllUnifiedVariations}
 										style={{
 											padding: '6px 12px',
-											border: '1px solid V9_COLORS.PRIMARY.RED',
+											border: '1px solid COLORS.PRIMARY.RED',
 											borderRadius: '6px',
 											background: 'white',
 											color: '#ef4444',
@@ -2025,7 +2025,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 								onClick={selectAllDeviceTypes}
 								style={{
 									padding: '6px 12px',
-									border: '1px solid V9_COLORS.PRIMARY.GREEN',
+									border: '1px solid COLORS.PRIMARY.GREEN',
 									borderRadius: '6px',
 									background: 'white',
 									color: '#10b981',
@@ -2048,7 +2048,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 								onClick={unselectAllDeviceTypes}
 								style={{
 									padding: '6px 12px',
-									border: '1px solid V9_COLORS.PRIMARY.RED',
+									border: '1px solid COLORS.PRIMARY.RED',
 									borderRadius: '6px',
 									background: 'white',
 									color: '#ef4444',
@@ -2135,7 +2135,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 														alignItems: 'center',
 														gap: '4px',
 														padding: '4px 8px',
-														border: '1px solid V9_COLORS.PRIMARY.GREEN',
+														border: '1px solid COLORS.PRIMARY.GREEN',
 														borderRadius: '4px',
 														background: 'white',
 														color: '#10b981',
@@ -2161,7 +2161,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 														onClick={() => selectAllMFAUseCases(deviceType)}
 														style={{
 															padding: '4px 8px',
-															border: '1px solid V9_COLORS.PRIMARY.GREEN',
+															border: '1px solid COLORS.PRIMARY.GREEN',
 															borderRadius: '4px',
 															background: 'white',
 															color: '#10b981',
@@ -2177,7 +2177,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 														onClick={() => unselectAllMFAUseCases(deviceType)}
 														style={{
 															padding: '4px 8px',
-															border: '1px solid V9_COLORS.PRIMARY.RED',
+															border: '1px solid COLORS.PRIMARY.RED',
 															borderRadius: '4px',
 															background: 'white',
 															color: '#ef4444',

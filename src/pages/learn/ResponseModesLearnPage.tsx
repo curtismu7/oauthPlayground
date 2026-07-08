@@ -34,7 +34,7 @@ const MainCard = styled.div`
 
 const Section = styled.section`
   padding: 2rem;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   
   &:last-child {
     border-bottom: none;
@@ -45,7 +45,7 @@ const SectionTitle = styled.h3`
   margin: 0 0 1rem 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -54,7 +54,7 @@ const SectionTitle = styled.h3`
 const SectionDescription = styled.p`
   margin: 0 0 1.5rem 0;
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.6;
 `;
 
@@ -74,34 +74,34 @@ const InputGroup = styled.div`
 const InputLabel = styled.label`
   font-size: 0.875rem;
   font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const Input = styled.input`
   padding: 0.5rem 0.75rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   
   &:focus {
     outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
+    border-color: COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
 
 const Select = styled.select`
   padding: 0.5rem 0.75rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   background: white;
   
   &:focus {
     outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
+    border-color: COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -117,13 +117,13 @@ const InfoBox = styled.div<{ $variant: 'info' | 'success' | 'warning' | 'danger'
   ${(props) => {
 		switch (props.$variant) {
 			case 'info':
-				return 'background: V9_COLORS.BG.GRAY_LIGHT; border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER; color: V9_COLORS.PRIMARY.BLUE_DARK;';
+				return 'background: COLORS.BG.GRAY_LIGHT; border: 1px solid COLORS.TEXT.GRAY_LIGHTER; color: COLORS.PRIMARY.BLUE_DARK;';
 			case 'success':
-				return 'background: #f0fdf4; border: 1px solid V9_COLORS.BG.SUCCESS_BORDER; color: V9_COLORS.PRIMARY.GREEN;';
+				return 'background: #f0fdf4; border: 1px solid COLORS.BG.SUCCESS_BORDER; color: COLORS.PRIMARY.GREEN;';
 			case 'warning':
-				return 'background: V9_COLORS.BG.WARNING; border: 1px solid #fed7aa; color: V9_COLORS.PRIMARY.YELLOW_DARK;';
+				return 'background: COLORS.BG.WARNING; border: 1px solid #fed7aa; color: COLORS.PRIMARY.YELLOW_DARK;';
 			case 'danger':
-				return 'background: V9_COLORS.BG.ERROR; border: 1px solid V9_COLORS.BG.ERROR_BORDER; color: V9_COLORS.PRIMARY.RED_DARK;';
+				return 'background: COLORS.BG.ERROR; border: 1px solid COLORS.BG.ERROR_BORDER; color: COLORS.PRIMARY.RED_DARK;';
 			default:
 				return '';
 		}
@@ -155,7 +155,7 @@ const CompatibilityGrid = styled.div`
 
 const CompatibilityCard = styled.div`
   background: white;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
 `;
@@ -164,14 +164,14 @@ const CompatibilityTitle = styled.h5`
   margin: 0 0 0.75rem 0;
   font-size: 0.875rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const CompatibilityList = styled.ul`
   margin: 0;
   padding-left: 1rem;
   font-size: 0.75rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.5;
 `;
 

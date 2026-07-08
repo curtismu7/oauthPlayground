@@ -73,41 +73,41 @@ const MessageContainer = styled.div<{ $type: MessageType }>`
 			case 'success':
 				return `
           background-color: #f0fdf4;
-          border-color: V9_COLORS.BG.SUCCESS_BORDER;
-          color: V9_COLORS.PRIMARY.GREEN;
+          border-color: COLORS.BG.SUCCESS_BORDER;
+          color: COLORS.PRIMARY.GREEN;
 
           svg {
-            color: V9_COLORS.PRIMARY.GREEN;
+            color: COLORS.PRIMARY.GREEN;
           }
         `;
 			case 'error':
 				return `
-          background-color: V9_COLORS.BG.ERROR;
-          border-color: V9_COLORS.BG.ERROR_BORDER;
-          color: V9_COLORS.PRIMARY.RED_DARK;
+          background-color: COLORS.BG.ERROR;
+          border-color: COLORS.BG.ERROR_BORDER;
+          color: COLORS.PRIMARY.RED_DARK;
 
           svg {
-            color: V9_COLORS.PRIMARY.RED;
+            color: COLORS.PRIMARY.RED;
           }
         `;
 			case 'warning':
 				return `
-          background-color: V9_COLORS.BG.WARNING;
+          background-color: COLORS.BG.WARNING;
           border-color: #fed7aa;
-          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          color: COLORS.PRIMARY.YELLOW_DARK;
 
           svg {
-            color: V9_COLORS.PRIMARY.YELLOW;
+            color: COLORS.PRIMARY.YELLOW;
           }
         `;
 			default:
 				return `
-          background-color: V9_COLORS.BG.GRAY_LIGHT;
-          border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
-          color: V9_COLORS.PRIMARY.BLUE_DARK;
+          background-color: COLORS.BG.GRAY_LIGHT;
+          border-color: COLORS.TEXT.GRAY_LIGHTER;
+          color: COLORS.PRIMARY.BLUE_DARK;
 
           svg {
-            color: V9_COLORS.PRIMARY.BLUE;
+            color: COLORS.PRIMARY.BLUE;
           }
         `;
 		}

@@ -33,13 +33,13 @@ const Card = styled.div<{ status: 'success' | 'error' | 'info' }>`
 `;
 
 const Title = styled.h1`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1rem;
 	font-size: 1.5rem;
 `;
 
 const Message = styled.p`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1.5rem;
 	font-size: 1.1rem;
 `;
@@ -50,7 +50,7 @@ const TokenSection = styled.div`
 
 const TokenLabel = styled.div`
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 	font-size: 0.875rem;
 `;
@@ -58,18 +58,18 @@ const TokenLabel = styled.div`
 const TokenValue = styled.div`
 	font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
-	background: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.GRAY_DARK;
+	background: COLORS.TEXT.WHITE;
 	padding: 0.75rem;
 	border-radius: 0.25rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	word-break: break-all;
 	margin-bottom: 1rem;
 `;
 
 const Button = styled.button`
 	padding: 0.75rem 1.5rem;
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: COLORS.PRIMARY.BLUE;
 	color: white;
 	border: none;
 	border-radius: 0.375rem;
@@ -78,7 +78,7 @@ const Button = styled.button`
 	transition: background 0.2s;
 
 	&:hover {
-		background: V9_COLORS.PRIMARY.BLUE_DARK;
+		background: COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 

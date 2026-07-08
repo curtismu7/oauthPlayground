@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { V9_COLORS } from '../platform/V9ColorStandards';
+import { COLORS } from '../platform/ColorStandards';
 
 // MDI Icon Component for React Icons migration
 const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
@@ -127,8 +127,8 @@ const Alert = styled.div`
 `;
 
 const _PingOneSetupSection = styled.div`
-	background-color: V9_COLORS.TEXT.WHITE;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background-color: COLORS.TEXT.WHITE;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	margin-bottom: 1.5rem;
@@ -199,7 +199,7 @@ const SetupSteps = styled.div`
 `;
 
 const _CredentialsBox = styled.div`
-	background-color: var(--color-background, V9_COLORS.TEXT.WHITE);
+	background-color: var(--color-background, COLORS.TEXT.WHITE);
 	border: 1px solid var(--color-border, #dee2e6);
 	border-radius: 6px;
 	padding: 1rem;
@@ -670,7 +670,7 @@ const Login = () => {
 				maxWidth: '1200px',
 				margin: '0 auto',
 				padding: '2rem',
-				background: V9_COLORS.BG.GRAY_LIGHT,
+				background: COLORS.BG.GRAY_LIGHT,
 				minHeight: '100vh',
 			}}
 		>
@@ -679,9 +679,9 @@ const Login = () => {
 				style={{
 					marginBottom: '32px',
 					padding: '24px',
-					background: `linear-gradient(135deg, ${V9_COLORS.BG.GRAY_LIGHT} 0%, ${V9_COLORS.PRIMARY.BLUE} 100%)`,
+					background: `linear-gradient(135deg, ${COLORS.BG.GRAY_LIGHT} 0%, ${COLORS.PRIMARY.BLUE} 100%)`,
 					borderRadius: '12px',
-					color: V9_COLORS.TEXT.GRAY_DARK,
+					color: COLORS.TEXT.GRAY_DARK,
 					position: 'relative',
 					overflow: 'hidden',
 				}}
@@ -765,7 +765,7 @@ const Login = () => {
 										style={{
 											fontSize: '1.1rem',
 											fontWeight: '800',
-											color: V9_COLORS.PRIMARY.BLUE,
+											color: COLORS.PRIMARY.BLUE,
 										}}
 									>
 										+ Add Application
@@ -795,7 +795,7 @@ const Login = () => {
 										style={{
 											fontWeight: '800',
 											fontSize: '1rem',
-											color: V9_COLORS.PRIMARY.BLUE,
+											color: COLORS.PRIMARY.BLUE,
 											marginLeft: '0.5rem',
 										}}
 									>
@@ -810,8 +810,8 @@ const Login = () => {
 											}
 											style={{
 												background: 'none',
-												border: `1px solid ${V9_COLORS.PRIMARY.BLUE}`,
-												color: V9_COLORS.PRIMARY.BLUE,
+												border: `1px solid ${COLORS.PRIMARY.BLUE}`,
+												color: COLORS.PRIMARY.BLUE,
 												cursor: 'pointer',
 												padding: '0.125rem 0.25rem',
 												borderRadius: '3px',
@@ -866,7 +866,7 @@ const Login = () => {
 											justifyContent: 'center',
 											width: '20px',
 											height: '20px',
-											backgroundColor: V9_COLORS.PRIMARY.BLUE,
+											backgroundColor: COLORS.PRIMARY.BLUE,
 											borderRadius: '50%',
 											marginLeft: '8px',
 											color: 'white',
@@ -887,7 +887,7 @@ const Login = () => {
 										style={{
 											fontWeight: '800',
 											fontSize: '1rem',
-											color: V9_COLORS.PRIMARY.BLUE,
+											color: COLORS.PRIMARY.BLUE,
 											marginLeft: '0.5rem',
 										}}
 									>
@@ -899,8 +899,8 @@ const Login = () => {
 											}
 											style={{
 												background: 'none',
-												border: `1px solid ${V9_COLORS.PRIMARY.BLUE}`,
-												color: V9_COLORS.PRIMARY.BLUE,
+												border: `1px solid ${COLORS.PRIMARY.BLUE}`,
+												color: COLORS.PRIMARY.BLUE,
 												cursor: 'pointer',
 												padding: '0.125rem 0.25rem',
 												borderRadius: '3px',
@@ -984,8 +984,8 @@ const Login = () => {
 						hasExistingCredentials && (
 							<span
 								style={{
-									background: V9_COLORS.BG.SUCCESS,
-									color: V9_COLORS.PRIMARY.GREEN,
+									background: COLORS.BG.SUCCESS,
+									color: COLORS.PRIMARY.GREEN,
 									padding: '0.25rem 0.5rem',
 									borderRadius: '12px',
 									fontSize: '0.75rem',
@@ -1002,7 +1002,7 @@ const Login = () => {
 					}
 				>
 					<div
-						style={{ padding: '1.5rem', background: V9_COLORS.BG.WHITE, borderRadius: '0.5rem' }}
+						style={{ padding: '1.5rem', background: COLORS.BG.WHITE, borderRadius: '0.5rem' }}
 					>
 						<h4>Configure Your PingOne Application Credentials</h4>
 
@@ -1014,21 +1014,21 @@ const Login = () => {
 									borderRadius: '0.375rem',
 									backgroundColor:
 										redirectType === 'success'
-											? V9_COLORS.BG.SUCCESS
+											? COLORS.BG.SUCCESS
 											: redirectType === 'error'
-												? V9_COLORS.BG.ERROR
+												? COLORS.BG.ERROR
 												: redirectType === 'warning'
-													? V9_COLORS.BG.WARNING
-													: V9_COLORS.BG.GRAY_LIGHT,
-									border: `1px solid ${redirectType === 'success' ? V9_COLORS.BG.SUCCESS_BORDER : redirectType === 'error' ? V9_COLORS.BG.ERROR_BORDER : redirectType === 'warning' ? V9_COLORS.BG.WARNING_BORDER : V9_COLORS.TEXT.GRAY_LIGHTER}`,
+													? COLORS.BG.WARNING
+													: COLORS.BG.GRAY_LIGHT,
+									border: `1px solid ${redirectType === 'success' ? COLORS.BG.SUCCESS_BORDER : redirectType === 'error' ? COLORS.BG.ERROR_BORDER : redirectType === 'warning' ? COLORS.BG.WARNING_BORDER : COLORS.TEXT.GRAY_LIGHTER}`,
 									color:
 										redirectType === 'success'
-											? V9_COLORS.PRIMARY.GREEN
+											? COLORS.PRIMARY.GREEN
 											: redirectType === 'error'
-												? V9_COLORS.PRIMARY.RED
+												? COLORS.PRIMARY.RED
 												: redirectType === 'warning'
-													? V9_COLORS.PRIMARY.YELLOW
-													: V9_COLORS.TEXT.GRAY_DARK,
+													? COLORS.PRIMARY.YELLOW
+													: COLORS.TEXT.GRAY_DARK,
 									display: 'flex',
 									alignItems: 'flex-start',
 								}}
@@ -1111,12 +1111,12 @@ const Login = () => {
 										marginBottom: '1.5rem',
 										borderRadius: '0.375rem',
 										backgroundColor:
-											saveStatus.type === 'success' ? V9_COLORS.BG.SUCCESS : V9_COLORS.BG.ERROR,
-										border: `1px solid ${saveStatus.type === 'success' ? V9_COLORS.BG.SUCCESS_BORDER : V9_COLORS.BG.ERROR_BORDER}`,
+											saveStatus.type === 'success' ? COLORS.BG.SUCCESS : COLORS.BG.ERROR,
+										border: `1px solid ${saveStatus.type === 'success' ? COLORS.BG.SUCCESS_BORDER : COLORS.BG.ERROR_BORDER}`,
 										color:
 											saveStatus.type === 'success'
-												? V9_COLORS.PRIMARY.GREEN
-												: V9_COLORS.PRIMARY.RED,
+												? COLORS.PRIMARY.GREEN
+												: COLORS.PRIMARY.RED,
 										display: 'flex',
 										alignItems: 'flex-start',
 									}}
@@ -1167,7 +1167,7 @@ const Login = () => {
 										style={{
 											width: '100%',
 											padding: '0.5rem',
-											border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+											border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 											borderRadius: '4px',
 											fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
 											fontSize: '0.85rem',
@@ -1200,7 +1200,7 @@ const Login = () => {
 										style={{
 											width: '100%',
 											padding: '0.5rem',
-											border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+											border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 											borderRadius: '4px',
 											fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
 											fontSize: '0.85rem',
@@ -1236,7 +1236,7 @@ const Login = () => {
 												width: '100%',
 												maxWidth: '610px',
 												padding: '0.5rem 3.25rem 0.5rem 0.75rem',
-												border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+												border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 												fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
 												fontSize: '0.875rem',
 												borderRadius: '4px',
@@ -1323,7 +1323,7 @@ const Login = () => {
 										style={{
 											width: '100%',
 											padding: '0.5rem',
-											border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+											border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 											borderRadius: '4px',
 											backgroundColor: '#f8f9fa',
 										}}
@@ -1366,7 +1366,7 @@ const Login = () => {
 														style={{
 															width: '100%',
 															padding: '0.5rem',
-															border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+															border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 															borderRadius: 4,
 															backgroundColor: '#f8f9fa',
 														}}
@@ -1398,7 +1398,7 @@ const Login = () => {
 														style={{
 															width: '100%',
 															padding: '0.5rem',
-															border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+															border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 															borderRadius: 4,
 															backgroundColor: '#f8f9fa',
 														}}
@@ -1441,7 +1441,7 @@ const Login = () => {
 														style={{
 															width: '100%',
 															padding: '0.5rem',
-															border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+															border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 															borderRadius: 4,
 															backgroundColor: '#f8f9fa',
 														}}
@@ -1472,7 +1472,7 @@ const Login = () => {
 														style={{
 															width: '100%',
 															padding: '0.5rem',
-															border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+															border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 															borderRadius: 4,
 															backgroundColor: '#f8f9fa',
 														}}
@@ -1500,7 +1500,7 @@ const Login = () => {
 															width: '100%',
 															minHeight: '120px',
 															padding: '0.5rem',
-															border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+															border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 															borderRadius: 4,
 															backgroundColor: '#f8f9fa',
 															fontFamily: 'monospace',
@@ -1529,7 +1529,7 @@ const Login = () => {
 														style={{
 															width: '100%',
 															padding: '0.5rem',
-															border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+															border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 															borderRadius: 4,
 															backgroundColor: '#f8f9fa',
 														}}
@@ -1592,7 +1592,7 @@ const Login = () => {
 													style={{
 														width: '100%',
 														padding: '0.5rem',
-														border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+														border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 														borderRadius: 4,
 														backgroundColor: '#ffffff',
 													}}
@@ -1625,7 +1625,7 @@ const Login = () => {
 													style={{
 														width: '100%',
 														padding: '0.5rem',
-														border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+														border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 														borderRadius: 4,
 														backgroundColor: '#ffffff',
 													}}
@@ -1684,7 +1684,7 @@ const Login = () => {
 													style={{
 														width: '100%',
 														padding: '0.5rem',
-														border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+														border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 														borderRadius: 4,
 														backgroundColor: '#ffffff',
 													}}

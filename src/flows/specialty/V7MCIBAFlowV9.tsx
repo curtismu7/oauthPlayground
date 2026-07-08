@@ -14,9 +14,9 @@ import { ResultCard } from '../framework/ResultCard';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { tokens } from '../framework/tokens';
 import type { StepDefinition, FlowError } from '../framework/types';
-import type { V9MockCIBADeliveryMode } from '../../platform/mock/V9MockCIBAService';
-import { V9MockCIBAService } from '../../platform/mock/V9MockCIBAService';
-import { introspectToken, type V9MockIntrospectionResponse } from '../../platform/mock/V9MockIntrospectionService';
+import type { MockCIBADeliveryMode } from '../../platform/mock/MockCIBAService';
+import { MockCIBAService } from '../../platform/mock/MockCIBAService';
+import { introspectToken, type MockIntrospectionResponse } from '../../platform/mock/MockIntrospectionService';
 
 type TokenResult = {
 	access_token: string;
@@ -102,7 +102,7 @@ const Grid = styled.div`
 
 const CIBAFlowV2: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
-	const [deliveryMode, setDeliveryMode] = useState<V9MockCIBADeliveryMode>('poll');
+	const [deliveryMode, setDeliveryMode] = useState<MockCIBADeliveryMode>('poll');
 	const [clientId, setClientId] = useState('ciba-client-001');
 	const [scope, setScope] = useState('openid profile email');
 	const [loginHint, setLoginHint] = useState('user@example.com');
@@ -113,7 +113,7 @@ const CIBAFlowV2: React.FC = () => {
 	const [expiresIn, setExpiresIn] = useState<number | null>(null);
 	const [status, setStatus] = useState<'idle' | 'pending' | 'approved' | 'denied' | 'expired' | 'done'>('idle');
 	const [tokenResult, setTokenResult] = useState<TokenResult | null>(null);
-	const [introspectResult, setIntrospectResult] = useState<V9MockIntrospectionResponse | null>(null);
+	const [introspectResult, setIntrospectResult] = useState<MockIntrospectionResponse | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [pollCount, setPollCount] = useState(0);
@@ -131,7 +131,7 @@ const CIBAFlowV2: React.FC = () => {
 		setError(null);
 		setLoading(true);
 		try {
-			const res = V9MockCIBAService.requestBackchannelAuth(
+			const res = MockCIBAService.requestBackchannelAuth(
 				{
 					client_id: clientId,
 					scope,
@@ -175,7 +175,7 @@ const CIBAFlowV2: React.FC = () => {
 			return;
 		}
 
-		const ok = V9MockCIBAService.approveRequest(authReqId);
+		const ok = MockCIBAService.approveRequest(authReqId);
 		if (ok) {
 			setStatus('approved');
 			engine.markComplete('approve');
@@ -188,7 +188,7 @@ const CIBAFlowV2: React.FC = () => {
 
 	const handleDeny = useCallback(() => {
 		if (authReqId) {
-			V9MockCIBAService.denyRequest(authReqId);
+			MockCIBAService.denyRequest(authReqId);
 		}
 		setStatus('denied');
 		if (pollInterval.current) clearInterval(pollInterval.current);
@@ -203,7 +203,7 @@ const CIBAFlowV2: React.FC = () => {
 
 		setLoading(true);
 		try {
-			const res = V9MockCIBAService.pollForToken(authReqId);
+			const res = MockCIBAService.pollForToken(authReqId);
 
 			if ('error' in res) {
 				if (res.error === 'authorization_pending') {
