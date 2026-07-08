@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { type PingOneRegion, REGIONS_FOR_UI } from '../services/regionService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { V9_COLORS } from '../platform/V9ColorStandards';
 
 /** Normalize stored region value to REGIONS_FOR_UI value for display. */
 export function normalizeRegionForDisplay(r: string | null | undefined): PingOneRegion {

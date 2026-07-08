@@ -3,8 +3,8 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { V9_COLORS } from '@/services/v9/V9ColorStandards';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { V9_COLORS } from '@/platform/V9ColorStandards';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import UltimateTokenDisplay from '../components/UltimateTokenDisplay';
 import { FlowHeader } from '../services/flowHeaderService';
 

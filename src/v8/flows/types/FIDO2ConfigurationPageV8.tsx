@@ -15,7 +15,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { FIDO2Service } from '@/services/fido2Service';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';

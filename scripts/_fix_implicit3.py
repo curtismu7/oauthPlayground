@@ -12,7 +12,7 @@ for icon in ['FiAlertCircle', 'FiChevronDown']:
 
 # 2. Delete import lines
 imports_to_delete = [
-    "import { modernMessaging } from '@/services/v9/V9ModernMessagingService';\n",
+    "import { modernMessaging } from '@/platform/V9ModernMessagingService';\n",
     "import ComprehensiveCredentialsService from '../../../services/comprehensiveCredentialsService';\n",
     "import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';\n",
     "import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';\n",

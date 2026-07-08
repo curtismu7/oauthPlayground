@@ -11,7 +11,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { safeGetUserInfo } from '@/utils/authUtils';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { RedirectUriValidatorV8 } from '@/v8/components/RedirectUriValidatorV8';

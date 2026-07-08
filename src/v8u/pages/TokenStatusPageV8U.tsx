@@ -30,7 +30,7 @@ import {
 import UserTokenStatusDisplayV8U from '@/v8u/components/UserTokenStatusDisplayV8U';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 
-import V9FlowHeader from '../../services/v9/v9FlowHeaderService';
+import V9FlowHeader from '../../platform/v9FlowHeaderService';
 import { logger } from '../../utils/logger';
 
 /** Open the global worker token modal (WorkerTokenModalV9 in App) with wait screen. */

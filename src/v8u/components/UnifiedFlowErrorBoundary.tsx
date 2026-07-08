@@ -1,5 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { V9LoggingService } from '@/services/v9/V9LoggingService';
+import { V9LoggingService } from '@/platform/V9LoggingService';
 import ErrorBoundary from '../../components/ErrorBoundary';
 
 interface UnifiedFlowErrorBoundaryProps {

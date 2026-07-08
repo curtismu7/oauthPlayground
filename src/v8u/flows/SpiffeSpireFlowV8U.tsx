@@ -21,8 +21,8 @@ import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import { V9FlowRestartButton } from '../../services/v9/V9FlowRestartButton';
-import { V9FlowHeader } from '../../services/v9/v9FlowHeaderService';
+import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
+import { V9FlowHeader } from '../../platform/v9FlowHeaderService';
 import { logger } from '../../utils/logger';
 import { V7MMockBanner } from '../../v7/components/V7MMockBanner';
 

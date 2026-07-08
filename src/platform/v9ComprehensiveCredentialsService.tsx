@@ -1,10 +1,10 @@
-// src/services/v9/v9ComprehensiveCredentialsService.tsx
+// src/platform/v9ComprehensiveCredentialsService.tsx
 // V9 Wrapper for ComprehensiveCredentialsService - Modern Messaging Compliant
 
 import React from 'react';
 // Import Modern Messaging (V9) - proper migration to non-toast messaging
-import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
-import ComprehensiveCredentialsService from '../comprehensiveCredentialsService';
+import { modernMessaging } from '../components/v9/V9ModernMessagingComponents';
+import ComprehensiveCredentialsService from '../services/comprehensiveCredentialsService';
 
 // V9 Wrapper Component
 export interface V9ComprehensiveCredentialsProps {

@@ -20,7 +20,7 @@ import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService
 import {
 	V9checkWorkerTokenStatus,
 	type V9TokenStatusInfo,
-} from '../services/v9/V9WorkerTokenStatusService';
+} from '../platform/V9WorkerTokenStatusService';
 import { modernMessaging } from './v9/V9ModernMessagingComponents';
 import WorkerTokenModalV9 from './WorkerTokenModalV9';
 

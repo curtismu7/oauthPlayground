@@ -89,7 +89,7 @@ fix('src/utils/idTokenValidation.ts', [
 
 # ── 4. credentialsServiceV9.ts ─────────────────────────────────────────────────
 print('4. credentialsServiceV9.ts')
-fix('src/services/v9/credentialsServiceV9.ts', [
+fix('src/platform/credentialsServiceV9.ts', [
     # L47-49: empty interfaces → type aliases
     ('export interface Credentials extends V8Credentials {}',
      'export type Credentials = V8Credentials;'),

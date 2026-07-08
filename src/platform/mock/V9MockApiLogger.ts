@@ -8,7 +8,7 @@
  * so they appear in the log viewer for educational purposes.
  */
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[ V7M-MOCK-API]';
 

@@ -1,8 +1,8 @@
 import type React from 'react';
 import { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
-import { V9_COLORS } from '@/services/v9/V9ColorStandards';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { V9_COLORS } from '@/platform/V9ColorStandards';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { FiRefreshCw } from '../icons';
 import { discoveryService, type OpenIDConfiguration } from '../services/discoveryService';
 import { loadEnvironmentId } from '../services/environmentIdService';

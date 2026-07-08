@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { IdentityMetricsChart } from '../components/pingone/IdentityMetricsChart';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';

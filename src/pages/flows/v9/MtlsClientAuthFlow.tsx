@@ -5,7 +5,7 @@
 import type React from 'react';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
+import V9FlowHeader from '../../../platform/v9FlowHeaderService';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

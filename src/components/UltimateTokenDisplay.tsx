@@ -5,8 +5,8 @@ import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
-import { V9_COLORS } from '@/services/v9/V9ColorStandards';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { V9_COLORS } from '@/platform/V9ColorStandards';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { FiClock, FiTag, FiUnlock } from '../icons';
 import TokenDisplayService from '../services/tokenDisplayService';
 

@@ -19,7 +19,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { FiChevronDown, FiMove } from '../icons';
 import { logger } from '../utils/logger';
 import { openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';

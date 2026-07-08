@@ -9,7 +9,7 @@
 | `src/v8u` | 88 | OAuth lab UI | **`/lab/*` aliases** |
 | `src/v7` | 10 | Mock settings (legacy) | Unchanged — delete Phase 6 |
 | `src/pages/flows/v9` | ~28 | Specialty flows | Unchanged — migrate Phase 7 |
-| `src/services/v9` | many | Platform services (not legacy) | Rename Phase 3 |
+| `src/platform` | many | Platform services (not legacy) | **Phase 3 done** — was `services/v9` |
 
 ## Phase 1 canonical routes (live)
 
@@ -65,6 +65,12 @@ Constants: `src/config/canonicalRoutes.ts`
 - Import paths updated in `App.tsx`, `design/__tests__`, `CombinedTokenPage`, `V7MCIBAFlowV9`
 - Session storage keys (`flows2:authz:pending`, etc.) unchanged for backward compatibility
 
+## Phase 3 (done)
+
+- `git mv src/services/v9` → `src/platform`
+- All `@/services/v9/*` and relative import paths updated across `src/` and `scripts/`
+- Service class names (`V9*`) unchanged — symbol rename is Phase 8
+
 ## Next phases
 
-Phase 3 `services/v9` → `platform`; Phase 4 `v8` → `mfa` folder; Phase 5 retire `v8u`; Phase 6 delete `v7`.
+Phase 4 `v8` → `mfa` folder; Phase 5 retire `v8u`; Phase 6 delete `v7`.

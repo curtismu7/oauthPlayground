@@ -66,7 +66,7 @@ ZERO_ARG_MAP = {
 OLD_IMPORT_RE = re.compile(
     r"import\s*\{[^}]*\btoastV8\b[^}]*\}\s*from\s*['\"]@/v8/utils/toastNotificationsV8['\"];?",
 )
-NEW_IMPORT = "import { modernMessaging } from '@/services/v9/V9ModernMessagingService';"
+NEW_IMPORT = "import { modernMessaging } from '@/platform/V9ModernMessagingService';"
 
 
 def extract_args(text, start):

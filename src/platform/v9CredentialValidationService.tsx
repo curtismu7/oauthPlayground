@@ -1,4 +1,4 @@
-// src/services/v9CredentialValidationService.tsx
+// src/platform/v9CredentialValidationService.tsx
 /**
  * V9 Credential Validation Service - Centralized modal validation for all V9 flows
  *
@@ -35,9 +35,9 @@
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { CredentialGuardService } from '../credentialGuardService';
-import ModalPresentationService from '../modalPresentationService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { CredentialGuardService } from '../services/credentialGuardService';
+import ModalPresentationService from '../services/modalPresentationService';
 // Flow-specific credential requirements
 export type V9CredentialValues = Record<string, unknown>;
 export type V9CredentialInput = V9CredentialValues | null | undefined;

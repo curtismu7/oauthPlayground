@@ -12,7 +12,7 @@
 
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { V9MFARedirectUriService as MFARedirectUriServiceV8 } from '@/services/v9/V9MFARedirectUriService';
+import { V9MFARedirectUriService as MFARedirectUriServiceV8 } from '@/platform/V9MFARedirectUriService';
 import { trackOAuthFlow } from '@/utils/activityTracker';
 import {
 	checkPingOneAuthentication,

@@ -1,10 +1,10 @@
-// src/services/v9/v9FlowCompletionService.tsx
+// src/platform/v9FlowCompletionService.tsx
 // V9 Wrapper for FlowCompletionService - Modern Messaging Compliant
 
 import React from 'react';
 // Import Modern Messaging (V9) - proper migration to non-toast messaging
-import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
-import { FlowCompletionConfig, FlowCompletionService } from '../flowCompletionService';
+import { modernMessaging } from '../components/v9/V9ModernMessagingComponents';
+import { FlowCompletionConfig, FlowCompletionService } from '../services/flowCompletionService';
 
 // V9 Wrapper Component
 export interface V9FlowCompletionProps {
@@ -58,6 +58,6 @@ const V9FlowCompletionService: React.FC<V9FlowCompletionProps> = (props) => {
 };
 
 // Export types for convenience
-export type { FlowCompletionConfig } from '../flowCompletionService';
+export type { FlowCompletionConfig } from '../services/flowCompletionService';
 
 export default V9FlowCompletionService;

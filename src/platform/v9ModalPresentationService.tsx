@@ -1,11 +1,11 @@
-// src/services/v9/v9ModalPresentationService.tsx
+// src/platform/v9ModalPresentationService.tsx
 // V9 Wrapper for ModalPresentationService - Modern Messaging Compliant
 
 import React from 'react';
 // Import Modern Messaging (V9) - proper migration to non-toast messaging
-import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
-import { logger } from '../../utils/logger';
-import ModalPresentationService from '../modalPresentationService';
+import { modernMessaging } from '../components/v9/V9ModernMessagingComponents';
+import { logger } from '../utils/logger';
+import ModalPresentationService from '../services/modalPresentationService';
 
 // ModalActionDescriptor interface (copied from original for type safety)
 interface ModalActionDescriptor {

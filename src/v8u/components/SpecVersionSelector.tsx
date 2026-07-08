@@ -1,4 +1,4 @@
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
+import { V9_COLORS } from '../../platform/V9ColorStandards';
 
 /**
  * @file SpecVersionSelector.tsx

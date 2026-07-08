@@ -1,7 +1,7 @@
 // Environment ID Persistence Service
 // Manages saving/loading Environment ID to/from .env file
 
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { logger } from '../utils/logger';
 
 interface EnvironmentIdConfig {

@@ -1,7 +1,7 @@
 // src/services/samlAssertionService.tsx
 // SAML Assertion Service for OAuth 2.0 SAML Bearer Assertion Flow
 
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { logger } from '../utils/logger';
 
 export interface SAMLAssertionData {

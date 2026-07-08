@@ -1,6 +1,6 @@
 /**
  * @file V9RedirectUriService.ts
- * @module services/v9
+ * @module platform
  * @description V9 Redirect URI Service
  *
  *   Canonical mapping of Unified OAuth (V8U) and Unified MFA callback paths and

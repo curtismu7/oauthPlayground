@@ -8,7 +8,7 @@
  * token replay attacks and provide proof of possession.
  */
 
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { logger } from '../utils/logger';
 
 export interface DPoPKeyPair {

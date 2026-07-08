@@ -8,8 +8,8 @@ import { useGlobalWorkerToken } from '../../hooks/useGlobalWorkerToken';
 import {
 	V9AppDiscoveryService,
 	type V9DiscoveredApp,
-} from '../../services/v9/V9AppDiscoveryService';
-import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
+} from '../../platform/V9AppDiscoveryService';
+import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
 
 // PAR Test Configuration

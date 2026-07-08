@@ -33,9 +33,9 @@ import type {
 	V8AppConfig,
 	V8Credentials,
 	V8CredentialsConfig,
-} from '../../services/unifiedTokenStorageService';
-import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
-import { logger } from '../../utils/logger';
+} from '../services/unifiedTokenStorageService';
+import { unifiedTokenStorage } from '../services/unifiedTokenStorageService';
+import { logger } from '../utils/logger';
 
 const debugLog = (...args: unknown[]): void => {
 	if (!ENABLE_CREDENTIALS_DEBUG_LOGGING) return;

@@ -15,8 +15,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
-import { V9_COLORS } from '@/services/v9/V9ColorStandards';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { V9_COLORS } from '@/platform/V9ColorStandards';
+import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { workerTokenManager } from '@/services/workerTokenManager';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';

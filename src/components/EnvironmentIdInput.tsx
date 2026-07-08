@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { FiLoader } from '../icons';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
 import { PINGONE_AUTH_REGION_MAP, type PingOneRegion } from '../services/regionService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { V9_COLORS } from '../platform/V9ColorStandards';
 import { logger } from '../utils/logger';
 import { RegionSelect } from './RegionSelect';
 

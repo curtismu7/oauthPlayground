@@ -6,10 +6,10 @@
 // this file is the single swap point.
 
 import { generateCodeChallenge, generateCodeVerifier } from '../../utils/oauth';
-import { authorizeIssueCode } from '../../services/v9/mock/V9MockAuthorizeService';
-import { computePkceS256, tokenExchangeAuthorizationCode } from '../../services/v9/mock/V9MockTokenService';
-import { getUserInfoFromAccessToken } from '../../services/v9/mock/V9MockUserInfoService';
-import { introspectToken } from '../../services/v9/mock/V9MockIntrospectionService';
+import { authorizeIssueCode } from '../../platform/mock/V9MockAuthorizeService';
+import { computePkceS256, tokenExchangeAuthorizationCode } from '../../platform/mock/V9MockTokenService';
+import { getUserInfoFromAccessToken } from '../../platform/mock/V9MockUserInfoService';
+import { introspectToken } from '../../platform/mock/V9MockIntrospectionService';
 import type { FlowCredentials, FlowMode, TokenResult } from '../framework/types';
 import { pingoneHost } from './pingone';
 import { tokenIntrospectionService } from './tokenIntrospectionService';

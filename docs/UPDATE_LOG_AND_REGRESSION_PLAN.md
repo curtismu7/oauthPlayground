@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### Version consolidation Phase 3: rename `src/services/v9` → `src/platform` (2026-07-08)
+
+- **What:** Moved platform services folder out of versioned path; updated ~190 import sites to `@/platform/*` or relative `platform/*`.
+- **Cause:** `services/v9` is not legacy — it's shared infrastructure (messaging, colors, credentials, mock OAuth). Folder name should not imply a version.
+- **Fix:** `git mv`; bulk path replace in `src/` and `scripts/`; `V9*` symbol names deferred to Phase 8.
+- **Files:** `src/platform/**` (renamed from `services/v9`), all consumers under `src/`, `scripts/*-migrator*`, `docs/VERSION_CONSOLIDATION_INVENTORY.md`, `docs/MOCK_FLOWS_STANDARDIZATION_PLAN.md`
+- **Regression check:** (1) `npm run build` passes. (2) Mock auth-code flow still resolves mock services from `src/platform/mock/`. (3) MFA and v8u pages load (messaging/colors imports).
+
 ### Version consolidation Phase 2: rename `src/flows2` → `src/flows` (2026-07-08)
 
 - **What:** Physically moved the clean-core flow module from `src/flows2` to `src/flows`; updated all import paths.

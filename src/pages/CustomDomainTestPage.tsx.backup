@@ -22,7 +22,7 @@ import {
 } from '../v8/services/workerTokenStatusServiceV8';
 import { handleShowWorkerTokenModal } from '../v8/utils/workerTokenModalHelperV8';
 import '../styles/dashboard.css';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { V9_COLORS } from '../platform/V9ColorStandards';
 
 interface ApiTestSpec {
 	method: string;

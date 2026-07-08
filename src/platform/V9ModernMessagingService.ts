@@ -1,6 +1,6 @@
 /**
  * @file V9ModernMessagingService.ts
- * @module services/v9
+ * @module platform
  * @description V9 Modern Messaging Service - Non-toast messaging system
  * @version 9.0.0
  * @since 2026-03-02

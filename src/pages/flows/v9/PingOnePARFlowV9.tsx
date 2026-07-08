@@ -15,11 +15,11 @@ import {
 } from '../../../services/parConfigurationService';
 import { PKCEServiceUtils } from '../../../services/pkceService';
 import { type AuthorizationDetail, RARService } from '../../../services/rarService';
-import { V9FlowCredentialService } from '../../../services/v9/core/V9FlowCredentialService';
-import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
-import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
-import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessagingService';
-import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
+import { V9FlowCredentialService } from '../../../platform/core/V9FlowCredentialService';
+import { V9CredentialStorageService } from '../../../platform/V9CredentialStorageService';
+import { V9FlowRestartButton } from '../../../platform/V9FlowRestartButton';
+import { V9ModernMessagingService } from '../../../platform/V9ModernMessagingService';
+import V9FlowHeader from '../../../platform/v9FlowHeaderService';
 import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import { logger } from '../../../utils/logger';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';

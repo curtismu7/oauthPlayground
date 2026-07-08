@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { V9_COLORS } from '@/services/v9/V9ColorStandards';
+import { V9_COLORS } from '@/platform/V9ColorStandards';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { PageLayoutService } from '../../../services/pageLayoutService';
 

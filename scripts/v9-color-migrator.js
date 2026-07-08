@@ -148,7 +148,7 @@ class V9ColorMigrator {
     
     // Calculate relative path
     const fileDir = path.dirname(filePath);
-    const relativePath = path.relative(fileDir, 'src/services/v9/V9ColorStandards').replace(/\\/g, '/');
+    const relativePath = path.relative(fileDir, 'src/platform/V9ColorStandards').replace(/\\/g, '/');
     
     lines.splice(insertIndex, 0, `import { V9_COLORS } from '${relativePath}';`);
     return lines.join('\n');

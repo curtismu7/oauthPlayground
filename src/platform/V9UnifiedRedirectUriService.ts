@@ -1,6 +1,6 @@
 /**
  * @file V9UnifiedRedirectUriService.ts
- * @module services/v9
+ * @module platform
  * @description V9 Single source of truth for redirect URIs for all Unified OAuth flows.
  *
  *   Drop-in replacement for UnifiedRedirectUriServiceV8U — delegates to

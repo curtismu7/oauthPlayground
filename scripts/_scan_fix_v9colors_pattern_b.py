@@ -15,7 +15,7 @@ Pattern A (old): The V9_COLORS import was expanded inline:
 
 Pattern B (new): V9_COLORS standalone import was injected INSIDE another import block:
     import {
-    import { V9_COLORS } from '../services/v9/V9ColorStandards';
+    import { V9_COLORS } from '../platform/V9ColorStandards';
         DEFAULT_CONFIG,
     ...
     } from '...'
