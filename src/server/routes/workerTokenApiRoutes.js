@@ -7,7 +7,8 @@
  * GET /api/worker-tokens/history — token history
  */
 
-import { workerTokenDatabaseService } from '../services/workerTokenDatabaseService.js';
+import { saveWorkerToken } from '../lmdb/credentialStore.js';
+import { workerTokenRecordStore } from '../lmdb/workerTokenRecordStore.js';
 import { acquireWorkerToken } from '../services/workerTokenAcquisitionService.js';
 
 export function setupWorkerTokenRoutes(app) {
@@ -39,14 +40,15 @@ export function setupWorkerTokenRoutes(app) {
 				customDomain,
 			});
 
-			// Store in database
-			const dbResult = workerTokenDatabaseService.createToken(
+			// Store in LMDB history + active credential store (environments modal)
+			const dbResult = workerTokenRecordStore.createToken(
 				result.token,
 				result.expiresAt, // expiration time in ms
 				roles || [],
 				name || 'Worker Token',
-				{ clientId, environmentId, region }
+				{ clientId, environmentId, region },
 			);
+			saveWorkerToken(environmentId, result.token, result.expiresAt);
 
 			// Set HTTP-only cookie (1 hour)
 			res.cookie('wt_token', result.token, {
@@ -78,7 +80,7 @@ export function setupWorkerTokenRoutes(app) {
 	 */
 	app.get('/api/worker-tokens', (_req, res) => {
 		try {
-			const token = workerTokenDatabaseService.getActiveToken();
+			const token = workerTokenRecordStore.getActiveToken();
 			if (!token) {
 				return res.json({ active: null });
 			}
@@ -109,12 +111,26 @@ export function setupWorkerTokenRoutes(app) {
 	});
 
 	/**
+	 * GET /api/worker-tokens/history
+	 * Get token history (active, revoked, expired)
+	 */
+	app.get('/api/worker-tokens/history', (_req, res) => {
+		try {
+			const history = workerTokenRecordStore.getHistory(50);
+			res.json({ history });
+		} catch (err) {
+			console.error('[WorkerTokenAPI] GET /history error:', err.message);
+			res.status(500).json({ error: err.message });
+		}
+	});
+
+	/**
 	 * GET /api/worker-tokens/:id
 	 * Get specific token by ID with full details
 	 */
 	app.get('/api/worker-tokens/:id', (req, res) => {
 		try {
-			const token = workerTokenDatabaseService.getTokenById(req.params.id);
+			const token = workerTokenRecordStore.getTokenById(req.params.id);
 			if (!token) {
 				return res.status(404).json({ error: 'Token not found' });
 			}
@@ -132,7 +148,7 @@ export function setupWorkerTokenRoutes(app) {
 	 */
 	app.delete('/api/worker-tokens/:id', (req, res) => {
 		try {
-			const success = workerTokenDatabaseService.revokeToken(req.params.id);
+			const success = workerTokenRecordStore.revokeToken(req.params.id);
 			if (!success) {
 				return res.status(404).json({ error: 'Token not found or already revoked' });
 			}
@@ -147,21 +163,6 @@ export function setupWorkerTokenRoutes(app) {
 		}
 	});
 
-	/**
-	 * GET /api/worker-tokens/history
-	 * Get token history (active, revoked, expired)
-	 */
-	app.get('/api/worker-tokens/history', (_req, res) => {
-		try {
-			const history = workerTokenDatabaseService.getHistory(50);
-			res.json({ history });
-		} catch (err) {
-			console.error('[WorkerTokenAPI] GET /history error:', err.message);
-			res.status(500).json({ error: err.message });
-		}
-	});
-
-	// Start cleanup interval on server startup
-	workerTokenDatabaseService.startCleanupInterval();
+	workerTokenRecordStore.startCleanupInterval();
 	console.log('[WorkerTokenAPI] Routes registered');
 }
