@@ -12,7 +12,7 @@ const styles = {
 	} as React.CSSProperties,
 	heroSection: {
 		background:
-			'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
+			'linear-gradient(135deg, COLORS.PRIMARY.BLUE_DARK 0%, COLORS.PRIMARY.BLUE_DARK 100%)',
 		color: 'white',
 		padding: '4rem 3rem',
 		borderRadius: '1rem',
@@ -187,7 +187,7 @@ const styles = {
 	tableHeader: {
 		background: '#f8fafc',
 		padding: '1.5rem',
-		borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		borderBottom: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 	} as React.CSSProperties,
 	tableTitle: {
 		fontSize: '1.5rem',
@@ -209,19 +209,19 @@ const styles = {
 		background: '#f8fafc',
 	} as React.CSSProperties,
 	tableRow: {
-		borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		borderBottom: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 	} as React.CSSProperties,
 	tableHeaderCell: {
 		padding: '1rem',
 		textAlign: 'left' as const,
 		fontWeight: 600,
 		color: '#1f2937',
-		borderRight: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		borderRight: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 		minWidth: '150px',
 	} as React.CSSProperties,
 	tableCell: {
 		padding: '1rem',
-		borderRight: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		borderRight: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 		color: '#1f2937',
 	} as React.CSSProperties,
 	checkIcon: {

@@ -40,7 +40,7 @@ const Header = styled.div`
   
   h3 {
     margin: 0;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
     font-size: 1.125rem;
     font-weight: 600;
     display: flex;
@@ -56,7 +56,7 @@ const TokenSection = styled.div`
 const TokenLabel = styled.label`
   display: block;
   font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
   margin-bottom: 0.5rem;
 `;
@@ -64,7 +64,7 @@ const TokenLabel = styled.label`
 const TokenContainer = styled.div`
   position: relative;
   background: #f0fdf4; /* Light green for generated content */
-  border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
+  border: 1px solid COLORS.PRIMARY.GREEN_DARK;
   border-radius: 8px;
   padding: 1rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -81,7 +81,7 @@ const CopyButton = styled.button`
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  background: V9_COLORS.PRIMARY.BLUE;
+  background: COLORS.PRIMARY.BLUE;
   color: white;
   border: none;
   border-radius: 4px;
@@ -94,7 +94,7 @@ const CopyButton = styled.button`
   transition: background-color 0.2s ease;
   
   &:hover {
-    background: V9_COLORS.PRIMARY.BLUE_DARK;
+    background: COLORS.PRIMARY.BLUE_DARK;
   }
 `;
 
@@ -106,22 +106,22 @@ const InfoGrid = styled.div`
 `;
 
 const InfoCard = styled.div`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  background: COLORS.BG.GRAY_LIGHT;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 1rem;
 `;
 
 const InfoLabel = styled.div`
   font-size: 0.75rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   font-weight: 500;
   margin-bottom: 0.25rem;
 `;
 
 const InfoValue = styled.div`
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   font-weight: 600;
 `;
 
@@ -134,7 +134,7 @@ const ScopeList = styled.div`
 
 const ScopeTag = styled.span`
   background: #dbeafe;
-  color: V9_COLORS.PRIMARY.BLUE_DARK;
+  color: COLORS.PRIMARY.BLUE_DARK;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -162,19 +162,19 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   ${(props) =>
 		props.variant === 'primary'
 			? `
-    background-color: V9_COLORS.PRIMARY.BLUE;
+    background-color: COLORS.PRIMARY.BLUE;
     color: white;
     
     &:hover:not(:disabled) {
-      background-color: V9_COLORS.PRIMARY.BLUE_DARK;
+      background-color: COLORS.PRIMARY.BLUE_DARK;
     }
   `
 			: `
     background-color: #f3f4f6;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
     
     &:hover:not(:disabled) {
-      background-color: V9_COLORS.TEXT.GRAY_LIGHTER;
+      background-color: COLORS.TEXT.GRAY_LIGHTER;
     }
   `}
   
@@ -215,7 +215,7 @@ const ModalHeader = styled.div`
   
   h4 {
     margin: 0;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
     font-size: 1.125rem;
     font-weight: 600;
   }
@@ -225,17 +225,17 @@ const CloseButton = styled.button`
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   cursor: pointer;
   
   &:hover {
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
   }
 `;
 
 const JsonDisplay = styled.pre`
   background: #f0fdf4; /* Light green for generated content */
-  border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
+  border: 1px solid COLORS.PRIMARY.GREEN_DARK;
   border-radius: 8px;
   padding: 1rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -258,13 +258,13 @@ const StatusIndicator = styled.div<{ status: 'active' | 'expired' | 'invalid' }>
   ${(props) => {
 		switch (props.status) {
 			case 'active':
-				return 'background: V9_COLORS.BG.SUCCESS; color: V9_COLORS.PRIMARY.GREEN_DARK;';
+				return 'background: COLORS.BG.SUCCESS; color: COLORS.PRIMARY.GREEN_DARK;';
 			case 'expired':
-				return 'background: V9_COLORS.BG.ERROR; color: V9_COLORS.PRIMARY.RED_DARK;';
+				return 'background: COLORS.BG.ERROR; color: COLORS.PRIMARY.RED_DARK;';
 			case 'invalid':
-				return 'background: V9_COLORS.BG.WARNING; color: V9_COLORS.PRIMARY.YELLOW_DARK;';
+				return 'background: COLORS.BG.WARNING; color: COLORS.PRIMARY.YELLOW_DARK;';
 			default:
-				return 'background: #f3f4f6; color: V9_COLORS.TEXT.GRAY_DARK;';
+				return 'background: #f3f4f6; color: COLORS.TEXT.GRAY_DARK;';
 		}
 	}}
 `;

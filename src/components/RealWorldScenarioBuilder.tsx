@@ -9,16 +9,16 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
 
 const BuilderContainer = styled.div`
-	background: linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%);
+	background: linear-gradient(135deg, #f0fdf4 0%, COLORS.BG.SUCCESS 100%);
 	border-radius: 1rem;
 	padding: 2rem;
 	margin: 2rem 0;
-	border: 3px solid V9_COLORS.PRIMARY.GREEN;
+	border: 3px solid COLORS.PRIMARY.GREEN;
 	box-shadow: 0 8px 24px rgba(16, 185, 129, 0.2);
 `;
 
 const Title = styled.h2`
-	color: V9_COLORS.PRIMARY.GREEN_DARK;
+	color: COLORS.PRIMARY.GREEN_DARK;
 	margin: 0 0 0.5rem 0;
 	display: flex;
 	align-items: center;
@@ -53,7 +53,7 @@ const ScenarioCard = styled.button<{ $selected: boolean }>`
 
 	&:hover {
 		transform: translateY(-4px);
-		border-color: V9_COLORS.PRIMARY.GREEN;
+		border-color: COLORS.PRIMARY.GREEN;
 		box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
 	}
 `;
@@ -79,7 +79,7 @@ const ScenarioTitle = styled.div`
 `;
 
 const ScenarioDescription = styled.div`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.95rem;
 	line-height: 1.5;
 	margin-bottom: 1rem;
@@ -93,8 +93,8 @@ const ScenarioTags = styled.div`
 
 const Tag = styled.span`
 	padding: 0.25rem 0.75rem;
-	background: V9_COLORS.BG.GRAY_MEDIUM;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	background: COLORS.BG.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	border-radius: 1rem;
 	font-size: 0.75rem;
 	font-weight: 600;
@@ -104,7 +104,7 @@ const ConfigPanel = styled.div`
 	background: white;
 	border-radius: 0.75rem;
 	padding: 2rem;
-	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 	margin-bottom: 2rem;
 `;
 
@@ -137,28 +137,28 @@ const Parameter = styled.div`
 	gap: 1rem;
 	align-items: center;
 	padding: 0.75rem;
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	background: COLORS.BG.GRAY_LIGHT;
 	border-radius: 0.5rem;
-	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
+	border-left: 4px solid COLORS.PRIMARY.BLUE;
 `;
 
 const ParameterName = styled.div`
 	font-family: 'Monaco', 'Menlo', monospace;
 	font-weight: 600;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	font-size: 0.9rem;
 `;
 
 const ParameterValue = styled.div`
 	font-family: 'Monaco', 'Menlo', monospace;
-	color: V9_COLORS.PRIMARY.GREEN_DARK;
+	color: COLORS.PRIMARY.GREEN_DARK;
 	font-size: 0.875rem;
 	word-break: break-all;
 `;
 
 const WhyBox = styled.div`
-	background: V9_COLORS.BG.WARNING;
-	border-left: 4px solid V9_COLORS.PRIMARY.YELLOW;
+	background: COLORS.BG.WARNING;
+	border-left: 4px solid COLORS.PRIMARY.YELLOW;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin-top: 1rem;
@@ -166,7 +166,7 @@ const WhyBox = styled.div`
 
 const WhyTitle = styled.div`
 	font-weight: 700;
-	color: V9_COLORS.PRIMARY.YELLOW_DARK;
+	color: COLORS.PRIMARY.YELLOW_DARK;
 	margin-bottom: 0.5rem;
 	display: flex;
 	align-items: center;
@@ -183,7 +183,7 @@ const CodeTabs = styled.div`
 	display: flex;
 	gap: 0.5rem;
 	margin-bottom: 1rem;
-	border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-bottom: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const CodeTab = styled.button<{ $active: boolean }>`
@@ -203,7 +203,7 @@ const CodeTab = styled.button<{ $active: boolean }>`
 
 const CodeBlock = styled.pre`
 	background: #1e293b;
-	color: V9_COLORS.BG.GRAY_MEDIUM;
+	color: COLORS.BG.GRAY_MEDIUM;
 	padding: 1.5rem;
 	border-radius: 0.75rem;
 	overflow-x: auto;
@@ -218,7 +218,7 @@ const CopyButton = styled.button`
 	top: 1rem;
 	right: 1rem;
 	padding: 0.5rem 1rem;
-	background: V9_COLORS.PRIMARY.GREEN;
+	background: COLORS.PRIMARY.GREEN;
 	color: white;
 	border: none;
 	border-radius: 0.5rem;
@@ -230,7 +230,7 @@ const CopyButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: V9_COLORS.PRIMARY.GREEN_DARK;
+		background: COLORS.PRIMARY.GREEN_DARK;
 		transform: translateY(-2px);
 	}
 `;
@@ -255,10 +255,10 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
 	background: ${({ variant }) =>
 		variant === 'secondary'
 			? 'white'
-			: 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)'};
+			: 'linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, COLORS.PRIMARY.GREEN_DARK 100%)'};
 	color: ${({ variant }) => (variant === 'secondary' ? '#059669' : 'white')};
 	border: ${({ variant }) =>
-		variant === 'secondary' ? '2px solid V9_COLORS.PRIMARY.GREEN' : 'none'};
+		variant === 'secondary' ? '2px solid COLORS.PRIMARY.GREEN' : 'none'};
 
 	&:hover {
 		transform: translateY(-2px);
@@ -290,7 +290,7 @@ const scenarios: ScenarioConfig[] = [
 		id: 'banking-mfa',
 		icon: <span></span>,
 		iconColor:
-			'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)',
+			'linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, COLORS.PRIMARY.GREEN_DARK 100%)',
 		title: 'Banking App with MFA',
 		description:
 			'High-security financial application requiring multi-factor authentication and recent login verification',
@@ -489,7 +489,7 @@ public class BankingOAuthConfig
 		id: 'saas-multi-tenant',
 		icon: <span></span>,
 		iconColor:
-			'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
+			'linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_DARK 100%)',
 		title: 'Multi-Tenant SaaS Platform',
 		description: 'Cloud software with multiple customer APIs requiring resource-specific tokens',
 		tags: ['SaaS', 'Multi-API', 'Resource Indicators'],
@@ -729,7 +729,7 @@ public class SaaSMultiTenantOAuth
 		id: 'mobile-ecommerce',
 		icon: <span></span>,
 		iconColor:
-			'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)',
+			'linear-gradient(135deg, COLORS.PRIMARY.YELLOW 0%, COLORS.PRIMARY.YELLOW_DARK 100%)',
 		title: 'Mobile E-Commerce App',
 		description:
 			'Native mobile shopping app requiring secure OAuth with offline access for order tracking',
@@ -1111,7 +1111,7 @@ public class MobileOAuthManager
 		id: 'iot-device',
 		icon: <span></span>,
 		iconColor:
-			'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
+			'linear-gradient(135deg, COLORS.PRIMARY.BLUE_DARK 0%, COLORS.PRIMARY.BLUE_DARK 100%)',
 		title: 'IoT Device / Smart TV',
 		description:
 			'Input-constrained device using Device Authorization Flow for browserless authentication',
@@ -1584,7 +1584,7 @@ const RealWorldScenarioBuilder: React.FC = () => {
 									padding: '1rem',
 									background: '#dbeafe',
 									borderRadius: '0.5rem',
-									borderLeft: '4px solid V9_COLORS.PRIMARY.BLUE',
+									borderLeft: '4px solid COLORS.PRIMARY.BLUE',
 									color: '#2563eb',
 									lineHeight: '1.6',
 								}}

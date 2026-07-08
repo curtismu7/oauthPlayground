@@ -63,7 +63,7 @@ const ProgressBar = styled.div`
 
 	.progress-fill {
 		height: 100%;
-		background: linear-gradient(90deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.GREEN);
+		background: linear-gradient(90deg, COLORS.PRIMARY.BLUE, COLORS.PRIMARY.GREEN);
 		border-radius: 2px;
 		transition: width 0.3s ease;
 	}

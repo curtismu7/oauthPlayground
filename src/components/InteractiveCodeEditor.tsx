@@ -59,8 +59,8 @@ export type LanguageOption =
 	| 'kotlin';
 
 const EditorContainer = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.WHITE;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 12px;
 	overflow: hidden;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -68,7 +68,7 @@ const EditorContainer = styled.div`
 
 const ConfigPanel = styled.div`
 	background: #f8f9fa;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	padding: 16px 20px;
 `;
 
@@ -87,14 +87,14 @@ const ConfigField = styled.div`
 const ConfigLabel = styled.label`
 	font-size: 12px;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 `;
 
 const ConfigInput = styled.input`
 	padding: 8px 12px;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	font-size: 14px;
 	font-family: 'SF Mono', Monaco, monospace;
@@ -108,8 +108,8 @@ const ConfigInput = styled.input`
 `;
 
 const Toolbar = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.WHITE;
+	border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	padding: 12px 20px;
 	display: flex;
 	justify-content: space-between;
@@ -173,7 +173,7 @@ const ThemeToggle = styled.button<{ $isDark: boolean }>`
 `;
 
 const EditorWrapper = styled.div`
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const StatusBar = styled.div`
@@ -183,7 +183,7 @@ const StatusBar = styled.div`
 	justify-content: space-between;
 	align-items: center;
 	font-size: 12px;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const StatusLeft = styled.div`
@@ -210,8 +210,8 @@ const StatusBadge = styled.span<{ $type: 'success' | 'warning' | 'info' }>`
 `;
 
 const TabsContainer = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.WHITE;
+	border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	padding: 0 20px;
 	display: flex;
 	gap: 4px;
@@ -222,7 +222,7 @@ const TabsContainer = styled.div`
 	}
 
 	&::-webkit-scrollbar-thumb {
-		background: V9_COLORS.TEXT.GRAY_LIGHTER;
+		background: COLORS.TEXT.GRAY_LIGHTER;
 		border-radius: 2px;
 	}
 `;
@@ -252,12 +252,12 @@ const Tab = styled.button<{ $active: boolean }>`
 
 const LanguageSelector = styled.select`
 	padding: 8px 12px;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	font-size: 13px;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
-	background: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.GRAY_DARK;
+	background: COLORS.TEXT.WHITE;
 	cursor: pointer;
 	transition: all 0.2s;
 
@@ -268,18 +268,18 @@ const LanguageSelector = styled.select`
 	}
 
 	&:hover {
-		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+		border-color: COLORS.TEXT.GRAY_LIGHT;
 	}
 `;
 
 const LanguageOptGroup = styled.optgroup`
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const CategoryPanel = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.WHITE;
+	border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	padding: 16px 20px;
 	display: flex;
 	gap: 12px;
@@ -290,19 +290,19 @@ const CategoryPanel = styled.div`
 const CategoryLabel = styled.span`
 	font-size: 13px;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 `;
 
 const CategorySelector = styled.select`
 	padding: 8px 12px;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	font-size: 13px;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
-	background: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.GRAY_DARK;
+	background: COLORS.TEXT.WHITE;
 	cursor: pointer;
 	transition: all 0.2s;
 	min-width: 180px;
@@ -314,14 +314,14 @@ const CategorySelector = styled.select`
 	}
 
 	&:hover {
-		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+		border-color: COLORS.TEXT.GRAY_LIGHT;
 	}
 `;
 
 const Divider = styled.div`
 	width: 1px;
 	height: 24px;
-	background: V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.GRAY_LIGHTER;
 	margin: 0 4px;
 `;
 
@@ -413,7 +413,7 @@ const SpinnerModal = styled.div`
 const Spinner = styled.div`
 	width: 60px;
 	height: 60px;
-	border: 5px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 5px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-top-color: #667eea;
 	border-radius: 50%;
 	animation: rotate 0.8s linear infinite;
@@ -431,13 +431,13 @@ const Spinner = styled.div`
 const SpinnerText = styled.div`
 	font-size: 18px;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	text-align: center;
 `;
 
 const SpinnerSubtext = styled.div`
 	font-size: 14px;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	text-align: center;
 `;
 

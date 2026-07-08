@@ -26,12 +26,12 @@ const Label = styled.label`
 	gap: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const LabelIcon = styled.div`
-	color: V9_COLORS.PRIMARY.GREEN;
+	color: COLORS.PRIMARY.GREEN;
 	font-size: 1rem;
 `;
 
@@ -42,7 +42,7 @@ const InputWrapper = styled.div`
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem 1rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	font-family: 'Monaco', 'Menlo', monospace;
@@ -50,7 +50,7 @@ const Input = styled.input`
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.GREEN;
+		border-color: COLORS.PRIMARY.GREEN;
 		box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 	}
 
@@ -60,14 +60,14 @@ const Input = styled.input`
 	}
 
 	&::placeholder {
-		color: V9_COLORS.TEXT.GRAY_LIGHT;
+		color: COLORS.TEXT.GRAY_LIGHT;
 	}
 `;
 
 const HelperText = styled.div`
 	margin-top: 0.5rem;
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.5;
 `;
 
@@ -75,14 +75,14 @@ const ExamplesBox = styled.div`
 	margin-top: 0.75rem;
 	padding: 0.75rem;
 	background: #f9fafb;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 `;
 
 const ExampleTitle = styled.div`
 	font-size: 0.75rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
@@ -137,7 +137,7 @@ const DiscoveryBadge = styled.span`
 	align-items: center;
 	gap: 0.25rem;
 	padding: 0.125rem 0.375rem;
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: COLORS.PRIMARY.BLUE;
 	color: white;
 	border-radius: 0.25rem;
 	font-size: 0.625rem;

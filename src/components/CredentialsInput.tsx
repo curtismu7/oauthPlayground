@@ -23,7 +23,7 @@ export const GlobalInputFix = createGlobalStyle`
 		-webkit-user-select: text !important;
 		z-index: 99999 !important;
 		position: relative !important;
-		background-color: V9_COLORS.TEXT.WHITE !important;
+		background-color: COLORS.TEXT.WHITE !important;
 		opacity: 1 !important;
 	}
 	
@@ -31,7 +31,7 @@ export const GlobalInputFix = createGlobalStyle`
 	form[data-credentials-form] input[readonly] {
 		pointer-events: auto !important;
 		cursor: text !important;
-		background-color: V9_COLORS.TEXT.WHITE !important;
+		background-color: COLORS.TEXT.WHITE !important;
 	}
 `;
 
@@ -85,8 +85,8 @@ export interface CredentialsInputProps {
 }
 
 const CollapsibleContainer = styled.div`
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	margin-bottom: 1.5rem;
 	overflow: hidden;
@@ -103,7 +103,7 @@ const CollapsibleHeader = styled.button`
 	gap: 0.5rem;
 	width: 100%;
 	padding: 1rem 1.5rem;
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: COLORS.PRIMARY.BLUE;
 	color: white;
 	font-weight: 600;
 	font-size: 0.875rem;
@@ -112,7 +112,7 @@ const CollapsibleHeader = styled.button`
 	transition: background-color 0.2s ease;
 	
 	&:hover {
-		background: V9_COLORS.PRIMARY.BLUE_DARK;
+		background: COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 
@@ -127,8 +127,8 @@ const SecretInputWrapper = styled.div`
 const IconButton = styled.button`
 	position: absolute;
 	background: white;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
+	color: COLORS.TEXT.GRAY_DARK;
 	padding: 0.375rem;
 	display: flex;
 	align-items: center;
@@ -143,8 +143,8 @@ const IconButton = styled.button`
 
 	&:hover {
 		background: #f9fafb;
-		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		border-color: COLORS.TEXT.GRAY_LIGHT;
+		color: COLORS.TEXT.GRAY_DARK;
 	}
 
 	&:active {
@@ -254,7 +254,7 @@ const FormField = styled.div`
 const FormLabel = styled.label`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0;
 	display: flex;
 	align-items: center;
@@ -269,7 +269,7 @@ const FormInput = styled.input<{ $hasError?: boolean }>`
 	font-size: 0.875rem;
 	transition: all 0.2s ease;
 	font-family: inherit;
-	background: V9_COLORS.TEXT.WHITE !important;
+	background: COLORS.TEXT.WHITE !important;
 	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 	cursor: text !important;
 	pointer-events: auto !important;
@@ -290,19 +290,19 @@ const FormInput = styled.input<{ $hasError?: boolean }>`
 	}
 
 	&::placeholder {
-		color: V9_COLORS.TEXT.GRAY_LIGHT;
+		color: COLORS.TEXT.GRAY_LIGHT;
 	}
 
 	&:disabled {
-		background: V9_COLORS.TEXT.WHITE !important;
-		color: V9_COLORS.TEXT.GRAY_DARK !important;
+		background: COLORS.TEXT.WHITE !important;
+		color: COLORS.TEXT.GRAY_DARK !important;
 		cursor: text !important;
 		pointer-events: auto !important;
 	}
 
 	&[readonly] {
-		background: V9_COLORS.TEXT.WHITE !important;
-		color: V9_COLORS.TEXT.GRAY_DARK !important;
+		background: COLORS.TEXT.WHITE !important;
+		color: COLORS.TEXT.GRAY_DARK !important;
 		cursor: text !important;
 		pointer-events: auto !important;
 	}
@@ -311,12 +311,12 @@ const FormInput = styled.input<{ $hasError?: boolean }>`
 const FormSelect = styled.select`
 	width: 100%;
 	padding: 0.75rem 0.875rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	transition: all 0.2s ease;
 	font-family: inherit;
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 	cursor: pointer;
 	position: relative;
@@ -324,27 +324,27 @@ const FormSelect = styled.select`
 	user-select: none;
 
 	&:hover {
-		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+		border-color: COLORS.TEXT.GRAY_LIGHT;
 	}
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+		border-color: COLORS.PRIMARY.BLUE_DARK;
 		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 		z-index: 20;
 	}
 
 	&:disabled {
 		background: #f9fafb;
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		color: COLORS.TEXT.GRAY_MEDIUM;
 		cursor: not-allowed;
 		pointer-events: none;
 	}
 `;
 
 const EnvironmentSection = styled.div`
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	padding: 1.5rem;
 	margin-bottom: 1.5rem;
@@ -358,7 +358,7 @@ const EnvironmentHeader = styled.div`
 `;
 
 const EnvironmentTitle = styled.h3`
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	font-size: 1.125rem;
 	font-weight: 600;
 	margin: 0;
@@ -366,7 +366,7 @@ const EnvironmentTitle = styled.h3`
 
 const SectionDivider = styled.div`
 	height: 1px;
-	background-color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	background-color: COLORS.TEXT.GRAY_LIGHTER;
 	margin: 1.5rem 0;
 	border-radius: 0.5px;
 `;
@@ -740,7 +740,7 @@ export const CredentialsInput = ({
 											backgroundColor: '#f3f4f6',
 											padding: '0.75rem',
 											borderRadius: '0.5rem',
-											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+											border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 											marginTop: '0.5rem',
 										}}
 									>
@@ -797,7 +797,7 @@ export const CredentialsInput = ({
 											marginTop: '0.5rem',
 											padding: '0.75rem',
 											backgroundColor: '#f8fafc',
-											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+											border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 											borderRadius: '0.375rem',
 											fontSize: '0.875rem',
 											color: '#6b7280',
@@ -855,7 +855,7 @@ export const CredentialsInput = ({
 											backgroundColor: '#f3f4f6',
 											padding: '0.75rem',
 											borderRadius: '0.5rem',
-											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+											border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 											marginTop: '0.5rem',
 										}}
 									>
@@ -1071,7 +1071,7 @@ export const CredentialsInput = ({
 								style={{
 									marginTop: '1.5rem',
 									paddingTop: '1rem',
-									borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									borderTop: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 									display: 'flex',
 									flexDirection: 'column',
 									gap: '0.5rem',
@@ -1092,7 +1092,7 @@ export const CredentialsInput = ({
 											padding: '0.75rem 1.5rem',
 											backgroundColor: '#10b981',
 											color: 'white',
-											border: '1px solid V9_COLORS.PRIMARY.GREEN',
+											border: '1px solid COLORS.PRIMARY.GREEN',
 											borderRadius: '0.5rem',
 											fontSize: '0.875rem',
 											fontWeight: '600',

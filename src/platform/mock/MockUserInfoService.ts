@@ -1,10 +1,10 @@
-// src/services/v7m/V9MockUserInfoService.ts
+// src/platform/mock/MockUserInfoService.ts
 // UserInfo endpoint simulator for V7M. Validates bearer token presence and returns
 // profile derived from ID token payload if available or from stored token metadata.
 
-import { V9MockStateStore } from './V9MockStateStore';
+import { MockStateStore } from './MockStateStore';
 
-export type V9MockUserInfo =
+export type MockUserInfo =
 	| {
 			sub: string;
 			name?: string;
@@ -17,7 +17,7 @@ export type V9MockUserInfo =
 	  }
 	| { error: string; error_description?: string };
 
-export function getUserInfoFromAccessToken(bearerToken?: string): V9MockUserInfo {
+export function getUserInfoFromAccessToken(bearerToken?: string): MockUserInfo {
 	if (!bearerToken) return { error: 'invalid_token', error_description: 'Missing access token' };
 	// Try decode as JWT-like
 	const decoded = decodeJwtLike(bearerToken);
@@ -39,7 +39,7 @@ export function getUserInfoFromAccessToken(bearerToken?: string): V9MockUserInfo
 		};
 	}
 	// Fallback to store
-	const rec = V9MockStateStore.getToken(bearerToken);
+	const rec = MockStateStore.getToken(bearerToken);
 	if (rec) {
 		return {
 			sub: rec.subject,

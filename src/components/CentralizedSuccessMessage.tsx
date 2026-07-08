@@ -84,8 +84,8 @@ const ToastContainer = styled.div<{ $position: 'top' | 'bottom' }>`
 const ToastMessage = styled.div<{ $isError?: boolean }>`
   background: ${(props) =>
 		props.$isError
-			? 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)'
-			: 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)'};
+			? 'linear-gradient(135deg, COLORS.PRIMARY.RED 0%, COLORS.PRIMARY.RED_DARK 100%)'
+			: 'linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, COLORS.PRIMARY.GREEN_DARK 100%)'};
   color: white;
   padding: ${(props) => (props.$isError ? '16px 28px' : '12px 24px')};
   border-radius: 8px;
@@ -166,7 +166,7 @@ const ErrorModal = styled.div`
   position: relative;
   width: min(720px, 90vw);
   max-height: 80vh;
-  background: V9_COLORS.TEXT.WHITE;
+  background: COLORS.TEXT.WHITE;
   border-radius: 14px;
   box-shadow: 0 25px 60px rgba(15, 23, 42, 0.35);
   border: 2px solid rgba(239, 68, 68, 0.35);
@@ -191,7 +191,7 @@ const ErrorIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: V9_COLORS.PRIMARY.RED_DARK;
+  color: COLORS.PRIMARY.RED_DARK;
   flex-shrink: 0;
 `;
 
@@ -199,14 +199,14 @@ const ErrorTitle = styled.h2`
   margin: 0;
   font-size: 1.25rem;
   line-height: 1.4;
-  color: V9_COLORS.PRIMARY.RED_DARK;
+  color: COLORS.PRIMARY.RED_DARK;
   font-weight: 700;
 `;
 
 const ErrorBody = styled.div`
   font-size: 0.95rem;
   line-height: 1.6;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   max-height: 50vh;
   overflow-y: auto;
 
@@ -226,11 +226,11 @@ const ErrorBody = styled.div`
     display: block;
     font-family: 'Menlo', 'Monaco', monospace;
     overflow-x: auto;
-    color: V9_COLORS.PRIMARY.RED_DARK;
+    color: COLORS.PRIMARY.RED_DARK;
   }
 
   strong {
-    color: V9_COLORS.PRIMARY.RED_DARK;
+    color: COLORS.PRIMARY.RED_DARK;
   }
 `;
 
@@ -240,7 +240,7 @@ const ModalActions = styled.div`
 `;
 
 const CloseButton = styled.button`
-  background: V9_COLORS.PRIMARY.RED_DARK;
+  background: COLORS.PRIMARY.RED_DARK;
   color: white;
   border: none;
   border-radius: 8px;
@@ -254,7 +254,7 @@ const CloseButton = styled.button`
   box-shadow: 0 6px 20px rgba(220, 38, 38, 0.35);
 
   &:hover {
-    background: V9_COLORS.PRIMARY.RED_DARK;
+    background: COLORS.PRIMARY.RED_DARK;
   }
 `;
 

@@ -99,6 +99,21 @@ Constants: `src/config/canonicalRoutes.ts`
 - Import paths updated in `App.tsx` and all 17 specialty flow files (`../../../` → `../../`, framework/mock-ui → sibling paths)
 - URL routes (`/flows/*-v9`, etc.) unchanged — Phase 8 symbol/route cleanup
 
+## Phase 8a (done)
+
+- `App.tsx`: `Flows2*` lazy components → `Flows*`
+- `V9_COLORS` → `COLORS`; `V9ColorStandards.ts` → `ColorStandards.ts`
+- `V7MMockBanner` → `MockBanner` in `flows/mock-ui/`
+- `platform/mock/`: `V9Mock*` files and symbols → `Mock*`
+
+## Phase 8 remaining (8b–8d)
+
+| Batch | Scope |
+|-------|--------|
+| **8b** | `platform/`: `V9ModernMessagingService`, `V9FlowRestartButton`, `v9FlowHeaderService`, credential services, etc. |
+| **8c** | `mfa/`: `*V8` components, services, filenames |
+| **8d** | `lab/`: `*V8U` components/services; specialty flow `*V9` filenames; canonical routes for `/flows/*-v9` |
+
 ## Next phases
 
-Phase 8 strip V7/V8/V9 from symbols; Phase 9 CI test scope.
+Phase 9 CI test scope.

@@ -33,7 +33,7 @@ const DashboardIcon = styled.div`
   justify-content: center;
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
+  background: linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, COLORS.PRIMARY.GREEN_DARK 100%);
   border-radius: 12px;
   color: white;
   font-size: 24px;

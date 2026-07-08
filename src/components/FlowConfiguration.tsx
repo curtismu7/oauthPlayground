@@ -15,7 +15,7 @@ const ConfigContainer = styled.div`
 `;
 
 const SaveButton = styled.button`
-	background: V9_COLORS.PRIMARY.GREEN_DARK;
+	background: COLORS.PRIMARY.GREEN_DARK;
 	color: white;
 	border: none;
 	padding: 0.75rem 1.5rem;
@@ -50,7 +50,7 @@ const SaveButton = styled.button`
 	}
 
 	&:disabled {
-		background: V9_COLORS.TEXT.GRAY_LIGHT;
+		background: COLORS.TEXT.GRAY_LIGHT;
 		cursor: not-allowed;
 		transform: none;
 		box-shadow: none;
@@ -1187,7 +1187,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 							<div
 								style={{
 									background:
-										'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)',
+										'linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.TEXT.GRAY_LIGHTER 100%)',
 									border: '1px solid #cbd5e1',
 									borderRadius: '8px',
 									padding: '1.5rem',

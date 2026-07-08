@@ -64,25 +64,25 @@ const Header = styled.div`
 `;
 
 const Title = styled.h1`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const Subtitle = styled.p`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 1.1rem;
 `;
 
 const TestSection = styled.div`
 	margin-bottom: 2rem;
 	padding: 1.5rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 `;
 
 const SectionTitle = styled.h2`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1rem;
 	font-size: 1.25rem;
 `;
@@ -102,31 +102,31 @@ const FormGroup = styled.div`
 
 const Label = styled.label`
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const Input = styled.input`
 	padding: 0.5rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.25rem;
 	font-size: 0.875rem;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
 
 const Select = styled.select`
 	padding: 0.5rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.25rem;
 	font-size: 0.875rem;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -141,23 +141,23 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
 	${(props) =>
 		props.variant === 'primary'
 			? `
-    background: V9_COLORS.PRIMARY.BLUE;
+    background: COLORS.PRIMARY.BLUE;
     color: white;
-    border: 1px solid V9_COLORS.PRIMARY.BLUE;
+    border: 1px solid COLORS.PRIMARY.BLUE;
 
     &:hover:not(:disabled) {
-      background: V9_COLORS.PRIMARY.BLUE_DARK;
-      border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+      background: COLORS.PRIMARY.BLUE_DARK;
+      border-color: COLORS.PRIMARY.BLUE_DARK;
     }
   `
 			: `
     background: white;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-    border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+    color: COLORS.TEXT.GRAY_DARK;
+    border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 
     &:hover:not(:disabled) {
       background: #f9fafb;
-      border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+      border-color: COLORS.TEXT.GRAY_LIGHT;
     }
   `}
 
@@ -199,11 +199,11 @@ const ResultTitle = styled.h3`
 
 const ResultTime = styled.span`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const CodeBlock = styled.pre`
-	background: V9_COLORS.TEXT.GRAY_DARK;
+	background: COLORS.TEXT.GRAY_DARK;
 	color: #f9fafb;
 	padding: 1rem;
 	border-radius: 0.25rem;
@@ -213,28 +213,28 @@ const CodeBlock = styled.pre`
 `;
 
 const TokenCard = styled.div`
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	background: COLORS.BG.GRAY_LIGHT;
 	padding: 1rem;
 	border-radius: 0.5rem;
 	margin: 0.5rem 0;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const TokenLabel = styled.div`
 	font-weight: 600;
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 `;
 
 const TokenValue = styled.div`
 	font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
-	background: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.GRAY_DARK;
+	background: COLORS.TEXT.WHITE;
 	padding: 0.5rem;
 	border-radius: 0.25rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	word-break: break-all;
 `;
 

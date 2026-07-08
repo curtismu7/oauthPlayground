@@ -36,8 +36,8 @@ const ComparisonIcon = styled.div`
 	height: 48px;
 	background: linear-gradient(
 		135deg,
-		V9_COLORS.PRIMARY.GREEN 0%,
-		V9_COLORS.PRIMARY.GREEN_DARK 100%
+		COLORS.PRIMARY.GREEN 0%,
+		COLORS.PRIMARY.GREEN_DARK 100%
 	);
 	border-radius: 12px;
 	color: white;

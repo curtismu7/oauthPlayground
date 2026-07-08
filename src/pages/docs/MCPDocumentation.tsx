@@ -7,7 +7,7 @@ import DocumentationHeader from '../../components/DocumentationHeader';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import PageLayoutService from '../../services/pageLayoutService';
-import { V9_COLORS } from '../../platform/V9ColorStandards';
+import { COLORS } from '../../platform/ColorStandards';
 
 const pageConfig = {
 	flowType: 'pingone' as const,
@@ -32,7 +32,7 @@ const MDIIcon: React.FC<{ icon: string; size?: number }> = ({ icon, size = 16 })
 };
 
 const ExternalLink = styled.a`
-	color: ${V9_COLORS.PRIMARY.BLUE};
+	color: ${COLORS.PRIMARY.BLUE};
 	text-decoration: none;
 	display: inline-flex;
 	align-items: center;
@@ -57,7 +57,7 @@ const CardGrid = styled.div`
 `;
 
 const DocCard = styled(Link)`
-	background: ${V9_COLORS.BG.WHITE};
+	background: ${COLORS.BG.WHITE};
 	border-radius: 12px;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	padding: 20px;
@@ -66,23 +66,23 @@ const DocCard = styled(Link)`
 		box-shadow 0.2s;
 	text-decoration: none;
 	color: inherit;
-	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 
 	&:hover {
 		transform: translateY(-2px);
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-		border-color: ${V9_COLORS.PRIMARY.BLUE};
+		border-color: ${COLORS.PRIMARY.BLUE};
 	}
 
 	h3 {
 		font-size: 1rem;
 		margin-bottom: 0.5rem;
-		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		color: ${COLORS.TEXT.GRAY_DARK};
 		font-weight: 600;
 	}
 
 	p {
-		color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+		color: ${COLORS.TEXT.GRAY_MEDIUM};
 		font-size: 0.9rem;
 		line-height: 1.5;
 		margin: 0;
@@ -102,11 +102,11 @@ const ComplianceTable = styled.div`
 	td {
 		padding: 0.75rem 1rem;
 		text-align: left;
-		border-bottom: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+		border-bottom: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	}
 	th {
-		background: ${V9_COLORS.BG.GRAY_LIGHT};
-		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		background: ${COLORS.BG.GRAY_LIGHT};
+		color: ${COLORS.TEXT.GRAY_DARK};
 		font-weight: 600;
 	}
 `;
@@ -116,7 +116,7 @@ const ToolList = styled.ul`
 	padding-left: 1.25rem;
 	line-height: 1.8;
 	font-size: 0.9rem;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 `;
 
 const ToolRow = styled.li`
@@ -124,7 +124,7 @@ const ToolRow = styled.li`
 `;
 
 const ToolName = styled.code`
-	background: ${V9_COLORS.BG.GRAY_LIGHT};
+	background: ${COLORS.BG.GRAY_LIGHT};
 	padding: 0.15rem 0.4rem;
 	border-radius: 4px;
 	font-size: 0.85em;
@@ -157,15 +157,15 @@ const MCPDocumentation: React.FC = () => {
 						</p>
 						<div
 							style={{
-								background: V9_COLORS.BG.GRAY_LIGHT,
-								border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+								background: COLORS.BG.GRAY_LIGHT,
+								border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 								borderRadius: '8px',
 								padding: '20px',
 								marginTop: '1rem',
 							}}
 						>
 							<h3
-								style={{ marginTop: 0, marginBottom: '0.75rem', color: V9_COLORS.TEXT.GRAY_DARK }}
+								style={{ marginTop: 0, marginBottom: '0.75rem', color: COLORS.TEXT.GRAY_DARK }}
 							>
 								Latest MCP Spec Links
 							</h3>
@@ -689,7 +689,7 @@ const MCPDocumentation: React.FC = () => {
 							</DocCard>
 						</CardGrid>
 
-						<p style={{ marginTop: '1rem', color: V9_COLORS.TEXT.GRAY_MEDIUM }}>
+						<p style={{ marginTop: '1rem', color: COLORS.TEXT.GRAY_MEDIUM }}>
 							External links:{' '}
 							<ExternalLink
 								href="https://modelcontextprotocol.io/clients"

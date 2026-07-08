@@ -74,7 +74,7 @@ const ExampleLink = styled(Link)`
   align-items: center;
   gap: 0.5rem;
   background: #007bff;
-  color: V9_COLORS.TEXT.WHITE !important;
+  color: COLORS.TEXT.WHITE !important;
   padding: 0.875rem 1.75rem;
   border-radius: 6px;
   text-decoration: none;
@@ -86,7 +86,7 @@ const ExampleLink = styled(Link)`
 
   &:hover {
     background: #0056b3;
-    color: V9_COLORS.TEXT.WHITE !important;
+    color: COLORS.TEXT.WHITE !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
   }
@@ -111,7 +111,7 @@ const StatusBadge = styled.span<{ status: 'implemented' | 'planned' }>`
     color: #155724;
   `
 			: `
-    background: V9_COLORS.TEXT.WHITE3cd;
+    background: COLORS.TEXT.WHITE3cd;
     color: #856404;
   `}
 `;

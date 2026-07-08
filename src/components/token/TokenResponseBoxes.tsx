@@ -38,12 +38,12 @@ const TokenTitle = styled.h4`
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const CopyButton = styled.button`
   background: white;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 50%;
   width: 32px;
   height: 32px;
@@ -56,7 +56,7 @@ const CopyButton = styled.button`
 
   &:hover {
     background: #f9fafb;
-    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+    border-color: COLORS.TEXT.GRAY_LIGHT;
   }
 `;
 

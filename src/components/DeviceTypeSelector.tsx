@@ -22,7 +22,7 @@ const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = (
 };
 
 const DeviceSelectorContainer = styled.div<{ $isCompact?: boolean }>`
-  background: ${(props) => (props.$isCompact ? 'transparent' : 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)')};
+  background: ${(props) => (props.$isCompact ? 'transparent' : 'linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.TEXT.GRAY_LIGHTER 100%)')};
   border-radius: 0.75rem;
   padding: ${(props) => (props.$isCompact ? '0' : '1.5rem')};
   margin-bottom: ${(props) => (props.$isCompact ? '0' : '2rem')};
@@ -48,17 +48,17 @@ const DeviceDropdown = styled.select`
   background: white;
   font-size: 1rem;
   font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
-    border-color: V9_COLORS.PRIMARY.BLUE;
+    border-color: COLORS.PRIMARY.BLUE;
   }
   
   &:focus {
     outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
+    border-color: COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;

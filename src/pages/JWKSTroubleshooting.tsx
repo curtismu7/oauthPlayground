@@ -12,7 +12,7 @@ const Container = styled.div`
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 2rem;
-	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	background: linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.TEXT.GRAY_LIGHTER 100%);
 	min-height: 100vh;
 `;
 
@@ -25,7 +25,7 @@ const _Header = styled.div`
 `;
 
 const _Title = styled.h1`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 2.5rem;
 	font-weight: 700;
 	margin-bottom: 1rem;
@@ -50,7 +50,7 @@ const Section = styled.div`
 `;
 
 const SectionTitle = styled.h2`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 1.8rem;
 	font-weight: 600;
 	margin-bottom: 1.5rem;
@@ -94,7 +94,7 @@ const IssueContent = styled.div`
 `;
 
 const IssueTitle = styled.h3`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 1.1rem;
 	font-weight: 600;
 	margin: 0 0 0.5rem 0;
@@ -107,8 +107,8 @@ const IssueDescription = styled.div`
 `;
 
 const CodeBlock = styled.pre`
-	background: V9_COLORS.TEXT.BLACK;
-	color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.BLACK;
+	color: COLORS.TEXT.GRAY_LIGHTER;
 	padding: 1.5rem;
 	border-radius: 0.5rem;
 	overflow-x: auto;
@@ -121,7 +121,7 @@ const CodeBlock = styled.pre`
 
 const CommandContainer = styled.div`
 	background: #f7fafc;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1.5rem;
 	margin: 1rem 0;
@@ -136,7 +136,7 @@ const CommandHeader = styled.div`
 `;
 
 const CommandTitle = styled.h4`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 1.1rem;
 	font-weight: 600;
 	margin: 0;
@@ -190,7 +190,7 @@ const Button = styled.button<{
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 1rem;
 	margin-bottom: 1rem;
@@ -203,15 +203,15 @@ const Input = styled.input`
 `;
 
 const OutputContainer = styled.div`
-	background: V9_COLORS.TEXT.BLACK;
+	background: COLORS.TEXT.BLACK;
 	border-radius: 0.5rem;
 	overflow: hidden;
 	margin-top: 1rem;
 `;
 
 const OutputHeader = styled.div`
-	background: V9_COLORS.TEXT.GRAY_MEDIUM;
-	color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_LIGHTER;
 	padding: 0.75rem 1rem;
 	display: flex;
 	align-items: center;
@@ -229,8 +229,8 @@ const OutputTitle = styled.div`
 `;
 
 const OutputContent = styled.pre<{ $isExpanded: boolean }>`
-	background: V9_COLORS.TEXT.BLACK;
-	color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.BLACK;
+	color: COLORS.TEXT.GRAY_LIGHTER;
 	padding: 1rem;
 	line-height: 1.5;
 	overflow-x: auto;
@@ -275,7 +275,7 @@ const ChecklistItem = styled.div`
 	align-items: center;
 	gap: 0.75rem;
 	padding: 0.5rem 0;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 
 	&:last-child {
 		border-bottom: none;
@@ -289,7 +289,7 @@ const Checkbox = styled.input`
 `;
 
 const ChecklistLabel = styled.label`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-weight: 500;
 	cursor: pointer;
 	flex: 1;

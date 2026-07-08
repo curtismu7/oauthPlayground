@@ -20,7 +20,7 @@ const Header = styled.div`
   h1 {
     font-size: 2.5rem;
     font-weight: 700;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
@@ -30,7 +30,7 @@ const Header = styled.div`
 
   p {
     font-size: 1.125rem;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
+    color: COLORS.TEXT.GRAY_MEDIUM;
     max-width: 600px;
     margin: 0 auto;
     line-height: 1.6;
@@ -42,7 +42,7 @@ const DemoSection = styled.div`
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   margin-bottom: 2rem;
 `;
 
@@ -52,7 +52,7 @@ const SectionHeader = styled.div`
   h2 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
     margin-bottom: 0.5rem;
     display: flex;
     align-items: center;
@@ -60,14 +60,14 @@ const SectionHeader = styled.div`
   }
 
   p {
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
+    color: COLORS.TEXT.GRAY_MEDIUM;
     line-height: 1.6;
   }
 `;
 
 const ResultCard = styled.div`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  background: COLORS.BG.GRAY_LIGHT;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-top: 1rem;
@@ -76,12 +76,12 @@ const ResultCard = styled.div`
 const ResultTitle = styled.h3`
   font-size: 1rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const ResultContent = styled.pre`
-  background: V9_COLORS.TEXT.GRAY_DARK;
+  background: COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   border-radius: 0.375rem;
   padding: 1rem;
@@ -105,7 +105,7 @@ const ComparisonGrid = styled.div`
 
 const ComparisonCard = styled.div`
   background: white;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1.5rem;
 `;
@@ -113,7 +113,7 @@ const ComparisonCard = styled.div`
 const ComparisonTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -131,7 +131,7 @@ const ProItem = styled.li`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
 
   &::before {
@@ -145,7 +145,7 @@ const ConItem = styled.li`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
 
   &::before {

@@ -9,13 +9,13 @@
  * using the unifiedWorkerTokenService. It replaces the messy inline worker token
  * functionality that was previously scattered across MFAConfigurationStepV8.
  *
- * Migrated to V9 standards: V9_COLORS, styled-components, Modern Messaging.
+ * Migrated to V9 standards: COLORS, styled-components, Modern Messaging.
  */
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
-import { V9_COLORS } from '@/platform/V9ColorStandards';
+import { COLORS } from '@/platform/ColorStandards';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { workerTokenManager } from '@/services/workerTokenManager';
 import { WorkerTokenStatusServiceV8 } from '@/mfa/services/workerTokenStatusServiceV8';
@@ -43,8 +43,8 @@ interface WorkerTokenSectionV8Props {
 // ---------------------------------------------------------------------------
 
 const SectionRoot = styled.div<{ $compact: boolean }>`
-	background: ${V9_COLORS.BG.WHITE};
-	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	background: ${COLORS.BG.WHITE};
+	border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 8px;
 	padding: ${({ $compact }) => ($compact ? '16px' : '24px')};
 	margin-bottom: ${({ $compact }) => ($compact ? '16px' : '24px')};
@@ -60,20 +60,20 @@ const SectionHeader = styled.div`
 
 const HeaderIcon = styled.span`
 	font-size: 20px;
-	color: ${V9_COLORS.PRIMARY.BLUE};
+	color: ${COLORS.PRIMARY.BLUE};
 `;
 
 const SectionTitle = styled.h3`
 	margin: 0;
 	font-size: 18px;
 	font-weight: 600;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 `;
 
 const ServiceBadge = styled.span`
 	font-size: 12px;
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
-	background: ${V9_COLORS.BG.GRAY_LIGHT};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
+	background: ${COLORS.BG.GRAY_LIGHT};
 	padding: 2px 8px;
 	border-radius: 12px;
 `;
@@ -81,14 +81,14 @@ const ServiceBadge = styled.span`
 const Description = styled.p`
 	margin: 0 0 16px 0;
 	font-size: 14px;
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	line-height: 1.5;
 `;
 
 const StatusBox = styled.div<{ $isValid: boolean }>`
-	background: ${({ $isValid }) => ($isValid ? V9_COLORS.BG.SUCCESS : V9_COLORS.BG.ERROR)};
+	background: ${({ $isValid }) => ($isValid ? COLORS.BG.SUCCESS : COLORS.BG.ERROR)};
 	border: 1px solid
-		${({ $isValid }) => ($isValid ? V9_COLORS.BG.SUCCESS_BORDER : V9_COLORS.BG.ERROR_BORDER)};
+		${({ $isValid }) => ($isValid ? COLORS.BG.SUCCESS_BORDER : COLORS.BG.ERROR_BORDER)};
 	border-radius: 6px;
 	padding: 12px;
 	margin-bottom: 16px;
@@ -104,26 +104,26 @@ const StatusLabel = styled.div<{ $isValid: boolean }>`
 	font-size: 14px;
 	font-weight: 600;
 	color: ${({ $isValid }) =>
-		$isValid ? V9_COLORS.PRIMARY.GREEN_DARK : V9_COLORS.PRIMARY.RED_DARK};
+		$isValid ? COLORS.PRIMARY.GREEN_DARK : COLORS.PRIMARY.RED_DARK};
 `;
 
 const StatusError = styled.div`
 	font-size: 12px;
-	color: ${V9_COLORS.PRIMARY.RED_DARK};
+	color: ${COLORS.PRIMARY.RED_DARK};
 	margin-top: 4px;
 `;
 
 const RefreshBtn = styled.button`
 	padding: 6px 8px;
 	background: transparent;
-	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 4px;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
 	gap: 4px;
 	font-size: 12px;
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	&:disabled {
 		opacity: 0.6;
 		cursor: not-allowed;
@@ -139,8 +139,8 @@ const ButtonRow = styled.div`
 
 const GetTokenButton = styled.button`
 	padding: 10px 16px;
-	background: ${V9_COLORS.PRIMARY.RED_DARK};
-	color: ${V9_COLORS.TEXT.WHITE};
+	background: ${COLORS.PRIMARY.RED_DARK};
+	color: ${COLORS.TEXT.WHITE};
 	border: none;
 	border-radius: 6px;
 	font-size: 14px;
@@ -151,15 +151,15 @@ const GetTokenButton = styled.button`
 	gap: 8px;
 	transition: background 0.2s ease, transform 0.2s ease;
 	&:hover {
-		background: ${V9_COLORS.BUTTON.DANGER.backgroundHover};
+		background: ${COLORS.BUTTON.DANGER.backgroundHover};
 		transform: translateY(-1px);
 	}
 `;
 
 const UpdateTokenButton = styled.button`
 	padding: 10px 16px;
-	background: ${V9_COLORS.PRIMARY.GREEN};
-	color: ${V9_COLORS.TEXT.WHITE};
+	background: ${COLORS.PRIMARY.GREEN};
+	color: ${COLORS.TEXT.WHITE};
 	border: none;
 	border-radius: 6px;
 	font-size: 14px;
@@ -170,15 +170,15 @@ const UpdateTokenButton = styled.button`
 	gap: 8px;
 	transition: background 0.2s ease, transform 0.2s ease;
 	&:hover {
-		background: ${V9_COLORS.PRIMARY.GREEN_DARK};
+		background: ${COLORS.PRIMARY.GREEN_DARK};
 		transform: translateY(-1px);
 	}
 `;
 
 const ClearTokenButton = styled.button`
 	padding: 10px 16px;
-	background: ${V9_COLORS.PRIMARY.RED};
-	color: ${V9_COLORS.TEXT.WHITE};
+	background: ${COLORS.PRIMARY.RED};
+	color: ${COLORS.TEXT.WHITE};
 	border: none;
 	border-radius: 6px;
 	font-size: 14px;
@@ -189,7 +189,7 @@ const ClearTokenButton = styled.button`
 	gap: 8px;
 	transition: background 0.2s ease, transform 0.2s ease;
 	&:hover {
-		background: ${V9_COLORS.PRIMARY.RED_DARK};
+		background: ${COLORS.PRIMARY.RED_DARK};
 		transform: translateY(-1px);
 	}
 `;
@@ -212,7 +212,7 @@ const CheckboxLabel = styled.label`
 	gap: 8px;
 	cursor: pointer;
 	font-size: 14px;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	& input {
 		width: 16px;
 		height: 16px;

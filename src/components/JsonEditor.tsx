@@ -14,10 +14,10 @@ interface JsonEditorProps {
 
 const EditorContainer = styled.div`
   position: relative;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   overflow: hidden;
-  background: V9_COLORS.TEXT.GRAY_DARK;
+  background: COLORS.TEXT.GRAY_DARK;
 `;
 
 const EditorHeader = styled.div`
@@ -25,14 +25,14 @@ const EditorHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  background: V9_COLORS.TEXT.GRAY_DARK;
+  background: COLORS.TEXT.GRAY_DARK;
   border-bottom: 1px solid #4b5563;
 `;
 
 const EditorTitle = styled.div`
   font-size: 0.875rem;
   font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_LIGHTER;
+  color: COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const CopyButton = styled.button.withConfig({

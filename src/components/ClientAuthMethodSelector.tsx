@@ -23,27 +23,27 @@ const Label = styled.label`
 	gap: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const Select = styled.select`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
-	background-color: V9_COLORS.TEXT.WHITE;
+	background-color: COLORS.TEXT.WHITE;
 	cursor: pointer;
 	transition: all 0.2s ease-in-out;
 
 	&:hover:not(:disabled) {
-		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+		border-color: COLORS.TEXT.GRAY_LIGHT;
 	}
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 
@@ -113,13 +113,13 @@ const SecurityBadge = styled.span<{ $level: string }>`
 				return '#9ca3af';
 		}
 	}};
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 `;
 
 const HelperText = styled.div`
 	margin-top: 0.375rem;
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	display: flex;
 	align-items: start;
 	gap: 0.375rem;

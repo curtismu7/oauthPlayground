@@ -1,6 +1,6 @@
 /**
  * Dashboard — home page: API status, endpoints, quick access flows, recent activity.
- * Follows migrate_cursor.md consistency (Ping headers, V9_COLORS.TEXT.GRAY_DARK/V9_COLORS.TEXT.GRAY_DARK text, collapsible sections).
+ * Follows migrate_cursor.md consistency (Ping headers, COLORS.TEXT.GRAY_DARK/COLORS.TEXT.GRAY_DARK text, collapsible sections).
  * See docs/updates-to-apps/dashboard-updates.md.
  */
 import { useCallback, useEffect, useState } from 'react';
@@ -24,7 +24,7 @@ import {
 	formatUptime,
 } from '../services/serverHealthService';
 import { UnifiedTokenStorageService } from '../services/unifiedTokenStorageService';
-import { V9_COLORS } from '../platform/V9ColorStandards';
+import { COLORS } from '../platform/ColorStandards';
 import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
 import { useComponentTracker } from '../utils/componentTracker';
 import { checkSavedCredentialsAsync } from '../utils/configurationStatus';
@@ -571,7 +571,7 @@ const Dashboard = () => {
 						<div className="d-flex flex-column gap-2">
 							<div className="d-flex align-items-center gap-2 flex-wrap">
 								<span className="fw-600 text-muted">App URL (HTTPS):</span>
-								<code className="text-small fw-600" style={{ color: V9_COLORS.TEXT.GRAY_DARK }}>
+								<code className="text-small fw-600" style={{ color: COLORS.TEXT.GRAY_DARK }}>
 									{appDisplayUrl}
 								</code>
 							</div>
@@ -608,7 +608,7 @@ const Dashboard = () => {
 									<p
 										id="dashboard-domain-error"
 										className="text-small mb-0"
-										style={{ color: V9_COLORS.PRIMARY.RED }}
+										style={{ color: COLORS.PRIMARY.RED }}
 									>
 										{domainError}
 									</p>

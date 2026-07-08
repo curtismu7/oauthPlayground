@@ -215,7 +215,7 @@ const ErrorTitle = styled.h3`
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const ErrorBody = styled.div`
@@ -243,7 +243,7 @@ const SuggestionsTitle = styled.div`
   gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
@@ -279,13 +279,13 @@ const DetailsToggle = styled.button`
   border: none;
   padding: 0;
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   cursor: pointer;
   text-decoration: underline;
   transition: color 0.2s;
 
   &:hover {
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
   }
 `;
 
@@ -293,10 +293,10 @@ const DetailsContent = styled.pre`
   margin-top: 0.5rem;
   padding: 0.75rem;
   background-color: #f9fafb;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.75rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-word;
@@ -305,7 +305,7 @@ const DetailsContent = styled.pre`
 const CorrelationId = styled.div`
   margin-top: 0.5rem;
   font-size: 0.75rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
 
   code {
     background-color: #f3f4f6;
@@ -338,23 +338,23 @@ const ActionButton = styled.button<{ variant: 'primary' | 'secondary' }>`
   ${(props) =>
 		props.variant === 'primary'
 			? `
-    background-color: V9_COLORS.PRIMARY.BLUE_DARK;
+    background-color: COLORS.PRIMARY.BLUE_DARK;
     color: white;
-    border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+    border-color: COLORS.PRIMARY.BLUE_DARK;
 
     &:hover {
-      background-color: V9_COLORS.PRIMARY.BLUE_DARK;
-      border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+      background-color: COLORS.PRIMARY.BLUE_DARK;
+      border-color: COLORS.PRIMARY.BLUE_DARK;
     }
   `
 			: `
     background-color: white;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-    border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
+    color: COLORS.TEXT.GRAY_DARK;
+    border-color: COLORS.TEXT.GRAY_LIGHTER;
 
     &:hover {
       background-color: #f9fafb;
-      border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+      border-color: COLORS.TEXT.GRAY_LIGHT;
     }
   `}
 `;

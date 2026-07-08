@@ -23,7 +23,7 @@ const messagingService = V9ModernMessagingService.getInstance();
 // Styled Components
 const Container = styled.div`
 	min-height: 100vh;
-	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.PURPLE_DARK 100%);
+	background: linear-gradient(135deg, COLORS.PRIMARY.BLUE_DARK 0%, COLORS.PRIMARY.PURPLE_DARK 100%);
 	padding: 2rem;
 `;
 
@@ -42,7 +42,7 @@ const Title = styled.h1`
 	font-size: 2.5rem;
 	font-weight: 700;
 	margin-bottom: 1rem;
-	background: linear-gradient(135deg, #ffffff 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	background: linear-gradient(135deg, #ffffff 0%, COLORS.TEXT.GRAY_LIGHTER 100%);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 	background-clip: text;

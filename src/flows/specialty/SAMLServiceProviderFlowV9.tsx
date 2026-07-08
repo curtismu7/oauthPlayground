@@ -13,14 +13,14 @@ import { FlowCompletionService } from '../../services/flowCompletionService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { samlService as SAMLService } from '../../services/samlService';
 import { logger } from '../../utils/logger';
-import { V7MMockBanner } from '../mock-ui/V7MMockBanner';
+import { MockBanner } from '../mock-ui/MockBanner';
 
 // Styled Components
 const Container = styled.div`
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
-	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	background: linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.TEXT.GRAY_LIGHTER 100%);
 `;
 
 const ContentWrapper = styled.div`
@@ -31,7 +31,7 @@ const ContentWrapper = styled.div`
 
 const SectionDivider = styled.div`
 	height: 1px;
-	background: linear-gradient(90deg, transparent, V9_COLORS.TEXT.GRAY_LIGHTER, transparent);
+	background: linear-gradient(90deg, transparent, COLORS.TEXT.GRAY_LIGHTER, transparent);
 	margin: 2rem 0;
 `;
 
@@ -105,21 +105,21 @@ const Label = styled.label`
 	display: block;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	transition: border-color 0.2s ease-in-out;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -127,7 +127,7 @@ const Input = styled.input`
 const TextArea = styled.textarea`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	font-family: monospace;
@@ -136,7 +136,7 @@ const TextArea = styled.textarea`
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -146,8 +146,8 @@ const CheckboxGroup = styled.div`
 	align-items: center;
 	gap: 0.75rem;
 	padding: 1rem;
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	margin: 1rem 0;
 `;
@@ -160,14 +160,14 @@ const Checkbox = styled.input.attrs({ type: 'checkbox' })`
 
 const CheckboxLabel = styled.label`
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	cursor: pointer;
 	line-height: 1.4;
 `;
 
 const Helper = styled.div`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	margin-top: 0.5rem;
 	line-height: 1.4;
 `;
@@ -177,12 +177,12 @@ const TooltipIcon = styled.span`
 	align-items: center;
 	justify-content: center;
 	margin-left: 0.375rem;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	cursor: help;
 	transition: color 0.2s ease;
 
 	&:hover {
-		color: V9_COLORS.PRIMARY.BLUE_DARK;
+		color: COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 
@@ -200,35 +200,35 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>
 	${(props) =>
 		props.$variant === 'primary'
 			? `
-		background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+		background: linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_DARK 100%);
 		color: white;
 		border: none;
 
 		&:hover:not(:disabled) {
-			background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+			background: linear-gradient(135deg, COLORS.PRIMARY.BLUE_DARK 0%, COLORS.PRIMARY.BLUE_DARK 100%);
 			transform: translateY(-1px);
 			box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 		}
 	`
 			: props.$variant === 'success'
 				? `
-		background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
+		background: linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, COLORS.PRIMARY.GREEN_DARK 100%);
 		color: white;
 		border: none;
 
 		&:hover:not(:disabled) {
-			background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN_DARK 0%, #047857 100%);
+			background: linear-gradient(135deg, COLORS.PRIMARY.GREEN_DARK 0%, #047857 100%);
 			transform: translateY(-1px);
 			box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
 		}
 	`
 				: `
-		background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
+		background: linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, COLORS.PRIMARY.GREEN_DARK 100%);
 		color: white;
 		border: none;
 
 		&:hover:not(:disabled) {
-			background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN_DARK 0%, #15803d 100%);
+			background: linear-gradient(135deg, COLORS.PRIMARY.GREEN_DARK 0%, #15803d 100%);
 			transform: translateY(-1px);
 			box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
 		}
@@ -241,8 +241,8 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>
 `;
 
 const GeneratedContentBox = styled.div`
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -258,7 +258,7 @@ const ParameterGrid = styled.div`
 const ParameterLabel = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const ParameterValue = styled.div`
@@ -267,7 +267,7 @@ const ParameterValue = styled.div`
 	color: #064e3b;
 	word-break: break-all;
 	background-color: #f0fdf4; /* Light green for generated content */
-	border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
+	border: 1px solid COLORS.PRIMARY.GREEN_DARK;
 	padding: 0.5rem;
 	border-radius: 0.25rem;
 `;
@@ -1260,7 +1260,7 @@ const SAMLServiceProviderFlowV9: React.FC = () => {
 	// Main render
 	return (
 		<Container>
-			<V7MMockBanner description="Configure and explore SAML SP Dynamic ACS without real credentials. Process AuthnRequests locally. PingOne credentials are optional — only needed if you want to sync with a real PingOne SAML application." />
+			<MockBanner description="Configure and explore SAML SP Dynamic ACS without real credentials. Process AuthnRequests locally. PingOne credentials are optional — only needed if you want to sync with a real PingOne SAML application." />
 			<FlowHeader flowId="saml-sp-dynamic-acs" />
 			<ContentWrapper>
 				{renderConfiguration()}

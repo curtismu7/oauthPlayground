@@ -235,7 +235,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 							padding: '1rem',
 							backgroundColor: '#fef2f2',
 							borderRadius: '0.5rem',
-							border: '1px solid V9_COLORS.BG.ERROR_BORDER',
+							border: '1px solid COLORS.BG.ERROR_BORDER',
 							marginBottom: '1.5rem',
 						}}
 					>
@@ -350,8 +350,8 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 												padding: '1rem',
 												border:
 													selectedAuthenticatorType === 'platform'
-														? '2px solid V9_COLORS.PRIMARY.BLUE'
-														: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+														? '2px solid COLORS.PRIMARY.BLUE'
+														: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 												borderRadius: '0.5rem',
 												cursor: 'pointer',
 												backgroundColor:
@@ -408,8 +408,8 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 												padding: '1rem',
 												border:
 													selectedAuthenticatorType === 'cross-platform'
-														? '2px solid V9_COLORS.PRIMARY.BLUE'
-														: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+														? '2px solid COLORS.PRIMARY.BLUE'
+														: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 												borderRadius: '0.5rem',
 												cursor: 'pointer',
 												backgroundColor:
@@ -465,8 +465,8 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 											padding: '1rem',
 											border:
 												selectedAuthenticatorType === 'any'
-													? '2px solid V9_COLORS.PRIMARY.BLUE'
-													: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+													? '2px solid COLORS.PRIMARY.BLUE'
+													: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 											borderRadius: '0.5rem',
 											cursor: 'pointer',
 											backgroundColor: selectedAuthenticatorType === 'any' ? '#f8fafc' : '#ffffff',
@@ -515,7 +515,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 									padding: '1rem',
 									backgroundColor: '#f8fafc',
 									borderRadius: '0.5rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 								}}
 							>
 								<h4
@@ -552,7 +552,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 								padding: '1rem',
 								backgroundColor: '#fef3c7',
 								borderRadius: '0.5rem',
-								border: '1px solid V9_COLORS.PRIMARY.YELLOW',
+								border: '1px solid COLORS.PRIMARY.YELLOW',
 							}}
 						>
 							<h4
@@ -597,7 +597,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 						justifyContent: 'flex-end',
 						marginTop: '2rem',
 						paddingTop: '1.5rem',
-						borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+						borderTop: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 					}}
 				>
 					<button
@@ -606,7 +606,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 						disabled={isRegistering}
 						style={{
 							padding: '0.75rem 1.5rem',
-							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.375rem',
 							backgroundColor: 'white',
 							color: '#1f2937',
@@ -650,7 +650,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 									style={{
 										width: '1rem',
 										height: '1rem',
-										border: '2px solid V9_COLORS.TEXT.WHITE',
+										border: '2px solid COLORS.TEXT.WHITE',
 										borderTop: '2px solid transparent',
 										borderRadius: '50%',
 										animation: 'spin 1s linear infinite',

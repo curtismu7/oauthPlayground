@@ -38,7 +38,7 @@ const Container = styled.div`
 	margin: 0 auto;
 	padding: 2.5rem;
 	min-height: calc(100vh - 4rem);
-	background: linear-gradient(180deg, V9_COLORS.BG.GRAY_LIGHT 0%, #eef2ff 100%);
+	background: linear-gradient(180deg, COLORS.BG.GRAY_LIGHT 0%, #eef2ff 100%);
 	border-radius: 1.75rem;
 	box-shadow: 0 28px 80px -40px rgba(15, 23, 42, 0.38);
 	position: relative;
@@ -59,7 +59,7 @@ const BackButton = styled.button`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.75rem 1.5rem;
-	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+	background: linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_DARK 100%);
 	border: none;
 	border-radius: 0.75rem;
 	color: white;
@@ -72,8 +72,8 @@ const BackButton = styled.button`
 	&:hover {
 		background: linear-gradient(
 			135deg,
-			V9_COLORS.PRIMARY.BLUE_DARK 0%,
-			V9_COLORS.PRIMARY.BLUE_DARK 100%
+			COLORS.PRIMARY.BLUE_DARK 0%,
+			COLORS.PRIMARY.BLUE_DARK 100%
 		);
 		transform: translateY(-1px);
 		box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
@@ -89,7 +89,7 @@ const CardGrid = styled.div`
 `;
 
 const AppTypeCard = styled.div<{ selected: boolean }>`
-	background: linear-gradient(160deg, V9_COLORS.TEXT.WHITE 0%, #f4f7ff 100%);
+	background: linear-gradient(160deg, COLORS.TEXT.WHITE 0%, #f4f7ff 100%);
 	border: 2px solid
 		${({ selected, theme }) => (selected ? theme.colors.primary : 'rgba(148, 163, 184, 0.25)')};
 	border-radius: 0.75rem;
@@ -114,13 +114,13 @@ const AppTypeCard = styled.div<{ selected: boolean }>`
 	.title {
 		font-size: 1.125rem;
 		font-weight: 600;
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: COLORS.TEXT.GRAY_DARK;
 		margin-bottom: 0.5rem;
 	}
 
 	.description {
 		font-size: 0.875rem;
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		color: COLORS.TEXT.GRAY_MEDIUM;
 		line-height: 1.5;
 	}
 `;
@@ -138,7 +138,7 @@ const FormContainer = styled.div`
 const FormTitle = styled.h2`
 	font-size: 1.5rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1.5rem;
 	display: flex;
 	align-items: center;
@@ -166,7 +166,7 @@ const FormGroup = styled.div`
 const Label = styled.label`
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
@@ -251,7 +251,7 @@ const CheckboxLabel = styled.label`
 	align-items: center;
 	gap: 0.5rem;
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	cursor: pointer;
 `;
 
@@ -285,11 +285,11 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 's
 
 		if (variant === 'danger') {
 			return `
-    background: linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%);
+    background: linear-gradient(135deg, COLORS.PRIMARY.RED 0%, COLORS.PRIMARY.RED_DARK 100%);
     color: white;
     box-shadow: 0 15px 35px -22px rgba(239, 68, 68, 0.6);
     &:hover {
-      background: linear-gradient(135deg, V9_COLORS.PRIMARY.RED_DARK 0%, V9_COLORS.PRIMARY.RED_DARK 100%);
+      background: linear-gradient(135deg, COLORS.PRIMARY.RED_DARK 0%, COLORS.PRIMARY.RED_DARK 100%);
       transform: translateY(-1px);
       box-shadow: 0 18px 40px -24px rgba(185, 28, 28, 0.7);
     }
@@ -298,11 +298,11 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 's
 
 		if (variant === 'success') {
 			return `
-    background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, #15803d 100%);
+    background: linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, #15803d 100%);
     color: white;
     box-shadow: 0 15px 35px -22px rgba(34, 197, 94, 0.6);
     &:hover {
-      background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN_DARK 0%, V9_COLORS.PRIMARY.GREEN 100%);
+      background: linear-gradient(135deg, COLORS.PRIMARY.GREEN_DARK 0%, COLORS.PRIMARY.GREEN 100%);
       transform: translateY(-1px);
       box-shadow: 0 18px 40px -24px rgba(22, 101, 52, 0.7);
     }
@@ -1793,7 +1793,7 @@ const ApplicationGenerator: React.FC = () => {
 										background: '#f0fdf4',
 										padding: '1.5rem',
 										borderRadius: '0.75rem',
-										border: '1px solid V9_COLORS.PRIMARY.GREEN_DARK',
+										border: '1px solid COLORS.PRIMARY.GREEN_DARK',
 									}}
 								>
 									<h4>Your New Application</h4>
@@ -1818,7 +1818,7 @@ const ApplicationGenerator: React.FC = () => {
 										background: '#fef2f2',
 										padding: '1.5rem',
 										borderRadius: '0.75rem',
-										border: '1px solid V9_COLORS.PRIMARY.RED',
+										border: '1px solid COLORS.PRIMARY.RED',
 									}}
 								>
 									<h4>Error Details</h4>

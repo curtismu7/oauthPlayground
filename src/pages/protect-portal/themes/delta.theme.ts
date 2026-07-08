@@ -194,7 +194,7 @@ export const deltaTheme: BrandTheme = {
 		success: '#059669',
 		successLight: '#d4edda',
 		warning: '#D97706',
-		warningLight: 'V9_COLORS.TEXT.WHITE3cd',
+		warningLight: 'COLORS.TEXT.WHITE3cd',
 		info: '#c8102e',
 	},
 	typography: {

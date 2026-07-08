@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { V9_COLORS } from '@/platform/V9ColorStandards';
+import { COLORS } from '@/platform/ColorStandards';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import UltimateTokenDisplay from '../components/UltimateTokenDisplay';
 import { FlowHeader } from '../services/flowHeaderService';
@@ -28,19 +28,19 @@ const _Header = styled.div`
 const _Title = styled.h1`
   font-size: 2.5rem;
   font-weight: 700;
-  color: ${V9_COLORS.TEXT.GRAY_DARK};
+  color: ${COLORS.TEXT.GRAY_DARK};
   margin-bottom: 0.5rem;
 `;
 
 const _Subtitle = styled.p`
   font-size: 1.125rem;
-  color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+  color: ${COLORS.TEXT.GRAY_MEDIUM};
   margin: 0;
 `;
 
 const ControlPanel = styled.div`
   background: white;
-  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+  border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
@@ -62,19 +62,19 @@ const ControlGroup = styled.div`
 const ControlLabel = styled.label`
   font-size: 0.875rem;
   font-weight: 600;
-  color: ${V9_COLORS.TEXT.GRAY_DARK};
+  color: ${COLORS.TEXT.GRAY_DARK};
 `;
 
 const Select = styled.select`
   padding: 0.5rem;
-  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+  border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
   border-radius: 6px;
   font-size: 0.875rem;
   background: white;
 
   &:focus {
     outline: none;
-    border-color: ${V9_COLORS.PRIMARY.BLUE};
+    border-color: ${COLORS.PRIMARY.BLUE};
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -88,7 +88,7 @@ const CheckboxGroup = styled.div`
 const Checkbox = styled.input`
   width: 1rem;
   height: 1rem;
-  accent-color: ${V9_COLORS.PRIMARY.BLUE};
+  accent-color: ${COLORS.PRIMARY.BLUE};
 `;
 
 const Button = styled.button`
@@ -96,8 +96,8 @@ const Button = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE} 0%, ${V9_COLORS.PRIMARY.BLUE_DARK} 100%);
-  color: ${V9_COLORS.TEXT.WHITE};
+  background: linear-gradient(135deg, ${COLORS.PRIMARY.BLUE} 0%, ${COLORS.PRIMARY.BLUE_DARK} 100%);
+  color: ${COLORS.TEXT.WHITE};
   border: none;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -111,8 +111,8 @@ const Button = styled.button`
   }
 
   &:disabled {
-    background: ${V9_COLORS.TEXT.GRAY_LIGHT};
-    color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+    background: ${COLORS.TEXT.GRAY_LIGHT};
+    color: ${COLORS.TEXT.GRAY_MEDIUM};
     cursor: not-allowed;
   }
 `;
@@ -124,7 +124,7 @@ const DemoSection = styled.div`
 const SectionTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: ${V9_COLORS.TEXT.GRAY_DARK};
+  color: ${COLORS.TEXT.GRAY_DARK};
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -359,7 +359,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 								background: 'white',
 								padding: '1.5rem',
 								borderRadius: '8px',
-								border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+								border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 							}}
 						>
 							<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}> Visual Features</h3>
@@ -377,7 +377,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 								background: 'white',
 								padding: '1.5rem',
 								borderRadius: '8px',
-								border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+								border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 							}}
 						>
 							<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}> Functional Features</h3>
@@ -395,7 +395,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 								background: 'white',
 								padding: '1.5rem',
 								borderRadius: '8px',
-								border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+								border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 							}}
 						>
 							<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}> Metadata Features</h3>

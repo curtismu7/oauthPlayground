@@ -18,7 +18,7 @@ const ErrorContainer = styled.div`
   justify-content: center;
   min-height: 100vh;
   padding: 2rem;
-  background: linear-gradient(135deg, V9_COLORS.BG.ERROR 0%, V9_COLORS.BG.ERROR 100%);
+  background: linear-gradient(135deg, COLORS.BG.ERROR 0%, COLORS.BG.ERROR 100%);
 `;
 
 const ErrorCard = styled.div`
@@ -32,7 +32,7 @@ const ErrorCard = styled.div`
 `;
 
 const ErrorIcon = styled.div`
-  color: V9_COLORS.PRIMARY.RED;
+  color: COLORS.PRIMARY.RED;
   font-size: 4rem;
   margin-bottom: 1.5rem;
 `;
@@ -40,20 +40,20 @@ const ErrorIcon = styled.div`
 const ErrorTitle = styled.h1`
   font-size: 2rem;
   font-weight: 700;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   margin: 0 0 1rem 0;
 `;
 
 const ErrorMessage = styled.p`
   font-size: 1.125rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   margin: 0 0 2rem 0;
   line-height: 1.6;
 `;
 
 const ErrorDetails = styled.details`
   background: #f9fafb;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   margin: 1.5rem 0;
@@ -62,13 +62,13 @@ const ErrorDetails = styled.details`
 
 const ErrorSummary = styled.summary`
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   cursor: pointer;
   margin-bottom: 0.5rem;
 `;
 
 const ErrorStack = styled.pre`
-  background: V9_COLORS.TEXT.GRAY_DARK;
+  background: COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   padding: 1rem;
   border-radius: 0.375rem;
@@ -86,7 +86,7 @@ const ActionButtons = styled.div`
 `;
 
 const ActionButton = styled.button`
-  background: V9_COLORS.PRIMARY.BLUE;
+  background: COLORS.PRIMARY.BLUE;
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -100,11 +100,11 @@ const ActionButton = styled.button`
   transition: background-color 0.2s;
   
   &:hover {
-    background: V9_COLORS.PRIMARY.BLUE_DARK;
+    background: COLORS.PRIMARY.BLUE_DARK;
   }
   
   &:nth-child(2) {
-    background: V9_COLORS.TEXT.GRAY_MEDIUM;
+    background: COLORS.TEXT.GRAY_MEDIUM;
     
     &:hover {
       background: #4b5563;

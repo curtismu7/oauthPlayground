@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { V9_COLORS } from '@/platform/V9ColorStandards';
+import { COLORS } from '@/platform/ColorStandards';
 
 // Styled SpecCard component using the design tokens
 const SpecCardContainer = styled.section`
@@ -58,16 +58,16 @@ const SpecCardContainer = styled.section`
   }
 
   a {
-    color: ${V9_COLORS.PRIMARY.BLUE};
+    color: ${COLORS.PRIMARY.BLUE};
     text-decoration: underline;
   }
 
   a:hover {
-    color: ${V9_COLORS.PRIMARY.BLUE_DARK};
+    color: ${COLORS.PRIMARY.BLUE_DARK};
   }
 
   &:focus-within {
-    outline: 2px solid ${V9_COLORS.PRIMARY.BLUE};
+    outline: 2px solid ${COLORS.PRIMARY.BLUE};
     outline-offset: 2px;
   }
 

@@ -13,9 +13,9 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 const POSTerminalContainer = styled.div`
 	background: linear-gradient(
 		135deg,
-		V9_COLORS.TEXT.BLACK 0%,
+		COLORS.TEXT.BLACK 0%,
 		#1a1a1a 50%,
-		V9_COLORS.TEXT.BLACK 100%
+		COLORS.TEXT.BLACK 100%
 	);
 	border-radius: 0.5rem;
 	padding: 1rem;
@@ -30,7 +30,7 @@ const POSTerminalContainer = styled.div`
 	max-width: 400px;
 	margin-left: auto;
 	margin-right: auto;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 
 	/* Square branding */
 	&::before {
@@ -68,10 +68,10 @@ const POSTerminalContainer = styled.div`
 const POSHeader = styled.div`
 	background: linear-gradient(
 		135deg,
-		V9_COLORS.PRIMARY.GREEN_DARK 0%,
-		V9_COLORS.PRIMARY.GREEN 100%
+		COLORS.PRIMARY.GREEN_DARK 0%,
+		COLORS.PRIMARY.GREEN 100%
 	);
-	border: 2px solid V9_COLORS.PRIMARY.GREEN_LIGHT;
+	border: 2px solid COLORS.PRIMARY.GREEN_LIGHT;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin-bottom: 1.5rem;
@@ -82,7 +82,7 @@ const POSHeader = styled.div`
 const POSTitle = styled.div`
 	font-size: 1.5rem;
 	font-weight: 700;
-	color: V9_COLORS.PRIMARY.GREEN_LIGHT;
+	color: COLORS.PRIMARY.GREEN_LIGHT;
 	margin-bottom: 0.5rem;
 	text-transform: uppercase;
 	letter-spacing: 0.1em;
@@ -151,8 +151,8 @@ const PaymentStatusIndicator = styled.div<{ $active: boolean; $color: string }>`
 
 // POS Display Screen
 const POSDisplayScreen = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1e293b 100%);
-	border: 3px solid V9_COLORS.PRIMARY.GREEN_LIGHT;
+	background: linear-gradient(135deg, COLORS.TEXT.BLACK 0%, #1e293b 100%);
+	border: 3px solid COLORS.PRIMARY.GREEN_LIGHT;
 	border-radius: 0.75rem;
 	padding: 2rem;
 	margin-bottom: 1.5rem;
@@ -164,7 +164,7 @@ const POSDisplayScreen = styled.div`
 `;
 
 const ScreenLabel = styled.div`
-	color: V9_COLORS.PRIMARY.GREEN_LIGHT;
+	color: COLORS.PRIMARY.GREEN_LIGHT;
 	font-size: 0.875rem;
 	font-weight: 600;
 	margin-bottom: 1rem;
@@ -173,8 +173,8 @@ const ScreenLabel = styled.div`
 `;
 
 const UserCodeDisplay = styled.div`
-	background: V9_COLORS.TEXT.BLACK;
-	color: V9_COLORS.PRIMARY.YELLOW;
+	background: COLORS.TEXT.BLACK;
+	color: COLORS.PRIMARY.YELLOW;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 2.5rem;
 	font-weight: 700;
@@ -182,8 +182,8 @@ const UserCodeDisplay = styled.div`
 	border-radius: 0.5rem;
 	margin-bottom: 1.5rem;
 	letter-spacing: 0.2em;
-	text-shadow: 0 0 10px V9_COLORS.PRIMARY.YELLOW;
-	border: 2px solid V9_COLORS.PRIMARY.YELLOW;
+	text-shadow: 0 0 10px COLORS.PRIMARY.YELLOW;
+	border: 2px solid COLORS.PRIMARY.YELLOW;
 	box-shadow:
 		inset 0 0 20px rgba(245, 158, 11, 0.2),
 		0 0 20px rgba(245, 158, 11, 0.3);
@@ -192,7 +192,7 @@ const UserCodeDisplay = styled.div`
 // QR Code Section
 const QRCodeSection = styled.div`
 	background: #1e293b;
-	border: 2px solid V9_COLORS.PRIMARY.GREEN_LIGHT;
+	border: 2px solid COLORS.PRIMARY.GREEN_LIGHT;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	text-align: center;
@@ -202,7 +202,7 @@ const QRCodeSection = styled.div`
 const QRCodeLabel = styled.div`
 	font-size: 1rem;
 	font-weight: 600;
-	color: V9_COLORS.PRIMARY.GREEN_LIGHT;
+	color: COLORS.PRIMARY.GREEN_LIGHT;
 	margin-bottom: 1rem;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
@@ -284,15 +284,15 @@ const StatusDisplay = styled.div<{ $status: string }>`
 	background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.YELLOW 0%, COLORS.PRIMARY.YELLOW_DARK 100%)';
 			case 'authorized':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.YELLOW 0%, COLORS.PRIMARY.YELLOW_DARK 100%)';
 			case 'denied':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.RED 0%, COLORS.PRIMARY.RED_DARK 100%)';
 			case 'expired':
-				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 			default:
-				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 		}
 	}};
 	border: 2px solid
@@ -324,7 +324,7 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	margin-bottom: 0.5rem;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
@@ -332,20 +332,20 @@ const StatusText = styled.div`
 
 const StatusMessage = styled.div`
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 `;
 
 // POS Base
 const POSBase = styled.div`
 	background: linear-gradient(
 		135deg,
-		V9_COLORS.PRIMARY.GREEN_DARK 0%,
-		V9_COLORS.PRIMARY.GREEN 100%
+		COLORS.PRIMARY.GREEN_DARK 0%,
+		COLORS.PRIMARY.GREEN 100%
 	);
 	height: 1.5rem;
 	border-radius: 0 0 0.75rem 0.75rem;
 	margin: 0 -2rem -2rem -2rem;
-	border-top: 2px solid V9_COLORS.PRIMARY.GREEN_LIGHT;
+	border-top: 2px solid COLORS.PRIMARY.GREEN_LIGHT;
 `;
 
 interface POSTerminalDeviceFlowProps {
@@ -426,19 +426,19 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 				<PaymentStatusIndicators>
 					<PaymentStatusIndicator
 						$active={state.status === 'pending'}
-						$color="V9_COLORS.PRIMARY.YELLOW"
+						$color="COLORS.PRIMARY.YELLOW"
 					/>
 					<PaymentStatusIndicator
 						$active={state.status === 'authorized'}
-						$color="V9_COLORS.PRIMARY.YELLOW"
+						$color="COLORS.PRIMARY.YELLOW"
 					/>
 					<PaymentStatusIndicator
 						$active={state.status === 'denied'}
-						$color="V9_COLORS.PRIMARY.RED"
+						$color="COLORS.PRIMARY.RED"
 					/>
 					<PaymentStatusIndicator
 						$active={state.status === 'expired'}
-						$color="V9_COLORS.TEXT.GRAY_MEDIUM"
+						$color="COLORS.TEXT.GRAY_MEDIUM"
 					/>
 				</PaymentStatusIndicators>
 
@@ -458,8 +458,8 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={180}
-							bgColor="V9_COLORS.TEXT.WHITE"
-							fgColor="V9_COLORS.TEXT.BLACK"
+							bgColor="COLORS.TEXT.WHITE"
+							fgColor="COLORS.TEXT.BLACK"
 							level="M"
 							includeMargin={true}
 						/>
@@ -491,7 +491,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 					<div
 						style={{
 							background:
-								'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)',
+								'linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.TEXT.GRAY_LIGHTER 100%)',
 							border: '3px solid #f97316',
 							borderRadius: '1rem',
 							padding: '2rem',
@@ -557,7 +557,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 								borderRadius: '0.75rem',
 								padding: '1.5rem',
 								marginBottom: '1.5rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 								boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
 							}}
 						>
@@ -590,7 +590,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 										padding: '0.75rem',
 										background: '#f8fafc',
 										borderRadius: '0.5rem',
-										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+										border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 									}}
 								>
 									<div>
@@ -612,7 +612,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 										padding: '0.75rem',
 										background: '#f8fafc',
 										borderRadius: '0.5rem',
-										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+										border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 									}}
 								>
 									<div>
@@ -630,7 +630,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 							{/* Totals */}
 							<div
 								style={{
-									borderTop: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									borderTop: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 									paddingTop: '1rem',
 								}}
 							>
@@ -690,7 +690,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 								type="button"
 								style={{
 									background:
-										'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
+										'linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_DARK 100%)',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.75rem',
@@ -713,7 +713,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 								type="button"
 								style={{
 									background:
-										'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)',
+										'linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, COLORS.PRIMARY.GREEN_DARK 100%)',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.75rem',
@@ -764,7 +764,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 								type="button"
 								style={{
 									background:
-										'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)',
+										'linear-gradient(135deg, COLORS.PRIMARY.RED 0%, COLORS.PRIMARY.RED_DARK 100%)',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.5rem',
@@ -784,7 +784,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 								type="button"
 								style={{
 									background:
-										'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)',
+										'linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, COLORS.PRIMARY.GREEN_DARK 100%)',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.5rem',
@@ -813,7 +813,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.2)"
 				borderColor="#333333"
-				headerTextColor="V9_COLORS.TEXT.WHITE"
+				headerTextColor="COLORS.TEXT.WHITE"
 			/>
 		</>
 	);

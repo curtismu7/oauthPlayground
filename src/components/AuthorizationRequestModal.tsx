@@ -45,7 +45,7 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 `;
 
 const ModalContent = styled.div`
-  background: V9_COLORS.TEXT.WHITE;
+  background: COLORS.TEXT.WHITE;
   border-radius: 12px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
   width: 100%;
@@ -53,12 +53,12 @@ const ModalContent = styled.div`
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ModalHeader = styled.div`
   padding: 2rem 2rem 1rem;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -67,7 +67,7 @@ const ModalHeader = styled.div`
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -77,7 +77,7 @@ const ModalHeader = styled.div`
     background: none;
     border: none;
     font-size: 1.5rem;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
+    color: COLORS.TEXT.GRAY_MEDIUM;
     cursor: pointer;
     padding: 0.5rem;
     border-radius: 0.375rem;
@@ -85,7 +85,7 @@ const ModalHeader = styled.div`
 
     &:hover {
       background-color: #f3f4f6;
-      color: V9_COLORS.TEXT.GRAY_DARK;
+      color: COLORS.TEXT.GRAY_DARK;
     }
   }
 `;
@@ -101,7 +101,7 @@ const Section = styled.div`
     margin: 0 0 1rem 0;
     font-size: 1.125rem;
     font-weight: 600;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -117,24 +117,24 @@ const ParameterGrid = styled.div`
 
 const ParameterLabel = styled.div`
   font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
 `;
 
 const ParameterValue = styled.div`
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   background-color: #f9fafb;
   padding: 0.5rem;
   border-radius: 0.375rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   word-break: break-all;
 `;
 
 const AuthorizationUrlBox = styled.div`
-  background-color: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  background-color: COLORS.BG.GRAY_LIGHT;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -174,7 +174,7 @@ const ActionButtons = styled.div`
   justify-content: flex-end;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border-top: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
@@ -192,24 +192,24 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   ${({ $variant }) =>
 		$variant === 'primary'
 			? `
-        background-color: V9_COLORS.PRIMARY.BLUE;
+        background-color: COLORS.PRIMARY.BLUE;
         color: white;
         &:hover {
-          background-color: V9_COLORS.PRIMARY.BLUE_DARK;
+          background-color: COLORS.PRIMARY.BLUE_DARK;
         }
       `
 			: `
         background-color: #f3f4f6;
-        color: V9_COLORS.TEXT.GRAY_DARK;
+        color: COLORS.TEXT.GRAY_DARK;
         &:hover {
-          background-color: V9_COLORS.TEXT.GRAY_LIGHTER;
+          background-color: COLORS.TEXT.GRAY_LIGHTER;
         }
       `}
 `;
 
 const InfoBox = styled.div`
-  background-color: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  background-color: COLORS.BG.GRAY_LIGHT;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1.5rem;
@@ -218,13 +218,13 @@ const InfoBox = styled.div`
     margin: 0 0 0.5rem 0;
     font-size: 1rem;
     font-weight: 600;
-    color: V9_COLORS.PRIMARY.BLUE_DARK;
+    color: COLORS.PRIMARY.BLUE_DARK;
   }
 
   p {
     margin: 0;
     font-size: 0.875rem;
-    color: V9_COLORS.PRIMARY.BLUE_DARK;
+    color: COLORS.PRIMARY.BLUE_DARK;
     line-height: 1.5;
   }
 `;
@@ -236,19 +236,19 @@ const CheckboxContainer = styled.div`
   margin: 1.5rem 0;
   padding: 1rem;
   background-color: #f9fafb;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
 
   input[type="checkbox"] {
     width: 1rem;
     height: 1rem;
-    accent-color: V9_COLORS.PRIMARY.BLUE;
+    accent-color: COLORS.PRIMARY.BLUE;
     cursor: pointer;
   }
 
   label {
     font-size: 0.875rem;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
     cursor: pointer;
     user-select: none;
   }

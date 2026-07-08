@@ -6,13 +6,13 @@ const _log = createModuleLogger('pages/CodeEditorDemo.tsx');
 import styled from 'styled-components';
 import { InteractiveCodeEditor } from '../components/InteractiveCodeEditor';
 import { FlowHeader } from '../services/flowHeaderService';
-import { V9_COLORS } from '../platform/V9ColorStandards';
+import { COLORS } from '../platform/ColorStandards';
 
 import { logger } from '../utils/logger';
 
 const PageContainer = styled.div`
   min-height: 100vh;
-  background: ${V9_COLORS.BG.GRAY_LIGHT};
+  background: ${COLORS.BG.GRAY_LIGHT};
   padding: 0;
 `;
 
@@ -23,8 +23,8 @@ const ContentWrapper = styled.div`
 `;
 
 const DemoSection = styled.div`
-  background: ${V9_COLORS.BG.WHITE};
-  border: 1px solid ${V9_COLORS.BORDER.GRAY};
+  background: ${COLORS.BG.WHITE};
+  border: 1px solid ${COLORS.BORDER.GRAY};
   border-radius: 12px;
   padding: 32px;
   margin-bottom: 32px;
@@ -34,13 +34,13 @@ const DemoSection = styled.div`
 const SectionTitle = styled.h2`
   font-size: 24px;
   font-weight: 700;
-  color: ${V9_COLORS.TEXT.GRAY_DARK};
+  color: ${COLORS.TEXT.GRAY_DARK};
   margin: 0 0 16px 0;
 `;
 
 const SectionDescription = styled.p`
   font-size: 16px;
-  color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+  color: ${COLORS.TEXT.GRAY_MEDIUM};
   line-height: 1.6;
   margin: 0 0 24px 0;
 `;
@@ -53,8 +53,8 @@ const FeatureGrid = styled.div`
 `;
 
 const FeatureCard = styled.div`
-  background: ${V9_COLORS.BG.WHITE};
-  border: 1px solid ${V9_COLORS.BORDER.GRAY};
+  background: ${COLORS.BG.WHITE};
+  border: 1px solid ${COLORS.BORDER.GRAY};
   border-radius: 8px;
   padding: 16px;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -63,7 +63,7 @@ const FeatureCard = styled.div`
 const FeatureTitle = styled.h3`
   font-size: 16px;
   font-weight: 600;
-  color: ${V9_COLORS.TEXT.GRAY_DARK};
+  color: ${COLORS.TEXT.GRAY_DARK};
   margin: 0 0 8px 0;
   display: flex;
   align-items: center;
@@ -72,7 +72,7 @@ const FeatureTitle = styled.h3`
 
 const FeatureDescription = styled.p`
   font-size: 14px;
-  color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+  color: ${COLORS.TEXT.GRAY_MEDIUM};
   margin: 0;
   line-height: 1.5;
 `;

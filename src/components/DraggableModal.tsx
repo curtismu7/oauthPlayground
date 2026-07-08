@@ -3,7 +3,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { V9_COLORS } from '../platform/V9ColorStandards';
+import { COLORS } from '../platform/ColorStandards';
 
 // Styled components
 const ModalBackdrop = styled.div<{ $hidden?: boolean }>`
@@ -42,7 +42,7 @@ const ModalContent = styled.div<{
 	max-height: ${(props) =>
 		props.$isMinimized ? 'auto' : props.$maxHeight || 'calc(100vh - 4rem)'};
 	height: ${(props) => (props.$isMinimized ? 'auto' : 'auto')};
-	background: ${V9_COLORS.TEXT.WHITE};
+	background: ${COLORS.TEXT.WHITE};
 	border-radius: 0.75rem;
 	box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
 	padding: ${(props) => (props.$isMinimized ? '0.75rem' : '0')};
@@ -81,7 +81,7 @@ const ModalHeader = styled.div<{ $isMinimized: boolean }>`
 	justify-content: space-between;
 	align-items: flex-start;
 	gap: 1rem;
-	background: linear-gradient(135deg, ${V9_COLORS.BG.GRAY_LIGHT} 0%, ${V9_COLORS.TEXT.GRAY_LIGHTER} 100%);
+	background: linear-gradient(135deg, ${COLORS.BG.GRAY_LIGHT} 0%, ${COLORS.TEXT.GRAY_LIGHTER} 100%);
 	border-bottom: 1px solid #cbd5e1;
 	margin: 0;
 	padding: ${(props) => (props.$isMinimized ? '0.75rem' : '1.5rem')};
@@ -111,7 +111,7 @@ const DragHandle = styled.div`
 	transition: background-color 0.2s ease;
 
 	&:hover {
-		background-color: ${V9_COLORS.BG.GRAY_MEDIUM};
+		background-color: ${COLORS.BG.GRAY_MEDIUM};
 	}
 `;
 
@@ -132,10 +132,10 @@ const ControlButton = styled.button`
 	border-radius: 0.375rem;
 	cursor: pointer;
 	transition: all 0.2s ease;
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 
 	&:hover {
-		background-color: ${V9_COLORS.BG.GRAY_MEDIUM};
+		background-color: ${COLORS.BG.GRAY_MEDIUM};
 		color: #334155;
 	}
 
@@ -147,7 +147,7 @@ const ControlButton = styled.button`
 const ModalTitle = styled.h3`
 	font-size: 1rem;
 	font-weight: 600;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	margin: 0;
 	line-height: 1.2;
 `;
@@ -364,7 +364,7 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
 							padding: '1.5rem',
 							WebkitOverflowScrolling: 'touch',
 							scrollbarWidth: 'thin',
-							scrollbarColor: `#cbd5e1 ${V9_COLORS.BG.GRAY_MEDIUM}`,
+							scrollbarColor: `#cbd5e1 ${COLORS.BG.GRAY_MEDIUM}`,
 						}}
 					>
 						{children}

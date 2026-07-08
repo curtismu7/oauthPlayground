@@ -1,15 +1,15 @@
 // src/flows/services/authorizationCodeService.ts
 //
 // Authorization Code (+ PKCE) flow service. This is the ONLY flows2 file that imports the
-// legacy V9Mock* services — the containment boundary. The flow component and the rest of
+// legacy Mock* services — the containment boundary. The flow component and the rest of
 // flows2 see only the version-free types below. When the legacy mock services are retired,
 // this file is the single swap point.
 
 import { generateCodeChallenge, generateCodeVerifier } from '../../utils/oauth';
-import { authorizeIssueCode } from '../../platform/mock/V9MockAuthorizeService';
-import { computePkceS256, tokenExchangeAuthorizationCode } from '../../platform/mock/V9MockTokenService';
-import { getUserInfoFromAccessToken } from '../../platform/mock/V9MockUserInfoService';
-import { introspectToken } from '../../platform/mock/V9MockIntrospectionService';
+import { authorizeIssueCode } from '../../platform/mock/MockAuthorizeService';
+import { computePkceS256, tokenExchangeAuthorizationCode } from '../../platform/mock/MockTokenService';
+import { getUserInfoFromAccessToken } from '../../platform/mock/MockUserInfoService';
+import { introspectToken } from '../../platform/mock/MockIntrospectionService';
 import type { FlowCredentials, FlowMode, TokenResult } from '../framework/types';
 import { pingoneHost } from './pingone';
 import { tokenIntrospectionService } from './tokenIntrospectionService';
@@ -139,7 +139,7 @@ export async function authorize(p: AuthorizeParams, mode: FlowMode): Promise<Aut
 // MOCK_CREDS.clientSecret so the seeded happy path succeeds.
 export const MOCK_REGISTERED_SECRET = 'mock-client-secret';
 
-/** Exchange the authorization code for tokens. real → BFF proxy; mock → V9Mock token service. */
+/** Exchange the authorization code for tokens. real → BFF proxy; mock → Mock token service. */
 export async function exchangeCode(p: ExchangeParams, mode: FlowMode): Promise<TokenResult> {
 	if (mode === 'mock') {
 		const res = tokenExchangeAuthorizationCode({
@@ -190,7 +190,7 @@ export async function exchangeCode(p: ExchangeParams, mode: FlowMode): Promise<T
 	return toTokenResult(data);
 }
 
-/** OIDC UserInfo for the access token. real → BFF; mock → V9Mock. */
+/** OIDC UserInfo for the access token. real → BFF; mock → Mock. */
 export async function userInfo(
 	accessToken: string,
 	credentials: FlowCredentials,
@@ -207,7 +207,7 @@ export async function userInfo(
 		.catch(normalizeError);
 }
 
-/** RFC 7662 token introspection. real → BFF; mock → V9Mock. */
+/** RFC 7662 token introspection. real → BFF; mock → Mock. */
 export async function introspect(
 	token: string,
 	credentials: FlowCredentials,

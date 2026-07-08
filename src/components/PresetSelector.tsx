@@ -30,12 +30,12 @@ const Header = styled.div`
 const Title = styled.h3`
   font-size: 1.5rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   margin: 0;
 `;
 
 const Description = styled.p`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   margin: 0.5rem 0 1.5rem 0;
   font-size: 0.875rem;
   line-height: 1.5;
@@ -48,7 +48,7 @@ const CategorySection = styled.div`
 const CategoryTitle = styled.h4`
   font-size: 1rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   margin: 0 0 1rem 0;
   display: flex;
   align-items: center;
@@ -62,7 +62,7 @@ const PresetGrid = styled.div`
 `;
 
 const PresetCard = styled.div<{ selected: boolean; category: 'built-in' | 'custom' }>`
-  background: ${({ selected }) => (selected ? 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%)' : 'white')};
+  background: ${({ selected }) => (selected ? 'linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%)' : 'white')};
   border: 2px solid ${({ selected, theme }) => (selected ? theme.colors.primary : 'rgba(148, 163, 184, 0.25)')};
   border-radius: 0.75rem;
   padding: 1.25rem;
@@ -86,7 +86,7 @@ const PresetCard = styled.div<{ selected: boolean; category: 'built-in' | 'custo
       right: 0.75rem;
       width: 8px;
       height: 8px;
-      background: V9_COLORS.PRIMARY.GREEN;
+      background: COLORS.PRIMARY.GREEN;
       border-radius: 50%;
     }
   `}
@@ -102,7 +102,7 @@ const PresetHeader = styled.div`
 const PresetName = styled.h5`
   font-size: 1rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   margin: 0;
   line-height: 1.3;
 `;
@@ -120,7 +120,7 @@ const PresetBadge = styled.span<{ category: 'built-in' | 'custom' }>`
 `;
 
 const PresetDescription = styled.p`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   line-height: 1.4;
   margin: 0 0 1rem 0;
@@ -143,21 +143,21 @@ const MetaTag = styled.span<{ $variant: 'security' | 'type' | 'tag' }>`
 		switch ($variant) {
 			case 'security':
 				return `
-          background: V9_COLORS.BG.ERROR;
-          color: V9_COLORS.PRIMARY.RED_DARK;
-          border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+          background: COLORS.BG.ERROR;
+          color: COLORS.PRIMARY.RED_DARK;
+          border: 1px solid COLORS.BG.ERROR_BORDER;
         `;
 			case 'type':
 				return `
-          background: V9_COLORS.BG.GRAY_LIGHT;
-          color: V9_COLORS.PRIMARY.BLUE_DARK;
-          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+          background: COLORS.BG.GRAY_LIGHT;
+          color: COLORS.PRIMARY.BLUE_DARK;
+          border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
         `;
 			case 'tag':
 				return `
           background: #f3f4f6;
-          color: V9_COLORS.TEXT.GRAY_DARK;
-          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+          color: COLORS.TEXT.GRAY_DARK;
+          border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
         `;
 		}
 	}}
@@ -169,7 +169,7 @@ const PresetActions = styled.div`
   justify-content: space-between;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border-top: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const SelectButton = styled.button<{ selected: boolean }>`
@@ -196,7 +196,7 @@ const SelectButton = styled.button<{ selected: boolean }>`
 			: `
     background: white;
     color: ${theme.colors.gray700};
-    border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
+    border-color: COLORS.TEXT.GRAY_LIGHTER;
     &:hover {
       background: #f9fafb;
       border-color: ${theme.colors.primary};
@@ -208,26 +208,26 @@ const InfoButton = styled.button`
   padding: 0.5rem;
   border: none;
   background: none;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   cursor: pointer;
   border-radius: 0.375rem;
   transition: all 0.2s;
   
   &:hover {
     background: #f3f4f6;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
   }
 `;
 
 const EmptyState = styled.div`
   text-align: center;
   padding: 2rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   
   svg {
     font-size: 2rem;
     margin-bottom: 1rem;
-    color: V9_COLORS.TEXT.GRAY_LIGHT;
+    color: COLORS.TEXT.GRAY_LIGHT;
   }
 `;
 
@@ -248,7 +248,7 @@ const FilterButton = styled.button.withConfig({
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   
   ${({ active, theme }) =>
 		active
@@ -259,7 +259,7 @@ const FilterButton = styled.button.withConfig({
   `
 			: `
     background: white;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
     &:hover {
       background: #f9fafb;
       border-color: ${theme.colors.primary};

@@ -51,9 +51,9 @@ const Subtitle = styled.p`
 `;
 
 const Card = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border-radius: 1rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	box-shadow: 0 10px 30px -12px rgba(15, 23, 42, 0.18);
 	padding: 1.5rem;
 	display: flex;
@@ -68,7 +68,7 @@ const SectionTitle = styled.h2`
 	gap: 0.5rem;
 	font-size: 1.1rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const ButtonRow = styled.div`
@@ -100,7 +100,7 @@ const DangerButton = styled.button`
 	border: none;
 	border-radius: 0.75rem;
 	padding: 0.85rem 1.35rem;
-	background: V9_COLORS.PRIMARY.RED;
+	background: COLORS.PRIMARY.RED;
 	color: white;
 	font-weight: 600;
 	display: inline-flex;
@@ -112,14 +112,14 @@ const DangerButton = styled.button`
 	&:hover {
 		transform: translateY(-1px);
 		box-shadow: 0 10px 22px -12px rgba(239, 68, 68, 0.65);
-		background: V9_COLORS.PRIMARY.RED_DARK;
+		background: COLORS.PRIMARY.RED_DARK;
 	}
 `;
 
 const WarningBanner = styled.div`
 	padding: 1rem;
-	background: V9_COLORS.BG.WARNING;
-	border: 1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT;
+	background: COLORS.BG.WARNING;
+	border: 1px solid COLORS.PRIMARY.YELLOW_LIGHT;
 	border-radius: 0.75rem;
 	display: flex;
 	align-items: flex-start;
@@ -128,15 +128,15 @@ const WarningBanner = styled.div`
 
 const SelectedAppCard = styled.div`
 	padding: 1.5rem;
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 `;
 
 const SelectedAppTitle = styled.h3`
 	margin: 0 0 1rem 0;
 	font-size: 1rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -151,7 +151,7 @@ const AppDetails = styled.div`
 
 const DetailLabel = styled.div`
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	padding: 0.5rem;
 	background: white;
 	border-radius: 0.375rem;
@@ -165,7 +165,7 @@ const DetailValue = styled.div`
 	font-size: 0.8rem;
 	background: white;
 	border-radius: 0.375rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const CompactAppPickerDemo: React.FC = () => {

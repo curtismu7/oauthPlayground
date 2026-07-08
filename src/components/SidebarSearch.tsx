@@ -3,8 +3,8 @@ import styled from 'styled-components';
 
 const SearchContainer = styled.div`
 	padding: 0.75rem 1rem;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
@@ -15,7 +15,7 @@ const AdvancedOptions = styled.div`
 	align-items: center;
 	gap: 0.5rem;
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const CheckboxLabel = styled.label`
@@ -26,7 +26,7 @@ const CheckboxLabel = styled.label`
 	user-select: none;
 	
 	&:hover {
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
@@ -44,7 +44,7 @@ const SearchInputWrapper = styled.div`
 const SearchInput = styled.input`
 	width: 100%;
 	padding: 0.5rem 2.5rem 0.5rem 2rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	background: white;
@@ -52,19 +52,19 @@ const SearchInput = styled.input`
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 	}
 
 	&::placeholder {
-		color: V9_COLORS.TEXT.GRAY_LIGHT;
+		color: COLORS.TEXT.GRAY_LIGHT;
 	}
 `;
 
 const SearchIcon = styled.div`
 	position: absolute;
 	left: 0.5rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	display: flex;
 	align-items: center;
 	pointer-events: none;
@@ -73,7 +73,7 @@ const SearchIcon = styled.div`
 const SearchButton = styled.button`
 	position: absolute;
 	right: 0.5rem;
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: COLORS.PRIMARY.BLUE;
 	border: none;
 	color: white;
 	cursor: pointer;
@@ -84,7 +84,7 @@ const SearchButton = styled.button`
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: V9_COLORS.PRIMARY.BLUE_DARK;
+		background: COLORS.PRIMARY.BLUE_DARK;
 	}
 
 	&:active {
@@ -97,7 +97,7 @@ const ClearButton = styled.button`
 	right: 0.5rem;
 	background: none;
 	border: none;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	cursor: pointer;
 	padding: 0.25rem;
 	border-radius: 0.25rem;
@@ -106,7 +106,7 @@ const ClearButton = styled.button`
 	transition: all 0.2s ease;
 
 	&:hover {
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: COLORS.TEXT.GRAY_DARK;
 		background: #f3f4f6;
 	}
 `;

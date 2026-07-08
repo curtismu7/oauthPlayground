@@ -22,7 +22,7 @@ interface ValidationMessage {
 }
 
 const Container = styled.div`
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   background: white;
   overflow: hidden;
@@ -109,7 +109,7 @@ const ValidationSection = styled.div`
 const SectionTitle = styled.h4`
   font-size: 0.875rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   margin: 0 0 0.75rem 0;
   display: flex;
   align-items: center;
@@ -201,25 +201,25 @@ const StatItem = styled.div`
   padding: 0.75rem;
   background: #f9fafb;
   border-radius: 6px;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const StatValue = styled.div`
   font-size: 1.25rem;
   font-weight: 700;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatLabel = styled.div`
   font-size: 0.75rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   margin-top: 0.25rem;
 `;
 
 const _EmptyState = styled.div`
   text-align: center;
   padding: 2rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
 `;
 

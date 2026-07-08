@@ -1,17 +1,17 @@
-// src/services/v7m/V7MDeviceAuthorizationService.ts
+// src/platform/mock/V7MDeviceAuthorizationService.ts
 // Device Authorization endpoint simulator for V7M (RFC 8628).
 // Issues device codes and user codes for device authorization flows.
 
-import { V9MockDeviceCodeRecord, V9MockStateStore } from './V9MockStateStore';
+import { MockDeviceCodeRecord, MockStateStore } from './MockStateStore';
 
-export type V9MockDeviceAuthorizationRequest = {
+export type MockDeviceAuthorizationRequest = {
 	client_id: string;
 	scope?: string;
 	userEmail?: string;
 	userId?: string;
 };
 
-export type V9MockDeviceAuthorizationResponse =
+export type MockDeviceAuthorizationResponse =
 	| {
 			device_code: string;
 			user_code: string;
@@ -26,11 +26,11 @@ export type V9MockDeviceAuthorizationResponse =
  * Generate device and user codes for device authorization flow.
  */
 export function requestDeviceAuthorization(
-	req: V9MockDeviceAuthorizationRequest,
+	req: MockDeviceAuthorizationRequest,
 	nowEpochSeconds: number,
 	expiresInSeconds: number = 1800, // 30 minutes default
 	intervalSeconds: number = 5 // 5 seconds default polling interval
-): V9MockDeviceAuthorizationResponse {
+): MockDeviceAuthorizationResponse {
 	if (!req.client_id) {
 		return { error: 'invalid_request', error_description: 'client_id is required' };
 	}
@@ -43,7 +43,7 @@ export function requestDeviceAuthorization(
 
 	const expiresAt = nowEpochSeconds + expiresInSeconds;
 
-	const record: V9MockDeviceCodeRecord = {
+	const record: MockDeviceCodeRecord = {
 		deviceCode,
 		userCode: userCode.replace(/-/g, ''),
 		clientId: req.client_id,
@@ -56,7 +56,7 @@ export function requestDeviceAuthorization(
 		interval: intervalSeconds,
 	};
 
-	V9MockStateStore.saveDeviceCode(record);
+	MockStateStore.saveDeviceCode(record);
 
 	const baseUri = window.location.origin;
 	const verificationUri = `${baseUri}/flows/device-authorization-v9/verify`;

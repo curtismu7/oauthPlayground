@@ -12,7 +12,7 @@ const IconWrapper = styled.div<{ $isExpanded: boolean }>`
 	justify-content: center;
 	width: 1.75rem;
 	height: 1.75rem;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	transition:
 		transform 0.2s ease,
 		color 0.2s ease;

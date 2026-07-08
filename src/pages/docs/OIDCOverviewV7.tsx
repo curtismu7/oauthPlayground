@@ -78,7 +78,7 @@ const FlowCard = styled(MainCard)`
 	position: relative;
 	cursor: pointer;
 	transition: all 0.3s ease;
-	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 	height: 100%;
 	display: flex;
 	flex-direction: column;
@@ -88,7 +88,7 @@ const FlowCard = styled(MainCard)`
 	&:hover {
 		transform: translateY(-4px);
 		box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 	}
 `;
 
@@ -109,11 +109,11 @@ const FlowTitle = styled.h3`
 	font-size: 1.25rem;
 	font-weight: 600;
 	margin-bottom: 0.5rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const FlowDescription = styled.p`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	margin-bottom: 1rem;
 	line-height: 1.6;
 `;
@@ -170,7 +170,7 @@ const ConceptCard = styled(MainCard)`
 	display: flex;
 	flex-direction: column;
 	background: white;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 
 	&:hover {
 		transform: translateY(-2px);
@@ -179,7 +179,7 @@ const ConceptCard = styled(MainCard)`
 
 	.icon {
 		font-size: 2rem;
-		color: V9_COLORS.PRIMARY.BLUE;
+		color: COLORS.PRIMARY.BLUE;
 		margin-bottom: 1rem;
 	}
 
@@ -187,11 +187,11 @@ const ConceptCard = styled(MainCard)`
 		font-size: 1.125rem;
 		font-weight: 600;
 		margin-bottom: 0.5rem;
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: COLORS.TEXT.GRAY_DARK;
 	}
 
 	p {
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		color: COLORS.TEXT.GRAY_MEDIUM;
 		line-height: 1.6;
 	}
 `;
@@ -212,13 +212,13 @@ const ComparisonTable = styled.div`
 		td {
 			padding: 1rem;
 			text-align: left;
-			border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+			border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 		}
 
 		th {
 			background: #f9fafb;
 			font-weight: 600;
-			color: V9_COLORS.TEXT.GRAY_DARK;
+			color: COLORS.TEXT.GRAY_DARK;
 		}
 
 		tr:hover {
@@ -559,7 +559,7 @@ const OIDCOverviewV7: React.FC = () => {
 										justifyContent: 'space-between',
 										marginTop: 'auto',
 										paddingTop: '1rem',
-										borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+										borderTop: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 									}}
 								>
 									<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>Click to explore</span>

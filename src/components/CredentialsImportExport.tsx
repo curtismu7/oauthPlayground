@@ -59,7 +59,7 @@ export const CredentialsImportExport: React.FC<CredentialsImportExportProps> = (
 		alignItems: 'center',
 		padding: compact ? '0.5rem' : '0.75rem 1rem',
 		background: '#f9fafb',
-		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 		borderRadius: '0.5rem',
 		marginBottom: '1rem',
 		...style,

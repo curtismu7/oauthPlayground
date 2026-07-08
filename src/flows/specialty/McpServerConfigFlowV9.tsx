@@ -7,7 +7,7 @@ import { WorkerTokenSectionV9 } from '../../components/WorkerTokenSectionV9';
 import { showGlobalError, showGlobalSuccess } from '../../contexts/NotificationSystem';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
-import { V9_COLORS } from '../../platform/V9ColorStandards';
+import { COLORS } from '../../platform/ColorStandards';
 import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
 import V9FlowHeader from '../../platform/v9FlowHeaderService';
 
@@ -114,21 +114,21 @@ const TabBar = styled.div`
 	display: flex;
 	gap: 0.5rem;
 	margin-bottom: 2rem;
-	border-bottom: 1px solid ${V9_COLORS.BORDER.GRAY};
+	border-bottom: 1px solid ${COLORS.BORDER.GRAY};
 `;
 
 const Tab = styled.button<{ $active: boolean }>`
 	padding: 0.75rem 1.5rem;
 	border: none;
 	background: none;
-	border-bottom: 2px solid ${({ $active }) => ($active ? V9_COLORS.PRIMARY.BLUE : 'transparent')};
-	color: ${({ $active }) => ($active ? V9_COLORS.PRIMARY.BLUE : V9_COLORS.TEXT.GRAY_MEDIUM)};
+	border-bottom: 2px solid ${({ $active }) => ($active ? COLORS.PRIMARY.BLUE : 'transparent')};
+	color: ${({ $active }) => ($active ? COLORS.PRIMARY.BLUE : COLORS.TEXT.GRAY_MEDIUM)};
 	font-weight: ${({ $active }) => ($active ? 600 : 400)};
 	cursor: pointer;
 	transition: all 0.2s;
 
 	&:hover {
-		color: ${V9_COLORS.PRIMARY.BLUE};
+		color: ${COLORS.PRIMARY.BLUE};
 	}
 `;
 
@@ -136,7 +136,7 @@ const CardTitle = styled.h3`
 	margin: 0 0 1rem 0;
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 `;
 
 const FormGrid = styled.div`
@@ -154,25 +154,25 @@ const FormGroup = styled.div`
 const FormLabel = styled.label`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 `;
 
 const FormInput = styled.input`
 	padding: 0.75rem;
-	border: 1px solid ${V9_COLORS.BORDER.GRAY};
+	border: 1px solid ${COLORS.BORDER.GRAY};
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	transition: border-color 0.2s;
 
 	&:focus {
 		outline: none;
-		border-color: ${V9_COLORS.PRIMARY.BLUE};
+		border-color: ${COLORS.PRIMARY.BLUE};
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
 
 const FormHint = styled.small`
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	font-size: 0.75rem;
 `;
 
@@ -192,15 +192,15 @@ const SaveBtn = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 		switch ($variant) {
 			case 'primary':
 				return `
-					background-color: ${V9_COLORS.PRIMARY.BLUE};
+					background-color: ${COLORS.PRIMARY.BLUE};
 					color: white;
 					&:hover:not(:disabled) {
-						background-color: ${V9_COLORS.PRIMARY.BLUE_DARK};
+						background-color: ${COLORS.PRIMARY.BLUE_DARK};
 					}
 				`;
 			case 'secondary':
 				return `
-					background-color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+					background-color: ${COLORS.TEXT.GRAY_MEDIUM};
 					color: white;
 					&:hover:not(:disabled) {
 						background-color: #4b5563;
@@ -224,25 +224,25 @@ const Alert = styled.div<{ $type: 'success' | 'error' }>`
 	background-color: ${({ $type }) => {
 		switch ($type) {
 			case 'success':
-				return `${V9_COLORS.BG.SUCCESS_LIGHT}20`;
+				return `${COLORS.BG.SUCCESS_LIGHT}20`;
 			case 'error':
-				return `${V9_COLORS.BG.ERROR_LIGHT}20`;
+				return `${COLORS.BG.ERROR_LIGHT}20`;
 		}
 	}};
 	border-color: ${({ $type }) => {
 		switch ($type) {
 			case 'success':
-				return V9_COLORS.BORDER.SUCCESS;
+				return COLORS.BORDER.SUCCESS;
 			case 'error':
-				return V9_COLORS.BORDER.ERROR;
+				return COLORS.BORDER.ERROR;
 		}
 	}};
 	color: ${({ $type }) => {
 		switch ($type) {
 			case 'success':
-				return V9_COLORS.TEXT.SUCCESS;
+				return COLORS.TEXT.SUCCESS;
 			case 'error':
-				return V9_COLORS.TEXT.ERROR;
+				return COLORS.TEXT.ERROR;
 		}
 	}};
 `;
@@ -254,14 +254,14 @@ const CheckRow = styled.div<{ $ok: boolean; $warn?: boolean }>`
 	padding: 0.5rem 0;
 	font-size: 0.875rem;
 	color: ${({ $ok, $warn }) => {
-		if ($ok) return V9_COLORS.TEXT.SUCCESS;
-		if ($warn) return V9_COLORS.STATUS.WARNING;
-		return V9_COLORS.TEXT.ERROR;
+		if ($ok) return COLORS.TEXT.SUCCESS;
+		if ($warn) return COLORS.STATUS.WARNING;
+		return COLORS.TEXT.ERROR;
 	}};
 `;
 
 const CodeBlock = styled.code`
-	background: ${V9_COLORS.BG.GRAY_LIGHT};
+	background: ${COLORS.BG.GRAY_LIGHT};
 	padding: 0.25rem 0.5rem;
 	border-radius: 0.25rem;
 	font-size: 0.875rem;
@@ -275,20 +275,20 @@ const ToolGrid = styled.div`
 	max-height: 400px;
 	overflow-y: auto;
 	padding: 1rem;
-	border: 1px solid ${V9_COLORS.BORDER.GRAY};
+	border: 1px solid ${COLORS.BORDER.GRAY};
 	border-radius: 0.375rem;
-	background: ${V9_COLORS.BG.GRAY_LIGHT};
+	background: ${COLORS.BG.GRAY_LIGHT};
 `;
 
 const ToolCard = styled.div`
 	background: white;
 	padding: 1rem;
 	border-radius: 0.375rem;
-	border: 1px solid ${V9_COLORS.BORDER.GRAY_LIGHT};
+	border: 1px solid ${COLORS.BORDER.GRAY_LIGHT};
 	transition: all 0.2s;
 
 	&:hover {
-		border-color: ${V9_COLORS.BORDER.INFO};
+		border-color: ${COLORS.BORDER.INFO};
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	}
 `;
@@ -297,15 +297,15 @@ const ToolName = styled.div`
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: ${V9_COLORS.PRIMARY.BLUE};
+	color: ${COLORS.PRIMARY.BLUE};
 	margin-bottom: 0.25rem;
 `;
 
 const ToolCategory = styled.span`
 	display: inline-block;
 	padding: 0.125rem 0.5rem;
-	background: ${V9_COLORS.BG.INFO_LIGHT};
-	color: ${V9_COLORS.TEXT.INFO};
+	background: ${COLORS.BG.INFO_LIGHT};
+	color: ${COLORS.TEXT.INFO};
 	border-radius: 0.25rem;
 	font-size: 0.75rem;
 	font-weight: 600;
@@ -314,7 +314,7 @@ const ToolCategory = styled.span`
 
 const ToolDescription = styled.div`
 	font-size: 0.875rem;
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	line-height: 1.4;
 `;
 
@@ -325,9 +325,9 @@ const DocumentationLink = styled.a`
 	gap: 0.5rem;
 	padding: 0.75rem 1.5rem;
 	background-color: #ffffff;
-	border: 1px solid ${V9_COLORS.BORDER.INFO};
+	border: 1px solid ${COLORS.BORDER.INFO};
 	border-radius: 0.375rem;
-	color: ${V9_COLORS.PRIMARY.BLUE};
+	color: ${COLORS.PRIMARY.BLUE};
 	text-decoration: none;
 	font-weight: 600;
 	font-size: 0.875rem;
@@ -335,8 +335,8 @@ const DocumentationLink = styled.a`
 
 	&:hover,
 	&:focus {
-		background-color: ${V9_COLORS.PRIMARY.BLUE};
-		border-color: ${V9_COLORS.PRIMARY.BLUE};
+		background-color: ${COLORS.PRIMARY.BLUE};
+		border-color: ${COLORS.PRIMARY.BLUE};
 		color: #ffffff;
 	}
 `;
@@ -454,7 +454,7 @@ const McpServerConfigFlowV9: React.FC = () => {
 
 		return Object.entries(grouped).map(([category, tools]) => (
 			<div key={category}>
-				<h4 style={{ margin: '1.5rem 0 1rem 0', color: V9_COLORS.TEXT.GRAY_DARK }}>
+				<h4 style={{ margin: '1.5rem 0 1rem 0', color: COLORS.TEXT.GRAY_DARK }}>
 					{category} ({tools.length})
 				</h4>
 				<ToolGrid>
@@ -538,7 +538,7 @@ const McpServerConfigFlowV9: React.FC = () => {
 						<p
 							style={{
 								fontSize: 13,
-								color: V9_COLORS.TEXT.GRAY_MEDIUM,
+								color: COLORS.TEXT.GRAY_MEDIUM,
 								marginTop: -8,
 								marginBottom: 20,
 							}}
@@ -587,7 +587,7 @@ const McpServerConfigFlowV9: React.FC = () => {
 											background: 'none',
 											border: 'none',
 											cursor: 'pointer',
-											color: V9_COLORS.TEXT.GRAY_MEDIUM,
+											color: COLORS.TEXT.GRAY_MEDIUM,
 											fontSize: 13,
 										}}
 									>
@@ -619,7 +619,7 @@ const McpServerConfigFlowV9: React.FC = () => {
 				<Card>
 					<CardBody>
 						<CardTitle> Available MCP Tools</CardTitle>
-						<p style={{ fontSize: 13, color: V9_COLORS.TEXT.GRAY_MEDIUM, marginBottom: 20 }}>
+						<p style={{ fontSize: 13, color: COLORS.TEXT.GRAY_MEDIUM, marginBottom: 20 }}>
 							{TOOL_CATALOG.length} tools exposed by the PingOne MCP server
 						</p>
 						{renderTools()}
@@ -632,12 +632,12 @@ const McpServerConfigFlowV9: React.FC = () => {
 				<Card>
 					<CardBody>
 						<CardTitle> Connect MCP Clients</CardTitle>
-						<p style={{ fontSize: 13, color: V9_COLORS.TEXT.GRAY_MEDIUM, marginBottom: 20 }}>
+						<p style={{ fontSize: 13, color: COLORS.TEXT.GRAY_MEDIUM, marginBottom: 20 }}>
 							Connect your MCP client (Cursor, Claude, etc.) to the PingOne MCP server
 						</p>
 						<div
 							style={{
-								background: V9_COLORS.BG.GRAY_LIGHT,
+								background: COLORS.BG.GRAY_LIGHT,
 								padding: '1rem',
 								borderRadius: '0.375rem',
 							}}

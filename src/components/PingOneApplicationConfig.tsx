@@ -83,7 +83,7 @@ const SectionTitle = styled.h3`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const Grid = styled.div`
@@ -106,30 +106,30 @@ const Field = styled.div`
 const Label = styled.label`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const Select = styled.select`
 	padding: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	background: white;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
 
 const Input = styled.input`
 	padding: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
-	background: V9_COLORS.TEXT.WHITE;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	background: COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.GRAY_DARK;
 	cursor: text;
 	pointer-events: auto;
 	position: relative;
@@ -137,28 +137,28 @@ const Input = styled.input`
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 
 	&:disabled {
 		background: #f9fafb;
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		color: COLORS.TEXT.GRAY_MEDIUM;
 		cursor: not-allowed;
 		pointer-events: none;
 	}
 
 	&[readonly] {
 		background: #f9fafb;
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		color: COLORS.TEXT.GRAY_MEDIUM;
 		cursor: not-allowed;
 		pointer-events: none;
 	}
 
 	/* Ensure inputs are always interactive when not disabled/readonly */
 	&:not(:disabled):not([readonly]) {
-		background: V9_COLORS.TEXT.WHITE !important;
-		color: V9_COLORS.TEXT.GRAY_DARK !important;
+		background: COLORS.TEXT.WHITE !important;
+		color: COLORS.TEXT.GRAY_DARK !important;
 		cursor: text !important;
 		pointer-events: auto !important;
 		user-select: text !important;
@@ -167,7 +167,7 @@ const Input = styled.input`
 
 const Textarea = styled.textarea`
 	padding: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	font-family: monospace;
@@ -176,7 +176,7 @@ const Textarea = styled.textarea`
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -217,13 +217,13 @@ const CheckboxLabel = styled.label`
 	display: flex;
 	align-items: center;
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	cursor: pointer;
 `;
 
 const Helper = styled.p`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0.25rem 0 0 0;
 	line-height: 1.4;
 `;
@@ -240,7 +240,7 @@ const RadioLabel = styled.label`
 	align-items: center;
 	gap: 0.5rem;
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	cursor: pointer;
 `;
 
@@ -260,7 +260,7 @@ const UrlExample = styled.div`
 const UrlLabel = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const SaveButtonContainer = styled.div`
@@ -268,7 +268,7 @@ const SaveButtonContainer = styled.div`
 	justify-content: flex-end;
 	margin-top: 1.5rem;
 	padding-top: 1.5rem;
-	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-top: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const SaveButton = styled.button<{ $hasChanges?: boolean; $isSaving?: boolean }>`
@@ -286,27 +286,27 @@ const SaveButton = styled.button<{ $hasChanges?: boolean; $isSaving?: boolean }>
 	${({ $hasChanges, $isSaving }) => {
 		if ($isSaving) {
 			return `
-				background: V9_COLORS.TEXT.GRAY_LIGHT;
+				background: COLORS.TEXT.GRAY_LIGHT;
 				color: white;
 				cursor: wait;
 			`;
 		}
 		if ($hasChanges) {
 			return `
-				background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN, V9_COLORS.PRIMARY.GREEN_DARK);
+				background: linear-gradient(135deg, COLORS.PRIMARY.GREEN, COLORS.PRIMARY.GREEN_DARK);
 				color: white;
 				box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
 				
 				&:hover {
-					background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN_DARK, #047857);
+					background: linear-gradient(135deg, COLORS.PRIMARY.GREEN_DARK, #047857);
 					box-shadow: 0 6px 8px rgba(16, 185, 129, 0.3);
 					transform: translateY(-1px);
 				}
 			`;
 		}
 		return `
-			background: V9_COLORS.TEXT.GRAY_LIGHTER;
-			color: V9_COLORS.TEXT.GRAY_MEDIUM;
+			background: COLORS.TEXT.GRAY_LIGHTER;
+			color: COLORS.TEXT.GRAY_MEDIUM;
 			cursor: not-allowed;
 		`;
 	}}
@@ -449,7 +449,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 										marginTop: '1rem',
 										padding: '1rem',
 										background: '#f0fdf4',
-										border: '1px solid V9_COLORS.PRIMARY.GREEN_DARK',
+										border: '1px solid COLORS.PRIMARY.GREEN_DARK',
 										borderRadius: '6px',
 										fontSize: '0.85rem',
 									}}
@@ -529,7 +529,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 													marginTop: '0.5rem',
 													padding: '0.75rem',
 													background: '#f8fafc',
-													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+													border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 													borderRadius: '4px',
 													fontSize: '0.75rem',
 													fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
@@ -647,7 +647,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 												marginTop: '1rem',
 												padding: '1rem',
 												background: '#f8fafc',
-												border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+												border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 												borderRadius: '6px',
 											}}
 										>
@@ -686,12 +686,12 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 												gap: '0.75rem',
 												padding: '1rem',
 												background: '#f8fafc',
-												border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+												border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 												borderRadius: '6px',
 											}}
 										>
 											<FiInfo
-												color="V9_COLORS.PRIMARY.BLUE_DARK"
+												color="COLORS.PRIMARY.BLUE_DARK"
 												size={20}
 												style={{ flexShrink: 0, marginTop: '0.125rem' }}
 											/>

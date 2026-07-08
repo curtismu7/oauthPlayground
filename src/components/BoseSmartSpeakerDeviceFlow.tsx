@@ -15,7 +15,7 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Sonos 3 Speaker Physical Housing - Authentic Sonos 3 Design
 const BoseSpeakerContainer = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1a1a1a 50%, V9_COLORS.TEXT.BLACK 100%);
+  background: linear-gradient(135deg, COLORS.TEXT.BLACK 0%, #1a1a1a 50%, COLORS.TEXT.BLACK 100%);
   border-radius: 0.75rem;
   padding: 1.2rem;
   margin: 2rem 0;
@@ -28,7 +28,7 @@ const BoseSpeakerContainer = styled.div`
   max-width: 350px;
   margin-left: auto;
   margin-right: auto;
-  color: V9_COLORS.TEXT.WHITE;
+  color: COLORS.TEXT.WHITE;
   
   /* Sonos 3 speaker grille texture - more refined */
   &::before {
@@ -55,7 +55,7 @@ const BoseSpeakerContainer = styled.div`
     left: 0.5rem;
     font-size: 0.7rem;
     font-weight: 600;
-    color: V9_COLORS.TEXT.WHITE;
+    color: COLORS.TEXT.WHITE;
     letter-spacing: 1.5px;
     z-index: 2;
   }
@@ -70,14 +70,14 @@ const BoseBranding = styled.div`
 const BoseLogo = styled.div`
   font-size: 1.5rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.WHITE;
+  color: COLORS.TEXT.WHITE;
   margin-bottom: 0.5rem;
   letter-spacing: 1px;
 `;
 
 const BoseModel = styled.div`
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_LIGHT;
+  color: COLORS.TEXT.GRAY_LIGHT;
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -87,7 +87,7 @@ const BoseModel = styled.div`
 const SpeakerGrill = styled.div`
   width: 200px;
   height: 120px;
-  background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
+  background: linear-gradient(135deg, COLORS.TEXT.GRAY_DARK 0%, COLORS.TEXT.GRAY_DARK 100%);
   border-radius: 1rem;
   margin: 0 auto 1.5rem;
   display: grid;
@@ -102,18 +102,18 @@ const SpeakerGrill = styled.div`
 `;
 
 const GrillDot = styled.div`
-  background: V9_COLORS.TEXT.GRAY_DARK;
+  background: COLORS.TEXT.GRAY_DARK;
   border-radius: 50%;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
 `;
 
 // Control Panel
 const ControlPanel = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, #1e293b 100%);
+  background: linear-gradient(135deg, COLORS.TEXT.GRAY_DARK 0%, #1e293b 100%);
   border-radius: 1rem;
   padding: 1.5rem;
   margin: 1rem 0;
-  border: 2px solid V9_COLORS.TEXT.GRAY_DARK;
+  border: 2px solid COLORS.TEXT.GRAY_DARK;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 `;
 
@@ -122,7 +122,7 @@ const ControlRow = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 0;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_DARK;
+  border-bottom: 1px solid COLORS.TEXT.GRAY_DARK;
   
   &:last-child {
     border-bottom: none;
@@ -132,7 +132,7 @@ const ControlRow = styled.div`
 const ControlLabel = styled.div`
   font-size: 0.875rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_LIGHT;
+  color: COLORS.TEXT.GRAY_LIGHT;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;
@@ -188,7 +188,7 @@ const MusicApp = styled.div<{ $color: string }>`
   align-items: center;
   justify-content: center;
   font-size: 1.25rem;
-  color: V9_COLORS.TEXT.WHITE;
+  color: COLORS.TEXT.WHITE;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   transition: transform 0.2s ease;
@@ -208,7 +208,7 @@ const AppLabel = styled.div`
 
 // Authorization Code Display
 const AuthCodeDisplay = styled.div`
-  background: V9_COLORS.TEXT.BLACK;
+  background: COLORS.TEXT.BLACK;
   color: #00ff00;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 1.5rem;
@@ -227,31 +227,31 @@ const AuthCodeDisplay = styled.div`
 
 // QR Code Section
 const QRCodeSection = styled.div`
-  background: V9_COLORS.TEXT.WHITE;
+  background: COLORS.TEXT.WHITE;
   border-radius: 0.75rem;
   padding: 1.5rem;
   text-align: center;
   margin: 1rem 0;
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const QRTitle = styled.div`
   font-size: 1rem;
   font-weight: 700;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const QRSubtitle = styled.div`
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 1rem;
 `;
 
 const QRCodeContainer = styled.div`
   display: inline-block;
   padding: 1rem;
-  background: V9_COLORS.TEXT.WHITE;
+  background: COLORS.TEXT.WHITE;
   border-radius: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
@@ -267,7 +267,7 @@ const ActionButtons = styled.div`
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
   background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
-  color: V9_COLORS.TEXT.WHITE;
+  color: COLORS.TEXT.WHITE;
   border: none;
   border-radius: 0.5rem;
   padding: 0.75rem 1.25rem;
@@ -293,12 +293,12 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
 
 // Success Display
 const SuccessDisplay = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
+  background: linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, COLORS.PRIMARY.GREEN_DARK 100%);
   border-radius: 1rem;
   padding: 1.5rem;
   margin-top: 1rem;
   text-align: center;
-  color: V9_COLORS.TEXT.WHITE;
+  color: COLORS.TEXT.WHITE;
   box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
 `;
 
@@ -403,14 +403,14 @@ const BoseSmartSpeakerDeviceFlow: React.FC<BoseSmartSpeakerDeviceFlowProps> = ({
 					<ControlRow>
 						<ControlLabel>WiFi</ControlLabel>
 						<ControlValue $status="connected">
-							<StatusDot $active={true} $color="V9_COLORS.PRIMARY.GREEN" />
+							<StatusDot $active={true} $color="COLORS.PRIMARY.GREEN" />
 							Connected
 						</ControlValue>
 					</ControlRow>
 					<ControlRow>
 						<ControlLabel>Battery</ControlLabel>
 						<ControlValue>
-							<StatusDot $active={true} $color="V9_COLORS.PRIMARY.GREEN" />
+							<StatusDot $active={true} $color="COLORS.PRIMARY.GREEN" />
 							Plugged In
 						</ControlValue>
 					</ControlRow>
@@ -452,8 +452,8 @@ const BoseSmartSpeakerDeviceFlow: React.FC<BoseSmartSpeakerDeviceFlowProps> = ({
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={160}
-							bgColor="V9_COLORS.TEXT.WHITE"
-							fgColor="V9_COLORS.TEXT.GRAY_DARK"
+							bgColor="COLORS.TEXT.WHITE"
+							fgColor="COLORS.TEXT.GRAY_DARK"
 							level="H"
 							includeMargin={true}
 						/>
@@ -487,7 +487,7 @@ const BoseSmartSpeakerDeviceFlow: React.FC<BoseSmartSpeakerDeviceFlowProps> = ({
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.2)"
 				borderColor="#333333"
-				headerTextColor="V9_COLORS.TEXT.WHITE"
+				headerTextColor="COLORS.TEXT.WHITE"
 			/>
 		</>
 	);

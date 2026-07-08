@@ -10,10 +10,10 @@ import NextSteps from './NextSteps';
 
 // Styled components (reused from AuthorizationCodeFlowV5)
 const CollapsibleSection = styled.section`
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	margin-bottom: 1.5rem;
-	background-color: V9_COLORS.TEXT.WHITE;
+	background-color: COLORS.TEXT.WHITE;
 	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
 `;
 
@@ -33,7 +33,7 @@ const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
 	transition: background 0.2s ease;
 
 	&:hover {
-		background: linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, #ecfdf3 100%);
+		background: linear-gradient(135deg, COLORS.BG.SUCCESS 0%, #ecfdf3 100%);
 	}
 `;
 
@@ -68,8 +68,8 @@ const CollapsibleContent = styled.div`
 `;
 
 const GeneratedContentBox = styled.div`
-	background-color: V9_COLORS.BG.SUCCESS;
-	border: 1px solid V9_COLORS.PRIMARY.GREEN;
+	background-color: COLORS.BG.SUCCESS;
+	border: 1px solid COLORS.PRIMARY.GREEN;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin: 1.5rem 0;
@@ -80,7 +80,7 @@ const GeneratedLabel = styled.div`
 	position: absolute;
 	top: -10px;
 	left: 16px;
-	background-color: V9_COLORS.PRIMARY.GREEN_DARK;
+	background-color: COLORS.PRIMARY.GREEN_DARK;
 	color: white;
 	padding: 0.25rem 0.75rem;
 	border-radius: 9999px;
@@ -110,13 +110,13 @@ const UserInfoRow = styled.div`
 	padding: 0.75rem;
 	background: #f0fdf4;
 	border-radius: 0.5rem;
-	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
+	border: 1px solid COLORS.BG.SUCCESS_BORDER;
 `;
 
 const ParameterLabel = styled.div`
 	font-size: 0.75rem;
 	font-weight: 600;
-	color: V9_COLORS.PRIMARY.GREEN_DARK;
+	color: COLORS.PRIMARY.GREEN_DARK;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 `;
@@ -129,7 +129,7 @@ const ParameterValue = styled.div`
 	background-color: #f0fdf4;
 	padding: 0.5rem;
 	border-radius: 0.25rem;
-	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
+	border: 1px solid COLORS.BG.SUCCESS_BORDER;
 `;
 
 const ActionRow = styled.div`
@@ -159,18 +159,18 @@ const Button = styled.button<{
 	${({ $variant }) =>
 		$variant === 'primary' &&
 		`
-		background-color: V9_COLORS.PRIMARY.GREEN;
-		color: V9_COLORS.TEXT.WHITE;
+		background-color: COLORS.PRIMARY.GREEN;
+		color: COLORS.TEXT.WHITE;
 		&:hover:not(:disabled) {
-			background-color: V9_COLORS.PRIMARY.GREEN_DARK;
+			background-color: COLORS.PRIMARY.GREEN_DARK;
 		}
 	`}
 
 	${({ $variant }) =>
 		$variant === 'success' &&
 		`
-		background-color: V9_COLORS.PRIMARY.GREEN_DARK;
-		color: V9_COLORS.TEXT.WHITE;
+		background-color: COLORS.PRIMARY.GREEN_DARK;
+		color: COLORS.TEXT.WHITE;
 		&:hover:not(:disabled) {
 			background-color: #15803d;
 		}
@@ -180,19 +180,19 @@ const Button = styled.button<{
 		$variant === 'secondary' &&
 		`
 		background-color: #0ea5e9;
-		color: V9_COLORS.TEXT.WHITE;
+		color: COLORS.TEXT.WHITE;
 		&:hover:not(:disabled) {
-			background-color: V9_COLORS.PRIMARY.BLUE;
+			background-color: COLORS.PRIMARY.BLUE;
 		}
 	`}
 
 	${({ $variant }) =>
 		$variant === 'danger' &&
 		`
-		background-color: V9_COLORS.PRIMARY.RED;
-		color: V9_COLORS.TEXT.WHITE;
+		background-color: COLORS.PRIMARY.RED;
+		color: COLORS.TEXT.WHITE;
 		&:hover:not(:disabled) {
-			background-color: V9_COLORS.PRIMARY.RED_DARK;
+			background-color: COLORS.PRIMARY.RED_DARK;
 		}
 	`}
 
@@ -201,10 +201,10 @@ const Button = styled.button<{
 		`
 		background-color: transparent;
 		color: #14532d;
-		border-color: V9_COLORS.BG.SUCCESS_BORDER;
+		border-color: COLORS.BG.SUCCESS_BORDER;
 		&:hover:not(:disabled) {
 			background-color: #f0fdf4;
-			border-color: V9_COLORS.PRIMARY.GREEN;
+			border-color: COLORS.PRIMARY.GREEN;
 		}
 	`}
 `;
@@ -214,14 +214,14 @@ const HighlightedActionButton = styled(Button)<{ $priority: 'primary' | 'success
 	background:
 		${({ $priority }) =>
 			$priority === 'primary'
-				? 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)'
-				: 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)'};
+				? 'linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, COLORS.PRIMARY.GREEN_DARK 100%)'
+				: 'linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, COLORS.PRIMARY.GREEN_DARK 100%)'};
 	box-shadow:
 		${({ $priority }) =>
 			$priority === 'primary'
 				? '0 6px 18px rgba(34, 197, 94, 0.35)'
 				: '0 6px 18px rgba(16, 185, 129, 0.35)'};
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	padding-right: 2.5rem;
 
 	&:hover {
@@ -241,7 +241,7 @@ const HighlightedActionButton = styled(Button)<{ $priority: 'primary' | 'success
 const InfoTitle = styled.h3`
 	font-size: 1rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin: 0;
 `;
 
@@ -268,7 +268,7 @@ const ResultsHeading = styled.h3`
 
 const HelperText = styled.p`
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.5;
 	margin: 0 0 1rem;
 `;
@@ -678,7 +678,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 																	padding: '1rem',
 																	background: '#f8fafc',
 																	borderRadius: '0.5rem',
-																	border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+																	border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 																	fontSize: '0.875rem',
 																	lineHeight: '1.5',
 																	overflow: 'auto',
@@ -745,7 +745,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 										disabled={!tokens?.access_token || isFetchingUserInfo}
 										style={{
 											background:
-												'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
+												'linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_DARK 100%)',
 											color: 'white',
 											border: 'none',
 											padding: '1rem 2rem',

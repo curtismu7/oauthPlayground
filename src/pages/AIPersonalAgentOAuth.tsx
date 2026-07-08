@@ -8,8 +8,8 @@ const Content = styled.div`
 `;
 
 const IntroCard = styled.section`
-	background: V9_COLORS.TEXT.GRAY_DARK;
-	color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 1.25rem;
 	padding: clamp(1.75rem, 5vw, 2.5rem);
 	display: grid;
@@ -47,7 +47,7 @@ const CalloutTitle = styled.h3`
 	gap: 0.6rem;
 	font-size: 1.05rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const SectionText = styled.p`
@@ -60,7 +60,7 @@ const SectionText = styled.p`
 const HighlightList = styled.ul`
 	margin: 0;
 	padding-left: 1.25rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 1rem;
 	line-height: 1.7;
 	display: grid;
@@ -71,12 +71,12 @@ const ExternalLink = styled.a`
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	text-decoration: none;
 	font-weight: 600;
 
 	&:hover {
-		color: V9_COLORS.PRIMARY.BLUE_DARK;
+		color: COLORS.PRIMARY.BLUE_DARK;
 		text-decoration: underline;
 	}
 `;
@@ -104,7 +104,7 @@ const CardTitle = styled.h3`
 	gap: 0.6rem;
 	font-size: 1.05rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const CardBody = styled.div`
@@ -120,7 +120,7 @@ const StepList = styled.ol`
 	padding-left: 1.25rem;
 	display: grid;
 	gap: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const LinkGroup = styled.div`

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { FiLoader } from '../icons';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
 import { PINGONE_AUTH_REGION_MAP, type PingOneRegion } from '../services/regionService';
-import { V9_COLORS } from '../platform/V9ColorStandards';
+import { COLORS } from '../platform/ColorStandards';
 import { logger } from '../utils/logger';
 import { RegionSelect } from './RegionSelect';
 
@@ -23,8 +23,8 @@ const Container = styled.div`
 	flex-direction: column;
 	gap: 1rem;
 	padding: 1.5rem;
-	background: ${V9_COLORS.BG.GRAY_LIGHT};
-	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	background: ${COLORS.BG.GRAY_LIGHT};
+	border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 8px;
 `;
 
@@ -39,13 +39,13 @@ const Title = styled.h2`
 	margin: 0;
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: ${V9_COLORS.TEXT.BLACK};
+	color: ${COLORS.TEXT.BLACK};
 `;
 
 const Description = styled.p`
 	margin: 0 0 1rem 0;
 	font-size: 0.875rem;
-	color: ${V9_COLORS.TEXT.BLACK};
+	color: ${COLORS.TEXT.BLACK};
 	line-height: 1.5;
 `;
 
@@ -59,7 +59,7 @@ const InputContainer = styled.div`
 const Label = styled.label`
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 `;
 
 const InputGroup = styled.div`
@@ -70,17 +70,17 @@ const InputGroup = styled.div`
 
 const RegionSelector = styled.select`
 	padding: 0.75rem;
-	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	border-right: none;
 	border-radius: 6px 0 0 6px;
 	font-size: 0.875rem;
-	background: ${V9_COLORS.BG.WHITE};
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	background: ${COLORS.BG.WHITE};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	min-width: 120px;
 
 	&:focus {
 		outline: none;
-		border-color: ${V9_COLORS.PRIMARY.BLUE};
+		border-color: ${COLORS.PRIMARY.BLUE};
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -91,14 +91,14 @@ const Input = styled.input<{ hasError?: boolean; hasSuccess?: boolean }>`
 	border: 1px solid
 		${(props) =>
 			props.hasError
-				? V9_COLORS.PRIMARY.RED_DARK
+				? COLORS.PRIMARY.RED_DARK
 				: props.hasSuccess
-					? V9_COLORS.PRIMARY.GREEN
-					: V9_COLORS.TEXT.GRAY_LIGHTER};
+					? COLORS.PRIMARY.GREEN
+					: COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0 6px 6px 0;
 	font-size: 0.875rem;
-	background: ${V9_COLORS.BG.WHITE};
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	background: ${COLORS.BG.WHITE};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	font-family: monospace;
 	transition: all 0.2s ease;
 
@@ -106,10 +106,10 @@ const Input = styled.input<{ hasError?: boolean; hasSuccess?: boolean }>`
 		outline: none;
 		border-color: ${(props) =>
 			props.hasError
-				? V9_COLORS.PRIMARY.RED_DARK
+				? COLORS.PRIMARY.RED_DARK
 				: props.hasSuccess
-					? V9_COLORS.PRIMARY.GREEN
-					: V9_COLORS.PRIMARY.BLUE};
+					? COLORS.PRIMARY.GREEN
+					: COLORS.PRIMARY.BLUE};
 		box-shadow: 0 0 0 3px
 			${(props) =>
 				props.hasError
@@ -120,8 +120,8 @@ const Input = styled.input<{ hasError?: boolean; hasSuccess?: boolean }>`
 	}
 
 	&:disabled {
-		background: ${V9_COLORS.BG.GRAY_MEDIUM};
-		color: ${V9_COLORS.TEXT.GRAY_LIGHT};
+		background: ${COLORS.BG.GRAY_MEDIUM};
+		color: ${COLORS.TEXT.GRAY_LIGHT};
 		cursor: not-allowed;
 	}
 `;
@@ -133,10 +133,10 @@ const DiscoverButton = styled.button.withConfig({
 	right: 0.5rem;
 	padding: 0.5rem;
 	background: ${(props) =>
-		props.isLoading ? V9_COLORS.TEXT.GRAY_LIGHTER : V9_COLORS.PRIMARY.GREEN};
-	color: ${(props) => (props.isLoading ? V9_COLORS.TEXT.GRAY_MEDIUM : V9_COLORS.TEXT.WHITE)};
+		props.isLoading ? COLORS.TEXT.GRAY_LIGHTER : COLORS.PRIMARY.GREEN};
+	color: ${(props) => (props.isLoading ? COLORS.TEXT.GRAY_MEDIUM : COLORS.TEXT.WHITE)};
 	border: 1px solid
-		${(props) => (props.isLoading ? V9_COLORS.TEXT.GRAY_LIGHTER : V9_COLORS.PRIMARY.GREEN_DARK)};
+		${(props) => (props.isLoading ? COLORS.TEXT.GRAY_LIGHTER : COLORS.PRIMARY.GREEN_DARK)};
 	border-radius: 0.375rem;
 	cursor: ${(props) => (props.isLoading ? 'not-allowed' : 'pointer')};
 	display: flex;
@@ -145,7 +145,7 @@ const DiscoverButton = styled.button.withConfig({
 	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 
 	&:hover:not(:disabled) {
-		background: ${V9_COLORS.PRIMARY.GREEN_DARK};
+		background: ${COLORS.PRIMARY.GREEN_DARK};
 		transform: translateY(-1px);
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 	}
@@ -162,9 +162,9 @@ const DiscoverButton = styled.button.withConfig({
 const SaveButton = styled.button<{ $isSaved?: boolean }>`
 	padding: 0.5rem 1rem;
 	background: ${(props) =>
-		props.$isSaved ? V9_COLORS.PRIMARY.GREEN_DARK : V9_COLORS.PRIMARY.GREEN};
-	color: ${V9_COLORS.TEXT.WHITE};
-	border: 1px solid ${(props) => (props.$isSaved ? '#047857' : V9_COLORS.PRIMARY.GREEN_DARK)};
+		props.$isSaved ? COLORS.PRIMARY.GREEN_DARK : COLORS.PRIMARY.GREEN};
+	color: ${COLORS.TEXT.WHITE};
+	border: 1px solid ${(props) => (props.$isSaved ? '#047857' : COLORS.PRIMARY.GREEN_DARK)};
 	border-radius: 0.375rem;
 	cursor: pointer;
 	display: flex;
@@ -177,7 +177,7 @@ const SaveButton = styled.button<{ $isSaved?: boolean }>`
 
 	&:hover {
 		background: ${(props) =>
-			props.$isSaved ? V9_COLORS.PRIMARY.GREEN_DARK : V9_COLORS.PRIMARY.BLUE};
+			props.$isSaved ? COLORS.PRIMARY.GREEN_DARK : COLORS.PRIMARY.BLUE};
 		transform: translateY(-1px);
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 	}
@@ -195,8 +195,8 @@ const SaveButton = styled.button<{ $isSaved?: boolean }>`
 
 const ResetButton = styled.button`
 	padding: 0.5rem 1rem;
-	background: ${V9_COLORS.TEXT.GRAY_MEDIUM};
-	color: ${V9_COLORS.TEXT.WHITE};
+	background: ${COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.WHITE};
 	border: 1px solid #4b5563;
 	border-radius: 0.375rem;
 	cursor: pointer;
@@ -235,8 +235,8 @@ const ButtonGroup = styled.div`
 
 const IssuerUrlDisplay = styled.div`
 	padding: 0.75rem;
-	background: ${V9_COLORS.BG.GRAY_MEDIUM};
-	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	background: ${COLORS.BG.GRAY_MEDIUM};
+	border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 6px;
 	font-family: monospace;
 	font-size: 0.875rem;
@@ -250,8 +250,8 @@ const CopyButton = styled.button`
 	top: 0.5rem;
 	right: 0.5rem;
 	padding: 0.25rem 0.5rem;
-	background: ${V9_COLORS.PRIMARY.BLUE};
-	color: ${V9_COLORS.TEXT.WHITE};
+	background: ${COLORS.PRIMARY.BLUE};
+	color: ${COLORS.TEXT.WHITE};
 	border: none;
 	border-radius: 0.25rem;
 	font-size: 0.75rem;
@@ -262,7 +262,7 @@ const CopyButton = styled.button`
 	transition: background-color 0.2s;
 
 	&:hover {
-		background: ${V9_COLORS.PRIMARY.BLUE_DARK};
+		background: ${COLORS.PRIMARY.BLUE_DARK};
 	}
 `;
 
@@ -275,30 +275,30 @@ const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loadi
 	background: ${(props) => {
 		switch (props.type) {
 			case 'success':
-				return V9_COLORS.BG.SUCCESS;
+				return COLORS.BG.SUCCESS;
 			case 'error':
-				return V9_COLORS.BG.ERROR;
+				return COLORS.BG.ERROR;
 			case 'info':
-				return V9_COLORS.BG.GRAY_LIGHT;
+				return COLORS.BG.GRAY_LIGHT;
 			case 'loading':
-				return V9_COLORS.BG.GRAY_LIGHT;
+				return COLORS.BG.GRAY_LIGHT;
 			default:
-				return V9_COLORS.BG.GRAY_LIGHT;
+				return COLORS.BG.GRAY_LIGHT;
 		}
 	}};
 	border: 1px solid
 		${(props) => {
 			switch (props.type) {
 				case 'success':
-					return V9_COLORS.BG.SUCCESS_BORDER;
+					return COLORS.BG.SUCCESS_BORDER;
 				case 'error':
-					return V9_COLORS.BG.ERROR_BORDER;
+					return COLORS.BG.ERROR_BORDER;
 				case 'info':
-					return V9_COLORS.PRIMARY.BLUE;
+					return COLORS.PRIMARY.BLUE;
 				case 'loading':
-					return V9_COLORS.TEXT.GRAY_LIGHTER;
+					return COLORS.TEXT.GRAY_LIGHTER;
 				default:
-					return V9_COLORS.TEXT.GRAY_LIGHTER;
+					return COLORS.TEXT.GRAY_LIGHTER;
 			}
 		}};
 	color: ${(props) => {
@@ -306,13 +306,13 @@ const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loadi
 			case 'success':
 				return '#10b981';
 			case 'error':
-				return V9_COLORS.PRIMARY.RED;
+				return COLORS.PRIMARY.RED;
 			case 'info':
-				return V9_COLORS.PRIMARY.BLUE_DARK;
+				return COLORS.PRIMARY.BLUE_DARK;
 			case 'loading':
-				return V9_COLORS.TEXT.GRAY_MEDIUM;
+				return COLORS.TEXT.GRAY_MEDIUM;
 			default:
-				return V9_COLORS.TEXT.GRAY_MEDIUM;
+				return COLORS.TEXT.GRAY_MEDIUM;
 		}
 	}};
 `;
@@ -323,7 +323,7 @@ const StatusText = styled.div`
 `;
 
 const ErrorMessage = styled.div`
-	color: ${V9_COLORS.PRIMARY.RED};
+	color: ${COLORS.PRIMARY.RED};
 	font-size: 0.875rem;
 	margin-top: 0.5rem;
 `;
@@ -333,16 +333,16 @@ const RegionInfo = styled.div`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.5rem;
-	background: ${V9_COLORS.BG.GRAY_LIGHT};
-	border: 1px solid ${V9_COLORS.PRIMARY.BLUE};
+	background: ${COLORS.BG.GRAY_LIGHT};
+	border: 1px solid ${COLORS.PRIMARY.BLUE};
 	border-radius: 0.375rem;
 	font-size: 0.75rem;
-	color: ${V9_COLORS.TEXT.BLACK};
+	color: ${COLORS.TEXT.BLACK};
 `;
 
 const DiscoveryResultsBox = styled.div`
-	background: ${V9_COLORS.BG.GRAY_LIGHT};
-	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	background: ${COLORS.BG.GRAY_LIGHT};
+	border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 8px;
 	margin-bottom: 1rem;
 	overflow: hidden;
@@ -355,14 +355,14 @@ const DiscoveryResultsHeader = styled.div`
 	gap: 0.5rem;
 	width: 100%;
 	padding: 1rem;
-	background: ${V9_COLORS.PRIMARY.BLUE};
-	color: ${V9_COLORS.TEXT.WHITE};
+	background: ${COLORS.PRIMARY.BLUE};
+	color: ${COLORS.TEXT.WHITE};
 	font-weight: 600;
 	font-size: 0.875rem;
 	transition: background-color 0.2s ease;
 
 	&:hover {
-		background: ${V9_COLORS.PRIMARY.BLUE_DARK};
+		background: ${COLORS.PRIMARY.BLUE_DARK};
 	}
 `;
 
@@ -400,13 +400,13 @@ const DiscoveryResultItem = styled.div`
 	line-height: 1.4;
 
 	strong {
-		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		color: ${COLORS.TEXT.GRAY_DARK};
 		font-weight: 600;
 	}
 
 	&:not(:last-child) {
 		padding-bottom: 0.75rem;
-		border-bottom: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+		border-bottom: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	}
 `;
 
@@ -821,10 +821,10 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 							$isSaved={isSaved}
 							disabled={isSaved || isApplying}
 							style={{
-								background: isApplying ? V9_COLORS.PRIMARY.YELLOW : V9_COLORS.PRIMARY.GREEN,
+								background: isApplying ? COLORS.PRIMARY.YELLOW : COLORS.PRIMARY.GREEN,
 								borderColor: isApplying
-									? V9_COLORS.PRIMARY.YELLOW_DARK
-									: V9_COLORS.PRIMARY.GREEN_DARK,
+									? COLORS.PRIMARY.YELLOW_DARK
+									: COLORS.PRIMARY.GREEN_DARK,
 							}}
 						>
 							{isApplying ? (

@@ -54,7 +54,7 @@ const Field = styled.div`
 
 const FieldLabel = styled.label`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-weight: 500;
 	display: inline-flex;
 	align-items: center;
@@ -64,14 +64,14 @@ const FieldLabel = styled.label`
 const FieldInput = styled.input`
 	border-radius: 0.5rem;
 	border: 1px solid rgba(148, 163, 184, 0.5);
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	padding: 0.5rem 0.75rem;
 	font-size: 0.78rem;
 	color: #1e293b;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+		border-color: COLORS.PRIMARY.BLUE_DARK;
 		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 	}
 `;
@@ -79,7 +79,7 @@ const FieldInput = styled.input`
 const TextArea = styled.textarea`
 	border-radius: 0.5rem;
 	border: 1px solid rgba(148, 163, 184, 0.5);
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	padding: 0.5rem 0.75rem;
 	font-size: 0.78rem;
 	color: #1e293b;
@@ -90,7 +90,7 @@ const TextArea = styled.textarea`
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+		border-color: COLORS.PRIMARY.BLUE_DARK;
 		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 	}
 `;
@@ -109,7 +109,7 @@ const PasswordInputWrapper = styled.div`
 		right: 0.5rem;
 		background: none;
 		border: none;
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		color: COLORS.TEXT.GRAY_MEDIUM;
 		cursor: pointer;
 		padding: 0.25rem;
 		display: flex;
@@ -129,17 +129,17 @@ const Button = styled.button`
 	font-weight: 600;
 	cursor: pointer;
 	transition: all 0.2s;
-	border: 1px solid V9_COLORS.PRIMARY.BLUE_DARK;
-	background: V9_COLORS.PRIMARY.BLUE;
-	color: V9_COLORS.TEXT.WHITE;
+	border: 1px solid COLORS.PRIMARY.BLUE_DARK;
+	background: COLORS.PRIMARY.BLUE;
+	color: COLORS.TEXT.WHITE;
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
 	align-self: flex-start;
 
 	&:hover:not(:disabled) {
-		background: V9_COLORS.PRIMARY.BLUE_DARK;
-		border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+		background: COLORS.PRIMARY.BLUE_DARK;
+		border-color: COLORS.PRIMARY.BLUE_DARK;
 	}
 
 	&:disabled {
@@ -155,7 +155,7 @@ const ButtonGroup = styled.div`
 `;
 
 const JWTDisplay = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border: 1px solid rgba(148, 163, 184, 0.3);
 	border-radius: 0.375rem;
 	padding: 0.75rem;
@@ -172,7 +172,7 @@ const JWTDisplay = styled.div`
 const ClaimsDisplay = styled.details`
 	margin-top: 0.75rem;
 	padding: 0.75rem;
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	background: COLORS.BG.GRAY_LIGHT;
 	border: 1px solid rgba(148, 163, 184, 0.3);
 	border-radius: 0.375rem;
 	font-size: 0.75rem;
@@ -180,7 +180,7 @@ const ClaimsDisplay = styled.details`
 	summary {
 		cursor: pointer;
 		font-weight: 600;
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		color: COLORS.TEXT.GRAY_MEDIUM;
 		margin-bottom: 0.5rem;
 	}
 
@@ -203,15 +203,15 @@ const CopyButton = styled.button`
 	font-size: 0.875rem;
 	font-weight: 600;
 	border-radius: 0.5rem;
-	border: 1px solid V9_COLORS.PRIMARY.BLUE_DARK;
-	background: V9_COLORS.PRIMARY.BLUE;
-	color: V9_COLORS.TEXT.WHITE;
+	border: 1px solid COLORS.PRIMARY.BLUE_DARK;
+	background: COLORS.PRIMARY.BLUE;
+	color: COLORS.TEXT.WHITE;
 	cursor: pointer;
 	transition: all 0.2s;
 
 	&:hover {
-		background: V9_COLORS.PRIMARY.BLUE_DARK;
-		border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+		background: COLORS.PRIMARY.BLUE_DARK;
+		border-color: COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 

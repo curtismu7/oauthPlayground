@@ -14,7 +14,7 @@ import { logger } from '../utils/logger';
 
 // Amazon Echo Show Main Container - Realistic Physical Device
 const EchoShowContainer = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border-radius: 0;
 	padding: 0;
 	margin: 1rem 0;
@@ -30,7 +30,7 @@ const EchoShowContainer = styled.div`
 
 // Physical Echo Show Frame - Black Device with Fabric Sides
 const EchoShowFrame = styled.div`
-	background: V9_COLORS.TEXT.BLACK;
+	background: COLORS.TEXT.BLACK;
 	border-radius: 0.625rem;
 	padding: 0.375rem;
 	box-shadow:
@@ -91,7 +91,7 @@ const QRCodeContainer = styled.div`
 	justify-content: center;
 	margin-bottom: 1rem;
 	padding: 0.5rem;
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border-radius: 0.25rem;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 `;
@@ -143,7 +143,7 @@ const EchoScreen = styled.div`
 	flex-direction: column;
 	justify-content: flex-start;
 	align-items: center;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	overflow: hidden;
 
 	/* Weather background - sky with clouds */
@@ -230,7 +230,7 @@ const StatusIndicator = styled.div<{ $active: boolean }>`
 const DisplayTitle = styled.div`
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	margin-bottom: 0.25rem;
 	font-family: 'Amazon Ember', 'Helvetica Neue', sans-serif;
 `;
@@ -316,7 +316,7 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
 	font-size: 0.75rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	margin-bottom: 0.25rem;
 	font-family: 'Amazon Ember', 'Helvetica Neue', sans-serif;
 `;

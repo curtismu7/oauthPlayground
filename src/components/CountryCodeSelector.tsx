@@ -138,7 +138,7 @@ const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
 				style={{
 					width: '100%',
 					padding: '0.75rem',
-					border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+					border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 					borderRadius: '0.375rem',
 					backgroundColor: disabled ? '#f9fafb' : '#ffffff',
 					cursor: disabled ? 'not-allowed' : 'pointer',
@@ -206,7 +206,7 @@ const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
 							left: 0,
 							right: 0,
 							backgroundColor: '#ffffff',
-							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.375rem',
 							boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
 							zIndex: 20,

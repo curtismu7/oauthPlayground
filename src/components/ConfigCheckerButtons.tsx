@@ -21,7 +21,7 @@ const P1Logo = ({ size = 14, style = {} }) => (
 		aria-hidden
 	>
 		<title>P1 Logo</title>
-		<rect width="24" height="24" fill="V9_COLORS.PRIMARY.RED_DARK" rx="2" />
+		<rect width="24" height="24" fill="COLORS.PRIMARY.RED_DARK" rx="2" />
 		<text
 			x="12"
 			y="16"
@@ -54,8 +54,8 @@ const formatCompactJson = (value: unknown) => {
 };
 
 const ConfigCheckerHeader = styled.div`
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	padding: 1.25rem;
 	margin-bottom: 1rem;
@@ -73,7 +73,7 @@ const ConfigCheckerTitle = styled.h3`
 
 const ConfigCheckerDescription = styled.p`
 	margin: 0;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 	line-height: 1.5;
 `;
@@ -142,7 +142,7 @@ const ModalContent = styled.div<{
 }>`
 	width: ${(props) => (props.$isMinimized ? '300px' : 'min(1000px, calc(100vw - 2rem))')};
 	max-height: ${(props) => (props.$isMinimized ? 'auto' : 'calc(100vh - 4rem)')};
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
 	box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
 	padding: ${(props) => (props.$isMinimized ? '0.75rem' : '1.5rem')};
@@ -163,7 +163,7 @@ const ModalHeader = styled.div<{ $isMinimized: boolean }>`
 	justify-content: space-between;
 	align-items: flex-start;
 	gap: 1rem;
-	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	background: linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.TEXT.GRAY_LIGHTER 100%);
 	border-bottom: 1px solid #cbd5e1;
 	margin: ${(props) =>
 		props.$isMinimized ? '-0.75rem -0.75rem 0.5rem -0.75rem' : '-1.5rem -1.5rem 1.25rem -1.5rem'};
@@ -188,9 +188,9 @@ const Badge = styled.span<{ $tone: 'warning' | 'success' }>`
 const ScrollArea = styled.pre`
 	margin: 0;
 	padding: 1.25rem;
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border-radius: 0.5rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	font-family:
 		'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 	font-size: 0.8125rem;
@@ -206,7 +206,7 @@ const ScrollArea = styled.pre`
 	}
 
 	&::-webkit-scrollbar-track {
-		background: V9_COLORS.BG.GRAY_MEDIUM;
+		background: COLORS.BG.GRAY_MEDIUM;
 		border-radius: 3px;
 	}
 
@@ -229,8 +229,8 @@ const ModalFooter = styled.div`
 `;
 
 const DiffSummary = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.WHITE;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	padding: 1rem;
 	margin-bottom: 1rem;
@@ -245,7 +245,7 @@ const DiffSummary = styled.div`
 	}
 
 	&::-webkit-scrollbar-track {
-		background: V9_COLORS.BG.GRAY_MEDIUM;
+		background: COLORS.BG.GRAY_MEDIUM;
 		border-radius: 3px;
 	}
 
@@ -297,8 +297,8 @@ const DiffItem = styled.div<{ $change: 'added' | 'removed' | 'mismatch' }>`
 `;
 
 const DiffValue = styled.div<{ $isRedirectUri?: boolean }>`
-	background: V9_COLORS.TEXT.WHITE;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.WHITE;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	padding: 0.625rem 0.75rem;
 	font-family:
@@ -320,7 +320,7 @@ const DiffValue = styled.div<{ $isRedirectUri?: boolean }>`
 	}
 
 	&::-webkit-scrollbar-track {
-		background: V9_COLORS.BG.GRAY_MEDIUM;
+		background: COLORS.BG.GRAY_MEDIUM;
 		border-radius: 2px;
 	}
 
@@ -337,7 +337,7 @@ const DiffValue = styled.div<{ $isRedirectUri?: boolean }>`
 const DiffPath = styled.span`
 	font-weight: 600;
 	font-size: 0.8125rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	text-transform: capitalize;
 	letter-spacing: 0.01em;
 	margin-bottom: 0.5rem;
@@ -1330,7 +1330,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 						style={{
 							background: '#3b82f6', // Blue background
 							color: 'white', // White text
-							border: '1px solid V9_COLORS.PRIMARY.BLUE',
+							border: '1px solid COLORS.PRIMARY.BLUE',
 							fontWeight: '600',
 						}}
 					>
@@ -1348,7 +1348,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								padding: '0.5rem',
 								background: '#fef3c7',
 								borderRadius: '0.375rem',
-								border: '1px solid V9_COLORS.PRIMARY.YELLOW',
+								border: '1px solid COLORS.PRIMARY.YELLOW',
 							}}
 						>
 							<input
@@ -1385,7 +1385,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								padding: '0.5rem',
 								background: '#f3f4f6',
 								borderRadius: '0.375rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<span style={{ fontSize: 14, color: '#10b981' }}>✅</span>
@@ -1414,7 +1414,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 						style={{
 							background: '#10b981', // Green background
 							color: 'white', // White text
-							border: '1px solid V9_COLORS.PRIMARY.GREEN',
+							border: '1px solid COLORS.PRIMARY.GREEN',
 							fontWeight: '600',
 						}}
 					>
@@ -1436,7 +1436,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 						style={{
 							background: '#f59e0b', // Orange background
 							color: 'white', // White text
-							border: '1px solid V9_COLORS.PRIMARY.YELLOW',
+							border: '1px solid COLORS.PRIMARY.YELLOW',
 							fontWeight: '600',
 						}}
 					>
@@ -1463,8 +1463,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				{formData.clientId && (
 					<div
 						style={{
-							background: 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%)',
-							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							background: 'linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%)',
+							border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.75rem',
 							padding: '1.125rem 1.5rem',
 							display: 'flex',
@@ -1526,7 +1526,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							style={{
 								background: '#3b82f6',
 								color: '#ffffff',
-								border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
+								border: '1px solid COLORS.PRIMARY.BLUE_DARK',
 								padding: '0.625rem 1rem',
 								fontSize: '0.8125rem',
 							}}
@@ -1540,7 +1540,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				{diffs && !diffs.hasDiffs && (
 					<div
 						style={{
-							background: 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)',
+							background: 'linear-gradient(135deg, #f0fdf4 0%, COLORS.BG.SUCCESS 100%)',
 							border: '1px solid #86efac',
 							borderRadius: '0.75rem',
 							padding: '2rem',
@@ -1581,7 +1581,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								justifyContent: 'space-between',
 								alignItems: 'center',
 								paddingBottom: '0.75rem',
-								borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								borderBottom: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 								marginBottom: '0.75rem',
 							}}
 						>
@@ -1604,7 +1604,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 										fontSize: '0.8125rem',
 										background: '#3b82f6',
 										color: '#ffffff',
-										border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
+										border: '1px solid COLORS.PRIMARY.BLUE_DARK',
 									}}
 								>
 									Select All
@@ -1617,7 +1617,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 										fontSize: '0.8125rem',
 										background: '#3b82f6',
 										color: '#ffffff',
-										border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
+										border: '1px solid COLORS.PRIMARY.BLUE_DARK',
 									}}
 								>
 									Deselect All
@@ -1736,7 +1736,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 															alignItems: 'flex-start',
 															gap: '0.5rem',
 															paddingTop: '0.75rem',
-															borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+															borderTop: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 														}}
 													>
 														<FiMonitor
@@ -1787,7 +1787,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								padding: '0.875rem 1rem',
 								background: '#f8fafc',
 								borderRadius: '0.5rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<h4
@@ -1808,7 +1808,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									fontSize: '0.8125rem',
 									background: '#3b82f6',
 									color: '#ffffff',
-									border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
+									border: '1px solid COLORS.PRIMARY.BLUE_DARK',
 								}}
 							>
 								{isJsonCollapsed ? 'Show JSON' : 'Hide JSON'}
@@ -1830,7 +1830,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							padding: '0.75rem',
 							backgroundColor: '#f8fafc',
 							borderRadius: '0.5rem',
-							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 						}}
 					>
 						<h4
@@ -1858,7 +1858,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								style={{
 									background: '#3b82f6',
 									color: 'white',
-									border: '1px solid V9_COLORS.PRIMARY.BLUE',
+									border: '1px solid COLORS.PRIMARY.BLUE',
 									fontWeight: '600',
 								}}
 							>
@@ -1871,7 +1871,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									style={{
 										background: '#10b981',
 										color: 'white',
-										border: '1px solid V9_COLORS.PRIMARY.GREEN',
+										border: '1px solid COLORS.PRIMARY.GREEN',
 										fontWeight: '600',
 									}}
 								>
@@ -1885,7 +1885,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									style={{
 										background: '#10b981',
 										color: 'white',
-										border: '1px solid V9_COLORS.PRIMARY.GREEN',
+										border: '1px solid COLORS.PRIMARY.GREEN',
 										fontWeight: '600',
 									}}
 								>
@@ -1904,7 +1904,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								padding: '0.75rem',
 								backgroundColor: '#fef3c7',
 								borderRadius: '0.5rem',
-								border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
+								border: '1px solid COLORS.PRIMARY.YELLOW_LIGHT',
 							}}
 						>
 							<h4
@@ -1925,7 +1925,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									background: '#fef3c7',
 									borderRadius: '0.5rem',
 									marginBottom: '1rem',
-									border: '1px solid V9_COLORS.PRIMARY.YELLOW',
+									border: '1px solid COLORS.PRIMARY.YELLOW',
 								}}
 							>
 								<p
@@ -1967,7 +1967,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 										color: 'white',
 										border:
 											selectedDiffs.size === 0
-												? '1px solid V9_COLORS.TEXT.GRAY_LIGHT'
+												? '1px solid COLORS.TEXT.GRAY_LIGHT'
 												: '1px solid #8b5cf6',
 										fontWeight: '600',
 									}}
@@ -1984,8 +1984,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 										color: 'white',
 										border:
 											selectedDiffs.size === 0
-												? '1px solid V9_COLORS.TEXT.GRAY_LIGHT'
-												: '1px solid V9_COLORS.PRIMARY.YELLOW',
+												? '1px solid COLORS.TEXT.GRAY_LIGHT'
+												: '1px solid COLORS.PRIMARY.YELLOW',
 										fontWeight: '600',
 									}}
 								>
@@ -2017,7 +2017,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 						style={{
 							background: '#3b82f6',
 							color: '#ffffff',
-							border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
+							border: '1px solid COLORS.PRIMARY.BLUE_DARK',
 							fontWeight: '600',
 						}}
 					>
@@ -2063,7 +2063,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							style={{
 								width: '100%',
 								padding: '0.75rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '0.5rem',
 								fontSize: '0.875rem',
 								outline: 'none',
@@ -2097,7 +2097,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							style={{
 								width: '100%',
 								padding: '0.75rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '0.5rem',
 								fontSize: '0.875rem',
 								outline: 'none',
@@ -2133,7 +2133,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								style={{
 									width: '100%',
 									padding: '0.75rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									fontSize: '0.875rem',
 									outline: 'none',
@@ -2170,7 +2170,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								style={{
 									width: '100%',
 									padding: '0.75rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									fontSize: '0.875rem',
 									outline: 'none',
@@ -2199,7 +2199,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								background: '#f8fafc',
 								padding: '0.75rem',
 								borderRadius: '0.5rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 								fontSize: '0.875rem',
 								color: '#1f2937',
 							}}
@@ -2217,7 +2217,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					<div
 						style={{
 							background: '#f8fafc',
-							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.75rem',
 							padding: '1.5rem',
 							marginTop: '1rem',
@@ -2271,7 +2271,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								style={{
 									width: '100%',
 									padding: '0.75rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									fontSize: '0.875rem',
 									outline: 'none',
@@ -2333,7 +2333,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									padding: '0.75rem',
 									background: '#f8fafc',
 									borderRadius: '0.5rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 									fontSize: '0.75rem',
 									color: '#6b7280',
 								}}
@@ -2402,8 +2402,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 												borderRadius: '0.5rem',
 												background: isAllowed ? 'white' : '#f3f4f6',
 												border: isAllowed
-													? '1px solid V9_COLORS.TEXT.GRAY_LIGHTER'
-													: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+													? '1px solid COLORS.TEXT.GRAY_LIGHTER'
+													: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 												cursor: isAllowed ? 'pointer' : 'not-allowed',
 												opacity: isAllowed ? 1 : 0.5,
 											}}
@@ -2472,7 +2472,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							background: '#f8fafc',
 							padding: '1rem',
 							borderRadius: '0.5rem',
-							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							fontSize: '0.875rem',
 							color: '#6b7280',
 						}}
@@ -2497,7 +2497,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							style={{
 								background: '#10b981',
 								color: 'white',
-								border: '1px solid V9_COLORS.PRIMARY.GREEN',
+								border: '1px solid COLORS.PRIMARY.GREEN',
 								fontWeight: '600',
 							}}
 						>
@@ -2576,7 +2576,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							<div
 								style={{
 									background: '#fef2f2',
-									border: '1px solid V9_COLORS.BG.ERROR_BORDER',
+									border: '1px solid COLORS.BG.ERROR_BORDER',
 									borderRadius: '0.5rem',
 									padding: '1rem',
 									color: '#dc2626',
@@ -2591,7 +2591,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							<div
 								style={{
 									background: '#f8fafc',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									padding: '1rem',
 									color: '#1f2937',
@@ -2614,7 +2614,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								gap: '0.75rem',
 								justifyContent: 'flex-end',
 								padding: '1.5rem',
-								borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								borderTop: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<button
@@ -2623,7 +2623,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								style={{
 									padding: '0.75rem 1.5rem',
 									borderRadius: '0.5rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 									background: '#ffffff',
 									color: '#1f2937',
 									cursor: 'pointer',
@@ -2727,7 +2727,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							<div
 								style={{
 									background: '#f8fafc',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									padding: '1rem',
 								}}
@@ -2795,7 +2795,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							<div
 								style={{
 									background: '#fef3c7',
-									border: '1px solid V9_COLORS.BG.WARNING_BORDER',
+									border: '1px solid COLORS.BG.WARNING_BORDER',
 									borderRadius: '0.5rem',
 									padding: '1rem',
 									color: '#d97706',
@@ -2818,7 +2818,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								gap: '0.75rem',
 								justifyContent: 'flex-end',
 								padding: '1.5rem',
-								borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								borderTop: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<button
@@ -2827,7 +2827,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								style={{
 									padding: '0.75rem 1.5rem',
 									borderRadius: '0.5rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 									background: '#ffffff',
 									color: '#1f2937',
 									cursor: 'pointer',

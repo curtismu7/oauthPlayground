@@ -26,8 +26,8 @@ interface ColoredTokenDisplayProps {
 }
 
 const TokenContainer = styled.div`
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -41,7 +41,7 @@ const TokenContainer = styled.div`
 const TokenLabel = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.75rem;
 	display: flex;
 	align-items: center;
@@ -50,7 +50,7 @@ const TokenLabel = styled.div`
 
 const TokenContent = styled.div`
 	background: #f0fdf4; /* Light green for generated content */
-	border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
+	border: 1px solid COLORS.PRIMARY.GREEN_DARK;
 	border-radius: 8px;
 	padding: 1rem 5rem 1rem 1rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -140,7 +140,7 @@ const InfoModalTitle = styled.h3`
 	margin: 0;
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const CloseButton = styled.button`
@@ -148,11 +148,11 @@ const CloseButton = styled.button`
 	border: none;
 	font-size: 1.5rem;
 	cursor: pointer;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	padding: 0.25rem;
 
 	&:hover {
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
@@ -164,34 +164,34 @@ const TokenList = styled.div`
 
 const TokenItem = styled.div`
 	padding: 1rem;
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	background: COLORS.BG.GRAY_LIGHT;
 	border-radius: 8px;
-	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
+	border-left: 4px solid COLORS.PRIMARY.BLUE;
 `;
 
 const TokenName = styled.div`
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 `;
 
 const TokenDescription = styled.div`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 	line-height: 1.5;
 	margin-bottom: 0.5rem;
 `;
 
 const TokenValue = styled.div`
-	color: V9_COLORS.PRIMARY.GREEN_DARK;
+	color: COLORS.PRIMARY.GREEN_DARK;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.75rem;
 	word-break: break-all;
 	background: #f0fdf4;
 	padding: 0.5rem;
 	border-radius: 4px;
-	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
+	border: 1px solid COLORS.BG.SUCCESS_BORDER;
 `;
 
 const TokenType = styled.div<{ $type: string }>`

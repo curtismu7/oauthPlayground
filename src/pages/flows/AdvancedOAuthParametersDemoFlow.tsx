@@ -39,8 +39,8 @@ const Container = styled.div`
 `;
 
 const DemoNotice = styled.div`
-	background: linear-gradient(135deg, #dbeafe 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
-	border: 3px solid V9_COLORS.PRIMARY.BLUE;
+	background: linear-gradient(135deg, #dbeafe 0%, COLORS.TEXT.GRAY_LIGHTER 100%);
+	border: 3px solid COLORS.PRIMARY.BLUE;
 	border-radius: 1rem;
 	padding: 2rem;
 	margin-bottom: 2rem;
@@ -57,11 +57,11 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' }>`
 	background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'success':
-				return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, #a7f3d0 100%)';
+				return 'linear-gradient(135deg, COLORS.BG.SUCCESS 0%, #a7f3d0 100%)';
 			case 'warning':
-				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)';
+				return 'linear-gradient(135deg, COLORS.BG.WARNING 0%, COLORS.BG.WARNING_BORDER 100%)';
 			default:
-				return 'linear-gradient(135deg, #dbeafe 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)';
+				return 'linear-gradient(135deg, #dbeafe 0%, COLORS.TEXT.GRAY_LIGHTER 100%)';
 		}
 	}};
 	border-left: 4px solid ${({ $variant }) => {
@@ -78,7 +78,7 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' }>`
 
 const UrlDisplay = styled.div`
 	background: #1e293b;
-	color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	color: COLORS.TEXT.GRAY_LIGHTER;
 	padding: 1.5rem;
 	border-radius: 0.75rem;
 	font-family: 'Monaco', 'Menlo', monospace;
@@ -94,7 +94,7 @@ const CopyButton = styled.button`
 	top: 1rem;
 	right: 1rem;
 	padding: 0.5rem 1rem;
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: COLORS.PRIMARY.BLUE;
 	color: white;
 	border: none;
 	border-radius: 0.5rem;
@@ -105,7 +105,7 @@ const CopyButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: V9_COLORS.PRIMARY.BLUE_DARK;
+		background: COLORS.PRIMARY.BLUE_DARK;
 		transform: translateY(-2px);
 	}
 `;
@@ -119,7 +119,7 @@ const MockButton = styled.button`
 	font-size: 1rem;
 	font-weight: 600;
 	color: white;
-	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+	background: linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_DARK 100%);
 	border: none;
 	border-radius: 0.75rem;
 	cursor: pointer;
@@ -335,7 +335,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 							width: '100%',
 							padding: '0.75rem',
 							borderRadius: '0.5rem',
-							border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 							fontSize: '1rem',
 						}}
 					/>
@@ -356,7 +356,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 							width: '100%',
 							padding: '0.75rem',
 							borderRadius: '0.5rem',
-							border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 							fontSize: '1rem',
 						}}
 					/>
@@ -377,7 +377,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 							width: '100%',
 							padding: '0.75rem',
 							borderRadius: '0.5rem',
-							border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 							fontSize: '1rem',
 						}}
 					/>
@@ -397,7 +397,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 							width: '100%',
 							padding: '0.75rem',
 							borderRadius: '0.5rem',
-							border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 							fontSize: '1rem',
 						}}
 					/>
@@ -417,7 +417,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 							width: '100%',
 							padding: '0.75rem',
 							borderRadius: '0.5rem',
-							border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 							fontSize: '1rem',
 							fontFamily: 'Monaco, monospace',
 						}}

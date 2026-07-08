@@ -64,18 +64,18 @@ const StatusTitle = styled.h2`
 	font-size: 1.5rem;
 	font-weight: 600;
 	margin-bottom: 0.5rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatusMessage = styled.p`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	margin-bottom: 1rem;
 `;
 
 const ErrorDetails = styled.pre`
 	background: #f3f4f6;
-	color: V9_COLORS.TEXT.GRAY_DARK;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	color: COLORS.TEXT.GRAY_DARK;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	padding: 1rem;
 	font-size: 0.875rem;

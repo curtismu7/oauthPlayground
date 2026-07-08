@@ -30,19 +30,19 @@ export const FormLabel = styled.label`
 	display: block;
 	margin-bottom: 0.5rem;
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 export const FormInput = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -50,14 +50,14 @@ export const FormInput = styled.input`
 export const FormSelect = styled.select`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	background-color: white;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -77,26 +77,26 @@ export const InfoBox = styled.div<{
 			case 'success':
 				return `
           background: #f0fdf4;
-          border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
-          color: V9_COLORS.PRIMARY.GREEN;
+          border: 1px solid COLORS.BG.SUCCESS_BORDER;
+          color: COLORS.PRIMARY.GREEN;
         `;
 			case 'error':
 				return `
-          background: V9_COLORS.BG.ERROR;
-          border: 1px solid V9_COLORS.BG.ERROR_BORDER;
-          color: V9_COLORS.PRIMARY.RED_DARK;
+          background: COLORS.BG.ERROR;
+          border: 1px solid COLORS.BG.ERROR_BORDER;
+          color: COLORS.PRIMARY.RED_DARK;
         `;
 			case 'warning':
 				return `
-          background: V9_COLORS.BG.WARNING;
+          background: COLORS.BG.WARNING;
           border: 1px solid #fed7aa;
-          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          color: COLORS.PRIMARY.YELLOW_DARK;
         `;
 			case 'info':
 				return `
-          background: V9_COLORS.BG.GRAY_LIGHT;
-          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-          color: V9_COLORS.PRIMARY.BLUE_DARK;
+          background: COLORS.BG.GRAY_LIGHT;
+          border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
+          color: COLORS.PRIMARY.BLUE_DARK;
         `;
 		}
 	}}
@@ -107,7 +107,7 @@ const CopyButton = styled.button`
 	align-items: center;
 	gap: 0.25rem;
 	padding: 0.25rem 0.5rem;
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: COLORS.PRIMARY.BLUE;
 	color: white;
 	border: none;
 	border-radius: 4px;
@@ -116,7 +116,7 @@ const CopyButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: V9_COLORS.PRIMARY.BLUE_DARK;
+		background: COLORS.PRIMARY.BLUE_DARK;
 		transform: translateY(-1px);
 	}
 
@@ -130,7 +130,7 @@ export const ActionButton = styled.button`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.75rem 1rem;
-	background: V9_COLORS.PRIMARY.GREEN;
+	background: COLORS.PRIMARY.GREEN;
 	color: white;
 	border: none;
 	border-radius: 6px;
@@ -140,7 +140,7 @@ export const ActionButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover:not(:disabled) {
-		background: V9_COLORS.PRIMARY.GREEN_DARK;
+		background: COLORS.PRIMARY.GREEN_DARK;
 		transform: translateY(-1px);
 	}
 
@@ -152,7 +152,7 @@ export const ActionButton = styled.button`
 
 const TokenDisplay = styled.div`
 	background: #f0fdf4;
-	border: 2px solid V9_COLORS.PRIMARY.GREEN_DARK;
+	border: 2px solid COLORS.PRIMARY.GREEN_DARK;
 	border-radius: 6px;
 	padding: 0.75rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -166,7 +166,7 @@ const TokenDisplay = styled.div`
 
 	&:hover {
 		border-color: #15803d;
-		background: V9_COLORS.BG.SUCCESS;
+		background: COLORS.BG.SUCCESS;
 		box-shadow: 0 2px 6px rgba(22, 163, 74, 0.15);
 	}
 `;
@@ -542,7 +542,7 @@ export const createPKCEStep = (
 							padding: '1rem',
 							backgroundColor: '#fef3c7',
 							borderRadius: '0.5rem',
-							border: '1px solid V9_COLORS.PRIMARY.YELLOW',
+							border: '1px solid COLORS.PRIMARY.YELLOW',
 						}}
 					>
 						<strong> Security Benefits:</strong>
@@ -707,7 +707,7 @@ export const createAuthUrlStep = (
 								padding: '1rem',
 								backgroundColor: '#f8fafc',
 								borderRadius: '0.5rem',
-								border: '1px solid V9_COLORS.PRIMARY.BLUE',
+								border: '1px solid COLORS.PRIMARY.BLUE',
 							}}
 						>
 							<strong> URL Components:</strong>
@@ -919,7 +919,7 @@ export const createTokenExchangeStep = (
 								style={{
 									marginTop: '1rem',
 									padding: '0.75rem',
-									background: 'V9_COLORS.TEXT.WHITE3cd',
+									background: 'COLORS.TEXT.WHITE3cd',
 									borderRadius: '4px',
 									fontSize: '0.875rem',
 								}}

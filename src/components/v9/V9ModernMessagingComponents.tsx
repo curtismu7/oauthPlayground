@@ -45,7 +45,7 @@ import {
 } from '../../platform/V9ModernMessagingService';
 
 // V9 Color Standards — Wait screens use blue only (hard rule: no purple).
-const V9_COLORS = {
+const COLORS = {
 	PRIMARY_BLUE: '#2563eb',
 	DARK_BLUE: '#2563eb',
 	WAIT_SCREEN_BLUE: '#3b82f6',
@@ -84,7 +84,7 @@ const WaitScreenOverlay = styled.div`
 `;
 
 const WaitScreenContent = styled.div`
-	background: ${V9_COLORS.WHITE};
+	background: ${COLORS.WHITE};
 	padding: 2rem;
 	border-radius: 1rem;
 	box-shadow:
@@ -100,22 +100,22 @@ const WaitScreenIcon = styled.div`
 
 const WaitScreenTitle = styled.h3`
 	margin: 0 0 0.5rem 0;
-	color: ${V9_COLORS.BLACK};
+	color: ${COLORS.BLACK};
 	font-size: 1.25rem;
 	font-weight: 600;
 `;
 
 const WaitScreenMessage = styled.p`
 	margin: 0 0 1rem 0;
-	color: ${V9_COLORS.GRAY};
+	color: ${COLORS.GRAY};
 	font-size: 0.875rem;
 	line-height: 1.5;
 `;
 
 const WaitScreenCancelButton = styled.button`
-	background: ${V9_COLORS.LIGHT_GRAY_BG};
-	color: ${V9_COLORS.GRAY};
-	border: 1px solid ${V9_COLORS.LIGHT_GRAY_BORDER};
+	background: ${COLORS.LIGHT_GRAY_BG};
+	color: ${COLORS.GRAY};
+	border: 1px solid ${COLORS.LIGHT_GRAY_BORDER};
 	padding: 0.5rem 1rem;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
@@ -123,8 +123,8 @@ const WaitScreenCancelButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: ${V9_COLORS.GRAY};
-		color: ${V9_COLORS.WHITE};
+		background: ${COLORS.GRAY};
+		color: ${COLORS.WHITE};
 	}
 `;
 
@@ -139,27 +139,27 @@ const BannerContainer = styled.div<{ $type: BannerConfig['type'] }>`
 		switch (props.$type) {
 			case 'error':
 				return `
-					background: ${V9_COLORS.LIGHT_RED_BG};
-					border-color: ${V9_COLORS.LIGHT_RED_BORDER};
-					color: ${V9_COLORS.RED};
+					background: ${COLORS.LIGHT_RED_BG};
+					border-color: ${COLORS.LIGHT_RED_BORDER};
+					color: ${COLORS.RED};
 				`;
 			case 'warning':
 				return `
-					background: ${V9_COLORS.LIGHT_ORANGE_BG};
-					border-color: ${V9_COLORS.LIGHT_ORANGE_BORDER};
-					color: ${V9_COLORS.ORANGE};
+					background: ${COLORS.LIGHT_ORANGE_BG};
+					border-color: ${COLORS.LIGHT_ORANGE_BORDER};
+					color: ${COLORS.ORANGE};
 				`;
 			case 'success':
 				return `
-					background: ${V9_COLORS.LIGHT_GREEN_BG};
-					border-color: ${V9_COLORS.LIGHT_GREEN_BORDER};
-					color: ${V9_COLORS.GREEN};
+					background: ${COLORS.LIGHT_GREEN_BG};
+					border-color: ${COLORS.LIGHT_GREEN_BORDER};
+					color: ${COLORS.GREEN};
 				`;
 			default:
 				return `
-					background: ${V9_COLORS.LIGHT_BLUE_BG};
-					border-color: ${V9_COLORS.LIGHT_BLUE_BORDER};
-					color: ${V9_COLORS.BLUE};
+					background: ${COLORS.LIGHT_BLUE_BG};
+					border-color: ${COLORS.LIGHT_BLUE_BORDER};
+					color: ${COLORS.BLUE};
 				`;
 		}
 	}}
@@ -204,11 +204,11 @@ const BannerButton = styled.button<{ $variant?: 'primary' | 'secondary' | undefi
 	${(props) => {
 		if (props.$variant === 'primary') {
 			return `
-				background: ${V9_COLORS.PRIMARY_BLUE};
-				color: ${V9_COLORS.WHITE};
-				border-color: ${V9_COLORS.PRIMARY_BLUE};
+				background: ${COLORS.PRIMARY_BLUE};
+				color: ${COLORS.WHITE};
+				border-color: ${COLORS.PRIMARY_BLUE};
 				&:hover {
-					background: ${V9_COLORS.DARK_BLUE};
+					background: ${COLORS.DARK_BLUE};
 				}
 			`;
 		} else {
@@ -225,8 +225,8 @@ const BannerButton = styled.button<{ $variant?: 'primary' | 'secondary' | undefi
 
 // Critical Error Component
 const CriticalErrorContainer = styled.div`
-	background: ${V9_COLORS.LIGHT_RED_BG};
-	border: 2px solid ${V9_COLORS.RED};
+	background: ${COLORS.LIGHT_RED_BG};
+	border: 2px solid ${COLORS.RED};
 	border-radius: 1rem;
 	padding: 2rem;
 	margin: 1rem 0;
@@ -241,14 +241,14 @@ const CriticalErrorHeader = styled.div`
 
 const CriticalErrorTitle = styled.h2`
 	margin: 0;
-	color: ${V9_COLORS.RED};
+	color: ${COLORS.RED};
 	font-size: 1.5rem;
 	font-weight: 700;
 `;
 
 const CriticalErrorMessage = styled.p`
 	margin: 0 0 1.5rem 0;
-	color: ${V9_COLORS.BLACK};
+	color: ${COLORS.BLACK};
 	font-size: 1rem;
 	line-height: 1.6;
 `;
@@ -259,21 +259,21 @@ const CriticalErrorDetails = styled.details`
 	summary {
 		cursor: pointer;
 		font-weight: 500;
-		color: ${V9_COLORS.GRAY};
+		color: ${COLORS.GRAY};
 		margin-bottom: 0.5rem;
 
 		&:hover {
-			color: ${V9_COLORS.BLACK};
+			color: ${COLORS.BLACK};
 		}
 	}
 
 	pre {
-		background: ${V9_COLORS.LIGHT_GRAY_BG};
+		background: ${COLORS.LIGHT_GRAY_BG};
 		padding: 1rem;
 		border-radius: 0.5rem;
 		font-size: 0.75rem;
 		overflow-x: auto;
-		color: ${V9_COLORS.BLACK};
+		color: ${COLORS.BLACK};
 	}
 `;
 
@@ -288,9 +288,9 @@ const CriticalErrorAction = styled.div`
 	align-items: flex-start;
 	gap: 0.75rem;
 	padding: 0.75rem;
-	background: ${V9_COLORS.WHITE};
+	background: ${COLORS.WHITE};
 	border-radius: 0.5rem;
-	border: 1px solid ${V9_COLORS.LIGHT_GRAY_BORDER};
+	border: 1px solid ${COLORS.LIGHT_GRAY_BORDER};
 `;
 
 const CriticalErrorActionContent = styled.div`
@@ -304,12 +304,12 @@ const CriticalErrorActionTitle = styled.div`
 
 const CriticalErrorActionDescription = styled.div`
 	font-size: 0.875rem;
-	color: ${V9_COLORS.GRAY};
+	color: ${COLORS.GRAY};
 `;
 
 const CriticalErrorActionButton = styled.button`
-	background: ${V9_COLORS.PRIMARY_BLUE};
-	color: ${V9_COLORS.WHITE};
+	background: ${COLORS.PRIMARY_BLUE};
+	color: ${COLORS.WHITE};
 	border: none;
 	padding: 0.5rem 1rem;
 	border-radius: 0.5rem;
@@ -320,18 +320,18 @@ const CriticalErrorActionButton = styled.button`
 	white-space: nowrap;
 
 	&:hover {
-		background: ${V9_COLORS.DARK_BLUE};
+		background: ${COLORS.DARK_BLUE};
 	}
 `;
 
 const SupportSection = styled.div`
 	margin-top: 1.5rem;
 	padding-top: 1.5rem;
-	border-top: 1px solid ${V9_COLORS.LIGHT_RED_BORDER};
+	border-top: 1px solid ${COLORS.LIGHT_RED_BORDER};
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	color: ${V9_COLORS.GRAY};
+	color: ${COLORS.GRAY};
 	font-size: 0.875rem;
 `;
 
@@ -370,18 +370,18 @@ const FooterMessageContainer = styled.div<{ $type: FooterMessageConfig['type'] }
 		switch (props.$type) {
 			case 'progress':
 				return `
-					background: ${V9_COLORS.LIGHT_BLUE_BG};
-					color: ${V9_COLORS.BLUE};
+					background: ${COLORS.LIGHT_BLUE_BG};
+					color: ${COLORS.BLUE};
 				`;
 			case 'status':
 				return `
-					background: ${V9_COLORS.LIGHT_GRAY_BG};
-					color: ${V9_COLORS.GRAY};
+					background: ${COLORS.LIGHT_GRAY_BG};
+					color: ${COLORS.GRAY};
 				`;
 			default:
 				return `
-					background: ${V9_COLORS.LIGHT_BLUE_BG};
-					color: ${V9_COLORS.BLUE};
+					background: ${COLORS.LIGHT_BLUE_BG};
+					color: ${COLORS.BLUE};
 				`;
 		}
 	}}
@@ -397,7 +397,7 @@ export const WaitScreen: React.FC<{ config: WaitScreenConfig }> = ({ config }) =
 						icon="FiLoader"
 						size={48}
 						className="animate-spin"
-						style={{ color: V9_COLORS.WAIT_SCREEN_BLUE }}
+						style={{ color: COLORS.WAIT_SCREEN_BLUE }}
 					/>
 				</WaitScreenIcon>
 				<WaitScreenTitle>{config.message}</WaitScreenTitle>
@@ -455,7 +455,7 @@ export const CriticalError: React.FC<{ config: CriticalErrorConfig }> = ({ confi
 	return (
 		<CriticalErrorContainer>
 			<CriticalErrorHeader>
-				<MDIIcon icon="FiAlertCircle" size={32} style={{ color: V9_COLORS.RED }} />
+				<MDIIcon icon="FiAlertCircle" size={32} style={{ color: COLORS.RED }} />
 				<CriticalErrorTitle>{config.title}</CriticalErrorTitle>
 			</CriticalErrorHeader>
 			<CriticalErrorMessage>{config.message}</CriticalErrorMessage>

@@ -72,7 +72,7 @@ const ErrorContainer = styled.div`
 
 const ErrorCard = styled.div`
 	background: white;
-	border: 2px solid V9_COLORS.BG.ERROR;
+	border: 2px solid COLORS.BG.ERROR;
 	border-radius: 1rem;
 	padding: 2.5rem;
 	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -92,9 +92,9 @@ const ErrorIconWrapper = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: V9_COLORS.BG.ERROR;
+	background: COLORS.BG.ERROR;
 	border-radius: 50%;
-	color: V9_COLORS.PRIMARY.RED_DARK;
+	color: COLORS.PRIMARY.RED_DARK;
 	font-size: 2rem;
 `;
 
@@ -105,20 +105,20 @@ const ErrorContent = styled.div`
 const ErrorTitle = styled.h1`
 	font-size: 1.75rem;
 	font-weight: 700;
-	color: V9_COLORS.PRIMARY.RED_DARK;
+	color: COLORS.PRIMARY.RED_DARK;
 	margin: 0 0 0.5rem 0;
 `;
 
 const ErrorMessage = styled.p`
 	font-size: 1.125rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0;
 	line-height: 1.6;
 `;
 
 const ErrorMetadata = styled.div`
 	background: #f9fafb;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1.5rem 0;
@@ -137,13 +137,13 @@ const MetadataRow = styled.div`
 `;
 
 const MetadataLabel = styled.span`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-weight: 600;
 	min-width: 140px;
 `;
 
 const MetadataValue = styled.span`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	word-break: break-all;
 `;
 
@@ -170,13 +170,13 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'ghost
 		switch ($variant) {
 			case 'primary':
 				return `
-					background: V9_COLORS.PRIMARY.BLUE;
+					background: COLORS.PRIMARY.BLUE;
 					color: white;
-					border-color: V9_COLORS.PRIMARY.BLUE;
+					border-color: COLORS.PRIMARY.BLUE;
 					
 					&:hover {
-						background: V9_COLORS.PRIMARY.BLUE_DARK;
-						border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+						background: COLORS.PRIMARY.BLUE_DARK;
+						border-color: COLORS.PRIMARY.BLUE_DARK;
 						transform: translateY(-2px);
 						box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 					}
@@ -184,24 +184,24 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'ghost
 			case 'secondary':
 				return `
 					background: white;
-					color: V9_COLORS.PRIMARY.BLUE;
-					border-color: V9_COLORS.PRIMARY.BLUE;
+					color: COLORS.PRIMARY.BLUE;
+					border-color: COLORS.PRIMARY.BLUE;
 					
 					&:hover {
-						background: V9_COLORS.BG.GRAY_LIGHT;
+						background: COLORS.BG.GRAY_LIGHT;
 						transform: translateY(-2px);
 					}
 				`;
 			default:
 				return `
 					background: transparent;
-					color: V9_COLORS.TEXT.GRAY_MEDIUM;
-					border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
+					color: COLORS.TEXT.GRAY_MEDIUM;
+					border-color: COLORS.TEXT.GRAY_LIGHTER;
 					
 					&:hover {
 						background: #f9fafb;
-						color: V9_COLORS.TEXT.GRAY_DARK;
-						border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+						color: COLORS.TEXT.GRAY_DARK;
+						border-color: COLORS.TEXT.GRAY_LIGHT;
 					}
 				`;
 		}

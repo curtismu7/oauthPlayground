@@ -11,7 +11,7 @@ const PageContainer = styled.div`
 `;
 
 const PageHeader = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE 100%);
+	background: linear-gradient(135deg, COLORS.PRIMARY.BLUE_DARK 0%, COLORS.PRIMARY.BLUE 100%);
 	color: white;
 	padding: 3rem;
 	border-radius: 1rem;
@@ -42,8 +42,8 @@ const PageDescription = styled.p`
 `;
 
 const ReferenceCard = styled.div`
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin: 2rem 0;
@@ -53,7 +53,7 @@ const ReferenceCard = styled.div`
 `;
 
 const ReferenceIcon = styled.div`
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: COLORS.PRIMARY.BLUE;
 	font-size: 1.5rem;
 	margin-top: 0.25rem;
 `;
@@ -70,12 +70,12 @@ const ReferenceTitle = styled.h3`
 
 const ReferenceText = styled.p`
 	margin: 0 0 1rem 0;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.6;
 `;
 
 const ReferenceLink = styled.a`
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: COLORS.PRIMARY.BLUE;
 	text-decoration: none;
 	font-weight: 500;
 	display: inline-flex;
@@ -89,7 +89,7 @@ const ReferenceLink = styled.a`
 
 const Section = styled.div`
 	background: white;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 1rem;
 	padding: 2.5rem;
 	margin-bottom: 2rem;
@@ -100,14 +100,14 @@ const SectionTitle = styled.h2`
 	font-size: 2rem;
 	font-weight: 700;
 	margin: 0 0 1.5rem 0;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
 `;
 
 const SectionIcon = styled.div`
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: COLORS.PRIMARY.BLUE;
 	font-size: 1.5rem;
 `;
 
@@ -119,14 +119,14 @@ const SubsectionTitle = styled.h3`
 	font-size: 1.5rem;
 	font-weight: 600;
 	margin: 0 0 1rem 0;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 `;
 
 const SubsectionIcon = styled.div`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 1.25rem;
 `;
 
@@ -187,21 +187,21 @@ const PracticeContent = styled.div`
 
 const PracticeTitle = styled.h4`
 	margin: 0 0 0.5rem 0;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 1.125rem;
 	font-weight: 600;
 `;
 
 const PracticeDescription = styled.p`
 	margin: 0 0 1rem 0;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	line-height: 1.6;
 `;
 
 const PracticeList = styled.ul`
 	margin: 0;
 	padding-left: 1.5rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const PracticeListItem = styled.li`
@@ -210,7 +210,7 @@ const PracticeListItem = styled.li`
 `;
 
 const CodeBlock = styled.pre`
-	background: V9_COLORS.TEXT.GRAY_DARK;
+	background: COLORS.TEXT.GRAY_DARK;
 	color: #f9fafb;
 	padding: 1.5rem;
 	border-radius: 0.5rem;
@@ -222,24 +222,24 @@ const CodeBlock = styled.pre`
 `;
 
 const CodeComment = styled.span`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const CodeString = styled.span`
-	color: V9_COLORS.PRIMARY.GREEN;
+	color: COLORS.PRIMARY.GREEN;
 `;
 
 const CodeKeyword = styled.span`
-	color: V9_COLORS.PRIMARY.YELLOW;
+	color: COLORS.PRIMARY.YELLOW;
 `;
 
 const CodeNumber = styled.span`
-	color: V9_COLORS.PRIMARY.GREEN;
+	color: COLORS.PRIMARY.GREEN;
 `;
 
 const WarningBox = styled.div`
-	background: V9_COLORS.BG.ERROR;
-	border: 2px solid V9_COLORS.BG.ERROR_BORDER;
+	background: COLORS.BG.ERROR;
+	border: 2px solid COLORS.BG.ERROR_BORDER;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin: 1.5rem 0;
@@ -249,7 +249,7 @@ const WarningBox = styled.div`
 `;
 
 const WarningIcon = styled.div`
-	color: V9_COLORS.PRIMARY.RED_DARK;
+	color: COLORS.PRIMARY.RED_DARK;
 	font-size: 1.5rem;
 	margin-top: 0.25rem;
 `;
@@ -260,20 +260,20 @@ const WarningContent = styled.div`
 
 const WarningTitle = styled.h4`
 	margin: 0 0 0.5rem 0;
-	color: V9_COLORS.PRIMARY.RED_DARK;
+	color: COLORS.PRIMARY.RED_DARK;
 	font-size: 1.125rem;
 	font-weight: 600;
 `;
 
 const WarningText = styled.p`
 	margin: 0;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	line-height: 1.6;
 `;
 
 const InfoBox = styled.div`
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin: 1.5rem 0;
@@ -294,14 +294,14 @@ const InfoContent = styled.div`
 
 const InfoTitle = styled.h4`
 	margin: 0 0 0.5rem 0;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 1.125rem;
 	font-weight: 600;
 `;
 
 const InfoText = styled.p`
 	margin: 0;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	line-height: 1.6;
 `;
 

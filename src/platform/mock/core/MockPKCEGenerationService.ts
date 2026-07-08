@@ -1,7 +1,7 @@
-// src/services/v7m/core/V9MockPKCEGenerationService.ts
+// src/platform/mock/core/MockPKCEGenerationService.ts
 // PKCE helpers for V7M (educational). S256 is a deterministic stand-in.
 
-export const V9MockPKCEGenerationService = {
+export const MockPKCEGenerationService = {
 	generateCodeVerifier(): string {
 		return `v7m-${Math.random().toString(36).slice(2)}-${Date.now()}`;
 	},

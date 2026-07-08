@@ -4,7 +4,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import { V9_COLORS } from '@/platform/V9ColorStandards';
+import { COLORS } from '@/platform/ColorStandards';
 import DocumentationHeader from '../components/DocumentationHeader';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
@@ -18,8 +18,8 @@ const Container = styled.div`
 	min-height: 100vh;
 	background: linear-gradient(
 		135deg,
-		${V9_COLORS.BG.GRAY_LIGHT} 0%,
-		${V9_COLORS.TEXT.GRAY_LIGHTER} 100%
+		${COLORS.BG.GRAY_LIGHT} 0%,
+		${COLORS.TEXT.GRAY_LIGHTER} 100%
 	);
 `;
 
@@ -36,7 +36,7 @@ const Header = styled.div`
 	h1 {
 		font-size: 3rem;
 		font-weight: 700;
-		color: ${V9_COLORS.PRIMARY.BLUE};
+		color: ${COLORS.PRIMARY.BLUE};
 		margin-bottom: 1rem;
 		display: flex;
 		align-items: center;
@@ -46,7 +46,7 @@ const Header = styled.div`
 
 	p {
 		font-size: 1.25rem;
-		color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+		color: ${COLORS.TEXT.GRAY_MEDIUM};
 		max-width: 800px;
 		margin: 0 auto;
 		line-height: 1.6;
@@ -72,23 +72,23 @@ const MainCard = styled.div`
 const ArchitectureCard = styled.div`
 	background: linear-gradient(
 		135deg,
-		${V9_COLORS.BG.GRAY_LIGHT} 0%,
-		${V9_COLORS.TEXT.GRAY_LIGHTER} 100%
+		${COLORS.BG.GRAY_LIGHT} 0%,
+		${COLORS.TEXT.GRAY_LIGHTER} 100%
 	);
-	border: 2px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border: 2px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0.75rem;
 	padding: 2rem;
 	height: 100%;
 	transition: all 0.2s ease;
 
 	&:hover {
-		border-color: ${V9_COLORS.PRIMARY.BLUE};
+		border-color: ${COLORS.PRIMARY.BLUE};
 		transform: translateY(-2px);
 		box-shadow: 0 8px 25px rgba(37, 99, 235, 0.15);
 	}
 
 	h3 {
-		color: ${V9_COLORS.PRIMARY.BLUE};
+		color: ${COLORS.PRIMARY.BLUE};
 		font-size: 1.5rem;
 		margin-bottom: 1rem;
 		display: flex;
@@ -97,7 +97,7 @@ const ArchitectureCard = styled.div`
 	}
 
 	ul {
-		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		color: ${COLORS.TEXT.GRAY_DARK};
 		margin: 1rem 0;
 		padding-left: 1.5rem;
 
@@ -156,13 +156,13 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 `;
 
 const SpecLink = styled.a`
-	color: ${V9_COLORS.PRIMARY.BLUE};
+	color: ${COLORS.PRIMARY.BLUE};
 	text-decoration: none;
 	font-weight: 500;
 	transition: color 0.2s ease;
 
 	&:hover {
-		color: ${V9_COLORS.PRIMARY.BLUE_DARK};
+		color: ${COLORS.PRIMARY.BLUE_DARK};
 		text-decoration: underline;
 	}
 `;

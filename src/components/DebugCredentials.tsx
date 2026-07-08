@@ -12,15 +12,15 @@ const DebugContainer = styled.div`
   margin: 1rem 0;
   font-family: monospace;
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.BLACK;
+  color: COLORS.TEXT.BLACK;
   
   h3 {
-    color: V9_COLORS.TEXT.BLACK;
+    color: COLORS.TEXT.BLACK;
     margin: 0 0 1rem 0;
   }
   
   p {
-    color: V9_COLORS.TEXT.BLACK;
+    color: COLORS.TEXT.BLACK;
   }
 `;
 
@@ -29,7 +29,7 @@ const DebugSection = styled.div`
   
   h4 {
     margin: 0 0 0.5rem 0;
-    color: V9_COLORS.TEXT.BLACK;
+    color: COLORS.TEXT.BLACK;
   }
   
   pre {
@@ -39,7 +39,7 @@ const DebugSection = styled.div`
     padding: 0.5rem;
     margin: 0;
     overflow-x: auto;
-    color: V9_COLORS.TEXT.BLACK;
+    color: COLORS.TEXT.BLACK;
   }
 `;
 

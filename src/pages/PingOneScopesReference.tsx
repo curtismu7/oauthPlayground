@@ -51,17 +51,17 @@ const ContentGrid = styled.div`
 `;
 
 const ScopeCategory = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border-radius: 1rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.12);
 	overflow: hidden;
 `;
 
 const CategoryHeader = styled.div`
 	padding: 1.5rem;
-	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT, V9_COLORS.BG.GRAY_MEDIUM);
-	border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: linear-gradient(135deg, COLORS.BG.GRAY_LIGHT, COLORS.BG.GRAY_MEDIUM);
+	border-bottom: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
@@ -71,7 +71,7 @@ const CategoryTitle = styled.h2`
 	margin: 0;
 	font-size: 1.3rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -79,7 +79,7 @@ const CategoryTitle = styled.h2`
 
 const CategoryDescription = styled.p`
 	margin: 0.5rem 0 0 0;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.95rem;
 `;
 
@@ -94,7 +94,7 @@ const ScopeItem = styled.div`
 	display: flex;
 	gap: 1rem;
 	padding: 1rem;
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	background: COLORS.BG.GRAY_LIGHT;
 	border-radius: 0.75rem;
 	border-left: 4px solid ${(props) => props.color || '#3b82f6'};
 `;
@@ -122,7 +122,7 @@ const ScopeName = styled.div`
 	font-family: 'Courier New', monospace;
 	font-size: 1rem;
 	font-weight: 700;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	background: #e0e7ff;
 	padding: 0.25rem 0.75rem;
 	border-radius: 0.375rem;
@@ -132,7 +132,7 @@ const ScopeName = styled.div`
 
 const ScopeDescription = styled.p`
 	margin: 0;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.95rem;
 	line-height: 1.5;
 `;
@@ -148,7 +148,7 @@ const ClaimBadge = styled.span`
 	font-size: 0.8rem;
 	padding: 0.25rem 0.6rem;
 	background: #dbeafe;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	border-radius: 999px;
 	font-weight: 500;
 	font-family: 'Courier New', monospace;
@@ -156,8 +156,8 @@ const ClaimBadge = styled.span`
 
 const InfoBox = styled.div`
 	padding: 1.25rem;
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	display: flex;
 	gap: 0.75rem;
@@ -166,12 +166,12 @@ const InfoBox = styled.div`
 
 const InfoIcon = styled.div`
 	flex-shrink: 0;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const InfoText = styled.div`
 	flex: 1;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	font-size: 0.95rem;
 	line-height: 1.6;
 	
@@ -213,7 +213,7 @@ const PingOneScopesReference: React.FC = () => {
 					style={{
 						margin: '1rem 0 0 0',
 						background: '#f8fafc',
-						border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+						border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 					}}
 				>
 					<InfoIcon>
@@ -323,8 +323,8 @@ const PingOneScopesReference: React.FC = () => {
 							</ScopeDetails>
 						</ScopeItem>
 
-						<ScopeItem color="V9_COLORS.PRIMARY.YELLOW">
-							<ScopeIcon color="V9_COLORS.PRIMARY.YELLOW">
+						<ScopeItem color="COLORS.PRIMARY.YELLOW">
+							<ScopeIcon color="COLORS.PRIMARY.YELLOW">
 								<i className="bi bi-geo-alt" />
 							</ScopeIcon>
 							<ScopeDetails>
@@ -344,8 +344,8 @@ const PingOneScopesReference: React.FC = () => {
 							</ScopeDetails>
 						</ScopeItem>
 
-						<ScopeItem color="V9_COLORS.PRIMARY.GREEN">
-							<ScopeIcon color="V9_COLORS.PRIMARY.GREEN">
+						<ScopeItem color="COLORS.PRIMARY.GREEN">
+							<ScopeIcon color="COLORS.PRIMARY.GREEN">
 								<i className="bi bi-telephone" />
 							</ScopeIcon>
 							<ScopeDetails>
@@ -405,8 +405,8 @@ const PingOneScopesReference: React.FC = () => {
 						</strong>
 					</CategoryDescription>
 					<ScopeList>
-						<ScopeItem color="V9_COLORS.PRIMARY.BLUE">
-							<ScopeIcon color="V9_COLORS.PRIMARY.BLUE">
+						<ScopeItem color="COLORS.PRIMARY.BLUE">
+							<ScopeIcon color="COLORS.PRIMARY.BLUE">
 								<span></span>
 							</ScopeIcon>
 							<ScopeDetails>
@@ -417,8 +417,8 @@ const PingOneScopesReference: React.FC = () => {
 							</ScopeDetails>
 						</ScopeItem>
 
-						<ScopeItem color="V9_COLORS.PRIMARY.BLUE">
-							<ScopeIcon color="V9_COLORS.PRIMARY.BLUE">
+						<ScopeItem color="COLORS.PRIMARY.BLUE">
+							<ScopeIcon color="COLORS.PRIMARY.BLUE">
 								<span></span>
 							</ScopeIcon>
 							<ScopeDetails>
@@ -429,8 +429,8 @@ const PingOneScopesReference: React.FC = () => {
 							</ScopeDetails>
 						</ScopeItem>
 
-						<ScopeItem color="V9_COLORS.PRIMARY.GREEN">
-							<ScopeIcon color="V9_COLORS.PRIMARY.GREEN">
+						<ScopeItem color="COLORS.PRIMARY.GREEN">
+							<ScopeIcon color="COLORS.PRIMARY.GREEN">
 								<i className="bi bi-database" />
 							</ScopeIcon>
 							<ScopeDetails>
@@ -453,8 +453,8 @@ const PingOneScopesReference: React.FC = () => {
 							</ScopeDetails>
 						</ScopeItem>
 
-						<ScopeItem color="V9_COLORS.PRIMARY.YELLOW">
-							<ScopeIcon color="V9_COLORS.PRIMARY.YELLOW">
+						<ScopeItem color="COLORS.PRIMARY.YELLOW">
+							<ScopeIcon color="COLORS.PRIMARY.YELLOW">
 								<i className="bi bi-database" />
 							</ScopeIcon>
 							<ScopeDetails>
@@ -605,7 +605,7 @@ const PingOneScopesReference: React.FC = () => {
 									style={{
 										padding: '1rem',
 										background: '#fef2f2',
-										border: '1px solid V9_COLORS.BG.ERROR_BORDER',
+										border: '1px solid COLORS.BG.ERROR_BORDER',
 										borderRadius: '0.5rem',
 										marginBottom: '1rem',
 									}}
@@ -834,7 +834,7 @@ const PingOneScopesReference: React.FC = () => {
 							<InfoBox
 								style={{
 									margin: '1rem 0 0 0',
-									background: 'V9_COLORS.TEXT.WHITE7ed',
+									background: 'COLORS.TEXT.WHITE7ed',
 									border: '1px solid #fed7aa',
 								}}
 							>

@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import { getAppOrigin } from '../utils/flowRedirectUriMapping';
 
 const ErrorContainer = styled.div`
-  background: V9_COLORS.BG.ERROR;
-  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+  background: COLORS.BG.ERROR;
+  border: 1px solid COLORS.BG.ERROR_BORDER;
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin: 1rem 0;
@@ -20,12 +20,12 @@ const ErrorHeader = styled.div`
 `;
 
 const ErrorIcon = styled.div`
-  color: V9_COLORS.PRIMARY.RED_DARK;
+  color: COLORS.PRIMARY.RED_DARK;
   font-size: 1.5rem;
 `;
 
 const ErrorTitle = styled.h3`
-  color: V9_COLORS.PRIMARY.RED_DARK;
+  color: COLORS.PRIMARY.RED_DARK;
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
@@ -39,14 +39,14 @@ const ErrorMessage = styled.div`
 
 const SolutionsSection = styled.div`
   background: white;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1.25rem;
   margin-bottom: 1rem;
 `;
 
 const SolutionsTitle = styled.h4`
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   font-size: 1rem;
   font-weight: 600;
   margin: 0 0 1rem 0;
@@ -60,12 +60,12 @@ const SolutionItem = styled.div`
   padding: 0.75rem;
   background: #f9fafb;
   border-radius: 0.375rem;
-  border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
+  border-left: 4px solid COLORS.PRIMARY.BLUE;
 `;
 
 const SolutionTitle = styled.div`
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
@@ -73,7 +73,7 @@ const SolutionTitle = styled.div`
 `;
 
 const SolutionDescription = styled.div`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   line-height: 1.5;
   margin-bottom: 0.75rem;
@@ -84,7 +84,7 @@ const ActionButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: V9_COLORS.PRIMARY.BLUE;
+  background: COLORS.PRIMARY.BLUE;
   color: white;
   border: none;
   border-radius: 0.375rem;
@@ -94,17 +94,17 @@ const ActionButton = styled.button`
   transition: background-color 0.2s;
   
   &:hover {
-    background: V9_COLORS.PRIMARY.BLUE_DARK;
+    background: COLORS.PRIMARY.BLUE_DARK;
   }
   
   &:disabled {
-    background: V9_COLORS.TEXT.GRAY_LIGHT;
+    background: COLORS.TEXT.GRAY_LIGHT;
     cursor: not-allowed;
   }
 `;
 
 const CodeBlock = styled.div`
-  background: V9_COLORS.TEXT.GRAY_DARK;
+  background: COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   padding: 0.75rem;
   border-radius: 0.375rem;
@@ -116,8 +116,8 @@ const CodeBlock = styled.div`
 
 const CopyButton = styled.button`
   background: none;
-  border: 1px solid V9_COLORS.TEXT.GRAY_MEDIUM;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  border: 1px solid COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
@@ -125,7 +125,7 @@ const CopyButton = styled.button`
   margin-left: 0.5rem;
   
   &:hover {
-    background: V9_COLORS.TEXT.GRAY_DARK;
+    background: COLORS.TEXT.GRAY_DARK;
     color: #f9fafb;
   }
 `;

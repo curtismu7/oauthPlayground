@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { logger } from '../utils/logger';
-import { getButtonStyles } from './V9ColorStandards';
+import { getButtonStyles } from './ColorStandards';
 import { modernMessaging } from './V9ModernMessagingService';
 
 interface V9FlowRestartButtonProps {

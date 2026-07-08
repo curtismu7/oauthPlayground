@@ -202,13 +202,13 @@ const Title = styled.h2`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 1.75rem;
 `;
 
 const Intro = styled.p`
 	margin: 0;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	line-height: 1.6;
 	font-size: 1.05rem;
 `;
@@ -244,7 +244,7 @@ const ModeCard = styled.button<{ $selected: boolean }>`
 
 const ModeTitle = styled.div`
 	font-weight: 700;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 1.05rem;
 `;
 
@@ -265,10 +265,10 @@ const DetailLayout = styled.div`
 `;
 
 const TimelineCard = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
@@ -278,7 +278,7 @@ const TimelineHeader = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: COLORS.PRIMARY.BLUE;
 	font-weight: 700;
 	font-size: 1.1rem;
 `;
@@ -292,7 +292,7 @@ const TimelineList = styled.ol`
 `;
 
 const TimelineItem = styled.li`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 0.95rem;
 	line-height: 1.6;
 	list-style: none;
@@ -335,14 +335,14 @@ const SecurityNote = styled.div`
 	margin-top: 0.35rem;
 	padding: 0.5rem 0.75rem;
 	background: rgba(239, 68, 68, 0.12);
-	border-left: 4px solid V9_COLORS.PRIMARY.RED;
-	color: V9_COLORS.PRIMARY.RED_DARK;
+	border-left: 4px solid COLORS.PRIMARY.RED;
+	color: COLORS.PRIMARY.RED_DARK;
 	font-size: 0.85rem;
 	border-radius: 0.35rem;
 `;
 
 const MetaCard = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
 	border: 1px solid #dbeafe;
 	padding: 1.5rem;
@@ -355,7 +355,7 @@ const MetaRow = styled.div`
 	display: flex;
 	align-items: flex-start;
 	gap: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const MetaLabel = styled.div`
@@ -377,14 +377,14 @@ const TagList = styled.div`
 const Tag = styled.span`
 	padding: 0.35rem 0.75rem;
 	background: rgba(14, 165, 233, 0.12);
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: COLORS.PRIMARY.BLUE;
 	border-radius: 999px;
 	font-weight: 600;
 `;
 
 const SampleBox = styled.div`
-	background: V9_COLORS.TEXT.GRAY_DARK;
-	color: V9_COLORS.BG.GRAY_MEDIUM;
+	background: COLORS.TEXT.GRAY_DARK;
+	color: COLORS.BG.GRAY_MEDIUM;
 	font-family: 'Monaco', 'Menlo', monospace;
 	border-radius: 0.75rem;
 	padding: 1rem;

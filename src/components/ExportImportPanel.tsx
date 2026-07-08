@@ -33,12 +33,12 @@ const Header = styled.div`
 const Title = styled.h3`
 	font-size: 1.5rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin: 0;
 `;
 
 const Description = styled.p`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0.5rem 0 1.5rem 0;
 	font-size: 0.875rem;
 	line-height: 1.5;
@@ -56,7 +56,7 @@ const ActionGrid = styled.div`
 
 const ActionSection = styled.div`
 	padding: 1.5rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	background: white;
 `;
@@ -64,7 +64,7 @@ const ActionSection = styled.div`
 const ActionTitle = styled.h4`
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin: 0 0 0.75rem 0;
 	display: flex;
 	align-items: center;
@@ -72,7 +72,7 @@ const ActionTitle = styled.h4`
 `;
 
 const ActionDescription = styled.p`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 	margin: 0 0 1.5rem 0;
 	line-height: 1.4;
@@ -106,19 +106,19 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' | '
         `;
 			case 'success':
 				return `
-          background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, #15803d 100%);
+          background: linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, #15803d 100%);
           color: white;
           &:hover:not(:disabled) {
-            background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN_DARK 0%, V9_COLORS.PRIMARY.GREEN 100%);
+            background: linear-gradient(135deg, COLORS.PRIMARY.GREEN_DARK 0%, COLORS.PRIMARY.GREEN 100%);
             transform: translateY(-1px);
           }
         `;
 			case 'danger':
 				return `
-          background: linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%);
+          background: linear-gradient(135deg, COLORS.PRIMARY.RED 0%, COLORS.PRIMARY.RED_DARK 100%);
           color: white;
           &:hover:not(:disabled) {
-            background: linear-gradient(135deg, V9_COLORS.PRIMARY.RED_DARK 0%, V9_COLORS.PRIMARY.RED_DARK 100%);
+            background: linear-gradient(135deg, COLORS.PRIMARY.RED_DARK 0%, COLORS.PRIMARY.RED_DARK 100%);
             transform: translateY(-1px);
           }
         `;
@@ -126,7 +126,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' | '
 				return `
           background: white;
           color: ${theme.colors.gray700};
-          border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
+          border-color: COLORS.TEXT.GRAY_LIGHTER;
           &:hover:not(:disabled) {
             background: #f9fafb;
             border-color: ${theme.colors.primary};
@@ -163,8 +163,8 @@ const DropZone = styled.div.withConfig({
 	}
 
 	&.drag-over {
-		border-color: V9_COLORS.PRIMARY.BLUE;
-		background: V9_COLORS.BG.GRAY_LIGHT;
+		border-color: COLORS.PRIMARY.BLUE;
+		background: COLORS.BG.GRAY_LIGHT;
 		transform: scale(1.02);
 	}
 `;
@@ -178,13 +178,13 @@ const DropZoneIcon = styled.div.withConfig({
 `;
 
 const DropZoneText = styled.div`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-weight: 500;
 	margin-bottom: 0.5rem;
 `;
 
 const DropZoneSubtext = styled.div`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 `;
 
@@ -198,20 +198,20 @@ const ValidationResult = styled.div<{ type: 'success' | 'error' | 'warning' }>`
 			case 'success':
 				return `
           background: #f0fdf4;
-          border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
-          color: V9_COLORS.PRIMARY.GREEN;
+          border: 1px solid COLORS.BG.SUCCESS_BORDER;
+          color: COLORS.PRIMARY.GREEN;
         `;
 			case 'error':
 				return `
-          background: V9_COLORS.BG.ERROR;
-          border: 1px solid V9_COLORS.BG.ERROR_BORDER;
-          color: V9_COLORS.PRIMARY.RED_DARK;
+          background: COLORS.BG.ERROR;
+          border: 1px solid COLORS.BG.ERROR_BORDER;
+          color: COLORS.PRIMARY.RED_DARK;
         `;
 			case 'warning':
 				return `
-          background: V9_COLORS.BG.WARNING;
+          background: COLORS.BG.WARNING;
           border: 1px solid #fed7aa;
-          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          color: COLORS.PRIMARY.YELLOW_DARK;
         `;
 		}
 	}}
@@ -237,7 +237,7 @@ const ValidationList = styled.ul`
 
 const FileInfo = styled.div`
 	background: #f3f4f6;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin-top: 1rem;

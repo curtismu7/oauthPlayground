@@ -23,7 +23,7 @@ const vscodeColors = {
 	text: '#000000',
 	lineNumber: '#237893',
 	comment: '#6a9955',
-	keyword: 'V9_COLORS.TEXT.BLACK0ff',
+	keyword: 'COLORS.TEXT.BLACK0ff',
 	string: '#a31515',
 	number: '#09885a',
 	function: '#795e26',
@@ -118,7 +118,7 @@ const ActionButton = styled.button`
 	gap: 0.25rem;
 	padding: 0.25rem 0.5rem;
 	background: rgba(255, 255, 255, 0.8);
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 4px;
 	color: #24292e;
 	font-size: 0.75rem;
@@ -194,7 +194,7 @@ const CodeContent = styled.code`
 	}
 	
 	.token.punctuation {
-		color: V9_COLORS.TEXT.BLACK;
+		color: COLORS.TEXT.BLACK;
 	}
 	
 	.token.property,
@@ -202,7 +202,7 @@ const CodeContent = styled.code`
 	.token.constant,
 	.token.symbol,
 	.token.deleted {
-		color: V9_COLORS.TEXT.BLACK0ff;
+		color: COLORS.TEXT.BLACK0ff;
 	}
 	
 	.token.boolean,
@@ -223,7 +223,7 @@ const CodeContent = styled.code`
 	.token.entity,
 	.token.url,
 	.token.variable {
-		color: V9_COLORS.TEXT.BLACK;
+		color: COLORS.TEXT.BLACK;
 	}
 	
 	.token.atrule,
@@ -234,7 +234,7 @@ const CodeContent = styled.code`
 	}
 	
 	.token.keyword {
-		color: V9_COLORS.TEXT.BLACK0ff;
+		color: COLORS.TEXT.BLACK0ff;
 	}
 	
 	.token.regex,

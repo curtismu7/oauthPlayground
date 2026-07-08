@@ -1,16 +1,16 @@
-// src/services/v7m/V9MockCIBAService.ts
+// src/platform/mock/MockCIBAService.ts
 // CIBA (Client Initiated Backchannel Authentication) simulator for V7M educational flows.
 // Implements OpenID Connect CIBA Core 1.0 in-browser mock — no external API calls.
 
 import {
-	generateV9MockTokens,
-	type V9MockTokenSeed,
-	type V9MockTokenTtls,
-} from './V9MockTokenGenerator';
+	generateMockTokens,
+	type MockTokenSeed,
+	type MockTokenTtls,
+} from './MockTokenGenerator';
 
-export type V9MockCIBADeliveryMode = 'poll' | 'ping' | 'push';
+export type MockCIBADeliveryMode = 'poll' | 'ping' | 'push';
 
-export type V9MockCIBABackchannelRequest = {
+export type MockCIBABackchannelRequest = {
 	client_id: string;
 	scope: string;
 	login_hint?: string;
@@ -19,14 +19,14 @@ export type V9MockCIBABackchannelRequest = {
 	binding_message?: string;
 	/** Required for ping/push modes — server uses this token to authenticate notifications (CIBA Core 1.0 §10.1). */
 	client_notification_token?: string;
-	delivery_mode?: V9MockCIBADeliveryMode;
+	delivery_mode?: MockCIBADeliveryMode;
 };
 
-export type V9MockCIBABackchannelResponse =
+export type MockCIBABackchannelResponse =
 	| { auth_req_id: string; expires_in: number; interval: number }
 	| { error: string; error_description?: string };
 
-export type V9MockCIBATokenResult =
+export type MockCIBATokenResult =
 	| {
 			access_token: string;
 			id_token: string;
@@ -47,7 +47,7 @@ type CIBARecord = {
 	login_hint?: string;
 	user_email?: string;
 	binding_message?: string;
-	delivery_mode: V9MockCIBADeliveryMode;
+	delivery_mode: MockCIBADeliveryMode;
 	approved: boolean;
 	denied: boolean;
 	expiresAt: number; // epoch seconds
@@ -71,16 +71,16 @@ function generateAuthReqId(clientId: string): string {
 	return `v7m-ciba-${h.toString(16).padStart(8, '0')}-${_counter.toString(16).padStart(4, '0')}`;
 }
 
-export const V9MockCIBAService = {
+export const MockCIBAService = {
 	/**
 	 * Simulate the backchannel authentication endpoint (BC-Authorize).
 	 * Returns auth_req_id that the client polls with.
 	 */
 	requestBackchannelAuth(
-		req: V9MockCIBABackchannelRequest,
+		req: MockCIBABackchannelRequest,
 		expiresInSeconds = 120,
 		intervalSeconds = 5
-	): V9MockCIBABackchannelResponse {
+	): MockCIBABackchannelResponse {
 		if (!req.client_id) {
 			return { error: 'invalid_request', error_description: 'client_id is required' };
 		}
@@ -145,7 +145,7 @@ export const V9MockCIBAService = {
 	 * Simulate the token endpoint poll (grant_type = urn:openid:params:grant-type:ciba).
 	 * Returns tokens if approved, or authorization_pending / expired_token errors.
 	 */
-	pollForToken(auth_req_id: string, ttls?: Partial<V9MockTokenTtls>): V9MockCIBATokenResult {
+	pollForToken(auth_req_id: string, ttls?: Partial<MockTokenTtls>): MockCIBATokenResult {
 		const rec = store.get(auth_req_id);
 		const now = Math.floor(Date.now() / 1000);
 
@@ -181,21 +181,21 @@ export const V9MockCIBAService = {
 			};
 		}
 
-		const defaultTtls: V9MockTokenTtls = {
+		const defaultTtls: MockTokenTtls = {
 			accessTokenSeconds: 3600,
 			idTokenSeconds: 3600,
 			refreshTokenSeconds: 86400,
 		};
 		const resolvedTtls = { ...defaultTtls, ...(ttls ?? {}) };
 
-		const seed: V9MockTokenSeed = {
+		const seed: MockTokenSeed = {
 			clientId: rec.client_id,
 			issuer: 'https://mock.issuer/v7m/ciba',
 			userEmail: rec.user_email ?? rec.login_hint ?? 'user@example.com',
 			scope: rec.scope,
 		};
 
-		const tokens = generateV9MockTokens(seed, now, resolvedTtls, true);
+		const tokens = generateMockTokens(seed, now, resolvedTtls, true);
 		store.delete(auth_req_id); // consume — each auth_req_id is single-use
 
 		return {

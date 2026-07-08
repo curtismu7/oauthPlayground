@@ -11,7 +11,7 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // MCP Server Main Container - Server/Infrastructure aesthetics
 const MCPServerContainer = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, #1e293b 50%, #334155 100%);
+	background: linear-gradient(135deg, COLORS.TEXT.GRAY_DARK 0%, #1e293b 50%, #334155 100%);
 	border-radius: 1rem;
 	padding: 2rem;
 	margin: 2rem 0;
@@ -123,7 +123,7 @@ const ServerIndicator = styled.div<{ $active: boolean; $color: string }>`
 
 // Server Display Screen
 const ServerDisplayScreen = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1e293b 100%);
+	background: linear-gradient(135deg, COLORS.TEXT.BLACK 0%, #1e293b 100%);
 	border: 3px solid #ec4899;
 	border-radius: 0.75rem;
 	padding: 2rem;
@@ -145,7 +145,7 @@ const ScreenLabel = styled.div`
 `;
 
 const UserCodeDisplay = styled.div`
-	background: V9_COLORS.TEXT.BLACK;
+	background: COLORS.TEXT.BLACK;
 	color: #06b6d4;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 2.5rem;
@@ -256,15 +256,15 @@ const StatusDisplay = styled.div<{ $status: string }>`
 	background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.YELLOW 0%, COLORS.PRIMARY.YELLOW_DARK 100%)';
 			case 'authorized':
-				return 'linear-gradient(135deg, #06b6d4 0%, V9_COLORS.PRIMARY.BLUE 100%)';
+				return 'linear-gradient(135deg, #06b6d4 0%, COLORS.PRIMARY.BLUE 100%)';
 			case 'denied':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.RED 0%, COLORS.PRIMARY.RED_DARK 100%)';
 			case 'expired':
-				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 			default:
-				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 		}
 	}};
 	border: 2px solid
@@ -296,7 +296,7 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	margin-bottom: 0.5rem;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
@@ -304,7 +304,7 @@ const StatusText = styled.div`
 
 const StatusMessage = styled.div`
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 `;
 
 // Server Base
@@ -392,12 +392,12 @@ const MCPServerDeviceFlow: React.FC<MCPServerDeviceFlowProps> = ({
 
 				{/* Server Status Indicators */}
 				<ServerIndicators>
-					<ServerIndicator $active={state.status === 'pending'} $color="V9_COLORS.PRIMARY.YELLOW" />
+					<ServerIndicator $active={state.status === 'pending'} $color="COLORS.PRIMARY.YELLOW" />
 					<ServerIndicator $active={state.status === 'authorized'} $color="#06b6d4" />
-					<ServerIndicator $active={state.status === 'denied'} $color="V9_COLORS.PRIMARY.RED" />
+					<ServerIndicator $active={state.status === 'denied'} $color="COLORS.PRIMARY.RED" />
 					<ServerIndicator
 						$active={state.status === 'expired'}
-						$color="V9_COLORS.TEXT.GRAY_MEDIUM"
+						$color="COLORS.TEXT.GRAY_MEDIUM"
 					/>
 				</ServerIndicators>
 
@@ -417,8 +417,8 @@ const MCPServerDeviceFlow: React.FC<MCPServerDeviceFlowProps> = ({
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={180}
-							bgColor="V9_COLORS.TEXT.WHITE"
-							fgColor="V9_COLORS.TEXT.BLACK"
+							bgColor="COLORS.TEXT.WHITE"
+							fgColor="COLORS.TEXT.BLACK"
 							level="M"
 							includeMargin={true}
 						/>
@@ -481,7 +481,7 @@ const MCPServerDeviceFlow: React.FC<MCPServerDeviceFlowProps> = ({
 			<StandardizedTokenDisplay
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.4)"
-				borderColor="V9_COLORS.TEXT.GRAY_DARK"
+				borderColor="COLORS.TEXT.GRAY_DARK"
 				headerTextColor="#06b6d4"
 			/>
 		</>

@@ -1,15 +1,15 @@
-// src/services/v7m/V7MTokenGenerator.ts
+// src/platform/mock/V7MTokenGenerator.ts
 // Deterministic token generator for V7M educational mock flows.
 // Produces realistic-looking JWT access and ID tokens and an opaque refresh token
 // derived from provided flow settings. Output is stable per seed until expiry.
 
-export type V9MockTokenTtls = {
+export type MockTokenTtls = {
 	accessTokenSeconds: number;
 	idTokenSeconds: number;
 	refreshTokenSeconds: number;
 };
 
-export type V9MockTokenSeed = {
+export type MockTokenSeed = {
 	environmentId?: string;
 	issuer?: string;
 	clientId: string;
@@ -20,7 +20,7 @@ export type V9MockTokenSeed = {
 	audience?: string | string[];
 };
 
-export type V9MockGeneratedTokens = {
+export type MockGeneratedTokens = {
 	access_token: string;
 	id_token?: string;
 	refresh_token: string;
@@ -34,13 +34,13 @@ export type V9MockGeneratedTokens = {
  * Generate deterministic mock tokens for educational flows.
  * Uses a stable seed so identical inputs produce identical tokens in a time window.
  */
-export function generateV9MockTokens(
-	seed: V9MockTokenSeed,
+export function generateMockTokens(
+	seed: MockTokenSeed,
 	nowEpochSeconds: number,
-	ttls: V9MockTokenTtls,
+	ttls: MockTokenTtls,
 	includeIdToken: boolean,
 	codeForCHash?: string
-): V9MockGeneratedTokens {
+): MockGeneratedTokens {
 	const issuedAt = clampToSecond(nowEpochSeconds);
 	const accessExp = issuedAt + ttls.accessTokenSeconds;
 	const idExp = issuedAt + ttls.idTokenSeconds;
@@ -168,7 +168,7 @@ function clampToSecond(epochSeconds: number): number {
 	return Math.floor(epochSeconds);
 }
 
-function buildSeedString(seed: V9MockTokenSeed): string {
+function buildSeedString(seed: MockTokenSeed): string {
 	return [
 		seed.environmentId ?? '',
 		seed.issuer ?? '',

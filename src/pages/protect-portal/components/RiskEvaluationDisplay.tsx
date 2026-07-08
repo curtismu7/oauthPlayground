@@ -37,20 +37,20 @@ const EvaluationContainer = styled.div`
 const EvaluationTitle = styled.h2`
 	font-size: 1.875rem;
 	font-weight: 700;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin: 0 0 1rem 0;
 `;
 
 const EvaluationDescription = styled.p`
 	font-size: 1rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0 0 2rem 0;
 	line-height: 1.6;
 `;
 
 const ProgressContainer = styled.div`
 	background: #f9fafb;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 1rem;
 	padding: 2rem;
 	margin-bottom: 2rem;
@@ -67,7 +67,7 @@ const ProgressHeader = styled.div`
 const ProgressTitle = styled.h3`
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin: 0;
 `;
 
@@ -141,19 +141,19 @@ const StepContent = styled.div`
 
 const StepTitle = styled.div`
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 `;
 
 const StepDescription = styled.div`
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const LoadingSpinner = styled.span`
 	animation: spin 1s linear infinite;
 	font-size: 1.5rem;
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: COLORS.PRIMARY.BLUE;
 
 	@keyframes spin {
 		from {
@@ -224,12 +224,12 @@ const ResultDescription = styled.p`
 	font-size: 1rem;
 	margin: 0 0 1.5rem 0;
 	line-height: 1.6;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const ResultDetails = styled.div`
 	background: white;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin-bottom: 1.5rem;
@@ -248,19 +248,19 @@ const DetailRow = styled.div`
 
 const DetailLabel = styled.span`
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const DetailValue = styled.span`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const ErrorMessage = styled.div`
-	background: V9_COLORS.BG.ERROR;
-	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+	background: COLORS.BG.ERROR;
+	border: 1px solid COLORS.BG.ERROR_BORDER;
 	border-radius: 0.5rem;
 	padding: 1rem;
-	color: V9_COLORS.PRIMARY.RED_DARK;
+	color: COLORS.PRIMARY.RED_DARK;
 	font-size: 0.875rem;
 	display: flex;
 	align-items: center;
@@ -269,8 +269,8 @@ const ErrorMessage = styled.div`
 `;
 
 const EducationalSection = styled.div`
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 1rem;
 	padding: 1.5rem;
 	text-align: left;
@@ -286,13 +286,13 @@ const EducationalHeader = styled.div`
 const EducationalTitle = styled.h4`
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	margin: 0;
 `;
 
 const EducationalDescription = styled.p`
 	font-size: 0.875rem;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	margin: 0 0 1rem 0;
 	line-height: 1.5;
 `;
@@ -309,18 +309,18 @@ const KeyPoint = styled.li`
 	gap: 0.5rem;
 	margin-bottom: 0.5rem;
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	line-height: 1.4;
 `;
 
 const KeyPointIcon = styled.span`
-	color: V9_COLORS.PRIMARY.GREEN;
+	color: COLORS.PRIMARY.GREEN;
 	flex-shrink: 0;
 	margin-top: 0.125rem;
 `;
 
 const LearnMoreLink = styled.a`
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	text-decoration: none;
 	font-weight: 600;
 	font-size: 0.875rem;
@@ -330,7 +330,7 @@ const LearnMoreLink = styled.a`
 	transition: color 0.2s ease;
 
 	&:hover {
-		color: V9_COLORS.PRIMARY.BLUE_DARK;
+		color: COLORS.PRIMARY.BLUE_DARK;
 		text-decoration: underline;
 	}
 `;
@@ -348,7 +348,7 @@ const RiskScoreContainer = styled.div`
 
 const RiskScoreLabel = styled.span`
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	min-width: 100px;
 `;
 
@@ -371,7 +371,7 @@ const RiskScoreValue = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
 const RiskScoreBar = styled.div`
 	flex: 1;
 	height: 8px;
-	background: V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 4px;
 	overflow: hidden;
 `;
@@ -399,7 +399,7 @@ const RiskFactorsContainer = styled.div`
 const RiskFactorsTitle = styled.h4`
 	font-size: 1rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin: 0 0 1rem 0;
 	display: flex;
 	align-items: center;
@@ -416,7 +416,7 @@ const RiskFactorItem = styled.div`
 	align-items: center;
 	gap: 0.75rem;
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const RiskBadge = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
@@ -447,7 +447,7 @@ const NextStepsContainer = styled.div`
 const NextStepsTitle = styled.h4`
 	font-size: 1rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin: 0 0 1rem 0;
 	display: flex;
 	align-items: center;
@@ -464,7 +464,7 @@ const NextStepItem = styled.div`
 	align-items: center;
 	gap: 0.75rem;
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 // ============================================================================

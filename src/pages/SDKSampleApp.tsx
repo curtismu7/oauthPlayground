@@ -41,7 +41,7 @@ const Card = styled.div`
 	padding: 2rem;
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 	margin-bottom: 2rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const CardHeader = styled.div`
@@ -71,8 +71,8 @@ const SdkGrid = styled.div`
 `;
 
 const SdkCard = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
-	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.TEXT.GRAY_LIGHTER 100%);
+	border: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	transition: all 0.3s ease;
@@ -169,7 +169,7 @@ const ActionButton = styled.a<{ $variant?: 'primary' | 'secondary' }>`
 `;
 
 const CodeBlock = styled.pre`
-	background-color: V9_COLORS.TEXT.GRAY_DARK;
+	background-color: COLORS.TEXT.GRAY_DARK;
 	color: #f9fafb;
 	border-radius: 0.5rem;
 	padding: 1.5rem;
@@ -178,7 +178,7 @@ const CodeBlock = styled.pre`
 	line-height: 1.6;
 	overflow-x: auto;
 	margin: 1rem 0;
-	border: 1px solid V9_COLORS.TEXT.GRAY_DARK;
+	border: 1px solid COLORS.TEXT.GRAY_DARK;
 `;
 
 const FeatureList = styled.ul`
@@ -456,7 +456,7 @@ app.get('/callback', async (req, res) => {
 									style={{
 										padding: '1.5rem',
 										background:
-											'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%)',
+											'linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.BG.GRAY_LIGHT 100%)',
 										border: '2px solid #0ea5e9',
 										borderRadius: '0.75rem',
 									}}
@@ -482,8 +482,8 @@ app.get('/callback', async (req, res) => {
 								<div
 									style={{
 										padding: '1.5rem',
-										background: 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)',
-										border: '2px solid V9_COLORS.PRIMARY.GREEN',
+										background: 'linear-gradient(135deg, #f0fdf4 0%, COLORS.BG.SUCCESS 100%)',
+										border: '2px solid COLORS.PRIMARY.GREEN',
 										borderRadius: '0.75rem',
 									}}
 								>

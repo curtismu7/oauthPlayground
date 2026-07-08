@@ -134,7 +134,7 @@ const FLOW_REQUIREMENTS: Record<string, FlowConfigRequirement> = {
 
 const Container = styled.div`
 	background: white;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	margin-bottom: 1.5rem;
 	overflow: hidden;
@@ -147,7 +147,7 @@ const Header = styled.div`
 	gap: 0.75rem;
 	padding: 1rem 1.5rem;
 	background: white;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	cursor: pointer;
 	user-select: none;
 
@@ -167,14 +167,14 @@ const CollapseIcon = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: COLORS.PRIMARY.BLUE;
 	border-radius: 50%;
 	width: 32px;
 	height: 32px;
 	transition: all 0.2s;
 
 	&:hover {
-		background: V9_COLORS.PRIMARY.BLUE_DARK;
+		background: COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 
@@ -187,14 +187,14 @@ const Content = styled.div<{ $isCollapsed: boolean }>`
 
 const IconWrapper = styled.div`
 	flex-shrink: 0;
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: COLORS.PRIMARY.BLUE;
 `;
 
 const Title = styled.h3`
 	margin: 0;
 	font-size: 1.125rem;
 	font-weight: 700;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -204,7 +204,7 @@ const Explanation = styled.p`
 	margin: 0 0 1.25rem 0;
 	font-size: 0.9375rem;
 	line-height: 1.6;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const RequirementsGrid = styled.div`
@@ -232,7 +232,7 @@ const RequirementHeader = styled.div`
 const RequirementLabel = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatusBadge = styled.div<{ $status: 'required' | 'optional' | 'not-used' }>`
@@ -253,7 +253,7 @@ const StatusBadge = styled.div<{ $status: 'required' | 'optional' | 'not-used' }
 
 const RequirementValue = styled.div`
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	background: #f9fafb;
 	padding: 0.5rem;

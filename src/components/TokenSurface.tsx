@@ -5,7 +5,7 @@ import JSONHighlighter from './JSONHighlighter';
 const TokenSurfaceContainer = styled.div<{ $hasToken?: boolean }>`
   background: ${({ $hasToken }) =>
 		$hasToken
-			? 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)'
+			? 'linear-gradient(135deg, #f0fdf4 0%, COLORS.BG.SUCCESS 100%)'
 			: 'var(--card-bg)'} !important;
   color: var(--card-fg) !important;
   border: 1px solid ${({ $hasToken }) => ($hasToken ? '#10b981' : 'var(--card-border)')};

@@ -17,7 +17,7 @@ const Container = styled.div`
 const Title = styled.h1`
 	font-size: 2rem;
 	font-weight: 700;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 2rem;
 	text-align: center;
 `;
@@ -29,15 +29,15 @@ const DemoSection = styled.div`
 const SectionTitle = styled.h2`
 	font-size: 1.5rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1rem;
 `;
 
 const ConfigForm = styled.div`
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	background: COLORS.BG.GRAY_LIGHT;
 	padding: 1.5rem;
 	border-radius: 8px;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	margin-bottom: 2rem;
 `;
 
@@ -56,25 +56,25 @@ const FormGroup = styled.div`
 const Label = styled.label`
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 `;
 
 const Input = styled.input`
 	padding: 0.5rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	font-size: 0.875rem;
 	
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
 
 const Button = styled.button`
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: COLORS.PRIMARY.BLUE;
 	color: white;
 	border: none;
 	padding: 0.75rem 1.5rem;
@@ -84,7 +84,7 @@ const Button = styled.button`
 	transition: background-color 0.2s ease;
 
 	&:hover {
-		background: V9_COLORS.PRIMARY.BLUE_DARK;
+		background: COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 

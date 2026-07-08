@@ -15,7 +15,7 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // AI Assistant Main Container - Modern AI Interface Design
 const AIAgentContainer = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
+  background: linear-gradient(135deg, COLORS.TEXT.WHITE 0%, COLORS.BG.GRAY_LIGHT 100%);
   border-radius: 1rem;
   padding: 1.5rem;
   margin: 2rem 0;
@@ -25,7 +25,7 @@ const AIAgentContainer = styled.div`
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
   position: relative;
   overflow: hidden;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
@@ -60,14 +60,14 @@ const AIAgentContainer = styled.div`
 
 // AI Assistant Header - Modern Chat Interface
 const AIHeader = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+  background: linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.TEXT.GRAY_LIGHTER 100%);
   border: 1px solid #cbd5e1;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1.5rem;
   text-align: center;
   position: relative;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   font-weight: 500;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
   font-size: 0.875rem;
@@ -85,7 +85,7 @@ const AITitle = styled.div`
 
 const AISubtitle = styled.div`
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   font-weight: 400;
   letter-spacing: 0;
 `;
@@ -139,8 +139,8 @@ const NeuralNode = styled.div<{ $active: boolean; $color: string }>`
 
 // AI Chat Display Screen - Modern AI Interface
 const AIDisplayScreen = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  background: linear-gradient(135deg, COLORS.TEXT.WHITE 0%, COLORS.BG.GRAY_LIGHT 100%);
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -152,7 +152,7 @@ const AIDisplayScreen = styled.div`
 `;
 
 const ScreenLabel = styled.div`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.75rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
@@ -162,7 +162,7 @@ const ScreenLabel = styled.div`
 `;
 
 const UserCodeDisplay = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_MEDIUM 100%);
+  background: linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.BG.GRAY_MEDIUM 100%);
   color: #6366f1;
   font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', 'Courier New', monospace;
   font-size: 2rem;
@@ -177,8 +177,8 @@ const UserCodeDisplay = styled.div`
 
 // AI Chat QR Code Section
 const QRCodeSection = styled.div`
-  background: V9_COLORS.TEXT.WHITE;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  background: COLORS.TEXT.WHITE;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   padding: 1.25rem;
   text-align: center;
@@ -189,7 +189,7 @@ const QRCodeSection = styled.div`
 const QRCodeLabel = styled.div`
   font-size: 0.75rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -268,15 +268,15 @@ const StatusDisplay = styled.div<{ $status: string }>`
   background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.YELLOW 0%, COLORS.PRIMARY.YELLOW_DARK 100%)';
 			case 'authorized':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, COLORS.PRIMARY.GREEN_DARK 100%)';
 			case 'denied':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.RED 0%, COLORS.PRIMARY.RED_DARK 100%)';
 			case 'expired':
-				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 			default:
-				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 		}
 	}};
   border: 2px solid ${(props) => {
@@ -307,7 +307,7 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
   font-size: 1.125rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.WHITE;
+  color: COLORS.TEXT.WHITE;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -315,7 +315,7 @@ const StatusText = styled.div`
 
 const StatusMessage = styled.div`
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.WHITE;
+  color: COLORS.TEXT.WHITE;
 `;
 
 // AI Base
@@ -403,10 +403,10 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 
 				{/* Neural Network Indicators */}
 				<NeuralIndicators>
-					<NeuralNode $active={state.status === 'pending'} $color="V9_COLORS.PRIMARY.YELLOW" />
-					<NeuralNode $active={state.status === 'authorized'} $color="V9_COLORS.PRIMARY.GREEN" />
-					<NeuralNode $active={state.status === 'denied'} $color="V9_COLORS.PRIMARY.RED" />
-					<NeuralNode $active={state.status === 'expired'} $color="V9_COLORS.TEXT.GRAY_MEDIUM" />
+					<NeuralNode $active={state.status === 'pending'} $color="COLORS.PRIMARY.YELLOW" />
+					<NeuralNode $active={state.status === 'authorized'} $color="COLORS.PRIMARY.GREEN" />
+					<NeuralNode $active={state.status === 'denied'} $color="COLORS.PRIMARY.RED" />
+					<NeuralNode $active={state.status === 'expired'} $color="COLORS.TEXT.GRAY_MEDIUM" />
 				</NeuralIndicators>
 
 				{/* AI Display Screen */}
@@ -425,8 +425,8 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={180}
-							bgColor="V9_COLORS.TEXT.WHITE"
-							fgColor="V9_COLORS.TEXT.BLACK"
+							bgColor="COLORS.TEXT.WHITE"
+							fgColor="COLORS.TEXT.BLACK"
 							level="M"
 							includeMargin={true}
 						/>
@@ -457,7 +457,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 				{state.status === 'authorized' && state.tokens && (
 					<div
 						style={{
-							background: 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, #1e293b 100%)',
+							background: 'linear-gradient(135deg, COLORS.TEXT.GRAY_DARK 0%, #1e293b 100%)',
 							border: '3px solid #f97316',
 							borderRadius: '1rem',
 							padding: '2rem',
@@ -474,7 +474,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 								justifyContent: 'space-between',
 								marginBottom: '1.5rem',
 								paddingBottom: '1rem',
-								borderBottom: '2px solid V9_COLORS.TEXT.GRAY_DARK',
+								borderBottom: '2px solid COLORS.TEXT.GRAY_DARK',
 							}}
 						>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -523,7 +523,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 								borderRadius: '0.75rem',
 								padding: '1.5rem',
 								marginBottom: '1.5rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_DARK',
+								border: '1px solid COLORS.TEXT.GRAY_DARK',
 								height: '300px',
 								display: 'flex',
 								flexDirection: 'column',
@@ -536,7 +536,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 									gap: '0.5rem',
 									marginBottom: '1rem',
 									paddingBottom: '0.75rem',
-									borderBottom: '1px solid V9_COLORS.TEXT.GRAY_DARK',
+									borderBottom: '1px solid COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								<div style={{ fontSize: '1.25rem' }}></div>
@@ -565,7 +565,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 											width: '32px',
 											height: '32px',
 											background:
-												'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
+												'linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_DARK 100%)',
 											borderRadius: '50%',
 											display: 'flex',
 											alignItems: 'center',
@@ -641,7 +641,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 											width: '32px',
 											height: '32px',
 											background:
-												'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
+												'linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_DARK 100%)',
 											borderRadius: '50%',
 											display: 'flex',
 											alignItems: 'center',
@@ -734,7 +734,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 									background: 'rgba(255, 255, 255, 0.1)',
 									padding: '1rem',
 									borderRadius: '0.75rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_DARK',
+									border: '1px solid COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								<div
@@ -771,7 +771,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 									background: 'rgba(255, 255, 255, 0.1)',
 									padding: '1rem',
 									borderRadius: '0.75rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_DARK',
+									border: '1px solid COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								<div
@@ -835,7 +835,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 								type="button"
 								style={{
 									background:
-										'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
+										'linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_DARK 100%)',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.5rem',
@@ -855,7 +855,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 								type="button"
 								style={{
 									background:
-										'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)',
+										'linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, COLORS.PRIMARY.GREEN_DARK 100%)',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.5rem',
@@ -883,8 +883,8 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 			<StandardizedTokenDisplay
 				tokens={state.tokens}
 				backgroundColor="rgba(15, 23, 42, 0.4)"
-				borderColor="V9_COLORS.TEXT.GRAY_DARK"
-				headerTextColor="V9_COLORS.TEXT.WHITE"
+				borderColor="COLORS.TEXT.GRAY_DARK"
+				headerTextColor="COLORS.TEXT.WHITE"
 			/>
 		</>
 	);

@@ -8,7 +8,7 @@ import React, { lazy, Suspense, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { CodeExamplesSection } from '../components/CodeExamplesSection';
 import { FlowHeader } from '../services/flowHeaderService';
-import { V9_COLORS } from '../platform/V9ColorStandards';
+import { COLORS } from '../platform/ColorStandards';
 
 // Lazy load heavy components for better performance
 const InteractiveCodeEditor = lazy(() => import('../components/InteractiveCodeEditor'));
@@ -33,22 +33,22 @@ const LoadingContainer = styled.div`
 const LoadingSpinner = styled.div`
 	width: 60px;
 	height: 60px;
-	border: 4px solid ${V9_COLORS.BG.GRAY_LIGHT};
-	border-top-color: ${V9_COLORS.PRIMARY.BLUE};
+	border: 4px solid ${COLORS.BG.GRAY_LIGHT};
+	border-top-color: ${COLORS.PRIMARY.BLUE};
 	border-radius: 50%;
 	animation: ${spin} 1s linear infinite;
 	margin-bottom: 1.5rem;
 `;
 
 const LoadingText = styled.div`
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	font-size: 1.1rem;
 	font-weight: 500;
 	text-align: center;
 `;
 
 const LoadingSubtext = styled.div`
-	color: ${V9_COLORS.TEXT.GRAY_LIGHT};
+	color: ${COLORS.TEXT.GRAY_LIGHT};
 	font-size: 0.9rem;
 	margin-top: 0.5rem;
 `;
@@ -59,7 +59,7 @@ const TabLoadingOverlay = styled.div`
 	align-items: center;
 	justify-content: center;
 	padding: 3rem;
-	background: ${V9_COLORS.BG.WHITE};
+	background: ${COLORS.BG.WHITE};
 	border-radius: 1rem;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 	min-height: 400px;
@@ -69,13 +69,13 @@ const PageContainer = styled.div`
 	min-height: 100vh;
 	background: linear-gradient(
 		135deg,
-		${V9_COLORS.BG.GRAY_LIGHT} 0%,
-		${V9_COLORS.TEXT.GRAY_LIGHTER} 100%
+		${COLORS.BG.GRAY_LIGHT} 0%,
+		${COLORS.TEXT.GRAY_LIGHTER} 100%
 	);
 `;
 
 const HeroSection = styled.div`
-	background: linear-gradient(135deg, #1e293b 0%, ${V9_COLORS.TEXT.GRAY_DARK} 100%);
+	background: linear-gradient(135deg, #1e293b 0%, ${COLORS.TEXT.GRAY_DARK} 100%);
 	padding: 4rem 2rem;
 	text-align: center;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -84,7 +84,7 @@ const HeroSection = styled.div`
 const HeroTitle = styled.h1`;
 color: $;
 {
-	V9_COLORS.BG.WHITE;
+	COLORS.BG.WHITE;
 }
 font - size;
 : 3rem
@@ -96,8 +96,8 @@ margin: 0;
 background: linear -
 	gradient(
 		135deg,
-		${V9_COLORS.PRIMARY.BLUE_LIGHT} 0%,
-		${V9_COLORS.PRIMARY.BLUE} 50%,
+		${COLORS.PRIMARY.BLUE_LIGHT} 0%,
+		${COLORS.PRIMARY.BLUE} 50%,
 		#f472b6 100%
 	);
 -webkit - background - clip;
@@ -214,7 +214,7 @@ color: #
 const FeatureDescription = styled.div`;
 color: $;
 {
-	V9_COLORS.TEXT.GRAY_MEDIUM;
+	COLORS.TEXT.GRAY_MEDIUM;
 }
 font - size;
 : 0.9rem
@@ -273,8 +273,8 @@ font - weight;
 background: linear -
 	gradient(
 		135deg,
-		${V9_COLORS.PRIMARY.GREEN} 0%,
-		${V9_COLORS.PRIMARY.BLUE} 100%
+		${COLORS.PRIMARY.GREEN} 0%,
+		${COLORS.PRIMARY.BLUE} 100%
 	);
 -webkit - background - clip;
 : text
@@ -287,7 +287,7 @@ background - clip;
 const StatLabel = styled.div`;
 color: $;
 {
-	V9_COLORS.TEXT.GRAY_MEDIUM;
+	COLORS.TEXT.GRAY_MEDIUM;
 }
 font - weight;
 : 600
@@ -307,7 +307,7 @@ gap:
 border - bottom;
 : 2px solid $
 {
-	V9_COLORS.BORDER.GRAY;
+	COLORS.BORDER.GRAY;
 }
 margin - bottom;
 : 2rem
@@ -325,11 +325,11 @@ padding:
 1rem 2rem
 background: $;
 {
-	({ $active }) => ($active ? V9_COLORS.PRIMARY.BLUE : 'transparent');
+	({ $active }) => ($active ? COLORS.PRIMARY.BLUE : 'transparent');
 }
 color: $;
 {
-	({ $active }) => ($active ? 'white' : V9_COLORS.TEXT.GRAY_DARK);
+	({ $active }) => ($active ? 'white' : COLORS.TEXT.GRAY_DARK);
 }
 border: none;
 border - radius;
@@ -348,7 +348,7 @@ min - width;
 &:hover
 {
 	background: $;
-	({ $active }) => ($active ? V9_COLORS.PRIMARY.BLUE_DARK : V9_COLORS.BG.GRAY_LIGHT);
+	({ $active }) => ($active ? COLORS.PRIMARY.BLUE_DARK : COLORS.BG.GRAY_LIGHT);
 }
 
 @media (max-width: 768px)
@@ -363,7 +363,7 @@ min - width;
 const EditorSection = styled.div`;
 background: $;
 {
-	V9_COLORS.BG.WHITE;
+	COLORS.BG.WHITE;
 }
 border - radius;
 : 1rem
@@ -382,7 +382,7 @@ font - weight;
 : 700
 color: $;
 {
-	V9_COLORS.TEXT.GRAY_DARK;
+	COLORS.TEXT.GRAY_DARK;
 }
 margin: 0;
 0;
@@ -397,7 +397,7 @@ gap:
 const SectionDescription = styled.p`;
 color: $;
 {
-	V9_COLORS.TEXT.GRAY_MEDIUM;
+	COLORS.TEXT.GRAY_MEDIUM;
 }
 font - size;
 : 1rem
@@ -421,20 +421,20 @@ text - align;
 border:
 3px solid $
 {
-	V9_COLORS.PRIMARY.GREEN;
+	COLORS.PRIMARY.GREEN;
 }
 box - shadow;
 : 0 4px 12px rgba(0, 0, 0, 0.08)
 `;
 
 const CTATitle = styled.h2`
-	color: ${V9_COLORS.PRIMARY.GREEN};
+	color: ${COLORS.PRIMARY.GREEN};
 	font-size: 1.75rem;
 	margin-bottom: 1rem;
 `;
 
 const CTADescription = styled.p`
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	font-size: 1.1rem;
 	line-height: 1.7;
 	max-width: 700px;
@@ -452,10 +452,10 @@ const CTAButton = styled.a<{ $primary?: boolean }>`
 	padding: 1rem 2rem;
 	background: ${({ $primary }) =>
 		$primary
-			? `linear-gradient(135deg, ${V9_COLORS.PRIMARY.GREEN} 0%, ${V9_COLORS.PRIMARY.GREEN_DARK} 100%)`
+			? `linear-gradient(135deg, ${COLORS.PRIMARY.GREEN} 0%, ${COLORS.PRIMARY.GREEN_DARK} 100%)`
 			: 'white'};
-	color: ${({ $primary }) => ($primary ? 'white' : V9_COLORS.PRIMARY.GREEN)};
-	border: ${({ $primary }) => ($primary ? 'none' : `2px solid ${V9_COLORS.PRIMARY.GREEN}`)};
+	color: ${({ $primary }) => ($primary ? 'white' : COLORS.PRIMARY.GREEN)};
+	border: ${({ $primary }) => ($primary ? 'none' : `2px solid ${COLORS.PRIMARY.GREEN}`)};
 	border-radius: 0.75rem;
 	text-decoration: none;
 	font-weight: 700;
@@ -795,9 +795,9 @@ const OAuthPlaygroundHub: React.FC = () => {
 					scenarios, multi-language examples, RFC specifications, and security simulations.
 				</HeroSubtitle>
 				<FeatureGrid>
-					<FeatureCard color={V9_COLORS.PRIMARY.GREEN} onClick={() => setActiveTab('scenarios')}>
+					<FeatureCard color={COLORS.PRIMARY.GREEN} onClick={() => setActiveTab('scenarios')}>
 						<FeatureIcon
-							color={`linear-gradient(135deg, ${V9_COLORS.PRIMARY.GREEN} 0%, ${V9_COLORS.PRIMARY.GREEN_DARK} 100%)`}
+							color={`linear-gradient(135deg, ${COLORS.PRIMARY.GREEN} 0%, ${COLORS.PRIMARY.GREEN_DARK} 100%)`}
 						>
 							<span></span>
 						</FeatureIcon>
@@ -808,9 +808,9 @@ const OAuthPlaygroundHub: React.FC = () => {
 						</FeatureDescription>
 					</FeatureCard>
 
-					<FeatureCard color={V9_COLORS.PRIMARY.BLUE_DARK} onClick={() => setActiveTab('examples')}>
+					<FeatureCard color={COLORS.PRIMARY.BLUE_DARK} onClick={() => setActiveTab('examples')}>
 						<FeatureIcon
-							color={`linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE_DARK} 0%, ${V9_COLORS.PRIMARY.BLUE_DARK} 100%)`}
+							color={`linear-gradient(135deg, ${COLORS.PRIMARY.BLUE_DARK} 0%, ${COLORS.PRIMARY.BLUE_DARK} 100%)`}
 						>
 							<span></span>
 						</FeatureIcon>
@@ -820,9 +820,9 @@ const OAuthPlaygroundHub: React.FC = () => {
 						</FeatureDescription>
 					</FeatureCard>
 
-					<FeatureCard color={V9_COLORS.PRIMARY.BLUE} onClick={() => setActiveTab('editor')}>
+					<FeatureCard color={COLORS.PRIMARY.BLUE} onClick={() => setActiveTab('editor')}>
 						<FeatureIcon
-							color={`linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE} 0%, ${V9_COLORS.PRIMARY.BLUE_DARK} 100%)`}
+							color={`linear-gradient(135deg, ${COLORS.PRIMARY.BLUE} 0%, ${COLORS.PRIMARY.BLUE_DARK} 100%)`}
 						>
 							<span>✏️</span>
 						</FeatureIcon>
@@ -832,9 +832,9 @@ const OAuthPlaygroundHub: React.FC = () => {
 						</FeatureDescription>
 					</FeatureCard>
 
-					<FeatureCard color={V9_COLORS.PRIMARY.PURPLE} onClick={() => setActiveTab('rfc')}>
+					<FeatureCard color={COLORS.PRIMARY.PURPLE} onClick={() => setActiveTab('rfc')}>
 						<FeatureIcon
-							color={`linear-gradient(135deg, ${V9_COLORS.PRIMARY.PURPLE} 0%, #7c3aed 100%)`}
+							color={`linear-gradient(135deg, ${COLORS.PRIMARY.PURPLE} 0%, #7c3aed 100%)`}
 						>
 							<span></span>
 						</FeatureIcon>
@@ -844,9 +844,9 @@ const OAuthPlaygroundHub: React.FC = () => {
 						</FeatureDescription>
 					</FeatureCard>
 
-					<FeatureCard color={V9_COLORS.PRIMARY.RED} onClick={() => setActiveTab('security')}>
+					<FeatureCard color={COLORS.PRIMARY.RED} onClick={() => setActiveTab('security')}>
 						<FeatureIcon
-							color={`linear-gradient(135deg, ${V9_COLORS.PRIMARY.RED} 0%, ${V9_COLORS.PRIMARY.RED_DARK} 100%)`}
+							color={`linear-gradient(135deg, ${COLORS.PRIMARY.RED} 0%, ${COLORS.PRIMARY.RED_DARK} 100%)`}
 						>
 							<span></span>
 						</FeatureIcon>

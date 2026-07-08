@@ -35,7 +35,7 @@ const Container = styled.div`
   flex-direction: column;
   gap: 1.5rem;
   padding: 2rem;
-  background: V9_COLORS.TEXT.WHITE;
+  background: COLORS.TEXT.WHITE;
   border-radius: 12px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   max-width: 1200px;
@@ -52,7 +52,7 @@ const Header = styled.div`
 const Title = styled.h2`
   font-size: 1.5rem;
   font-weight: 700;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   margin: 0;
   display: flex;
   align-items: center;
@@ -60,7 +60,7 @@ const Title = styled.h2`
 `;
 
 const Description = styled.p`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   margin: 0;
   line-height: 1.5;
@@ -110,13 +110,13 @@ const AssessmentHeader = styled.div`
 const AssessmentTitle = styled.h3`
   font-size: 1rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   margin: 0;
 `;
 
 const AssessmentScore = styled.div`
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const Recommendations = styled.div`
@@ -129,7 +129,7 @@ const RecommendationItem = styled.div`
   gap: 0.5rem;
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
 `;
 
 const CategoriesGrid = styled.div`
@@ -139,8 +139,8 @@ const CategoriesGrid = styled.div`
 `;
 
 const CategoryCard = styled.div`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  background: COLORS.BG.GRAY_LIGHT;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 1.5rem;
 `;
@@ -155,20 +155,20 @@ const CategoryHeader = styled.div`
 const CategoryTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   margin: 0;
 `;
 
 const CategoryDescription = styled.p`
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   margin: 0 0 1rem 0;
 `;
 
 const SettingItem = styled.div`
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   
   &:last-child {
     border-bottom: none;
@@ -187,7 +187,7 @@ const SettingHeader = styled.div`
 const SettingLabel = styled.label`
   font-size: 0.875rem;
   font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: COLORS.TEXT.GRAY_DARK;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -196,7 +196,7 @@ const SettingLabel = styled.label`
 
 const SettingDescription = styled.p`
   font-size: 0.75rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   margin: 0 0 0.5rem 0;
   line-height: 1.4;
 `;
@@ -207,7 +207,7 @@ const SettingInput = styled.input`
 
 const SettingSelect = styled.select`
   padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 4px;
   font-size: 0.875rem;
   background: white;
@@ -272,7 +272,7 @@ const ActionBar = styled.div`
   justify-content: flex-end;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border-top: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
@@ -291,32 +291,32 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger
 		switch (props.variant) {
 			case 'primary':
 				return `
-          background: V9_COLORS.PRIMARY.BLUE;
+          background: COLORS.PRIMARY.BLUE;
           color: white;
-          border-color: V9_COLORS.PRIMARY.BLUE;
+          border-color: COLORS.PRIMARY.BLUE;
           &:hover {
-            background: V9_COLORS.PRIMARY.BLUE_DARK;
-            border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+            background: COLORS.PRIMARY.BLUE_DARK;
+            border-color: COLORS.PRIMARY.BLUE_DARK;
           }
         `;
 			case 'danger':
 				return `
-          background: V9_COLORS.PRIMARY.RED;
+          background: COLORS.PRIMARY.RED;
           color: white;
-          border-color: V9_COLORS.PRIMARY.RED;
+          border-color: COLORS.PRIMARY.RED;
           &:hover {
-            background: V9_COLORS.PRIMARY.RED_DARK;
-            border-color: V9_COLORS.PRIMARY.RED_DARK;
+            background: COLORS.PRIMARY.RED_DARK;
+            border-color: COLORS.PRIMARY.RED_DARK;
           }
         `;
 			default:
 				return `
           background: white;
-          color: V9_COLORS.TEXT.GRAY_DARK;
-          border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
+          color: COLORS.TEXT.GRAY_DARK;
+          border-color: COLORS.TEXT.GRAY_LIGHTER;
           &:hover {
             background: #f9fafb;
-            border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+            border-color: COLORS.TEXT.GRAY_LIGHT;
           }
         `;
 		}

@@ -1,10 +1,10 @@
-// src/services/v7m/V7MIntrospectionService.ts
+// src/platform/mock/V7MIntrospectionService.ts
 // OAuth 2.0 token introspection simulator for V7M.
 // Returns RFC 7662-like payloads using decoded JWT-like data or stored token metadata.
 
-import { V9MockStateStore } from './V9MockStateStore';
+import { MockStateStore } from './MockStateStore';
 
-export type V9MockIntrospectionResponse =
+export type MockIntrospectionResponse =
 	| {
 			active: boolean;
 			scope?: string;
@@ -20,7 +20,7 @@ export type V9MockIntrospectionResponse =
 	  }
 	| { active: false };
 
-export function introspectToken(token: string): V9MockIntrospectionResponse {
+export function introspectToken(token: string): MockIntrospectionResponse {
 	if (!token) return { active: false };
 	// Attempt decode as JWT-like
 	const decoded = decodeJwtLike(token);
@@ -42,7 +42,7 @@ export function introspectToken(token: string): V9MockIntrospectionResponse {
 		};
 	}
 	// Fallback to store
-	const rec = V9MockStateStore.getToken(token);
+	const rec = MockStateStore.getToken(token);
 	if (!rec) return { active: false };
 	const now = Math.floor(Date.now() / 1000);
 	return {

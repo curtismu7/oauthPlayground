@@ -18,8 +18,8 @@ import {
 } from '../../services/educationPreferenceService';
 
 const ToggleContainer = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.WHITE;
+	border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	padding: 12px 0;
 	margin-bottom: 16px;
 `;
@@ -38,7 +38,7 @@ const ToggleLabel = styled.div`
 	align-items: center;
 	gap: 8px;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 14px;
 `;
 
@@ -70,7 +70,7 @@ const ToggleButton = styled.button<{ $active: boolean }>`
 	}
 
 	&:focus {
-		outline: 2px solid V9_COLORS.PRIMARY.BLUE;
+		outline: 2px solid COLORS.PRIMARY.BLUE;
 		outline-offset: -2px;
 	}
 `;
@@ -82,7 +82,7 @@ const ModeIcon = styled.div`
 
 const Description = styled.div`
 	font-size: 12px;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	margin-top: 4px;
 `;
 
@@ -92,10 +92,10 @@ const DropdownContainer = styled.div`
 
 const DropdownButton = styled.button`
 	padding: 8px 12px;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
-	background: V9_COLORS.TEXT.WHITE;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	background: COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 13px;
 	font-weight: 500;
 	cursor: pointer;
@@ -106,11 +106,11 @@ const DropdownButton = styled.button`
 
 	&:hover {
 		background: #f9fafb;
-		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+		border-color: COLORS.TEXT.GRAY_LIGHT;
 	}
 
 	&:focus {
-		outline: 2px solid V9_COLORS.PRIMARY.BLUE;
+		outline: 2px solid COLORS.PRIMARY.BLUE;
 		outline-offset: -2px;
 	}
 `;
@@ -120,8 +120,8 @@ const DropdownMenu = styled.div<{ $isOpen: boolean }>`
 	top: 100%;
 	right: 0;
 	margin-top: 4px;
-	background: V9_COLORS.TEXT.WHITE;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.WHITE;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 	z-index: 1000;
@@ -137,7 +137,7 @@ const DropdownItem = styled.button`
 	padding: 10px 12px;
 	border: none;
 	background: transparent;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 13px;
 	text-align: left;
 	cursor: pointer;
@@ -152,7 +152,7 @@ const DropdownItem = styled.button`
 
 	&:focus {
 		background: #eff6ff;
-		outline: 2px solid V9_COLORS.PRIMARY.BLUE;
+		outline: 2px solid COLORS.PRIMARY.BLUE;
 		outline-offset: -2px;
 	}
 

@@ -13,9 +13,9 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 const FitnessTrackerContainer = styled.div`
 	background: linear-gradient(
 		135deg,
-		V9_COLORS.TEXT.BLACK 0%,
+		COLORS.TEXT.BLACK 0%,
 		#1a1a1a 50%,
-		V9_COLORS.TEXT.BLACK 100%
+		COLORS.TEXT.BLACK 100%
 	);
 	border-radius: 1rem;
 	padding: 1.5rem;
@@ -30,7 +30,7 @@ const FitnessTrackerContainer = styled.div`
 	max-width: 350px;
 	margin-left: auto;
 	margin-right: auto;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 
 	/* Fitbit branding */
 	&::before {
@@ -66,7 +66,7 @@ const FitnessTrackerContainer = styled.div`
 
 // Watch Face
 const WatchFace = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1a1a1a 100%);
+	background: linear-gradient(135deg, COLORS.TEXT.BLACK 0%, #1a1a1a 100%);
 	border: 3px solid #00ff96;
 	border-radius: 50%;
 	width: 200px;
@@ -108,7 +108,7 @@ const WatchDate = styled.div`
 
 // User Code Display
 const UserCodeDisplay = styled.div`
-	background: V9_COLORS.TEXT.BLACK;
+	background: COLORS.TEXT.BLACK;
 	color: #00ff96;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 1.5rem;
@@ -265,7 +265,7 @@ const StatusDisplay = styled.div<{ $status: string }>`
 const StatusText = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 	margin-bottom: 0.25rem;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
@@ -273,7 +273,7 @@ const StatusText = styled.div`
 
 const StatusMessage = styled.div`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.WHITE;
+	color: COLORS.TEXT.WHITE;
 `;
 
 // Watch Band
@@ -365,8 +365,8 @@ const FitnessTrackerDeviceFlow: React.FC<FitnessTrackerDeviceFlowProps> = ({
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={120}
-							bgColor="V9_COLORS.TEXT.WHITE"
-							fgColor="V9_COLORS.TEXT.BLACK"
+							bgColor="COLORS.TEXT.WHITE"
+							fgColor="COLORS.TEXT.BLACK"
 							level="M"
 							includeMargin={true}
 						/>
@@ -425,7 +425,7 @@ const FitnessTrackerDeviceFlow: React.FC<FitnessTrackerDeviceFlowProps> = ({
 			<StandardizedTokenDisplay
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.4)"
-				borderColor="V9_COLORS.TEXT.GRAY_DARK"
+				borderColor="COLORS.TEXT.GRAY_DARK"
 				headerTextColor="#00ff96"
 			/>
 		</>

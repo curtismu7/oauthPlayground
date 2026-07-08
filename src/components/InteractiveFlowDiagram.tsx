@@ -39,16 +39,16 @@ const PageHeader = styled.div`
 	h1 {
 		font-size: 1.8rem;
 		font-weight: 700;
-		color: V9_COLORS.PRIMARY.BLUE_DARK;
+		color: COLORS.PRIMARY.BLUE_DARK;
 		margin-bottom: 0.5rem;
-		background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.GREEN);
+		background: linear-gradient(135deg, COLORS.PRIMARY.BLUE, COLORS.PRIMARY.GREEN);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 		background-clip: text;
 	}
 
 	p {
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		color: COLORS.TEXT.GRAY_MEDIUM;
 		font-size: 1rem;
 		max-width: 500px;
 		margin: 0 auto;
@@ -73,7 +73,7 @@ const FlowButton = styled.button<{ $selected: boolean }>`
 	border: 2px solid ${({ $selected }) => ($selected ? '#3b82f6' : '#e5e7eb')};
 	border-radius: 0.5rem;
 	background: ${({ $selected }) =>
-		$selected ? 'linear-gradient(135deg, #dbeafe, V9_COLORS.TEXT.GRAY_LIGHTER)' : 'white'};
+		$selected ? 'linear-gradient(135deg, #dbeafe, COLORS.TEXT.GRAY_LIGHTER)' : 'white'};
 	color: ${({ $selected }) => ($selected ? '#2563eb' : '#1f2937')};
 	font-weight: 600;
 	font-size: 0.875rem;
@@ -83,8 +83,8 @@ const FlowButton = styled.button<{ $selected: boolean }>`
 		$selected ? '0 4px 6px rgba(59, 130, 246, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.1)'};
 
 	&:hover {
-		border-color: V9_COLORS.PRIMARY.BLUE;
-		background: linear-gradient(135deg, #dbeafe, V9_COLORS.TEXT.GRAY_LIGHTER);
+		border-color: COLORS.PRIMARY.BLUE;
+		background: linear-gradient(135deg, #dbeafe, COLORS.TEXT.GRAY_LIGHTER);
 		transform: translateY(-1px);
 		box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
 	}
@@ -97,9 +97,9 @@ const ControlsPanel = styled.div`
 	margin-bottom: 1rem;
 	justify-content: center;
 	padding: 0.75rem;
-	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT, V9_COLORS.TEXT.GRAY_LIGHTER);
+	background: linear-gradient(135deg, COLORS.BG.GRAY_LIGHT, COLORS.TEXT.GRAY_LIGHTER);
 	border-radius: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	flex-shrink: 0;
 `;
 
@@ -133,7 +133,7 @@ const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 const DiagramArea = styled.div`
 	position: relative;
 	flex: 1;
-	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	background: linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.TEXT.GRAY_LIGHTER 100%);
 	border-radius: 1rem;
 	padding: 1rem;
 	overflow: hidden;
@@ -160,11 +160,11 @@ const ActorCard = styled.div<{ $actor: string }>`
 	background: ${({ $actor }) => {
 		switch ($actor) {
 			case 'user':
-				return 'linear-gradient(135deg, #dbeafe, V9_COLORS.TEXT.GRAY_LIGHTER)';
+				return 'linear-gradient(135deg, #dbeafe, COLORS.TEXT.GRAY_LIGHTER)';
 			case 'client':
-				return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS, #a7f3d0)';
+				return 'linear-gradient(135deg, COLORS.BG.SUCCESS, #a7f3d0)';
 			case 'auth-server':
-				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING, V9_COLORS.BG.WARNING_BORDER)';
+				return 'linear-gradient(135deg, COLORS.BG.WARNING, COLORS.BG.WARNING_BORDER)';
 			case 'server':
 				return 'linear-gradient(135deg, #e9d5ff, #ddd6fe)';
 			default:
@@ -233,7 +233,7 @@ const ActorCard = styled.div<{ $actor: string }>`
 
 	.actor-description {
 		font-size: 0.75rem;
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		color: COLORS.TEXT.GRAY_MEDIUM;
 		line-height: 1.3;
 	}
 `;
@@ -244,11 +244,11 @@ const StepCard = styled.div<{ $status: string; $delay: number }>`
 	background: ${({ $status }) => {
 		switch ($status) {
 			case 'active':
-				return 'linear-gradient(135deg, #dbeafe, V9_COLORS.TEXT.GRAY_LIGHTER)';
+				return 'linear-gradient(135deg, #dbeafe, COLORS.TEXT.GRAY_LIGHTER)';
 			case 'completed':
-				return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS, #a7f3d0)';
+				return 'linear-gradient(135deg, COLORS.BG.SUCCESS, #a7f3d0)';
 			case 'error':
-				return 'linear-gradient(135deg, V9_COLORS.BG.ERROR, V9_COLORS.BG.ERROR_BORDER)';
+				return 'linear-gradient(135deg, COLORS.BG.ERROR, COLORS.BG.ERROR_BORDER)';
 			default:
 				return 'white';
 		}
@@ -305,7 +305,7 @@ const StepCard = styled.div<{ $status: string; $delay: number }>`
 
 	.step-explanation {
 		font-size: 0.75rem;
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		color: COLORS.TEXT.GRAY_MEDIUM;
 		line-height: 1.3;
 		font-style: italic;
 		background: rgba(255, 255, 255, 0.6);
@@ -329,10 +329,10 @@ const StepCard = styled.div<{ $status: string; $delay: number }>`
 
 	.step-data {
 		font-size: 0.7rem;
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: COLORS.TEXT.GRAY_DARK;
 		font-family: 'Monaco', 'Menlo', monospace;
-		background-color: V9_COLORS.BG.GRAY_LIGHT;
-		border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+		background-color: COLORS.BG.GRAY_LIGHT;
+		border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 		padding: 0.75rem;
 		border-radius: 0.375rem;
 		margin-top: 0.5rem;
@@ -356,22 +356,22 @@ const StatusIndicator = styled.div<{ $status: string }>`
 			case 'active':
 				return `
           background-color: #dbeafe;
-          color: V9_COLORS.PRIMARY.BLUE_DARK;
+          color: COLORS.PRIMARY.BLUE_DARK;
         `;
 			case 'completed':
 				return `
-          background-color: V9_COLORS.BG.SUCCESS;
-          color: V9_COLORS.PRIMARY.GREEN;
+          background-color: COLORS.BG.SUCCESS;
+          color: COLORS.PRIMARY.GREEN;
         `;
 			case 'error':
 				return `
-          background-color: V9_COLORS.BG.ERROR;
-          color: V9_COLORS.PRIMARY.RED_DARK;
+          background-color: COLORS.BG.ERROR;
+          color: COLORS.PRIMARY.RED_DARK;
         `;
 			default:
 				return `
           background-color: #f3f4f6;
-          color: V9_COLORS.TEXT.GRAY_DARK;
+          color: COLORS.TEXT.GRAY_DARK;
         `;
 		}
 	}}
@@ -908,7 +908,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 				color: 'white',
 				fontSize: '12px',
 				fontWeight: 'bold',
-				border: '2px solid V9_COLORS.PRIMARY.RED_DARK',
+				border: '2px solid COLORS.PRIMARY.RED_DARK',
 			}}
 		>
 			P1

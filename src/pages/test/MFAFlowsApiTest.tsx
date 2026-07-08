@@ -54,12 +54,12 @@ const Header = styled.div`
 `;
 
 const Title = styled.h1`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const Subtitle = styled.p`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 1.1rem;
 `;
 
@@ -101,11 +101,11 @@ const TestSection = styled.div`
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin-bottom: 2rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const SectionTitle = styled.h2`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1rem;
 	font-size: 1.25rem;
 `;
@@ -130,33 +130,33 @@ const FormGroup = styled.div`
 
 const Label = styled.label`
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 0.875rem;
 `;
 
 const Input = styled.input`
 	padding: 0.5rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
 
 const Select = styled.select`
 	padding: 0.5rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	background: white;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -166,7 +166,7 @@ const ResultsContainer = styled.div`
 `;
 
 const ResultCard = styled.div<{ success: boolean }>`
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin-bottom: 1rem;
@@ -188,7 +188,7 @@ const ResultTitle = styled.h3<{ success: boolean }>`
 
 const ResultTime = styled.span`
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const FlowTypeBadge = styled.span<{ flowtype: string }>`
@@ -228,7 +228,7 @@ const FlowTypeBadge = styled.span<{ flowtype: string }>`
 `;
 
 const CodeBlock = styled.pre`
-	background: V9_COLORS.TEXT.GRAY_DARK;
+	background: COLORS.TEXT.GRAY_DARK;
 	color: #f9fafb;
 	padding: 1rem;
 	border-radius: 0.25rem;

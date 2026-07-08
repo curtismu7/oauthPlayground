@@ -5,7 +5,7 @@ import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
-import { V9_COLORS } from '@/platform/V9ColorStandards';
+import { COLORS } from '@/platform/ColorStandards';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { FiClock, FiTag, FiUnlock } from '../icons';
 import TokenDisplayService from '../services/tokenDisplayService';
@@ -48,8 +48,8 @@ const Container = styled.div<{ $mode: DisplayMode }>`
 	display: flex;
 	flex-direction: column;
 	gap: ${({ $mode }) => ($mode === 'compact' ? '0.75rem' : '1.25rem')};
-	background: V9_COLORS.TEXT.WHITE;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.WHITE;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: ${({ $mode }) => ($mode === 'educational' ? '12px' : '8px')};
 	box-shadow: ${({ $mode }) =>
 		$mode === 'educational' ? '0 4px 12px rgba(0, 0, 0, 0.1)' : '0 1px 3px rgba(0, 0, 0, 0.1)'};
@@ -60,16 +60,16 @@ const Header = styled.div<{ $mode: DisplayMode }>`
 	padding: ${({ $mode }) => ($mode === 'compact' ? '1rem' : '1.5rem')};
 	background: ${({ $mode }) =>
 		$mode === 'educational'
-			? 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)'
+			? 'linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.TEXT.GRAY_LIGHTER 100%)'
 			: '#f8fafc'};
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Title = styled.h3<{ $mode: DisplayMode }>`
 	margin: 0 0 ${({ $mode }) => ($mode === 'compact' ? '0.25rem' : '0.5rem')} 0;
 	font-size: ${({ $mode }) => ($mode === 'compact' ? '1rem' : '1.25rem')};
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -77,13 +77,13 @@ const Title = styled.h3<{ $mode: DisplayMode }>`
 
 const Subtitle = styled.p`
 	margin: 0;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 	line-height: 1.5;
 `;
 
 const TokenSection = styled.div<{ $variant: TokenType; $mode: DisplayMode }>`
-	background: V9_COLORS.TEXT.WHITE;
+	background: COLORS.TEXT.WHITE;
 	border: 1px solid
 		${({ $variant }) => {
 			switch ($variant) {
@@ -116,11 +116,11 @@ const TokenHeader = styled.div<{ $variant: TokenType }>`
 	background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'access':
-				return 'linear-gradient(135deg, #dbeafe 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)';
+				return 'linear-gradient(135deg, #dbeafe 0%, COLORS.TEXT.GRAY_LIGHTER 100%)';
 			case 'id':
-				return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, V9_COLORS.BG.SUCCESS_BORDER 100%)';
+				return 'linear-gradient(135deg, COLORS.BG.SUCCESS 0%, COLORS.BG.SUCCESS_BORDER 100%)';
 			case 'refresh':
-				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)';
+				return 'linear-gradient(135deg, COLORS.BG.WARNING 0%, COLORS.BG.WARNING_BORDER 100%)';
 			default:
 				return '#f8fafc';
 		}
@@ -205,29 +205,29 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 		switch ($variant) {
 			case 'primary':
 				return `
-					background: ${V9_COLORS.PRIMARY.BLUE};
-					color: ${V9_COLORS.TEXT.WHITE};
-					&:hover { background: ${V9_COLORS.PRIMARY.BLUE_DARK}; transform: translateY(-1px); }
+					background: ${COLORS.PRIMARY.BLUE};
+					color: ${COLORS.TEXT.WHITE};
+					&:hover { background: ${COLORS.PRIMARY.BLUE_DARK}; transform: translateY(-1px); }
 				`;
 			case 'success':
 				return `
-					background: ${V9_COLORS.PRIMARY.GREEN};
-					color: ${V9_COLORS.TEXT.WHITE};
-					&:hover { background: ${V9_COLORS.PRIMARY.GREEN_DARK}; transform: translateY(-1px); }
+					background: ${COLORS.PRIMARY.GREEN};
+					color: ${COLORS.TEXT.WHITE};
+					&:hover { background: ${COLORS.PRIMARY.GREEN_DARK}; transform: translateY(-1px); }
 				`;
 			case 'warning':
 				return `
-					background: ${V9_COLORS.PRIMARY.YELLOW};
-					color: ${V9_COLORS.TEXT.WHITE};
-					&:hover { background: ${V9_COLORS.PRIMARY.YELLOW_DARK}; transform: translateY(-1px); }
+					background: ${COLORS.PRIMARY.YELLOW};
+					color: ${COLORS.TEXT.WHITE};
+					&:hover { background: ${COLORS.PRIMARY.YELLOW_DARK}; transform: translateY(-1px); }
 				`;
 			default:
 				/* outline primary: never grey when enabled */
 				return `
-					background: ${V9_COLORS.TEXT.WHITE};
-					color: ${V9_COLORS.PRIMARY.BLUE};
-					border: 1px solid ${V9_COLORS.PRIMARY.BLUE};
-					&:hover { background: ${V9_COLORS.BG.GRAY_LIGHT}; border-color: ${V9_COLORS.PRIMARY.BLUE_DARK}; color: ${V9_COLORS.PRIMARY.BLUE_DARK}; transform: translateY(-1px); }
+					background: ${COLORS.TEXT.WHITE};
+					color: ${COLORS.PRIMARY.BLUE};
+					border: 1px solid ${COLORS.PRIMARY.BLUE};
+					&:hover { background: ${COLORS.BG.GRAY_LIGHT}; border-color: ${COLORS.PRIMARY.BLUE_DARK}; color: ${COLORS.PRIMARY.BLUE_DARK}; transform: translateY(-1px); }
 				`;
 		}
 	}}
@@ -236,9 +236,9 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 		opacity: 0.5;
 		cursor: not-allowed;
 		transform: none !important;
-		background: ${V9_COLORS.TEXT.GRAY_LIGHT} !important;
-		border-color: ${V9_COLORS.TEXT.GRAY_LIGHT} !important;
-		color: ${V9_COLORS.TEXT.GRAY_MEDIUM} !important;
+		background: ${COLORS.TEXT.GRAY_LIGHT} !important;
+		border-color: ${COLORS.TEXT.GRAY_LIGHT} !important;
+		color: ${COLORS.TEXT.GRAY_MEDIUM} !important;
 	}
 `;
 
@@ -250,7 +250,7 @@ const TokenValue = styled.div<{ $masked?: boolean; $highlighted?: boolean }>`
 	font-family: 'SFMono-Regular', 'Monaco', 'Menlo', 'Consolas', monospace;
 	font-size: 0.875rem;
 	line-height: 1.6;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	background: ${({ $highlighted }) => ($highlighted ? '#f0fdf4' : '#f8fafc')};
 	border: 1px solid ${({ $highlighted }) => ($highlighted ? '#10b981' : '#e5e7eb')};
 	border-radius: 6px;
@@ -277,14 +277,14 @@ const TokenValue = styled.div<{ $masked?: boolean; $highlighted?: boolean }>`
 const DecodedSection = styled.div`
 	margin-top: 1rem;
 	padding-top: 1rem;
-	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-top: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const DecodedTitle = styled.h4`
 	margin: 0 0 0.75rem 0;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -292,13 +292,13 @@ const DecodedTitle = styled.h4`
 
 const DecodedContent = styled.div`
 	background: #f0fdf4;
-	border: 1px solid V9_COLORS.PRIMARY.GREEN;
+	border: 1px solid COLORS.PRIMARY.GREEN;
 	border-radius: 6px;
 	padding: 1rem;
 	font-family: 'SFMono-Regular', 'Monaco', 'Menlo', 'Consolas', monospace;
 	font-size: 0.75rem;
 	line-height: 1.5;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	overflow-x: auto;
 	white-space: pre-wrap;
 	max-height: 300px;
@@ -311,9 +311,9 @@ const MetadataGrid = styled.div`
 	gap: 1rem;
 	margin-top: 1rem;
 	padding: 1rem;
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	background: COLORS.BG.GRAY_LIGHT;
 	border-radius: 6px;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const MetadataItem = styled.div`
@@ -325,7 +325,7 @@ const MetadataItem = styled.div`
 const MetadataLabel = styled.span`
 	font-size: 0.75rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 `;
@@ -333,7 +333,7 @@ const MetadataLabel = styled.span`
 const MetadataValue = styled.span`
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-family: 'SFMono-Regular', 'Monaco', 'Menlo', 'Consolas', monospace;
 `;
 
@@ -344,7 +344,7 @@ const EmptyState = styled.div`
 	justify-content: center;
 	padding: 3rem 2rem;
 	text-align: center;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const EmptyStateIcon = styled.div`
@@ -364,10 +364,10 @@ const OpaqueMessage = styled.div`
 	align-items: center;
 	gap: 0.75rem;
 	padding: 1rem;
-	background: V9_COLORS.BG.WARNING;
-	border: 1px solid V9_COLORS.PRIMARY.YELLOW;
+	background: COLORS.BG.WARNING;
+	border: 1px solid COLORS.PRIMARY.YELLOW;
 	border-radius: 6px;
-	color: V9_COLORS.PRIMARY.YELLOW_DARK;
+	color: COLORS.PRIMARY.YELLOW_DARK;
 	font-size: 0.875rem;
 	margin-top: 1rem;
 `;
@@ -382,19 +382,19 @@ const _SyntaxHighlightedJSON = styled.div`
 		font-weight: 600;
 	}
 	.json-string {
-		color: V9_COLORS.PRIMARY.GREEN_DARK;
+		color: COLORS.PRIMARY.GREEN_DARK;
 	}
 	.json-number {
-		color: V9_COLORS.PRIMARY.RED_DARK;
+		color: COLORS.PRIMARY.RED_DARK;
 	}
 	.json-boolean {
 		color: #ea580c;
 	}
 	.json-null {
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		color: COLORS.TEXT.GRAY_MEDIUM;
 	}
 	.json-punctuation {
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: COLORS.TEXT.GRAY_DARK;
 	}
 `;
 

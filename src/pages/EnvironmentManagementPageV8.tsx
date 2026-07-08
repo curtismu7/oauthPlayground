@@ -195,7 +195,7 @@ const styles = {
 
 	educationalSection: {
 		background:
-			'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)',
+			'linear-gradient(135deg, COLORS.PRIMARY.RED 0%, COLORS.PRIMARY.RED_DARK 100%)',
 		borderRadius: '12px',
 		padding: '2rem',
 		marginBottom: '2rem',
@@ -1072,7 +1072,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				<div
 					style={{
 						background: '#f8fafc',
-						border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+						border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 						borderRadius: '8px',
 						padding: '2rem',
 						textAlign: 'center',

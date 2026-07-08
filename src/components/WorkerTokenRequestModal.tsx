@@ -68,7 +68,7 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 `;
 
 const ModalContainer = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
+	background: linear-gradient(135deg, COLORS.TEXT.WHITE 0%, COLORS.BG.GRAY_LIGHT 100%);
 	border-radius: 0.75rem;
 	box-shadow:
 		0 25px 50px -12px rgba(0, 0, 0, 0.25),
@@ -86,8 +86,8 @@ const ModalHeader = styled.div`
 	align-items: center;
 	justify-content: space-between;
 	padding: 1.25rem 1.5rem 0.75rem 1.5rem;
-	background: linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%);
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: linear-gradient(135deg, COLORS.BG.WARNING 0%, COLORS.BG.WARNING_BORDER 100%);
+	border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const HeaderContent = styled.div`
@@ -102,8 +102,8 @@ const HeaderIcon = styled.div`
 	border-radius: 50%;
 	background: linear-gradient(
 		135deg,
-		V9_COLORS.PRIMARY.YELLOW 0%,
-		V9_COLORS.PRIMARY.YELLOW_DARK 100%
+		COLORS.PRIMARY.YELLOW 0%,
+		COLORS.PRIMARY.YELLOW_DARK 100%
 	);
 	display: flex;
 	align-items: center;
@@ -126,7 +126,7 @@ const ModalTitle = styled.h2`
 
 const ModalSubtitle = styled.p`
 	font-size: 0.8rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0.25rem 0 0 0;
 	font-weight: 500;
 `;
@@ -134,7 +134,7 @@ const ModalSubtitle = styled.p`
 const CloseButton = styled.button`
 	background: none;
 	border: none;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	cursor: pointer;
 	padding: 0.5rem;
 	border-radius: 0.5rem;
@@ -163,7 +163,7 @@ const Section = styled.div`
 const SectionTitle = styled.h3`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	margin: 0 0 0.5rem 0;
 	display: flex;
 	align-items: center;
@@ -171,8 +171,8 @@ const SectionTitle = styled.h3`
 `;
 
 const InfoBox = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, V9_COLORS.BG.SUCCESS 100%);
-	border: 1px solid V9_COLORS.PRIMARY.GREEN;
+	background: linear-gradient(135deg, COLORS.BG.SUCCESS 0%, COLORS.BG.SUCCESS 100%);
+	border: 1px solid COLORS.PRIMARY.GREEN;
 	border-radius: 0.5rem;
 	padding: 0.75rem;
 	margin-bottom: 1.25rem;
@@ -182,12 +182,12 @@ const InfoBox = styled.div`
 `;
 
 const InfoIcon = styled.div`
-	color: V9_COLORS.PRIMARY.GREEN_DARK;
+	color: COLORS.PRIMARY.GREEN_DARK;
 	margin-top: 0.125rem;
 `;
 
 const InfoText = styled.div`
-	color: V9_COLORS.PRIMARY.GREEN_DARK;
+	color: COLORS.PRIMARY.GREEN_DARK;
 	font-size: 0.75rem;
 	line-height: 1.4;
 
@@ -201,14 +201,14 @@ const ParameterGrid = styled.div`
 	grid-template-columns: auto 1fr;
 	gap: 0.5rem 0.75rem;
 	background: white;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 0.75rem;
 `;
 
 const ParameterLabel = styled.div`
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 0.8rem;
 `;
 
@@ -220,10 +220,10 @@ const ParameterValue = styled.div`
 	font-family: 'Fira Code', monospace;
 	font-size: 0.8rem;
 	color: #1e293b;
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	background: COLORS.BG.GRAY_LIGHT;
 	padding: 0.5rem 0.75rem;
 	border-radius: 0.375rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	overflow-x: auto;
 	max-width: 100%;
 	white-space: nowrap;
@@ -239,7 +239,7 @@ const ParameterValue = styled.div`
 const ToggleSecretButton = styled.button`
 	background: none;
 	border: none;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	cursor: pointer;
 	padding: 0.25rem;
 	display: flex;
@@ -253,8 +253,8 @@ const ToggleSecretButton = styled.button`
 	transform: translateY(-50%);
 
 	&:hover {
-		background: V9_COLORS.TEXT.GRAY_LIGHTER;
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		background: COLORS.TEXT.GRAY_LIGHTER;
+		color: COLORS.TEXT.GRAY_MEDIUM;
 	}
 `;
 
@@ -273,23 +273,23 @@ const FormLabel = styled.label`
 const FormInput = styled.input`
 	width: 100%;
 	padding: 0.625rem 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	transition: border-color 0.2s;
-	background-color: V9_COLORS.TEXT.WHITE;
+	background-color: COLORS.TEXT.WHITE;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
-		box-shadow: 0 0 0 1px V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 1px COLORS.PRIMARY.BLUE;
 	}
 `;
 
 const PasswordToggle = styled.button`
 	background: none;
 	border: none;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	cursor: pointer;
 	padding: 0.25rem;
 	display: flex;
@@ -303,14 +303,14 @@ const PasswordToggle = styled.button`
 	transform: translateY(-50%);
 
 	&:hover {
-		background: V9_COLORS.TEXT.GRAY_LIGHTER;
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		background: COLORS.TEXT.GRAY_LIGHTER;
+		color: COLORS.TEXT.GRAY_MEDIUM;
 	}
 `;
 
 const CodeBlock = styled.pre`
 	background: #1e293b;
-	color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	color: COLORS.TEXT.GRAY_LIGHTER;
 	padding: 0.75rem;
 	border-radius: 0.5rem;
 	font-size: 0.75rem;
@@ -345,7 +345,7 @@ const ModalActions = styled.div`
 	gap: 0.75rem;
 	justify-content: flex-end;
 	padding: 1rem 1.5rem;
-	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-top: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	margin-top: auto;
 	background: #f9fafb;
 `;
@@ -373,24 +373,24 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary'; disable
 		switch ($variant) {
 			case 'primary':
 				return `
-					background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+					background: linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_DARK 100%);
 					color: white;
 					box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 
 					&:hover {
-						background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+						background: linear-gradient(135deg, COLORS.PRIMARY.BLUE_DARK 0%, COLORS.PRIMARY.BLUE_DARK 100%);
 						transform: translateY(-1px);
 					}
 				`;
 			case 'secondary':
 				return `
 					background: white;
-					color: V9_COLORS.TEXT.GRAY_DARK;
-					border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+					color: COLORS.TEXT.GRAY_DARK;
+					border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 
 					&:hover {
 						background: #f9fafb;
-						border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+						border-color: COLORS.TEXT.GRAY_LIGHT;
 					}
 				`;
 		}
@@ -713,8 +713,8 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 							<InfoBox
 								style={{
 									background:
-										'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)',
-									border: '1px solid V9_COLORS.PRIMARY.YELLOW',
+										'linear-gradient(135deg, COLORS.BG.WARNING 0%, COLORS.BG.WARNING_BORDER 100%)',
+									border: '1px solid COLORS.PRIMARY.YELLOW',
 									marginBottom: 0,
 								}}
 							>

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
-import { V9_COLORS } from '../platform/V9ColorStandards';
+import { COLORS } from '../platform/ColorStandards';
 
 const pageConfig = {
 	flowType: 'pingone' as const,
@@ -51,7 +51,7 @@ const CardGrid = styled.div`
 `;
 
 const DocCard = styled(Link)`
-	background: ${V9_COLORS.BG.WHITE};
+	background: ${COLORS.BG.WHITE};
 	border-radius: 12px;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	padding: 24px;
@@ -60,18 +60,18 @@ const DocCard = styled(Link)`
 		box-shadow 0.2s;
 	text-decoration: none;
 	color: inherit;
-	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 
 	&:hover {
 		transform: translateY(-2px);
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-		border-color: ${V9_COLORS.PRIMARY.BLUE};
+		border-color: ${COLORS.PRIMARY.BLUE};
 	}
 
 	h3 {
 		font-size: 1.1rem;
 		margin-bottom: 0.75rem;
-		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		color: ${COLORS.TEXT.GRAY_DARK};
 		font-weight: 600;
 		display: flex;
 		align-items: center;
@@ -79,7 +79,7 @@ const DocCard = styled(Link)`
 	}
 
 	p {
-		color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+		color: ${COLORS.TEXT.GRAY_MEDIUM};
 		font-size: 0.95rem;
 		line-height: 1.5;
 		margin-bottom: 0;
@@ -87,7 +87,7 @@ const DocCard = styled(Link)`
 `;
 
 const QuickStartBanner = styled.div`
-	background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE}, ${V9_COLORS.PRIMARY.BLUE_DARK});
+	background: linear-gradient(135deg, ${COLORS.PRIMARY.BLUE}, ${COLORS.PRIMARY.BLUE_DARK});
 	color: white;
 	padding: 24px;
 	border-radius: 12px;
@@ -129,8 +129,8 @@ const QuickStartButton = styled(Link)`
 `;
 
 const CodeBlock = styled.pre`
-	background-color: ${V9_COLORS.TEXT.BLACK} !important;
-	color: ${V9_COLORS.TEXT.GRAY_LIGHTER} !important;
+	background-color: ${COLORS.TEXT.BLACK} !important;
+	color: ${COLORS.TEXT.GRAY_LIGHTER} !important;
 	padding: 1rem;
 	border-radius: 0.375rem;
 	overflow-x: auto;
@@ -138,11 +138,11 @@ const CodeBlock = styled.pre`
 	font-size: 0.875rem;
 	line-height: 1.5;
 	margin: 1.5rem 0;
-	border: 1px solid ${V9_COLORS.TEXT.GRAY_MEDIUM} !important;
+	border: 1px solid ${COLORS.TEXT.GRAY_MEDIUM} !important;
 	code {
 		font-family: inherit;
 		background-color: transparent !important;
-		color: ${V9_COLORS.TEXT.GRAY_LIGHTER} !important;
+		color: ${COLORS.TEXT.GRAY_LIGHTER} !important;
 		border: none !important;
 	}
 `;
@@ -156,7 +156,7 @@ const SpecList = styled.ul`
 const SpecItem = styled.li`
 	margin-bottom: 12px;
 	padding-bottom: 12px;
-	border-bottom: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border-bottom: 1px solid ${COLORS.TEXT.GRAY_LIGHTER};
 	&:last-child {
 		border-bottom: none;
 		margin-bottom: 0;
@@ -165,7 +165,7 @@ const SpecItem = styled.li`
 `;
 
 const SpecLink = styled.a`
-	color: ${V9_COLORS.PRIMARY.BLUE};
+	color: ${COLORS.PRIMARY.BLUE};
 	text-decoration: none;
 	font-weight: 600;
 	font-size: 0.9rem;
@@ -174,14 +174,14 @@ const SpecLink = styled.a`
 	gap: 4px;
 	&:hover {
 		text-decoration: underline;
-		color: ${V9_COLORS.PRIMARY.BLUE_DARK};
+		color: ${COLORS.PRIMARY.BLUE_DARK};
 	}
 `;
 
 const SpecDesc = styled.p`
 	margin: 4px 0 0;
 	font-size: 0.82rem;
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	line-height: 1.4;
 `;
 
@@ -368,7 +368,7 @@ const Documentation = () => {
 						defaultCollapsed={true}
 						theme="ping"
 					>
-						<p style={{ marginBottom: '16px', color: V9_COLORS.TEXT.GRAY_MEDIUM }}>
+						<p style={{ marginBottom: '16px', color: COLORS.TEXT.GRAY_MEDIUM }}>
 							All flows below run against the PingOne API (or mock mode) and show real
 							request/response payloads.
 						</p>
@@ -539,9 +539,9 @@ const Documentation = () => {
 							<div>
 								<h3
 									style={{
-										color: V9_COLORS.TEXT.GRAY_DARK,
+										color: COLORS.TEXT.GRAY_DARK,
 										marginTop: 0,
-										borderBottom: `2px solid ${V9_COLORS.PRIMARY.BLUE}`,
+										borderBottom: `2px solid ${COLORS.PRIMARY.BLUE}`,
 										paddingBottom: '8px',
 									}}
 								>
@@ -646,9 +646,9 @@ const Documentation = () => {
 							<div>
 								<h3
 									style={{
-										color: V9_COLORS.TEXT.GRAY_DARK,
+										color: COLORS.TEXT.GRAY_DARK,
 										marginTop: 0,
-										borderBottom: `2px solid ${V9_COLORS.PRIMARY.BLUE}`,
+										borderBottom: `2px solid ${COLORS.PRIMARY.BLUE}`,
 										paddingBottom: '8px',
 									}}
 								>
@@ -758,9 +758,9 @@ const Documentation = () => {
 							<div>
 								<h3
 									style={{
-										color: V9_COLORS.TEXT.GRAY_DARK,
+										color: COLORS.TEXT.GRAY_DARK,
 										marginTop: 0,
-										borderBottom: `2px solid ${V9_COLORS.PRIMARY.RED}`,
+										borderBottom: `2px solid ${COLORS.PRIMARY.RED}`,
 										paddingBottom: '8px',
 									}}
 								>
@@ -878,9 +878,9 @@ const Documentation = () => {
 							<div>
 								<h3
 									style={{
-										color: V9_COLORS.TEXT.GRAY_DARK,
+										color: COLORS.TEXT.GRAY_DARK,
 										marginTop: 0,
-										borderBottom: `2px solid ${V9_COLORS.PRIMARY.GREEN}`,
+										borderBottom: `2px solid ${COLORS.PRIMARY.GREEN}`,
 										paddingBottom: '8px',
 									}}
 								>
@@ -961,9 +961,9 @@ const Documentation = () => {
 							<div>
 								<h3
 									style={{
-										color: V9_COLORS.TEXT.GRAY_DARK,
+										color: COLORS.TEXT.GRAY_DARK,
 										marginTop: 0,
-										borderBottom: `2px solid ${V9_COLORS.PRIMARY.GREEN}`,
+										borderBottom: `2px solid ${COLORS.PRIMARY.GREEN}`,
 										paddingBottom: '8px',
 									}}
 								>
@@ -1056,9 +1056,9 @@ const Documentation = () => {
 							<div>
 								<h3
 									style={{
-										color: V9_COLORS.TEXT.GRAY_DARK,
+										color: COLORS.TEXT.GRAY_DARK,
 										marginTop: 0,
-										borderBottom: `2px solid ${V9_COLORS.PRIMARY.RED}`,
+										borderBottom: `2px solid ${COLORS.PRIMARY.RED}`,
 										paddingBottom: '8px',
 									}}
 								>
@@ -1132,9 +1132,9 @@ const Documentation = () => {
 							<div>
 								<h3
 									style={{
-										color: V9_COLORS.TEXT.GRAY_DARK,
+										color: COLORS.TEXT.GRAY_DARK,
 										marginTop: 0,
-										borderBottom: `2px solid ${V9_COLORS.PRIMARY.RED}`,
+										borderBottom: `2px solid ${COLORS.PRIMARY.RED}`,
 										paddingBottom: '8px',
 									}}
 								>
@@ -1226,14 +1226,14 @@ const Documentation = () => {
 					>
 						<div
 							style={{
-								background: V9_COLORS.BG.ERROR,
-								border: `1px solid ${V9_COLORS.BG.ERROR_BORDER}`,
+								background: COLORS.BG.ERROR,
+								border: `1px solid ${COLORS.BG.ERROR_BORDER}`,
 								borderRadius: '8px',
 								padding: '16px',
 								marginBottom: '1.5rem',
 							}}
 						>
-							<p style={{ margin: 0, color: V9_COLORS.PRIMARY.RED, fontWeight: '500' }}>
+							<p style={{ margin: 0, color: COLORS.PRIMARY.RED, fontWeight: '500' }}>
 								<strong>Security Warning:</strong> OAuth 2.0 and OIDC handle sensitive
 								authentication data. Always follow these guidelines to protect your users and
 								applications.
@@ -1288,14 +1288,14 @@ const Documentation = () => {
 					>
 						<div
 							style={{
-								background: V9_COLORS.BG.GRAY_LIGHT,
-								border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+								background: COLORS.BG.GRAY_LIGHT,
+								border: `1px solid ${COLORS.TEXT.GRAY_LIGHTER}`,
 								borderRadius: '8px',
 								padding: '16px',
 								marginBottom: '1.5rem',
 							}}
 						>
-							<p style={{ margin: 0, color: V9_COLORS.PRIMARY.BLUE, fontWeight: '500' }}>
+							<p style={{ margin: 0, color: COLORS.PRIMARY.BLUE, fontWeight: '500' }}>
 								<strong>Pro Tip:</strong> Most errors are configuration issues. Check redirect URIs,
 								client IDs, scopes, and clock skew first.
 							</p>
@@ -1336,7 +1336,7 @@ const Documentation = () => {
 								environmentId, workerToken"
 								<br />
 								<strong>Fix:</strong> Configure your Environment ID and Worker Token in{' '}
-								<Link to="/configuration" style={{ color: V9_COLORS.PRIMARY.BLUE }}>
+								<Link to="/configuration" style={{ color: COLORS.PRIMARY.BLUE }}>
 									Configuration Management
 								</Link>{' '}
 								before using API-connected features.

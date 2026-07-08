@@ -4,7 +4,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import { V9_COLORS } from '@/platform/V9ColorStandards';
+import { COLORS } from '@/platform/ColorStandards';
 import { SpecCard } from '../../components/SpecCard';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
@@ -16,7 +16,7 @@ const Container = styled.div`
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
-	background: linear-gradient(135deg, ${V9_COLORS.BG.GRAY_LIGHT} 0%, ${V9_COLORS.TEXT.GRAY_LIGHTER} 100%);
+	background: linear-gradient(135deg, ${COLORS.BG.GRAY_LIGHT} 0%, ${COLORS.TEXT.GRAY_LIGHTER} 100%);
 `;
 
 const ContentWrapper = styled.div`
@@ -32,7 +32,7 @@ const Header = styled.div`
 	h1 {
 		font-size: 3rem;
 		font-weight: 700;
-		color: ${V9_COLORS.PRIMARY.BLUE};
+		color: ${COLORS.PRIMARY.BLUE};
 		margin-bottom: 1rem;
 		display: flex;
 		align-items: center;
@@ -42,7 +42,7 @@ const Header = styled.div`
 
 	p {
 		font-size: 1.25rem;
-		color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+		color: ${COLORS.TEXT.GRAY_MEDIUM};
 		max-width: 800px;
 		margin: 0 auto;
 		line-height: 1.6;
@@ -57,11 +57,11 @@ const Section = styled.section`
 		margin-bottom: 1.25rem;
 		display: flex;
 		align-items: center;
-		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		color: ${COLORS.TEXT.GRAY_DARK};
 
 		svg {
 			margin-right: 0.75rem;
-			color: ${V9_COLORS.PRIMARY.BLUE};
+			color: ${COLORS.PRIMARY.BLUE};
 		}
 	}
 `;
@@ -98,13 +98,13 @@ const ExternalLink = styled.a`
 const LinkTitle = styled.h3`
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	margin-bottom: 0.5rem;
 `;
 
 const LinkDescription = styled.p`
 	font-size: 0.875rem;
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 	line-height: 1.5;
 `;
 
@@ -164,13 +164,13 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 `;
 
 const SpecLink = styled.a`
-	color: ${V9_COLORS.PRIMARY.BLUE};
+	color: ${COLORS.PRIMARY.BLUE};
 	text-decoration: none;
 	font-weight: 500;
 	transition: color 0.2s ease;
 
 	&:hover {
-		color: ${V9_COLORS.PRIMARY.BLUE_DARK};
+		color: ${COLORS.PRIMARY.BLUE_DARK};
 		text-decoration: underline;
 	}
 `;

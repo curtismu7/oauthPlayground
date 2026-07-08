@@ -29,14 +29,14 @@ const Header = styled.div`
 	align-items: center;
 	margin-bottom: 1rem;
 	padding-bottom: 1rem;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Title = styled.h3`
 	margin: 0;
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
@@ -109,20 +109,20 @@ const SectionHeader = styled.div<{ $sectionType?: string; $statusCode?: number }
 		if ($sectionType === 'response' && $statusCode !== undefined) {
 			// Color based on status code
 			if ($statusCode >= 200 && $statusCode < 300) {
-				return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, V9_COLORS.BG.SUCCESS_BORDER 100%)'; // Green gradient for success
+				return 'linear-gradient(135deg, COLORS.BG.SUCCESS 0%, COLORS.BG.SUCCESS_BORDER 100%)'; // Green gradient for success
 			} else if ($statusCode >= 400) {
-				return 'linear-gradient(135deg, V9_COLORS.BG.ERROR 0%, V9_COLORS.BG.ERROR_BORDER 100%)'; // Red gradient for errors
+				return 'linear-gradient(135deg, COLORS.BG.ERROR 0%, COLORS.BG.ERROR_BORDER 100%)'; // Red gradient for errors
 			} else {
-				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)'; // Yellow gradient for other statuses
+				return 'linear-gradient(135deg, COLORS.BG.WARNING 0%, COLORS.BG.WARNING_BORDER 100%)'; // Yellow gradient for other statuses
 			}
 		}
 		switch ($sectionType) {
 			case 'details':
-				return 'linear-gradient(135deg, #dbeafe 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)'; // Blue gradient
+				return 'linear-gradient(135deg, #dbeafe 0%, COLORS.TEXT.GRAY_LIGHTER 100%)'; // Blue gradient
 			case 'curl':
-				return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, V9_COLORS.BG.SUCCESS_BORDER 100%)'; // Green gradient
+				return 'linear-gradient(135deg, COLORS.BG.SUCCESS 0%, COLORS.BG.SUCCESS_BORDER 100%)'; // Green gradient
 			case 'pingone':
-				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)'; // Yellow gradient
+				return 'linear-gradient(135deg, COLORS.BG.WARNING 0%, COLORS.BG.WARNING_BORDER 100%)'; // Yellow gradient
 			case 'response':
 				return 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)'; // Pink gradient (fallback)
 			case 'notes':
@@ -168,20 +168,20 @@ const SectionHeader = styled.div<{ $sectionType?: string; $statusCode?: number }
 			if ($sectionType === 'response' && $statusCode !== undefined) {
 				// Darker shades based on status code
 				if ($statusCode >= 200 && $statusCode < 300) {
-					return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS_BORDER 0%, #86efac 100%)'; // Darker green
+					return 'linear-gradient(135deg, COLORS.BG.SUCCESS_BORDER 0%, #86efac 100%)'; // Darker green
 				} else if ($statusCode >= 400) {
-					return 'linear-gradient(135deg, V9_COLORS.BG.ERROR_BORDER 0%, #fca5a5 100%)'; // Darker red
+					return 'linear-gradient(135deg, COLORS.BG.ERROR_BORDER 0%, #fca5a5 100%)'; // Darker red
 				} else {
-					return 'linear-gradient(135deg, V9_COLORS.BG.WARNING_BORDER 0%, #fcd34d 100%)'; // Darker yellow
+					return 'linear-gradient(135deg, COLORS.BG.WARNING_BORDER 0%, #fcd34d 100%)'; // Darker yellow
 				}
 			}
 			switch ($sectionType) {
 				case 'details':
-					return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_LIGHTER 0%, #93c5fd 100%)'; // Darker blue
+					return 'linear-gradient(135deg, COLORS.TEXT.GRAY_LIGHTER 0%, #93c5fd 100%)'; // Darker blue
 				case 'curl':
-					return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS_BORDER 0%, #86efac 100%)'; // Darker green
+					return 'linear-gradient(135deg, COLORS.BG.SUCCESS_BORDER 0%, #86efac 100%)'; // Darker green
 				case 'pingone':
-					return 'linear-gradient(135deg, V9_COLORS.BG.WARNING_BORDER 0%, #fcd34d 100%)'; // Darker yellow
+					return 'linear-gradient(135deg, COLORS.BG.WARNING_BORDER 0%, #fcd34d 100%)'; // Darker yellow
 				case 'response':
 					return 'linear-gradient(135deg, #fbcfe8 0%, #f9a8d4 100%)'; // Darker pink (fallback)
 				case 'notes':
@@ -235,7 +235,7 @@ const SectionTitle = styled.h4`
 	margin: 0;
 	font-size: 1rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -246,7 +246,7 @@ const SectionContent = styled.div<{ $isExpanded: boolean }>`
 	overflow: hidden;
 	transition: max-height 0.3s ease;
 	padding: ${({ $isExpanded }) => ($isExpanded ? '1rem' : '0')};
-	border: ${({ $isExpanded }) => ($isExpanded ? '1px solid V9_COLORS.TEXT.GRAY_LIGHTER' : 'none')};
+	border: ${({ $isExpanded }) => ($isExpanded ? '1px solid COLORS.TEXT.GRAY_LIGHTER' : 'none')};
 	border-top: none;
 	border-radius: 0 0 6px 6px;
 `;
@@ -339,8 +339,8 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 `;
 
 const EducationalNote = styled.div`
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	padding: 1rem;
 	margin: 0.75rem 0;
@@ -351,12 +351,12 @@ const EducationalNote = styled.div`
 
 const FlowContext = styled.div`
 	background: #f0fdf4;
-	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
+	border: 1px solid COLORS.BG.SUCCESS_BORDER;
 	border-radius: 6px;
 	padding: 1rem;
 	margin: 0.75rem 0;
 	font-size: 0.875rem;
-	color: V9_COLORS.PRIMARY.GREEN;
+	color: COLORS.PRIMARY.GREEN;
 `;
 
 const ParameterList = styled.ul`
@@ -370,16 +370,16 @@ const ParameterItem = styled.li`
 	font-size: 0.875rem;
 	margin: 0.5rem 0;
 	padding: 0.75rem;
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	background: COLORS.BG.GRAY_LIGHT;
 	border-radius: 6px;
-	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
+	border-left: 4px solid COLORS.PRIMARY.BLUE;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 `;
 
 const ParameterValue = styled.code`
-	background: V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.TEXT.GRAY_LIGHTER;
 	padding: 0.25rem 0.5rem;
 	border-radius: 4px;
 	font-size: 0.8rem;
@@ -401,14 +401,14 @@ const RevealToggleBtn = styled.button`
 	cursor: pointer;
 	padding: 0.2rem 0.35rem;
 	border-radius: 4px;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	display: inline-flex;
 	align-items: center;
 	gap: 0.25rem;
 	font-size: 0.75rem;
 	&:hover {
 		background: #f3f4f6;
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
@@ -1334,7 +1334,7 @@ ${
 									marginTop: '0.75rem',
 									padding: '0.75rem',
 									background: '#f8fafc',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									fontSize: '0.8rem',
 									color: '#6b7280',

@@ -7,7 +7,7 @@ import { ColoredJsonDisplay } from '../../components/ColoredJsonDisplay';
 import { WorkerTokenSectionV9 } from '../../components/WorkerTokenSectionV9';
 import { showGlobalError, showGlobalSuccess } from '../../contexts/NotificationSystem';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
-import { V9_COLORS } from '../../platform/V9ColorStandards';
+import { COLORS } from '../../platform/ColorStandards';
 import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
 import V9FlowHeader from '../../platform/v9FlowHeaderService';
 
@@ -71,7 +71,7 @@ const Container = styled.div`
 
 const OverviewCard = styled(Card)`
 	margin-bottom: 2rem;
-	border-left: 4px solid ${V9_COLORS.PRIMARY.BLUE};
+	border-left: 4px solid ${COLORS.PRIMARY.BLUE};
 `;
 
 const FeatureGrid = styled.div`
@@ -82,7 +82,7 @@ const FeatureGrid = styled.div`
 `;
 
 const FeatureCard = styled(Card)`
-	border-left: 4px solid ${V9_COLORS.BORDER.INFO};
+	border-left: 4px solid ${COLORS.BORDER.INFO};
 	transition:
 		transform 0.2s,
 		box-shadow 0.2s;
@@ -94,8 +94,8 @@ const FeatureCard = styled(Card)`
 `;
 
 const CodeBlock = styled.pre`
-	background-color: ${V9_COLORS.BG.GRAY_LIGHT};
-	border: 1px solid ${V9_COLORS.BORDER.GRAY};
+	background-color: ${COLORS.BG.GRAY_LIGHT};
+	border: 1px solid ${COLORS.BORDER.GRAY};
 	border-radius: 0.375rem;
 	padding: 1rem;
 	font-size: 0.875rem;
@@ -106,8 +106,8 @@ const CodeBlock = styled.pre`
 `;
 
 const PingOneNote = styled.div`
-	background-color: ${V9_COLORS.BG.INFO_LIGHT};
-	border: 1px solid ${V9_COLORS.BORDER.INFO};
+	background-color: ${COLORS.BG.INFO_LIGHT};
+	border: 1px solid ${COLORS.BORDER.INFO};
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0 2rem 0;
@@ -116,15 +116,15 @@ const PingOneNote = styled.div`
 	gap: 0.75rem;
 
 	svg {
-		color: ${V9_COLORS.TEXT.INFO};
+		color: ${COLORS.TEXT.INFO};
 		flex-shrink: 0;
 		margin-top: 0.1rem;
 	}
 `;
 
 const SecurityNote = styled.div`
-	background-color: ${V9_COLORS.BG.ERROR_LIGHT};
-	border: 1px solid ${V9_COLORS.BORDER.ERROR};
+	background-color: ${COLORS.BG.ERROR_LIGHT};
+	border: 1px solid ${COLORS.BORDER.ERROR};
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0 2rem 0;
@@ -133,7 +133,7 @@ const SecurityNote = styled.div`
 	gap: 0.75rem;
 
 	svg {
-		color: ${V9_COLORS.TEXT.ERROR};
+		color: ${COLORS.TEXT.ERROR};
 		flex-shrink: 0;
 		margin-top: 0.1rem;
 	}
@@ -149,15 +149,15 @@ const EndpointBadge = styled.span<{ method: string }>`
 	background-color: ${({ method }) => {
 		switch (method) {
 			case 'GET':
-				return V9_COLORS.STATUS.SUCCESS;
+				return COLORS.STATUS.SUCCESS;
 			case 'POST':
-				return V9_COLORS.PRIMARY.BLUE;
+				return COLORS.PRIMARY.BLUE;
 			case 'DELETE':
-				return V9_COLORS.TEXT.ERROR;
+				return COLORS.TEXT.ERROR;
 			case 'PUT':
-				return V9_COLORS.STATUS.WARNING;
+				return COLORS.STATUS.WARNING;
 			default:
-				return V9_COLORS.TEXT.GRAY_MEDIUM;
+				return COLORS.TEXT.GRAY_MEDIUM;
 		}
 	}};
 	color: white;
@@ -171,21 +171,21 @@ const Label = styled.label`
 	display: block;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 	margin-bottom: 0.5rem;
 `;
 
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid ${V9_COLORS.BORDER.GRAY};
+	border: 1px solid ${COLORS.BORDER.GRAY};
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	transition: border-color 0.2s;
 
 	&:focus {
 		outline: none;
-		border-color: ${V9_COLORS.PRIMARY.BLUE};
+		border-color: ${COLORS.PRIMARY.BLUE};
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -193,7 +193,7 @@ const Input = styled.input`
 const Select = styled.select`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid ${V9_COLORS.BORDER.GRAY};
+	border: 1px solid ${COLORS.BORDER.GRAY};
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	background-color: white;
@@ -202,7 +202,7 @@ const Select = styled.select`
 
 	&:focus {
 		outline: none;
-		border-color: ${V9_COLORS.PRIMARY.BLUE};
+		border-color: ${COLORS.PRIMARY.BLUE};
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -223,15 +223,15 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 		switch (variant) {
 			case 'primary':
 				return `
-					background-color: ${V9_COLORS.PRIMARY.BLUE};
+					background-color: ${COLORS.PRIMARY.BLUE};
 					color: white;
 					&:hover:not(:disabled) {
-						background-color: ${V9_COLORS.PRIMARY.BLUE_DARK};
+						background-color: ${COLORS.PRIMARY.BLUE_DARK};
 					}
 				`;
 			case 'secondary':
 				return `
-					background-color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+					background-color: ${COLORS.TEXT.GRAY_MEDIUM};
 					color: white;
 					&:hover:not(:disabled) {
 						background-color: #4b5563;
@@ -239,10 +239,10 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 				`;
 			case 'danger':
 				return `
-					background-color: ${V9_COLORS.TEXT.ERROR};
+					background-color: ${COLORS.TEXT.ERROR};
 					color: white;
 					&:hover:not(:disabled) {
-						background-color: ${V9_COLORS.PRIMARY.RED_DARK};
+						background-color: ${COLORS.PRIMARY.RED_DARK};
 					}
 				`;
 		}
@@ -255,8 +255,8 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 `;
 
 const RequestDetailsBox = styled.div`
-	background-color: ${V9_COLORS.BG.GRAY_LIGHT};
-	border: 1px solid ${V9_COLORS.BORDER.GRAY};
+	background-color: ${COLORS.BG.GRAY_LIGHT};
+	border: 1px solid ${COLORS.BORDER.GRAY};
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -271,10 +271,10 @@ const StatusBadge = styled.span<{ status: number }>`
 	font-size: 0.75rem;
 	font-weight: 600;
 	background-color: ${({ status }) => {
-		if (status >= 200 && status < 300) return V9_COLORS.STATUS.SUCCESS;
-		if (status >= 400 && status < 500) return V9_COLORS.STATUS.WARNING;
-		if (status >= 500) return V9_COLORS.TEXT.ERROR;
-		return V9_COLORS.TEXT.GRAY_MEDIUM;
+		if (status >= 200 && status < 300) return COLORS.STATUS.SUCCESS;
+		if (status >= 400 && status < 500) return COLORS.STATUS.WARNING;
+		if (status >= 500) return COLORS.TEXT.ERROR;
+		return COLORS.TEXT.GRAY_MEDIUM;
 	}};
 	color: white;
 `;
@@ -283,22 +283,22 @@ const CredentialsTypeIndicator = styled.div<{ type: 'worker' | 'authz' | 'manual
 	background-color: ${({ type }) => {
 		switch (type) {
 			case 'worker':
-				return V9_COLORS.BG.SUCCESS_LIGHT;
+				return COLORS.BG.SUCCESS_LIGHT;
 			case 'authz':
-				return V9_COLORS.BG.INFO_LIGHT;
+				return COLORS.BG.INFO_LIGHT;
 			case 'manual':
-				return V9_COLORS.BG.WARNING_LIGHT;
+				return COLORS.BG.WARNING_LIGHT;
 		}
 	}};
 	border: 1px solid
 		${({ type }) => {
 			switch (type) {
 				case 'worker':
-					return V9_COLORS.BORDER.SUCCESS;
+					return COLORS.BORDER.SUCCESS;
 				case 'authz':
-					return V9_COLORS.BORDER.INFO;
+					return COLORS.BORDER.INFO;
 				case 'manual':
-					return V9_COLORS.BORDER.WARNING;
+					return COLORS.BORDER.WARNING;
 			}
 		}};
 	border-radius: 0.375rem;
@@ -312,11 +312,11 @@ const CredentialsTypeIndicator = styled.div<{ type: 'worker' | 'authz' | 'manual
 	color: ${({ type }) => {
 		switch (type) {
 			case 'worker':
-				return V9_COLORS.TEXT.SUCCESS;
+				return COLORS.TEXT.SUCCESS;
 			case 'authz':
-				return V9_COLORS.TEXT.INFO;
+				return COLORS.TEXT.INFO;
 			case 'manual':
-				return V9_COLORS.STATUS.WARNING;
+				return COLORS.STATUS.WARNING;
 		}
 	}};
 `;
@@ -327,26 +327,26 @@ const _EnvironmentSessionsContainer = styled.div`
 
 const SessionsTable = styled.div`
 	background: white;
-	border: 1px solid ${V9_COLORS.BORDER.GRAY};
+	border: 1px solid ${COLORS.BORDER.GRAY};
 	border-radius: 0.5rem;
 	overflow: hidden;
 	margin-top: 1rem;
 `;
 
 const TableHeader = styled.div`
-	background: ${V9_COLORS.BG.GRAY_LIGHT};
-	border-bottom: 1px solid ${V9_COLORS.BORDER.GRAY};
+	background: ${COLORS.BG.GRAY_LIGHT};
+	border-bottom: 1px solid ${COLORS.BORDER.GRAY};
 	padding: 1rem;
 	display: grid;
 	grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1fr 1fr;
 	gap: 1rem;
 	font-weight: 600;
 	font-size: 0.875rem;
-	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	color: ${COLORS.TEXT.GRAY_DARK};
 `;
 
 const TableRow = styled.div`
-	border-bottom: 1px solid ${V9_COLORS.BORDER.GRAY_LIGHT};
+	border-bottom: 1px solid ${COLORS.BORDER.GRAY_LIGHT};
 	padding: 1rem;
 	display: grid;
 	grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1fr 1fr;
@@ -355,7 +355,7 @@ const TableRow = styled.div`
 	transition: background-color 0.2s;
 
 	&:hover {
-		background-color: ${V9_COLORS.BG.GRAY_LIGHT};
+		background-color: ${COLORS.BG.GRAY_LIGHT};
 	}
 
 	&:last-child {
@@ -366,7 +366,7 @@ const TableRow = styled.div`
 const SessionId = styled.div`
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.75rem;
-	background: ${V9_COLORS.BG.GRAY_LIGHT};
+	background: ${COLORS.BG.GRAY_LIGHT};
 	padding: 0.25rem 0.5rem;
 	border-radius: 0.25rem;
 	word-break: break-all;
@@ -381,25 +381,25 @@ const SessionStatusBadge = styled.span<{ status: string }>`
 	background-color: ${({ status }) => {
 		switch (status) {
 			case 'ACTIVE':
-				return V9_COLORS.BG.SUCCESS_LIGHT;
+				return COLORS.BG.SUCCESS_LIGHT;
 			case 'EXPIRED':
-				return V9_COLORS.BG.WARNING_LIGHT;
+				return COLORS.BG.WARNING_LIGHT;
 			case 'REVOKED':
-				return V9_COLORS.BG.ERROR_LIGHT;
+				return COLORS.BG.ERROR_LIGHT;
 			default:
-				return V9_COLORS.BG.GRAY_LIGHT;
+				return COLORS.BG.GRAY_LIGHT;
 		}
 	}};
 	color: ${({ status }) => {
 		switch (status) {
 			case 'ACTIVE':
-				return V9_COLORS.TEXT.SUCCESS;
+				return COLORS.TEXT.SUCCESS;
 			case 'EXPIRED':
-				return V9_COLORS.STATUS.WARNING;
+				return COLORS.STATUS.WARNING;
 			case 'REVOKED':
-				return V9_COLORS.TEXT.ERROR;
+				return COLORS.TEXT.ERROR;
 			default:
-				return V9_COLORS.TEXT.GRAY_MEDIUM;
+				return COLORS.TEXT.GRAY_MEDIUM;
 		}
 	}};
 `;
@@ -407,11 +407,11 @@ const SessionStatusBadge = styled.span<{ status: string }>`
 const EmptyState = styled.div`
 	text-align: center;
 	padding: 3rem;
-	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${COLORS.TEXT.GRAY_MEDIUM};
 
 	h4 {
 		margin: 0 0 0.5rem 0;
-		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		color: ${COLORS.TEXT.GRAY_DARK};
 	}
 
 	p {
@@ -780,7 +780,7 @@ const PingOneSessionsAPIFlowV9: React.FC = () => {
 									<div>
 										{new Date(session.createdAt).toLocaleDateString()}
 										<br />
-										<small style={{ color: V9_COLORS.TEXT.GRAY_MEDIUM }}>
+										<small style={{ color: COLORS.TEXT.GRAY_MEDIUM }}>
 											{new Date(session.createdAt).toLocaleTimeString()}
 										</small>
 									</div>
@@ -892,7 +892,7 @@ const PingOneSessionsAPIFlowV9: React.FC = () => {
 							disabled={isLoading || credentialsType === 'worker'}
 						/>
 						{credentialsType === 'worker' && (
-							<small style={{ color: V9_COLORS.TEXT.INFO }}>Using worker token automatically</small>
+							<small style={{ color: COLORS.TEXT.INFO }}>Using worker token automatically</small>
 						)}
 					</InputGroup>
 

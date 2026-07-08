@@ -26,7 +26,7 @@ interface ConfigurationButtonProps {
 }
 
 const Button = styled.button`
-  background: V9_COLORS.TEXT.GRAY_MEDIUM;
+  background: COLORS.TEXT.GRAY_MEDIUM;
   color: white;
   border: none;
   border-radius: 0.375rem;
@@ -76,14 +76,14 @@ const ModalHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ModalTitle = styled.h2`
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--color-text-primary, V9_COLORS.TEXT.GRAY_DARK);
+  color: var(--color-text-primary, COLORS.TEXT.GRAY_DARK);
 `;
 
 const CloseButton = styled.button`
@@ -91,13 +91,13 @@ const CloseButton = styled.button`
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   padding: 0.25rem;
   border-radius: 0.25rem;
 
   &:hover {
     background: #f3f4f6;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
   }
 `;
 

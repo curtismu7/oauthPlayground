@@ -21,7 +21,7 @@ import { logger } from '../utils/logger';
 const WhiteContainer = styled.div`
 	background-color: white;
 	min-height: 100vh;
-	color: V9_COLORS.TEXT.GRAY_DARK; // Dark text for readability
+	color: COLORS.TEXT.GRAY_DARK; // Dark text for readability
 	line-height: 1.6;
 	padding-top: 100px; // Account for fixed Navbar (80px height + 20px margin)
 	padding-bottom: 4rem; // Extra bottom padding to prevent content cutoff
@@ -33,11 +33,11 @@ const WhiteContainer = styled.div`
 	h4,
 	h5,
 	h6 {
-		color: V9_COLORS.TEXT.GRAY_DARK; // Darker headers
+		color: COLORS.TEXT.GRAY_DARK; // Darker headers
 	}
 
 	p {
-		color: V9_COLORS.TEXT.GRAY_DARK; // Medium dark text
+		color: COLORS.TEXT.GRAY_DARK; // Medium dark text
 	}
 `;
 
@@ -154,15 +154,15 @@ const SecurityNote = styled.div`
 `;
 
 const InteractiveSection = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	background: linear-gradient(135deg, COLORS.BG.GRAY_LIGHT 0%, COLORS.TEXT.GRAY_LIGHTER 100%);
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin: 1.5rem 0;
-	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const DemoButton = styled.button`
-	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.BLUE_DARK);
+	background: linear-gradient(135deg, COLORS.PRIMARY.BLUE, COLORS.PRIMARY.BLUE_DARK);
 	color: white;
 	border: none;
 	border-radius: 0.5rem;
@@ -176,7 +176,7 @@ const DemoButton = styled.button`
 	margin: 1rem 0;
 
 	&:hover {
-		background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK, V9_COLORS.PRIMARY.BLUE_DARK);
+		background: linear-gradient(135deg, COLORS.PRIMARY.BLUE_DARK, COLORS.PRIMARY.BLUE_DARK);
 		transform: translateY(-1px);
 		box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 	}
@@ -192,7 +192,7 @@ const DemoButton = styled.button`
 
 const CodeExample = styled.div`
 	background: white;
-	border: 2px solid V9_COLORS.PRIMARY.BLUE;
+	border: 2px solid COLORS.PRIMARY.BLUE;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -206,12 +206,12 @@ const CodeHeader = styled.div`
 	align-items: center;
 	margin-bottom: 0.75rem;
 	padding-bottom: 0.75rem;
-	border-bottom: 2px solid V9_COLORS.PRIMARY.BLUE;
+	border-bottom: 2px solid COLORS.PRIMARY.BLUE;
 `;
 
 const CodeTitle = styled.span`
 	color: white;
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: COLORS.PRIMARY.BLUE;
 	font-size: 0.875rem;
 	font-weight: 600;
 	display: flex;
@@ -222,9 +222,9 @@ const CodeTitle = styled.span`
 `;
 
 const CopyButton = styled.button`
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: COLORS.PRIMARY.BLUE;
 	color: white;
-	border: 2px solid V9_COLORS.PRIMARY.BLUE;
+	border: 2px solid COLORS.PRIMARY.BLUE;
 	border-radius: 0.25rem;
 	padding: 0.25rem 0.5rem;
 	font-size: 0.75rem;
@@ -236,8 +236,8 @@ const CopyButton = styled.button`
 	font-weight: 500;
 
 	&:hover {
-		background: V9_COLORS.PRIMARY.BLUE_DARK;
-		border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+		background: COLORS.PRIMARY.BLUE_DARK;
+		border-color: COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 
@@ -259,12 +259,12 @@ const FlowStep = styled.div`
 	padding: 1rem;
 	background: white;
 	border-radius: 0.5rem;
-	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
+	border-left: 4px solid COLORS.PRIMARY.BLUE;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 `;
 
 const StepNumber = styled.div`
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: COLORS.PRIMARY.BLUE;
 	color: white;
 	border-radius: 50%;
 	width: 2rem;
@@ -290,7 +290,7 @@ const StepTitle = styled.h4`
 
 const StepDescription = styled.p`
 	margin: 0 0 0.75rem 0;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.5;
 `;
 
@@ -302,8 +302,8 @@ const FlowDiagram = styled.div`
 	padding: 1.5rem;
 	background: linear-gradient(
 		135deg,
-		V9_COLORS.BG.GRAY_MEDIUM 0%,
-		V9_COLORS.TEXT.GRAY_LIGHTER 100%
+		COLORS.BG.GRAY_MEDIUM 0%,
+		COLORS.TEXT.GRAY_LIGHTER 100%
 	);
 	border-radius: 0.75rem;
 	border: 2px solid #cbd5e1;
@@ -314,14 +314,14 @@ const FlowActor = styled.div`
 	padding: 1rem;
 	background: white;
 	border-radius: 0.5rem;
-	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 	min-width: 120px;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 `;
 
 const ActorIcon = styled.div`
 	font-size: 2rem;
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: COLORS.PRIMARY.BLUE;
 	margin-bottom: 0.5rem;
 `;
 
@@ -333,17 +333,17 @@ const ActorName = styled.div`
 
 const ActorRole = styled.div`
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const FlowArrow = styled.div`
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: COLORS.PRIMARY.BLUE;
 	font-size: 1.5rem;
 	margin: 0 1rem;
 `;
 
 const PingOneBadge = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK);
+	background: linear-gradient(135deg, COLORS.PRIMARY.YELLOW, COLORS.PRIMARY.YELLOW_DARK);
 	color: white;
 	padding: 0.25rem 0.75rem;
 	border-radius: 1rem;
@@ -356,13 +356,13 @@ const PingOneBadge = styled.div`
 `;
 
 const ImplementationCard = styled(Card)`
-	border-left: 4px solid V9_COLORS.PRIMARY.GREEN;
-	background: linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%);
+	border-left: 4px solid COLORS.PRIMARY.GREEN;
+	background: linear-gradient(135deg, #f0fdf4 0%, COLORS.BG.SUCCESS 100%);
 `;
 
 const WarningCard = styled(Card)`
-	border-left: 4px solid V9_COLORS.PRIMARY.YELLOW;
-	background: linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING 100%);
+	border-left: 4px solid COLORS.PRIMARY.YELLOW;
+	background: linear-gradient(135deg, COLORS.BG.WARNING 0%, COLORS.BG.WARNING 100%);
 `;
 
 // Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
@@ -477,7 +477,7 @@ const OIDCSessionManagement = () => {
 									<div
 										style={{
 											background: '#f8fafc',
-											border: '2px solid V9_COLORS.PRIMARY.BLUE',
+											border: '2px solid COLORS.PRIMARY.BLUE',
 											borderRadius: '0.75rem',
 											padding: '1.5rem',
 											margin: '1.5rem 0',
@@ -626,7 +626,7 @@ const OIDCSessionManagement = () => {
 													padding: '1rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+													border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 												}}
 											>
 												<FiShield
@@ -644,7 +644,7 @@ const OIDCSessionManagement = () => {
 													padding: '1rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+													border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 												}}
 											>
 												<FiUsers
@@ -660,7 +660,7 @@ const OIDCSessionManagement = () => {
 													padding: '1rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+													border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 												}}
 											>
 												<FiMonitor
@@ -783,7 +783,7 @@ const OIDCSessionManagement = () => {
 												padding: '0.5rem 1rem',
 												background: '#fef3c7',
 												borderRadius: '0.5rem',
-												border: '1px solid V9_COLORS.BG.WARNING_BORDER',
+												border: '1px solid COLORS.BG.WARNING_BORDER',
 												transition: 'all 0.2s ease',
 											}}
 											onMouseEnter={(e) => {
@@ -839,7 +839,7 @@ const OIDCSessionManagement = () => {
 													<div
 														style={{
 															background:
-																'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
+																'linear-gradient(135deg, COLORS.PRIMARY.YELLOW, COLORS.PRIMARY.YELLOW_DARK)',
 															color: 'white',
 															borderRadius: '4px',
 															padding: '0.25rem',
@@ -961,7 +961,7 @@ if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
 										<div
 											style={{
 												background: '#f8fafc',
-												border: '2px solid V9_COLORS.PRIMARY.BLUE',
+												border: '2px solid COLORS.PRIMARY.BLUE',
 												borderRadius: '0.75rem',
 												padding: '1.5rem',
 												margin: '1.5rem 0',
@@ -1035,7 +1035,7 @@ if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
 													<div
 														style={{
 															background:
-																'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
+																'linear-gradient(135deg, COLORS.PRIMARY.YELLOW, COLORS.PRIMARY.YELLOW_DARK)',
 															color: 'white',
 															borderRadius: '4px',
 															padding: '0.25rem',
@@ -1181,7 +1181,7 @@ window.addEventListener('message', function(event) {
 													<div
 														style={{
 															background:
-																'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
+																'linear-gradient(135deg, COLORS.PRIMARY.YELLOW, COLORS.PRIMARY.YELLOW_DARK)',
 															color: 'white',
 															borderRadius: '4px',
 															padding: '0.25rem',
@@ -1325,7 +1325,7 @@ GET /endsession?
 													<div
 														style={{
 															background:
-																'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
+																'linear-gradient(135deg, COLORS.PRIMARY.YELLOW, COLORS.PRIMARY.YELLOW_DARK)',
 															color: 'white',
 															borderRadius: '4px',
 															padding: '0.25rem',
@@ -1495,7 +1495,7 @@ GET /logout?
 													<div
 														style={{
 															background:
-																'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
+																'linear-gradient(135deg, COLORS.PRIMARY.YELLOW, COLORS.PRIMARY.YELLOW_DARK)',
 															color: 'white',
 															borderRadius: '4px',
 															padding: '0.25rem',
@@ -1671,7 +1671,7 @@ Content-Type: application/json
 													<div
 														style={{
 															background:
-																'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
+																'linear-gradient(135deg, COLORS.PRIMARY.YELLOW, COLORS.PRIMARY.YELLOW_DARK)',
 															color: 'white',
 															borderRadius: '4px',
 															padding: '0.25rem',
@@ -1851,7 +1851,7 @@ if (sessionState !== expectedSessionState) {
 												padding: '1.25rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.PRIMARY.BLUE',
+												border: '2px solid COLORS.PRIMARY.BLUE',
 											}}
 										>
 											<h4
@@ -1904,7 +1904,7 @@ if (sessionState !== expectedSessionState) {
 												padding: '1.25rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.PRIMARY.BLUE',
+												border: '2px solid COLORS.PRIMARY.BLUE',
 											}}
 										>
 											<h4
@@ -1957,7 +1957,7 @@ if (sessionState !== expectedSessionState) {
 												padding: '1.25rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.PRIMARY.BLUE',
+												border: '2px solid COLORS.PRIMARY.BLUE',
 											}}
 										>
 											<h4
@@ -2053,7 +2053,7 @@ logger.info('Calculated session state:', sessionState);`,
 												padding: '1.25rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.PRIMARY.BLUE',
+												border: '2px solid COLORS.PRIMARY.BLUE',
 											}}
 										>
 											<FiShield
@@ -2109,7 +2109,7 @@ logger.info('Calculated session state:', sessionState);`,
 												padding: '1.25rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.PRIMARY.BLUE',
+												border: '2px solid COLORS.PRIMARY.BLUE',
 											}}
 										>
 											<FiShield
@@ -2164,7 +2164,7 @@ logger.info('Calculated session state:', sessionState);`,
 												padding: '1.25rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.PRIMARY.BLUE',
+												border: '2px solid COLORS.PRIMARY.BLUE',
 											}}
 										>
 											<FiShield
@@ -2243,7 +2243,7 @@ logger.info('Calculated session state:', sessionState);`,
 												padding: '1rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+												border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 											}}
 										>
 											<FiRefreshCw
@@ -2259,7 +2259,7 @@ logger.info('Calculated session state:', sessionState);`,
 												padding: '1rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+												border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 											}}
 										>
 											<FiMonitor
@@ -2275,7 +2275,7 @@ logger.info('Calculated session state:', sessionState);`,
 												padding: '1rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+												border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 											}}
 										>
 											<FiUsers
@@ -2293,7 +2293,7 @@ logger.info('Calculated session state:', sessionState);`,
 												padding: '1rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+												border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 											}}
 										>
 											<FiCheck
@@ -2389,7 +2389,7 @@ sessionMonitor.startPolling();`,
 											padding: '1.5rem',
 											background: 'white',
 											borderRadius: '0.75rem',
-											border: '2px solid V9_COLORS.PRIMARY.BLUE',
+											border: '2px solid COLORS.PRIMARY.BLUE',
 											marginBottom: '2rem',
 										}}
 									>
@@ -2539,7 +2539,7 @@ if (returnedState === storedState) {
 											padding: '1.5rem',
 											background: 'white',
 											borderRadius: '0.75rem',
-											border: '2px solid V9_COLORS.PRIMARY.BLUE',
+											border: '2px solid COLORS.PRIMARY.BLUE',
 											marginBottom: '2rem',
 										}}
 									>
@@ -2719,7 +2719,7 @@ app.get('/logout', (req, res) => {
 											padding: '1.5rem',
 											background: 'white',
 											borderRadius: '0.75rem',
-											border: '2px solid V9_COLORS.PRIMARY.BLUE',
+											border: '2px solid COLORS.PRIMARY.BLUE',
 											marginBottom: '2rem',
 										}}
 									>
@@ -2910,7 +2910,7 @@ async function terminateSessionBySid(sessionId) {
 											padding: '1.5rem',
 											background: 'white',
 											borderRadius: '0.75rem',
-											border: '2px solid V9_COLORS.PRIMARY.BLUE',
+											border: '2px solid COLORS.PRIMARY.BLUE',
 											marginBottom: '2rem',
 										}}
 									>
@@ -3091,7 +3091,7 @@ setInterval(checkSessionState, 30000);`,
 									<div
 										style={{
 											background: '#f8fafc',
-											border: '2px solid V9_COLORS.PRIMARY.BLUE',
+											border: '2px solid COLORS.PRIMARY.BLUE',
 											borderRadius: '0.75rem',
 											padding: '1.5rem',
 											marginTop: '2rem',
@@ -3161,7 +3161,7 @@ setInterval(checkSessionState, 30000);`,
 												padding: '1rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+												border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 											}}
 										>
 											<FiArrowRight
@@ -3179,7 +3179,7 @@ setInterval(checkSessionState, 30000);`,
 												padding: '1rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+												border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 											}}
 										>
 											<FiMonitor
@@ -3195,7 +3195,7 @@ setInterval(checkSessionState, 30000);`,
 												padding: '1rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+												border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 											}}
 										>
 											<FiRefreshCw
@@ -3211,7 +3211,7 @@ setInterval(checkSessionState, 30000);`,
 												padding: '1rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+												border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 											}}
 										>
 											<FiUsers
@@ -3266,7 +3266,7 @@ setInterval(checkSessionState, 30000);`,
 												padding: '1.25rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.PRIMARY.BLUE',
+												border: '2px solid COLORS.PRIMARY.BLUE',
 											}}
 										>
 											<FiShield
@@ -3324,7 +3324,7 @@ setInterval(checkSessionState, 30000);`,
 												padding: '1.25rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.PRIMARY.BLUE',
+												border: '2px solid COLORS.PRIMARY.BLUE',
 											}}
 										>
 											<FiShield
@@ -3382,7 +3382,7 @@ setInterval(checkSessionState, 30000);`,
 												padding: '1.25rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.PRIMARY.BLUE',
+												border: '2px solid COLORS.PRIMARY.BLUE',
 											}}
 										>
 											<FiCheck
@@ -3441,7 +3441,7 @@ setInterval(checkSessionState, 30000);`,
 												padding: '1.25rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.PRIMARY.BLUE',
+												border: '2px solid COLORS.PRIMARY.BLUE',
 											}}
 										>
 											<FiUsers
@@ -3515,7 +3515,7 @@ setInterval(checkSessionState, 30000);`,
 												padding: '1.25rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.PRIMARY.BLUE',
+												border: '2px solid COLORS.PRIMARY.BLUE',
 											}}
 										>
 											<FiShield
@@ -3573,7 +3573,7 @@ setInterval(checkSessionState, 30000);`,
 												padding: '1.25rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.PRIMARY.BLUE',
+												border: '2px solid COLORS.PRIMARY.BLUE',
 											}}
 										>
 											<FiShield
@@ -3633,7 +3633,7 @@ setInterval(checkSessionState, 30000);`,
 												padding: '1.25rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.PRIMARY.BLUE',
+												border: '2px solid COLORS.PRIMARY.BLUE',
 											}}
 										>
 											<FiMonitor
@@ -3691,7 +3691,7 @@ setInterval(checkSessionState, 30000);`,
 												padding: '1.25rem',
 												background: 'white',
 												borderRadius: '0.5rem',
-												border: '2px solid V9_COLORS.PRIMARY.BLUE',
+												border: '2px solid COLORS.PRIMARY.BLUE',
 											}}
 										>
 											<FiUsers

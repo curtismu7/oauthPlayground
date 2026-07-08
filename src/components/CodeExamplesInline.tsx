@@ -21,8 +21,8 @@ interface CodeExamplesInlineProps {
 }
 
 const Container = styled.div`
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: COLORS.BG.GRAY_LIGHT;
+	border: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	overflow: hidden;
 `;
@@ -32,17 +32,17 @@ const ToggleButton = styled.button<{ $isOpen: boolean }>`
 	padding: 0.75rem 1rem;
 	background: ${({ $isOpen }) => ($isOpen ? '#e5e7eb' : '#f8fafc')};
 	border: none;
-	border-bottom: ${({ $isOpen }) => ($isOpen ? '1px solid V9_COLORS.TEXT.GRAY_LIGHTER' : 'none')};
+	border-bottom: ${({ $isOpen }) => ($isOpen ? '1px solid COLORS.TEXT.GRAY_LIGHTER' : 'none')};
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	cursor: pointer;
 	transition: all 0.2s ease;
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 
 	&:hover {
-		background: V9_COLORS.TEXT.GRAY_LIGHTER;
+		background: COLORS.TEXT.GRAY_LIGHTER;
 	}
 `;
 
@@ -54,7 +54,7 @@ const ToggleContent = styled.div<{ $isOpen: boolean }>`
 
 const QuickCodePreview = styled.div`
 	padding: 1rem;
-	background: V9_COLORS.TEXT.GRAY_DARK;
+	background: COLORS.TEXT.GRAY_DARK;
 	color: #f9fafb;
 	border-radius: 6px;
 	margin: 1rem;
@@ -73,14 +73,14 @@ const QuickCodePreview = styled.div`
 	}
 
 	&::-webkit-scrollbar-track {
-		background: V9_COLORS.TEXT.GRAY_MEDIUM;
+		background: COLORS.TEXT.GRAY_MEDIUM;
 		border-radius: 6px;
 	}
 
 	&::-webkit-scrollbar-thumb {
 		background: #4a5568;
 		border-radius: 6px;
-		border: 2px solid V9_COLORS.TEXT.GRAY_MEDIUM;
+		border: 2px solid COLORS.TEXT.GRAY_MEDIUM;
 	}
 
 	&::-webkit-scrollbar-thumb:hover {
@@ -88,7 +88,7 @@ const QuickCodePreview = styled.div`
 	}
 
 	&::-webkit-scrollbar-corner {
-		background: V9_COLORS.TEXT.GRAY_MEDIUM;
+		background: COLORS.TEXT.GRAY_MEDIUM;
 	}
 `;
 
@@ -117,7 +117,7 @@ const LanguageTabs = styled.div`
 	display: flex;
 	gap: 0.25rem;
 	padding: 0.75rem 1rem 0;
-	background: V9_COLORS.BG.GRAY_LIGHT;
+	background: COLORS.BG.GRAY_LIGHT;
 `;
 
 const LanguageTab = styled.button<{ $active: boolean }>`

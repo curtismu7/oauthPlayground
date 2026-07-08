@@ -985,7 +985,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 							style={{
 								width: '100%',
 								padding: '0.75rem',
-								border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '8px',
 								fontSize: '1rem',
 								disabled: isLoading ? { opacity: 0.6, cursor: 'not-allowed' } : {},
@@ -1013,7 +1013,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 							style={{
 								width: '100%',
 								padding: '0.75rem',
-								border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '2px solid COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '8px',
 								fontSize: '1rem',
 								disabled: isLoading ? { opacity: 0.6, cursor: 'not-allowed' } : {},

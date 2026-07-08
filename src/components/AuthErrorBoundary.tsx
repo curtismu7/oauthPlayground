@@ -35,7 +35,7 @@ class AuthErrorBoundary extends Component<Props, State> {
 						padding: '2rem',
 						textAlign: 'center',
 						backgroundColor: '#fef2f2',
-						border: '1px solid V9_COLORS.BG.ERROR_BORDER',
+						border: '1px solid COLORS.BG.ERROR_BORDER',
 						borderRadius: '0.5rem',
 						margin: '1rem',
 					}}

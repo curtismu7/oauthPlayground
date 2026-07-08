@@ -31,26 +31,26 @@ const FormField = styled.div`
 
 const FormLabel = styled.label`
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 0.875rem;
 `;
 
 const FormInput = styled.input`
 	padding: 0.75rem;
-	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 2px solid COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	transition: border-color 0.2s;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 
 	&:disabled {
 		background-color: #f3f4f6;
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		color: COLORS.TEXT.GRAY_MEDIUM;
 		cursor: not-allowed;
 	}
 `;
@@ -68,7 +68,7 @@ const InfoBox = styled.div`
 
 const InfoText = styled.div`
 	font-size: 0.8125rem;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	color: COLORS.PRIMARY.BLUE_DARK;
 	line-height: 1.5;
 `;
 
@@ -436,7 +436,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 						alignItems: 'center',
 						gap: '6px',
 						padding: '8px 16px',
-						border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+						border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 						borderRadius: '6px',
 						background: '#f9fafb',
 						color: '#1f2937',
@@ -473,7 +473,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 						alignItems: 'center',
 						gap: '6px',
 						padding: '8px 16px',
-						border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+						border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 						borderRadius: '6px',
 						background: '#f9fafb',
 						color: '#1f2937',

@@ -246,7 +246,7 @@ export default function CustomDomainTestPage() {
 		<div className="dashboard-page">
 			{/* ── Top Status Bar: Backend + Worker Token + Environment ID ── */}
 			<div className="section-wrap mb-3">
-				<div className="card" style={{ borderLeft: '4px solid V9_COLORS.PRIMARY.BLUE_DARK' }}>
+				<div className="card" style={{ borderLeft: '4px solid COLORS.PRIMARY.BLUE_DARK' }}>
 					<div className="card-body py-3">
 						<p
 							className="fw-600 mb-2 text-small"
@@ -374,7 +374,7 @@ export default function CustomDomainTestPage() {
 				<div
 					className="card"
 					style={{
-						borderLeft: '4px solid V9_COLORS.PRIMARY.BLUE_DARK',
+						borderLeft: '4px solid COLORS.PRIMARY.BLUE_DARK',
 						backgroundColor: '#f8fafc',
 					}}
 				>

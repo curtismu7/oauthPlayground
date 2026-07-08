@@ -1,5 +1,5 @@
 /**
- * @file V9MockApiLogger.ts
+ * @file MockApiLogger.ts
  * @description Mock API call logger for V7M educational services
  * @version 1.0.0
  * @since 2026-03-10
@@ -37,7 +37,7 @@ export interface MockApiCallOptions {
 // MOCK API LOGGER SERVICE
 // ============================================================================
 
-class V9MockApiLogger {
+class MockApiLogger {
 	/**
 	 * Log a mock API call in the same format as real PingOne API calls
 	 * This will appear in the log viewer just like real API calls
@@ -64,7 +64,7 @@ class V9MockApiLogger {
 		const startTime = Date.now();
 
 		// Log API call start
-		V9MockApiLogger.logApiCallStart({
+		MockApiLogger.logApiCallStart({
 			method,
 			url,
 			endpoint,
@@ -80,7 +80,7 @@ class V9MockApiLogger {
 		// Simulate network delay and log response
 		setTimeout(() => {
 			if (responseError) {
-				V9MockApiLogger.logApiCallError({
+				MockApiLogger.logApiCallError({
 					method,
 					url,
 					endpoint,
@@ -91,7 +91,7 @@ class V9MockApiLogger {
 					step,
 				});
 			} else {
-				V9MockApiLogger.logApiCallSuccess({
+				MockApiLogger.logApiCallSuccess({
 					method,
 					url,
 					endpoint,
@@ -219,7 +219,7 @@ class V9MockApiLogger {
 			'═══════════════════════════════════════════════════════════════════════════════',
 			' RESPONSE',
 			'═══════════════════════════════════════════════════════════════════════════════',
-			`✅ STATUS: ${responseStatus} ${V9MockApiLogger.getStatusText(responseStatus)}`,
+			`✅ STATUS: ${responseStatus} ${MockApiLogger.getStatusText(responseStatus)}`,
 			`⏱️  DURATION: ${duration}ms`,
 		];
 
@@ -282,7 +282,7 @@ class V9MockApiLogger {
 			'═══════════════════════════════════════════════════════════════════════════════',
 			' RESPONSE',
 			'═══════════════════════════════════════════════════════════════════════════════',
-			`❌ STATUS: ${responseStatus} ${V9MockApiLogger.getStatusText(responseStatus)}`,
+			`❌ STATUS: ${responseStatus} ${MockApiLogger.getStatusText(responseStatus)}`,
 			`⏱️  DURATION: ${duration}ms`,
 			` ERROR: ${responseError}`,
 		];
@@ -340,7 +340,7 @@ class V9MockApiLogger {
 // CONVENIENCE METHODS FOR COMMON V7M API CALLS
 // ============================================================================
 
-export class V9MockApiCalls {
+export class MockApiCalls {
 	/**
 	 * Mock authorization endpoint call
 	 */
@@ -366,7 +366,7 @@ export class V9MockApiCalls {
 		if (options.codeChallengeMethod)
 			queryParams.code_challenge_method = options.codeChallengeMethod;
 
-		V9MockApiLogger.logMockApiCall({
+		MockApiLogger.logMockApiCall({
 			method: 'GET',
 			url: `https://auth.pingone.com/${options.environmentId}/as/authorization?${new URLSearchParams(queryParams).toString()}`,
 			endpoint: 'Authorization Endpoint',
@@ -404,7 +404,7 @@ export class V9MockApiCalls {
 		if (options.redirectUri) body.redirect_uri = options.redirectUri;
 		if (options.scope) body.scope = options.scope;
 
-		V9MockApiLogger.logMockApiCall({
+		MockApiLogger.logMockApiCall({
 			method: 'POST',
 			url: `https://auth.pingone.com/${options.environmentId}/as/token`,
 			endpoint: 'Token Endpoint',
@@ -431,7 +431,7 @@ export class V9MockApiCalls {
 	 * Mock userinfo endpoint call
 	 */
 	static logUserInfoEndpoint(options: { environmentId: string; accessToken: string }): void {
-		V9MockApiLogger.logMockApiCall({
+		MockApiLogger.logMockApiCall({
 			method: 'GET',
 			url: `https://auth.pingone.com/${options.environmentId}/as/userinfo`,
 			endpoint: 'UserInfo Endpoint',
@@ -469,7 +469,7 @@ export class V9MockApiCalls {
 
 		if (options.clientSecret) body.client_secret = options.clientSecret;
 
-		V9MockApiLogger.logMockApiCall({
+		MockApiLogger.logMockApiCall({
 			method: 'POST',
 			url: `https://auth.pingone.com/${options.environmentId}/as/introspection`,
 			endpoint: 'Token Introspection Endpoint',
@@ -495,4 +495,4 @@ export class V9MockApiCalls {
 	}
 }
 
-export default V9MockApiLogger;
+export default MockApiLogger;

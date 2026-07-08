@@ -18,7 +18,7 @@ const URLContainer = styled.div`
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
-  background: linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 50%, V9_COLORS.BG.SUCCESS_BORDER 100%);
+  background: linear-gradient(135deg, #f0fdf4 0%, COLORS.BG.SUCCESS 50%, COLORS.BG.SUCCESS_BORDER 100%);
   border: 1px solid #86efac;
   border-radius: 0.5rem;
   padding: 1rem;
@@ -35,7 +35,7 @@ const URLText = styled.span`
 `;
 
 const InfoButton = styled.button`
-  background: V9_COLORS.PRIMARY.BLUE;
+  background: COLORS.PRIMARY.BLUE;
   color: white;
   border: none;
   border-radius: 0.25rem;
@@ -48,7 +48,7 @@ const InfoButton = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background: V9_COLORS.PRIMARY.BLUE_DARK;
+    background: COLORS.PRIMARY.BLUE_DARK;
   }
 
   svg {
@@ -86,14 +86,14 @@ const ModalHeader = styled.div`
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border-bottom: 1px solid COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ModalTitle = styled.h3`
   margin: 0;
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--color-text-primary, V9_COLORS.TEXT.GRAY_DARK);
+  color: var(--color-text-primary, COLORS.TEXT.GRAY_DARK);
 `;
 
 const CloseButton = styled.button`
@@ -102,11 +102,11 @@ const CloseButton = styled.button`
   cursor: pointer;
   padding: 0.25rem;
   border-radius: 0.25rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: COLORS.TEXT.GRAY_MEDIUM;
   transition: color 0.2s;
 
   &:hover {
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: COLORS.TEXT.GRAY_DARK;
   }
 
   svg {
@@ -123,42 +123,42 @@ const URLPartDescription = styled.div`
 `;
 
 const URLPartDescriptionBase = styled(URLPartDescription)`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border-left-color: V9_COLORS.PRIMARY.BLUE_DARK;
+  background: COLORS.BG.GRAY_LIGHT;
+  border-left-color: COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const URLPartDescriptionQuestion = styled(URLPartDescription)`
-  background: V9_COLORS.BG.ERROR;
-  border-left-color: V9_COLORS.PRIMARY.RED_DARK;
+  background: COLORS.BG.ERROR;
+  border-left-color: COLORS.PRIMARY.RED_DARK;
 `;
 
 const URLPartDescriptionAmpersand = styled(URLPartDescription)`
-  background: V9_COLORS.TEXT.WHITE7ed;
+  background: COLORS.TEXT.WHITE7ed;
   border-left-color: #ea580c;
 `;
 
 const URLPartDescriptionParam = styled(URLPartDescription)`
   background: #f0fdf4;
-  border-left-color: V9_COLORS.PRIMARY.GREEN_DARK;
+  border-left-color: COLORS.PRIMARY.GREEN_DARK;
 `;
 
 const URLPartDescriptionParam2 = styled(URLPartDescription)`
-  background: V9_COLORS.BG.WARNING;
-  border-left-color: V9_COLORS.PRIMARY.YELLOW_DARK;
+  background: COLORS.BG.WARNING;
+  border-left-color: COLORS.PRIMARY.YELLOW_DARK;
 `;
 
 const URLPartDescriptionParam3 = styled(URLPartDescription)`
   background: #f0fdf4;
-  border-left-color: V9_COLORS.PRIMARY.GREEN_DARK;
+  border-left-color: COLORS.PRIMARY.GREEN_DARK;
 `;
 
 const URLPartDescriptionEquals = styled(URLPartDescription)`
-  background: V9_COLORS.BG.GRAY_MEDIUM;
-  border-left-color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  background: COLORS.BG.GRAY_MEDIUM;
+  border-left-color: COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const URLPartDescriptionDollar = styled(URLPartDescription)`
-  background: V9_COLORS.BG.ERROR;
+  background: COLORS.BG.ERROR;
   border-left-color: #c2410c;
 `;
 
@@ -181,12 +181,12 @@ const URLPart = styled.span<{
 		switch (type) {
 			case 'base':
 				return `
-          color: V9_COLORS.PRIMARY.BLUE_DARK; /* Blue for base URL */
+          color: COLORS.PRIMARY.BLUE_DARK; /* Blue for base URL */
           font-weight: 500;
         `;
 			case 'question':
 				return `
-          color: V9_COLORS.PRIMARY.RED_DARK; /* Red for ? */
+          color: COLORS.PRIMARY.RED_DARK; /* Red for ? */
           font-weight: 600;
         `;
 			case 'ampersand':
@@ -201,22 +201,22 @@ const URLPart = styled.span<{
         `;
 			case 'param':
 				return `
-          color: V9_COLORS.PRIMARY.GREEN_DARK; /* Green for parameter names and values */
+          color: COLORS.PRIMARY.GREEN_DARK; /* Green for parameter names and values */
           font-weight: 500;
         `;
 			case 'param2':
 				return `
-          color: V9_COLORS.PRIMARY.YELLOW_DARK; /* Amber for alternating parameters */
+          color: COLORS.PRIMARY.YELLOW_DARK; /* Amber for alternating parameters */
           font-weight: 500;
         `;
 			case 'param3':
 				return `
-          color: V9_COLORS.PRIMARY.GREEN_DARK; /* Green for alternating parameters */
+          color: COLORS.PRIMARY.GREEN_DARK; /* Green for alternating parameters */
           font-weight: 500;
         `;
 			case 'equals':
 				return `
-          color: V9_COLORS.TEXT.GRAY_MEDIUM; /* Slate for equals sign */
+          color: COLORS.TEXT.GRAY_MEDIUM; /* Slate for equals sign */
           font-weight: 500;
         `;
 			default:

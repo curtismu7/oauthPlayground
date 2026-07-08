@@ -8,15 +8,15 @@ const CardContainer = styled.div<{ $colorScheme?: string; $fontSize?: string }>`
 	background: ${({ $colorScheme }) => {
 		switch ($colorScheme) {
 			case 'blue':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_LIGHT 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.BLUE 0%, COLORS.PRIMARY.BLUE_LIGHT 100%)';
 			case 'green':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_LIGHT 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.GREEN 0%, COLORS.PRIMARY.GREEN_LIGHT 100%)';
 			case 'purple':
 				return 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)';
 			case 'orange':
 				return 'linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)';
 			case 'red':
-				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_LIGHT 100%)';
+				return 'linear-gradient(135deg, COLORS.PRIMARY.RED 0%, COLORS.PRIMARY.RED_LIGHT 100%)';
 			default:
 				return 'linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)';
 		}
@@ -73,7 +73,7 @@ const ToggleIcon = styled.div<{ $isOpen: boolean }>`
 	width: 32px;
 	height: 32px;
 	border-radius: 50%;
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: COLORS.PRIMARY.BLUE;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -113,7 +113,7 @@ const SectionTitle = styled.div`
 `;
 
 const SectionContent = styled.div`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: COLORS.TEXT.GRAY_DARK;
 	font-size: 0.875rem;
 	line-height: 1.5;
 `;

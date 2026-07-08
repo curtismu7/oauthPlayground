@@ -315,7 +315,7 @@ const PingOnePARFlowV9: React.FC = () => {
 								padding: '1.5rem',
 								background: '#f8fafc',
 								borderRadius: '0.75rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<button
@@ -392,7 +392,7 @@ const PingOnePARFlowV9: React.FC = () => {
 							<div
 								style={{
 									background: '#f8fafc',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.75rem',
 									padding: '1.5rem',
 								}}
@@ -483,7 +483,7 @@ const PingOnePARFlowV9: React.FC = () => {
 									padding: '3rem',
 									background: '#f8fafc',
 									borderRadius: '0.75rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 								}}
 							>
 								<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
@@ -529,7 +529,7 @@ const PingOnePARFlowV9: React.FC = () => {
 						<div
 							style={{
 								background: '#fef3c7',
-								border: '1px solid V9_COLORS.PRIMARY.YELLOW',
+								border: '1px solid COLORS.PRIMARY.YELLOW',
 								borderRadius: '0.5rem',
 								padding: '1rem',
 								marginBottom: '2rem',
@@ -545,7 +545,7 @@ const PingOnePARFlowV9: React.FC = () => {
 						<div
 							style={{
 								background: '#f8fafc',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '0.75rem',
 								padding: '1.5rem',
 								marginBottom: '2rem',
@@ -622,7 +622,7 @@ const PingOnePARFlowV9: React.FC = () => {
 						<div
 							style={{
 								background: '#f8fafc',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '0.75rem',
 								padding: '1.5rem',
 							}}
@@ -680,7 +680,7 @@ const PingOnePARFlowV9: React.FC = () => {
 						<div
 							style={{
 								background: '#f8fafc',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '0.75rem',
 								padding: '1.5rem',
 							}}
@@ -738,7 +738,7 @@ const PingOnePARFlowV9: React.FC = () => {
 						<div
 							style={{
 								background: '#f8fafc',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '0.75rem',
 								padding: '1.5rem',
 							}}
@@ -821,7 +821,7 @@ const PingOnePARFlowV9: React.FC = () => {
 									padding: '3rem',
 									background: '#f8fafc',
 									borderRadius: '0.75rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 								}}
 							>
 								<p style={{ color: '#6b7280' }}>
@@ -852,7 +852,7 @@ const PingOnePARFlowV9: React.FC = () => {
 						<div
 							style={{
 								background: '#ecfdf5',
-								border: '1px solid V9_COLORS.PRIMARY.GREEN_DARK',
+								border: '1px solid COLORS.PRIMARY.GREEN_DARK',
 								borderRadius: '0.75rem',
 								padding: '1.5rem',
 								marginBottom: '2rem',
@@ -885,7 +885,7 @@ const PingOnePARFlowV9: React.FC = () => {
 						<div
 							style={{
 								background: '#f8fafc',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '0.75rem',
 								padding: '1.5rem',
 							}}
@@ -925,7 +925,7 @@ const PingOnePARFlowV9: React.FC = () => {
 				style={{
 					padding: '2rem',
 					background: 'white',
-					borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+					borderBottom: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 				}}
 			>
 				<div
@@ -996,7 +996,7 @@ const PingOnePARFlowV9: React.FC = () => {
 						background: 'white',
 						borderRadius: '1rem',
 						boxShadow: '0 20px 40px rgba(15, 23, 42, 0.1)',
-						border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+						border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 						overflow: 'hidden',
 					}}
 				>
@@ -1005,7 +1005,7 @@ const PingOnePARFlowV9: React.FC = () => {
 						style={{
 							background: '#f8fafc',
 							padding: '1.5rem',
-							borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							borderBottom: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 						}}
 					>
 						<h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937', margin: 0 }}>
@@ -1023,7 +1023,7 @@ const PingOnePARFlowV9: React.FC = () => {
 					<div
 						style={{
 							padding: '1.5rem',
-							borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							borderTop: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 							display: 'flex',
 							justifyContent: 'space-between',
 							alignItems: 'center',
@@ -1039,7 +1039,7 @@ const PingOnePARFlowV9: React.FC = () => {
 										color: '#1f2937',
 										padding: '0.75rem 1.5rem',
 										borderRadius: '0.5rem',
-										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+										border: '1px solid COLORS.TEXT.GRAY_LIGHTER',
 										fontWeight: '500',
 										cursor: 'pointer',
 									}}
