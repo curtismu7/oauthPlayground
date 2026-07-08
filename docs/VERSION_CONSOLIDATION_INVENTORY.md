@@ -8,7 +8,7 @@
 | `src/mfa` | 261 | Unified MFA + shared modals | **Phase 4 done** — was `v8`; routes `/mfa` + legacy `/v8/*` |
 | `src/lab` | 88 | OAuth lab UI | **Phase 5 done** — was `v8u`; routes `/lab/*` + legacy `/v8u/*` |
 | `src/v7` | — | Mock settings (legacy) | **Phase 6 done** — deleted; mock UI → `flows/mock-ui/` |
-| `src/pages/flows/v9` | ~28 | Specialty flows | Unchanged — migrate Phase 7 |
+| `src/flows/specialty` | 17 | Specialty/educational flows | **Phase 7 done** — was `pages/flows/v9` |
 | `src/platform` | many | Platform services (not legacy) | **Phase 3 done** — was `services/v9` |
 
 ## Phase 1 canonical routes (live)
@@ -93,6 +93,12 @@ Constants: `src/config/canonicalRoutes.ts`
 - Settings page → `src/pages/MockServerSettingsPage.tsx`; legacy route `/v7/settings` unchanged
 - `v7m:mode` localStorage key unchanged for browser back-compat
 
+## Phase 7 (done)
+
+- `git mv src/pages/flows/v9` → `src/flows/specialty`
+- Import paths updated in `App.tsx` and all 17 specialty flow files (`../../../` → `../../`, framework/mock-ui → sibling paths)
+- URL routes (`/flows/*-v9`, etc.) unchanged — Phase 8 symbol/route cleanup
+
 ## Next phases
 
-Phase 7 migrate `pages/flows/v9`; Phase 8 strip V7/V8/V9 from symbols.
+Phase 8 strip V7/V8/V9 from symbols; Phase 9 CI test scope.

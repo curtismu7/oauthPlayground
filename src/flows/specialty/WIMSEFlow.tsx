@@ -1,10 +1,10 @@
-// src/pages/flows/v9/WIMSEFlow.tsx
+// src/flows/specialty/WIMSEFlow.tsx
 // WIMSE — Workload Identity in Multi-System Environments demo
 // draft-ietf-wimse-arch + draft-ietf-wimse-workload-identity-token + RFC 8693
 
 import type React from 'react';
 import { useCallback, useState } from 'react';
-import styled from 'styled-components';import V9FlowHeader from '../../../platform/v9FlowHeaderService';
+import styled from 'styled-components';import V9FlowHeader from '../../platform/v9FlowHeaderService';
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface WitResult {

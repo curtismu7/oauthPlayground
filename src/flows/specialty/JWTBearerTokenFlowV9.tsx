@@ -1,19 +1,19 @@
-// src/pages/flows/v9/JWTBearerTokenFlowV9.tsx
+// src/flows/specialty/JWTBearerTokenFlowV9.tsx
 // OAuth 2.0 JWT Bearer Token Flow (RFC 7523) - V9 Service Architecture
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Card, CardBody, CardHeader } from '../../../components/Card';
-import { CodeExamplesSection } from '../../../components/CodeExamplesSection';
-import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
-import { modernMessaging } from '../../../components/v9/V9ModernMessagingComponents';
-import UnifiedTokenDisplayService from '../../../services/unifiedTokenDisplayService';
-import { V9CredentialStorageService } from '../../../platform/V9CredentialStorageService';
-import { V9FlowRestartButton } from '../../../platform/V9FlowRestartButton';
-import { V9ModernMessagingService } from '../../../platform/V9ModernMessagingService';
-import V9FlowHeader from '../../../platform/v9FlowHeaderService';
-import { V7MMockBanner } from '../../../flows/mock-ui/V7MMockBanner';
-import type { DiscoveredApp } from '../../../mfa/components/AppPickerV8';
-import { CompactAppPickerV8U } from '../../../lab/components/CompactAppPickerV8U';
+import { Card, CardBody, CardHeader } from '../../components/Card';
+import { CodeExamplesSection } from '../../components/CodeExamplesSection';
+import { MockApiCallDisplay } from '../../components/MockApiCallDisplay';
+import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
+import UnifiedTokenDisplayService from '../../services/unifiedTokenDisplayService';
+import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
+import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
+import { V9ModernMessagingService } from '../../platform/V9ModernMessagingService';
+import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import { V7MMockBanner } from '../mock-ui/V7MMockBanner';
+import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
+import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
 
 // Built-in copy function to replace CopyButtonService
 const copyToClipboard = async (text: string): Promise<void> => {

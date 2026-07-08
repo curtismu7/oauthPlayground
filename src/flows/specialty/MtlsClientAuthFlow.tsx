@@ -1,11 +1,11 @@
-// src/pages/flows/v9/MtlsClientAuthFlow.tsx
+// src/flows/specialty/MtlsClientAuthFlow.tsx
 // mTLS Client Authentication — RFC 8705
 // Certificate-bound access tokens: cnf.x5t#S256
 
 import type React from 'react';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import V9FlowHeader from '../../../platform/v9FlowHeaderService';
+import V9FlowHeader from '../../platform/v9FlowHeaderService';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

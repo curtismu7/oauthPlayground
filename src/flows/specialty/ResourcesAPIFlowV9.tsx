@@ -12,11 +12,11 @@
 import type React from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
-import ConfigurationButton from '../../../components/ConfigurationButton';
-import { type FlowStep, StepByStepFlow } from '../../../components/StepByStepFlow';
-import { FlowHeader } from '../../../services/flowHeaderService';
-import { V9ModernMessagingService } from '../../../platform/V9ModernMessagingService';
-import { logger } from '../../../utils/logger';
+import ConfigurationButton from '../../components/ConfigurationButton';
+import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { V9ModernMessagingService } from '../../platform/V9ModernMessagingService';
+import { logger } from '../../utils/logger';
 
 const messagingService = V9ModernMessagingService.getInstance();
 

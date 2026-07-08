@@ -1,15 +1,15 @@
-// src/pages/flows/v9/PingOneSessionsAPIFlowV9.tsx
+// src/flows/specialty/PingOneSessionsAPIFlowV9.tsx
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Card, CardBody } from '../../../components/Card';
-import { ColoredJsonDisplay } from '../../../components/ColoredJsonDisplay';
-import { WorkerTokenSectionV9 } from '../../../components/WorkerTokenSectionV9';
-import { showGlobalError, showGlobalSuccess } from '../../../contexts/NotificationSystem';
-import { unifiedWorkerTokenService } from '../../../services/unifiedWorkerTokenService';
-import { V9_COLORS } from '../../../platform/V9ColorStandards';
-import { V9FlowRestartButton } from '../../../platform/V9FlowRestartButton';
-import V9FlowHeader from '../../../platform/v9FlowHeaderService';
+import { Card, CardBody } from '../../components/Card';
+import { ColoredJsonDisplay } from '../../components/ColoredJsonDisplay';
+import { WorkerTokenSectionV9 } from '../../components/WorkerTokenSectionV9';
+import { showGlobalError, showGlobalSuccess } from '../../contexts/NotificationSystem';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
+import { V9_COLORS } from '../../platform/V9ColorStandards';
+import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
+import V9FlowHeader from '../../platform/v9FlowHeaderService';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

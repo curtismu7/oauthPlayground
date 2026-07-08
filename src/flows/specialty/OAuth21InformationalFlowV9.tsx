@@ -1,13 +1,13 @@
-// src/pages/flows/v9/OAuth21InformationalFlowV9.tsx
+// src/flows/specialty/OAuth21InformationalFlowV9.tsx
 
 import React from 'react';
 import styled from 'styled-components';
-import { Card, CardBody } from '../../../components/Card';
-import { SpecCard } from '../../../components/SpecCard';
-import { showGlobalSuccess } from '../../../contexts/NotificationSystem';
-import { FiCheck, FiInfo, FiShield, FiX } from '../../../icons';
-import { V9_COLORS } from '../../../platform/V9ColorStandards';
-import V9FlowHeader from '../../../platform/v9FlowHeaderService';
+import { Card, CardBody } from '../../components/Card';
+import { SpecCard } from '../../components/SpecCard';
+import { showGlobalSuccess } from '../../contexts/NotificationSystem';
+import { FiCheck, FiInfo, FiShield, FiX } from '../../icons';
+import { V9_COLORS } from '../../platform/V9ColorStandards';
+import V9FlowHeader from '../../platform/v9FlowHeaderService';
 
 // ─── Styled Components (V9 Color Standards) ───────────────────────────────────
 

@@ -1,11 +1,11 @@
-// src/pages/flows/v9/JarJarmFlow.tsx
+// src/flows/specialty/JarJarmFlow.tsx
 // JAR + JARM — JWT-Secured Authorization Requests and Responses
 // JAR: RFC 9101  |  JARM: draft-ietf-oauth-jarm
 
 import type React from 'react';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import V9FlowHeader from '../../../platform/v9FlowHeaderService';
+import V9FlowHeader from '../../platform/v9FlowHeaderService';
 
 type Tab = 'jar' | 'jarm';
 type Step = 0 | 1 | 2;

@@ -1,11 +1,11 @@
-// src/pages/flows/v9/AttestationClientAuthFlow.tsx
+// src/flows/specialty/AttestationClientAuthFlow.tsx
 // Attestation-Based Client Authentication demo
 // draft-ietf-oauth-attestation-based-client-auth
 // https://datatracker.ietf.org/doc/draft-ietf-oauth-attestation-based-client-auth/
 
 import type React from 'react';
 import { useCallback, useState } from 'react';
-import styled from 'styled-components';import V9FlowHeader from '../../../platform/v9FlowHeaderService';
+import styled from 'styled-components';import V9FlowHeader from '../../platform/v9FlowHeaderService';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface EphemeralKeyPair {

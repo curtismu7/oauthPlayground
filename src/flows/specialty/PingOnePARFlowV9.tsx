@@ -1,30 +1,30 @@
-// src/pages/flows/v9/PingOnePARFlowV9.tsx
+// src/flows/specialty/PingOnePARFlowV9.tsx
 // V9.0.0 PingOne PAR (Pushed Authorization Request) Flow - Modern V9 Architecture
 
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { AuthorizationDetailsEditor } from '../../../components/AuthorizationDetailsEditor';
-import ColoredTokenDisplay from '../../../components/ColoredTokenDisplay';
-import { useAuthorizationCodeFlowController } from '../../../hooks/useAuthorizationCodeFlowController';
-import { usePageScroll } from '../../../hooks/usePageScroll';
-import { comprehensiveFlowDataService } from '../../../services/comprehensiveFlowDataService';
+import { AuthorizationDetailsEditor } from '../../components/AuthorizationDetailsEditor';
+import ColoredTokenDisplay from '../../components/ColoredTokenDisplay';
+import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import {
 	type PARConfiguration,
 	PARConfigurationServiceUtils,
-} from '../../../services/parConfigurationService';
-import { PKCEServiceUtils } from '../../../services/pkceService';
-import { type AuthorizationDetail, RARService } from '../../../services/rarService';
-import { V9FlowCredentialService } from '../../../platform/core/V9FlowCredentialService';
-import { V9CredentialStorageService } from '../../../platform/V9CredentialStorageService';
-import { V9FlowRestartButton } from '../../../platform/V9FlowRestartButton';
-import { V9ModernMessagingService } from '../../../platform/V9ModernMessagingService';
-import V9FlowHeader from '../../../platform/v9FlowHeaderService';
-import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
-import { logger } from '../../../utils/logger';
-import type { DiscoveredApp } from '../../../mfa/components/AppPickerV8';
-import { CompactAppPickerV8U } from '../../../lab/components/CompactAppPickerV8U';
-import { PKCEStorageServiceV8U } from '../../../lab/services/pkceStorageServiceV8U';
+} from '../../services/parConfigurationService';
+import { PKCEServiceUtils } from '../../services/pkceService';
+import { type AuthorizationDetail, RARService } from '../../services/rarService';
+import { V9FlowCredentialService } from '../../platform/core/V9FlowCredentialService';
+import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
+import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
+import { V9ModernMessagingService } from '../../platform/V9ModernMessagingService';
+import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
+import { logger } from '../../utils/logger';
+import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
+import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
+import { PKCEStorageServiceV8U } from '../../lab/services/pkceStorageServiceV8U';
 
 // Step metadata for V9
 const STEP_METADATA = [
@@ -69,7 +69,7 @@ const cloneAuthorizationDetail = (detail: AuthorizationDetail): AuthorizationDet
 	// educational-ok: deep clone of authorization detail for UI mutation safety
 	JSON.parse(JSON.stringify(detail));
 
-const _log = createModuleLogger('src/pages/flows/v9/PingOnePARFlowV9.tsx');
+const _log = createModuleLogger('src/flows/specialty/PingOnePARFlowV9.tsx');
 
 const PingOnePARFlowV9: React.FC = () => {
 	const location = useLocation();

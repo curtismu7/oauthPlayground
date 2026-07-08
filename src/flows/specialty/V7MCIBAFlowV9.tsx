@@ -1,22 +1,22 @@
-// src/pages/flows/v9/V7MCIBAFlowV9.tsx
+// src/flows/specialty/V7MCIBAFlowV9.tsx
 // CIBA (Client Initiated Backchannel Authentication) Mock — flows2 modern implementation
 // OpenID Connect CIBA Core 1.0 — no external API calls, fully in-browser simulation
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { FlowContainer } from '../../../flows/framework/FlowContainer';
-import { FlowResult } from '../../../flows/framework/FlowResult';
-import { FlowStep } from '../../../flows/framework/FlowStep';
-import { useFlowEngine } from '../../../flows/framework/useFlowEngine';
-import { FieldGroup } from '../../../flows/framework/FieldGroup';
-import { CodeBlock, JsonView } from '../../../flows/framework/CodeBlock';
-import { ResultCard } from '../../../flows/framework/ResultCard';
-import { ExplanationPanel } from '../../../flows/framework/ExplanationPanel';
-import { tokens } from '../../../flows/framework/tokens';
-import type { StepDefinition, FlowError } from '../../../flows/framework/types';
-import type { V9MockCIBADeliveryMode } from '../../../platform/mock/V9MockCIBAService';
-import { V9MockCIBAService } from '../../../platform/mock/V9MockCIBAService';
-import { introspectToken, type V9MockIntrospectionResponse } from '../../../platform/mock/V9MockIntrospectionService';
+import { FlowContainer } from '../framework/FlowContainer';
+import { FlowResult } from '../framework/FlowResult';
+import { FlowStep } from '../framework/FlowStep';
+import { useFlowEngine } from '../framework/useFlowEngine';
+import { FieldGroup } from '../framework/FieldGroup';
+import { CodeBlock, JsonView } from '../framework/CodeBlock';
+import { ResultCard } from '../framework/ResultCard';
+import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { tokens } from '../framework/tokens';
+import type { StepDefinition, FlowError } from '../framework/types';
+import type { V9MockCIBADeliveryMode } from '../../platform/mock/V9MockCIBAService';
+import { V9MockCIBAService } from '../../platform/mock/V9MockCIBAService';
+import { introspectToken, type V9MockIntrospectionResponse } from '../../platform/mock/V9MockIntrospectionService';
 
 type TokenResult = {
 	access_token: string;

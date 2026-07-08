@@ -98,17 +98,17 @@ const AutoDiscover = lazy(() => import('./pages/AutoDiscover'));
 
 // Lazy load AI and advanced pages
 const AIIdentityArchitectures = lazy(() => import('./pages/AIIdentityArchitecturesV9'));
-const McpServerConfigFlowV9 = lazy(() => import('./pages/flows/v9/McpServerConfigFlowV9'));
+const McpServerConfigFlowV9 = lazy(() => import('./flows/specialty/McpServerConfigFlowV9'));
 const McpToolDiscovery = lazy(() => import('./pages/McpToolDiscovery'));
 const OAuthCodeGeneratorHub = lazy(() => import('./pages/OAuthCodeGeneratorHub'));
 const OAuthPlaygroundHub = lazy(() => import('./pages/OAuthPlaygroundHub'));
 const OAuthFlowsNew = lazy(() => import('./pages/OAuthFlowsNew'));
-const WIMSEFlow = lazy(() => import('./pages/flows/v9/WIMSEFlow'));
-const AttestationClientAuthFlow = lazy(() => import('./pages/flows/v9/AttestationClientAuthFlow'));
-const MtlsClientAuthFlow = lazy(() => import('./pages/flows/v9/MtlsClientAuthFlow'));
-const GnapFlow = lazy(() => import('./pages/flows/v9/GnapFlow'));
-const JarJarmFlow = lazy(() => import('./pages/flows/v9/JarJarmFlow'));
-const StepUpAuthFlow = lazy(() => import('./pages/flows/v9/StepUpAuthFlow'));
+const WIMSEFlow = lazy(() => import('./flows/specialty/WIMSEFlow'));
+const AttestationClientAuthFlow = lazy(() => import('./flows/specialty/AttestationClientAuthFlow'));
+const MtlsClientAuthFlow = lazy(() => import('./flows/specialty/MtlsClientAuthFlow'));
+const GnapFlow = lazy(() => import('./flows/specialty/GnapFlow'));
+const JarJarmFlow = lazy(() => import('./flows/specialty/JarJarmFlow'));
+const StepUpAuthFlow = lazy(() => import('./flows/specialty/StepUpAuthFlow'));
 
 // Layout shell — must be eager
 import Navbar from './components/Navbar';
@@ -215,7 +215,7 @@ const AdvancedOAuthParametersDemoFlow = lazy(
 // OIDCHybridFlowV7 archived — route redirects to v9
 // PARFlowV7 archived — route redirects to pingone-par-v9
 // RedirectlessFlowV9_Real retired — /flows/redirectless-v9-real now redirects to /v2/flows/redirectless
-const SAMLServiceProviderFlowV9 = lazy(() => import('./pages/flows/v9/SAMLServiceProviderFlowV9'));
+const SAMLServiceProviderFlowV9 = lazy(() => import('./flows/specialty/SAMLServiceProviderFlowV9'));
 // TokenRevocationFlow kept — imported by CombinedTokenPage and infinite-loop-prevention test
 const TokenRevocationFlow = lazy(() => import('./pages/flows/TokenRevocationFlow'));
 // UserInfoFlow retired — /oidc/userinfo now redirects to /v2/flows/userinfo
@@ -224,20 +224,20 @@ const TokenRevocationFlow = lazy(() => import('./pages/flows/TokenRevocationFlow
 // CIBAFlowV9, ClientCredentialsFlowV9, DeviceAuthorizationFlowV9, DPoPAuthorizationCodeFlowV9,
 // ImplicitFlowV9, OAuthAuthorizationCodeFlowV9, OAuthAuthorizationCodeFlowV9_Condensed, OIDCHybridFlowV9
 // — all redirect to /v8u/unified
-const JWTBearerTokenFlowV9 = lazy(() => import('./pages/flows/v9/JWTBearerTokenFlowV9'));
-const MFAWorkflowLibraryFlowV9 = lazy(() => import('./pages/flows/v9/MFAWorkflowLibraryFlowV9'));
+const JWTBearerTokenFlowV9 = lazy(() => import('./flows/specialty/JWTBearerTokenFlowV9'));
+const MFAWorkflowLibraryFlowV9 = lazy(() => import('./flows/specialty/MFAWorkflowLibraryFlowV9'));
 // OAuthROPCFlowV9 retired — /flows/oauth-ropc-v9 now redirects to /v2/flows/ropc
 // PARFlowV9 retired — /flows/par-v9 now redirects to /v2/flows/par
-const PingOnePARFlowV9 = lazy(() => import('./pages/flows/v9/PingOnePARFlowV9'));
-const RARFlowV9 = lazy(() => import('./pages/flows/v9/RARFlowV9'));
-const ResourcesAPIFlowV9 = lazy(() => import('./pages/flows/v9/ResourcesAPIFlowV9'));
-const SAMLBearerAssertionFlowV9 = lazy(() => import('./pages/flows/v9/SAMLBearerAssertionFlowV9'));
+const PingOnePARFlowV9 = lazy(() => import('./flows/specialty/PingOnePARFlowV9'));
+const RARFlowV9 = lazy(() => import('./flows/specialty/RARFlowV9'));
+const ResourcesAPIFlowV9 = lazy(() => import('./flows/specialty/ResourcesAPIFlowV9'));
+const SAMLBearerAssertionFlowV9 = lazy(() => import('./flows/specialty/SAMLBearerAssertionFlowV9'));
 // TokenExchangeFlowV9 retired — /flows/token-exchange-v9 now redirects to /v2/flows/token-exchange
 // import InteractiveTutorials from './pages/InteractiveTutorials'; // Removed - unused tutorial feature
 const JWKSTroubleshooting = lazy(() => import('./pages/JWKSTroubleshooting'));
 const ResponseModesLearnPage = lazy(() => import('./pages/learn/ResponseModesLearnPage'));
 const OAuth21InformationalFlowV9 = lazy(
-	() => import('./pages/flows/v9/OAuth21InformationalFlowV9')
+	() => import('./flows/specialty/OAuth21InformationalFlowV9')
 );
 const OAuthOIDCTraining = lazy(() => import('./pages/OAuthOIDCTraining'));
 const OIDC = lazy(() => import('./pages/OIDC'));
@@ -254,7 +254,7 @@ const PingOneAuthenticationResult = lazy(() => import('./pages/PingOneAuthentica
 const PingOneDashboard = lazy(() => import('./pages/PingOneDashboard'));
 const PingOneMockFeatures = lazy(() => import('./pages/PingOneMockFeatures'));
 const PingOneScopesReference = lazy(() => import('./pages/PingOneScopesReference'));
-const PingOneSessionsAPIFlowV9 = lazy(() => import('./pages/flows/v9/PingOneSessionsAPIFlowV9'));
+const PingOneSessionsAPIFlowV9 = lazy(() => import('./flows/specialty/PingOneSessionsAPIFlowV9'));
 const PingOneUserProfile = lazy(() => import('./pages/PingOneUserProfile'));
 const PingOneWebhookViewer = lazy(() => import('./pages/PingOneWebhookViewer'));
 const PostmanCollectionGenerator = lazy(() =>
@@ -398,7 +398,7 @@ const ApiStatusPage = lazy(() => import('./pages/ApiStatusPage'));
 // V7MROPCV9 retired — /v7/oauth/ropc and /v7/oidc/ropc
 // V7MOIDCHybridFlowV9 retired — /flows/oidc-hybrid-v9
 const MockServerSettingsPage = lazy(() => import('./pages/MockServerSettingsPage'));
-const V7MCIBAFlowV9 = lazy(() => import('./pages/flows/v9/V7MCIBAFlowV9'));
+const V7MCIBAFlowV9 = lazy(() => import('./flows/specialty/V7MCIBAFlowV9'));
 const MockMcpAgentFlowPage = lazy(() => import('./pages/flows/MockMcpAgentFlowPage'));
 
 const AppContainer = styled.div`
