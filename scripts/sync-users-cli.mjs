@@ -17,8 +17,8 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Import the database service
-import { userDatabaseService } from './src/server/services/userDatabaseService.js';
+// Import the LMDB user store
+import * as userStore from '../src/server/lmdb/userStore.js';
 
 // Simple argument parsing
 const args = process.argv.slice(2);
@@ -425,7 +425,7 @@ async function main() {
 			}
 
 			case 'clear':
-				userDatabaseService.clearEnvironmentData(environmentId);
+				userStore.clearEnvironmentData(environmentId);
 				console.log(`🎉 Database cleared successfully!`);
 				break;
 
@@ -463,7 +463,7 @@ async function main() {
 					process.exit(1);
 				}
 
-				const users = userDatabaseService.exportAllUsers(environmentId);
+				const users = userStore.exportAllUsers(environmentId);
 				if (!users || users.length === 0) {
 					console.log(`📭 No users found in database for environment ${environmentId}`);
 					console.log(`💡 Try running 'sync' command first to populate the database`);
