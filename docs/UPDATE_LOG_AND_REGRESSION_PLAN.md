@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### Worker token history: SQLite → LMDB workerTokenRecordStore (2026-07-08)
+
+- **What:** `/api/worker-tokens/*` used `better-sqlite3` at `~/.pingone-playground/worker-tokens.db`. Migrated to LMDB `worker_token_records` + `worker_token_active` with field encryption.
+- **Cause:** Last remaining SQLite dependency; duplicated worker-token storage separate from `credentialStore`.
+- **Fix:** Added `workerTokenRecordStore.js` + `migrateWorkerTokensSqlite.js`; POST dual-writes to `credentialStore.saveWorkerToken`; deleted `workerTokenDatabaseService.js`; fixed `/history` route order before `/:id`.
+- **Files:** `src/server/lmdb/workerTokenRecordStore.js`, `src/server/lmdb/migrateWorkerTokensSqlite.js`, `src/server/lmdb/__tests__/workerTokenRecordStore.test.ts`, `src/server/routes/workerTokenApiRoutes.js` (deleted: `workerTokenDatabaseService.js`)
+- **Regression check:** (1) `npm run test:run -- src/server/lmdb/__tests__/workerTokenRecordStore.test.ts` passes. (2) `npm run start` with no `better-sqlite3` import errors. (3) POST/GET `/api/worker-tokens` and `/api/worker-tokens/history` work; `/environments` still loads when token valid.
+
 ### Settings storage: SQLite service replaced with LMDB adapter (2026-07-08)
 
 - **What:** `/api/settings/*` routes failed silently because `server.js` imported deleted `settingsDatabaseService.js`. Settings now use `settingsAdapter.js` → LMDB `settingsStore`.
