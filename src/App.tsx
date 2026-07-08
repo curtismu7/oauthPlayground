@@ -38,7 +38,7 @@ const CleanlinessDashboardWorking = lazy(() =>
 	}))
 );
 const CodeExamplesDemo = lazy(() => import('./components/CodeExamplesDemo'));
-// flows2 — clean-core rebuild (real PingOne), routed under /v2/flows/*
+// flows2 — clean-core rebuild (real PingOne), canonical routes under /flows/* (legacy /v2/flows/* redirects)
 const Flows2ClientCredentials = lazy(() => import('./flows2/flows/clientCredentials.flow'));
 const Flows2AuthorizationCode = lazy(() => import('./flows2/flows/authorizationCode.flow'));
 const Flows2UseCases = lazy(() => import('./flows2/use-cases/UseCasesPage'));
@@ -834,13 +834,14 @@ const AppRoutes: React.FC = () => {
 									/>
 									<Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
 									<Route
-										path="/v8/unified-mfa"
+										path="/mfa"
 										element={
 											<React.Suspense fallback={<div>Loading...</div>}>
 												<UnifiedMFARegistrationFlowV8 registrationFlowType="admin" />
 											</React.Suspense>
 										}
 									/>
+									<Route path="/v8/unified-mfa" element={<Navigate to="/mfa" replace />} />
 									<Route
 										path="/v8/unified-credentials-mockup"
 										element={<div>Unified Credentials Mockup - Coming Soon</div>}
@@ -933,21 +934,21 @@ const AppRoutes: React.FC = () => {
 									/>
 									<Route
 										path="/flows/mock-oidc-ropc"
-										element={<Navigate to="/v2/flows/ropc" replace />}
+										element={<Navigate to="/flows/ropc" replace />}
 									/>
 									{/* Legacy paths: redirect to flows2 */}
 									<Route
 										path="/v7/oauth/authorization-code"
-										element={<Navigate to="/v2/flows/authorization-code" replace />}
+										element={<Navigate to="/flows/authorization-code" replace />}
 									/>
 									<Route
 										path="/v7/oidc/authorization-code"
-										element={<Navigate to="/v2/flows/authorization-code" replace />}
+										element={<Navigate to="/flows/authorization-code" replace />}
 									/>
 									{/* Legacy path: redirect to flows2 */}
 									<Route
 										path="/v7/oauth/device-authorization"
-										element={<Navigate to="/v2/flows/device-authorization" replace />}
+										element={<Navigate to="/flows/device-authorization" replace />}
 									/>
 									<Route
 										path="/v7/oauth/client-credentials"
@@ -955,19 +956,19 @@ const AppRoutes: React.FC = () => {
 									/>
 									<Route
 										path="/v7/oauth/implicit"
-										element={<Navigate to="/v2/flows/implicit-hybrid" replace />}
+										element={<Navigate to="/flows/implicit-hybrid" replace />}
 									/>
 									<Route
 										path="/v7/oidc/implicit"
-										element={<Navigate to="/v2/flows/implicit-hybrid" replace />}
+										element={<Navigate to="/flows/implicit-hybrid" replace />}
 									/>
 									<Route
 										path="/v7/oauth/ropc"
-										element={<Navigate to="/v2/flows/ropc" replace />}
+										element={<Navigate to="/flows/ropc" replace />}
 									/>
 									<Route
 										path="/v7/oidc/ropc"
-										element={<Navigate to="/v2/flows/ropc" replace />}
+										element={<Navigate to="/flows/ropc" replace />}
 									/>
 									<Route
 										path="/v7/settings"
@@ -979,11 +980,9 @@ const AppRoutes: React.FC = () => {
 									/>
 									<Route
 										path="/v7/oidc/hybrid"
-										element={<Navigate to="/v2/flows/implicit-hybrid" replace />}
+										element={<Navigate to="/flows/implicit-hybrid" replace />}
 									/>
 									<Route path="/v7/oidc/ciba" element={<Navigate to="/flows/ciba-v9" replace />} />
-									<Route path="/flows/userinfo" element={<Navigate to="/v2/flows/userinfo" replace />} />
-									<Route path="/flows/token-revocation" element={<Navigate to="/v2/flows/token-revocation" replace />} />
 									<Route path="/flows/pingone-logout" element={<PingOneLogoutFlow />} />
 									{/* Deprecated flows — redirect to V9 */}
 									<Route
@@ -1014,11 +1013,11 @@ const AppRoutes: React.FC = () => {
 									/>
 									<Route
 										path="/flows/implicit-v9"
-										element={<Navigate to="/v2/flows/implicit-hybrid" replace />}
+										element={<Navigate to="/flows/implicit-hybrid" replace />}
 									/>
 									<Route
 										path="/flows/oidc-implicit-v9"
-										element={<Navigate to="/v2/flows/implicit-hybrid" replace />}
+										element={<Navigate to="/flows/implicit-hybrid" replace />}
 									/>
 									{/* V8 Unified UI Mockup */}
 									<Route
@@ -1026,6 +1025,23 @@ const AppRoutes: React.FC = () => {
 										element={<UnifiedCredentialsMockupV8 />}
 									/>
 									{/* V8U Unified Flow - Single UI for all flows with real PingOne APIs */}
+									<Route
+										path="/lab/oauth-authz/:step?"
+										element={
+											<Suspense
+												fallback={
+													<ComponentLoader
+														message="Loading Unified OAuth Flow..."
+														subtext="Preparing flow configuration"
+													/>
+												}
+											>
+												<UnifiedFlowErrorBoundary>
+													<OAuthAuthzV2 />
+												</UnifiedFlowErrorBoundary>
+											</Suspense>
+										}
+									/>
 									<Route
 										path="/v8u/unified/oauth-authz/:step?"
 										element={
@@ -1097,7 +1113,7 @@ const AppRoutes: React.FC = () => {
 									/>
 									{/* Token Monitoring Dashboard */}
 									<Route
-										path="/v8u/token-monitoring"
+										path="/lab/token-monitoring"
 										element={
 											<Suspense
 												fallback={
@@ -1113,6 +1129,7 @@ const AppRoutes: React.FC = () => {
 											</Suspense>
 										}
 									/>
+									<Route path="/v8u/token-monitoring" element={<Navigate to="/lab/token-monitoring" replace />} />
 									{/* Token API Documentation */}
 									<Route
 										path="/v8u/token-api-docs"
@@ -1133,7 +1150,7 @@ const AppRoutes: React.FC = () => {
 									/>
 									{/* Flow Comparison Tool */}
 									<Route
-										path="/v8u/flow-comparison"
+										path="/lab/flow-comparison"
 										element={
 											<Suspense
 												fallback={
@@ -1149,6 +1166,7 @@ const AppRoutes: React.FC = () => {
 											</Suspense>
 										}
 									/>
+									<Route path="/v8u/flow-comparison" element={<Navigate to="/lab/flow-comparison" replace />} />
 									{/* V8 Utilities */}
 									<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtilityV8 />} />
 									<Route path="/v8/debug-logs" element={<DebugLogViewerV8 />} />
@@ -1245,7 +1263,7 @@ const AppRoutes: React.FC = () => {
 									/>
 									<Route
 										path="/flows/oauth-implicit-completion"
-										element={<Navigate to="/v2/flows/implicit-hybrid" replace />}
+										element={<Navigate to="/flows/implicit-hybrid" replace />}
 									/>
 									{/* mTLS Client Authentication Demo (RFC 8705) */}
 									<Route
@@ -1311,7 +1329,7 @@ const AppRoutes: React.FC = () => {
 									{/* Legacy introspection pages consolidated into the flows2 /v2 flow */}
 									<Route
 										path="/flows/token-introspection-v1"
-										element={<Navigate to="/v2/flows/token-introspection" replace />}
+										element={<Navigate to="/flows/token-introspection" replace />}
 									/>
 									{/* Device Authorization — v9 mock flow (canonical); v7 → unified */}
 									<Route
@@ -1320,11 +1338,11 @@ const AppRoutes: React.FC = () => {
 									/>
 									<Route
 										path="/flows/device-authorization-v9"
-										element={<Navigate to="/v2/flows/device-authorization" replace />}
+										element={<Navigate to="/flows/device-authorization" replace />}
 									/>
 									<Route
 										path="/flows/device-authorization-v9/verify"
-										element={<Navigate to="/v2/flows/device-authorization" replace />}
+										element={<Navigate to="/flows/device-authorization" replace />}
 									/>
 									<Route
 										path="/flows/device-authorization-v6"
@@ -1342,11 +1360,11 @@ const AppRoutes: React.FC = () => {
 									{/* V9 JWT Bearer Token Flow */}
 									<Route path="/flows/jwt-bearer-token-v9" element={<JWTBearerTokenFlowV9 />} />
 									{/* Token Exchange — retired, redirect to flows2 */}
-									<Route path="/flows/token-exchange-v9" element={<Navigate to="/v2/flows/token-exchange" replace />} />
+									<Route path="/flows/token-exchange-v9" element={<Navigate to="/flows/token-exchange" replace />} />
 									{/* Token Exchange v7 legacy redirect */}
 									<Route
 										path="/flows/token-exchange-v7"
-										element={<Navigate to="/v2/flows/token-exchange" replace />}
+										element={<Navigate to="/flows/token-exchange" replace />}
 									/>
 									{/* Legacy V6 routes - redirect to V7 (latest version) */}
 									<Route
@@ -1356,12 +1374,12 @@ const AppRoutes: React.FC = () => {
 									{/* V7 SAML Bearer Assertion Flow */}
 									<Route
 										path="/flows/saml-bearer-assertion-v7"
-										element={<Navigate to="/v2/flows/saml-bearer" replace />}
+										element={<Navigate to="/flows/saml-bearer" replace />}
 									/>
 									{/* V9 SAML Bearer Assertion Flow */}
 									<Route
 										path="/flows/saml-bearer-assertion-v9"
-										element={<Navigate to="/v2/flows/saml-bearer" replace />}
+										element={<Navigate to="/flows/saml-bearer" replace />}
 									/>
 									<Route
 										path="/flows/v9/saml-sp-dynamic-acs"
@@ -1370,7 +1388,7 @@ const AppRoutes: React.FC = () => {
 									{/* Legacy V6 route - redirect to V9 (v7 redirect already defined above) */}
 									<Route
 										path="/flows/saml-bearer-assertion-v6"
-										element={<Navigate to="/v2/flows/saml-bearer" replace />}
+										element={<Navigate to="/flows/saml-bearer" replace />}
 									/>
 									{/* V7 Worker Token Flow — redirect to V9 */}
 									<Route
@@ -1378,7 +1396,8 @@ const AppRoutes: React.FC = () => {
 										element={<Navigate to="/flows/worker-token-v9" replace />}
 									/>
 									{/* V9 Worker Token Flow */}
-									<Route path="/flows/worker-token-v9" element={<Navigate to="/v2/flows/client-credentials" replace />} />
+									<Route path="/flows/worker-token" element={<Navigate to="/flows/client-credentials" replace />} />
+									<Route path="/flows/worker-token-v9" element={<Navigate to="/flows/worker-token" replace />} />
 									{/* Legacy V6 routes - redirect to V9 */}
 									<Route
 										path="/flows/worker-token-v6"
@@ -1392,11 +1411,11 @@ const AppRoutes: React.FC = () => {
 									{/* Legacy mock client-credentials flows consolidated into flows2 */}
 									<Route
 										path="/flows/client-credentials-v9"
-										element={<Navigate to="/v2/flows/client-credentials" replace />}
+										element={<Navigate to="/flows/client-credentials" replace />}
 									/>
 									<Route
 										path="/flows/client-credentials-standardized"
-										element={<Navigate to="/v2/flows/client-credentials" replace />}
+										element={<Navigate to="/flows/client-credentials" replace />}
 									/>
 									<Route
 										path="/flows/client-credentials-v6"
@@ -1409,20 +1428,20 @@ const AppRoutes: React.FC = () => {
 									/>
 									<Route
 										path="/flows/oidc-hybrid-v9"
-										element={<Navigate to="/v2/flows/implicit-hybrid" replace />}
+										element={<Navigate to="/flows/implicit-hybrid" replace />}
 									/>
 									{/* Authorization Code — redirect to flows2 */}
 									<Route
 										path="/flows/oauth-authorization-code-v9"
-										element={<Navigate to="/v2/flows/authorization-code" replace />}
+										element={<Navigate to="/flows/authorization-code" replace />}
 									/>
 									<Route
 										path="/flows/oauth-authorization-code-v9-condensed"
-										element={<Navigate to="/v2/flows/authorization-code" replace />}
+										element={<Navigate to="/flows/authorization-code" replace />}
 									/>
 									<Route
 										path="/flows/oidc-authorization-code-v9"
-										element={<Navigate to="/v2/flows/authorization-code" replace />}
+										element={<Navigate to="/flows/authorization-code" replace />}
 									/>
 									<Route path="/flows/hybrid-v8" element={<Navigate to="/v8u/unified" replace />} />
 									<Route
@@ -1452,19 +1471,19 @@ const AppRoutes: React.FC = () => {
 										element={<AdvancedOAuthParametersDemoFlow />}
 									/>
 									{/* Redirectless — retired, redirect to flows2 */}
-									<Route path="/flows/redirectless-v9-real" element={<Navigate to="/v2/flows/redirectless" replace />} />
+									<Route path="/flows/redirectless-v9-real" element={<Navigate to="/flows/redirectless" replace />} />
 									{/* Legacy V6 routes - redirect to flows2 */}
 									<Route
 										path="/flows/redirectless-v6"
-										element={<Navigate to="/v2/flows/redirectless" replace />}
+										element={<Navigate to="/flows/redirectless" replace />}
 									/>
 									<Route
 										path="/flows/redirectless-v6-real"
-										element={<Navigate to="/v2/flows/redirectless" replace />}
+										element={<Navigate to="/flows/redirectless" replace />}
 									/>
 									<Route
 										path="/flows/redirectless-v7-real"
-										element={<Navigate to="/v2/flows/redirectless" replace />}
+										element={<Navigate to="/flows/redirectless" replace />}
 									/>
 									<Route
 										path="/flows/par"
@@ -1474,11 +1493,11 @@ const AppRoutes: React.FC = () => {
 									{/* Unsupported by PingOne flows */}
 									<Route
 										path="/oauth/resource-owner-password"
-										element={<Navigate to="/v2/flows/ropc" replace />}
+										element={<Navigate to="/flows/ropc" replace />}
 									/>
 									<Route
 										path="/oidc/resource-owner-password"
-										element={<Navigate to="/v2/flows/ropc" replace />}
+										element={<Navigate to="/flows/ropc" replace />}
 									/>
 									{/* V7 PingOne PAR Flow — redirect to V9 */}
 									<Route
@@ -1543,23 +1562,23 @@ const AppRoutes: React.FC = () => {
 									{/* V9 RAR Flow (mock/educational) */}
 									<Route path="/flows/rar-v9" element={<RARFlowV9 />} />
 									{/* PAR — retired, redirect to flows2 */}
-									<Route path="/flows/par-v9" element={<Navigate to="/v2/flows/par" replace />} />
+									<Route path="/flows/par-v9" element={<Navigate to="/flows/par" replace />} />
 									{/* DPoP Flow — retired, redirect to flows2 */}
-									<Route path="/flows/dpop" element={<Navigate to="/v2/flows/dpop" replace />} />
+									<Route path="/flows/dpop" element={<Navigate to="/flows/dpop" replace />} />
 									{/* Mock MCP Agent Flow (educational) */}
 									<Route path="/flows/mock-mcp-agent-flow" element={<MockMcpAgentFlowPage />} />
 									{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
 									<Route path="/flows/rar-v6" element={<Navigate to="/flows/rar-v9" replace />} />
 									<Route
 										path="/flows/oauth2-resource-owner-password"
-										element={<Navigate to="/v2/flows/ropc" replace />}
+										element={<Navigate to="/flows/ropc" replace />}
 									/>
 									<Route
 										path="/flows/oauth-ropc-v7"
-										element={<Navigate to="/v2/flows/ropc" replace />}
+										element={<Navigate to="/flows/ropc" replace />}
 									/>
 									{/* ROPC — retired, redirect to flows2 */}
-									<Route path="/flows/oauth-ropc-v9" element={<Navigate to="/v2/flows/ropc" replace />} />
+									<Route path="/flows/oauth-ropc-v9" element={<Navigate to="/flows/ropc" replace />} />
 									{/* Test MFA Flow */}
 									<Route
 										path="/mfa-test"
@@ -1571,11 +1590,11 @@ const AppRoutes: React.FC = () => {
 									/>
 									{/* Legacy /oidc routes - Keep utility pages and unsupported flows */}
 									<Route path="/oidc" element={<OIDC />}>
-										<Route path="userinfo" element={<Navigate to="/v2/flows/userinfo" replace />} />
+										<Route path="userinfo" element={<Navigate to="/flows/userinfo" replace />} />
 										<Route path="id-tokens" element={<IDTokensFlow />} />
 										<Route
 											path="resource-owner-password"
-											element={<Navigate to="/v2/flows/ropc" replace />}
+											element={<Navigate to="/flows/ropc" replace />}
 										/>
 										<Route path="jwt-bearer" element={<JWTBearerFlow />} />
 									</Route>
@@ -1621,27 +1640,47 @@ const AppRoutes: React.FC = () => {
 									<Route path="/auto-discover" element={<AutoDiscover />} />
 									<Route path="/token-management" element={<TokenMonitoringPage />} />
 									<Route path="/token/operations" element={<CombinedTokenPage />} />
-									{/* flows2 — clean-core rebuild (real PingOne) */}
-									<Route path="/v2/flows/client-credentials" element={<Flows2ClientCredentials />} />
-									<Route path="/v2/use-cases" element={<Flows2UseCases />} />
-									<Route path="/v2/flows/authorization-code" element={<Flows2AuthorizationCode />} />
-									<Route path="/v2/flows/authorization-code-educational" element={<Flows2AuthorizationCodeEducational />} />
-									<Route path="/v2/flows/authz-callback" element={<Flows2AuthCallback />} />
-									<Route path="/v2/flows/device-authorization" element={<Flows2DeviceAuthorization />} />
-									<Route path="/v2/flows/token-exchange" element={<Flows2TokenExchange />} />
-									<Route path="/v2/flows/token-introspection" element={<Flows2TokenIntrospection />} />
-									<Route path="/v2/flows/userinfo" element={<Flows2UserInfo />} />
-									<Route path="/v2/flows/token-revocation" element={<Flows2TokenRevocation />} />
-									<Route path="/v2/flows/par" element={<Flows2Par />} />
-									<Route path="/v2/flows/refresh-token" element={<Flows2RefreshToken />} />
-									<Route path="/v2/flows/oidc-discovery" element={<Flows2OidcDiscovery />} />
-									<Route path="/v2/flows/dpop" element={<Flows2Dpop />} />
-									<Route path="/v2/flows/redirectless" element={<Flows2Redirectless />} />
-									<Route path="/v2/flows/implicit-hybrid" element={<Flows2ImplicitHybrid />} />
-									<Route path="/v2/flows/implicit-hybrid-callback" element={<Flows2ImplicitHybridCallback />} />
-									<Route path="/v2/flows/hybrid" element={<Flows2Hybrid />} />
-									<Route path="/v2/flows/ropc" element={<Flows2Ropc />} />
-									<Route path="/v2/flows/saml-bearer" element={<Flows2SAMLBearerAssertion />} />									<Route path="/flows/token-introspection" element={<Navigate to="/v2/flows/token-introspection" replace />} />
+									{/* flows2 — canonical /flows/* ; legacy /v2/flows/* redirects */}
+									<Route path="/flows/client-credentials" element={<Flows2ClientCredentials />} />
+									<Route path="/v2/flows/client-credentials" element={<Navigate to="/flows/client-credentials" replace />} />
+									<Route path="/use-cases" element={<Flows2UseCases />} />
+									<Route path="/v2/use-cases" element={<Navigate to="/use-cases" replace />} />
+									<Route path="/flows/authorization-code" element={<Flows2AuthorizationCode />} />
+									<Route path="/v2/flows/authorization-code" element={<Navigate to="/flows/authorization-code" replace />} />
+									<Route path="/flows/authorization-code-educational" element={<Flows2AuthorizationCodeEducational />} />
+									<Route path="/v2/flows/authorization-code-educational" element={<Navigate to="/flows/authorization-code-educational" replace />} />
+									<Route path="/flows/authz-callback" element={<Flows2AuthCallback />} />
+									<Route path="/v2/flows/authz-callback" element={<Navigate to="/flows/authz-callback" replace />} />
+									<Route path="/flows/device-authorization" element={<Flows2DeviceAuthorization />} />
+									<Route path="/v2/flows/device-authorization" element={<Navigate to="/flows/device-authorization" replace />} />
+									<Route path="/flows/token-exchange" element={<Flows2TokenExchange />} />
+									<Route path="/v2/flows/token-exchange" element={<Navigate to="/flows/token-exchange" replace />} />
+									<Route path="/flows/token-introspection" element={<Flows2TokenIntrospection />} />
+									<Route path="/v2/flows/token-introspection" element={<Navigate to="/flows/token-introspection" replace />} />
+									<Route path="/flows/userinfo" element={<Flows2UserInfo />} />
+									<Route path="/v2/flows/userinfo" element={<Navigate to="/flows/userinfo" replace />} />
+									<Route path="/flows/token-revocation" element={<Flows2TokenRevocation />} />
+									<Route path="/v2/flows/token-revocation" element={<Navigate to="/flows/token-revocation" replace />} />
+									<Route path="/flows/par" element={<Flows2Par />} />
+									<Route path="/v2/flows/par" element={<Navigate to="/flows/par" replace />} />
+									<Route path="/flows/refresh-token" element={<Flows2RefreshToken />} />
+									<Route path="/v2/flows/refresh-token" element={<Navigate to="/flows/refresh-token" replace />} />
+									<Route path="/flows/oidc-discovery" element={<Flows2OidcDiscovery />} />
+									<Route path="/v2/flows/oidc-discovery" element={<Navigate to="/flows/oidc-discovery" replace />} />
+									<Route path="/flows/dpop" element={<Flows2Dpop />} />
+									<Route path="/v2/flows/dpop" element={<Navigate to="/flows/dpop" replace />} />
+									<Route path="/flows/redirectless" element={<Flows2Redirectless />} />
+									<Route path="/v2/flows/redirectless" element={<Navigate to="/flows/redirectless" replace />} />
+									<Route path="/flows/implicit-hybrid" element={<Flows2ImplicitHybrid />} />
+									<Route path="/v2/flows/implicit-hybrid" element={<Navigate to="/flows/implicit-hybrid" replace />} />
+									<Route path="/flows/implicit-hybrid-callback" element={<Flows2ImplicitHybridCallback />} />
+									<Route path="/v2/flows/implicit-hybrid-callback" element={<Navigate to="/flows/implicit-hybrid-callback" replace />} />
+									<Route path="/flows/hybrid" element={<Flows2Hybrid />} />
+									<Route path="/v2/flows/hybrid" element={<Navigate to="/flows/hybrid" replace />} />
+									<Route path="/flows/ropc" element={<Flows2Ropc />} />
+									<Route path="/v2/flows/ropc" element={<Navigate to="/flows/ropc" replace />} />
+									<Route path="/flows/saml-bearer" element={<Flows2SAMLBearerAssertion />} />
+									<Route path="/v2/flows/saml-bearer" element={<Navigate to="/flows/saml-bearer" replace />} />
 									<Route
 										path="/postman-collection-generator"
 										element={<PostmanCollectionGenerator />}

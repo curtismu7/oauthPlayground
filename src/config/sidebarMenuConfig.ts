@@ -159,7 +159,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 	{
 		id: 'mock-flows',
 		label: 'Mock Flows',
-		items: items([['/v2/use-cases', 'Use Cases', true]]),
+		items: items([['/use-cases', 'Use Cases', true]]),
 		subGroups: [
 			{
 				id: 'oidc-mock',
@@ -169,9 +169,9 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 						['/flows/oidc-authorization-code-v9', 'Authorization Code', true, true],
 						['/flows/oidc-hybrid-v9', 'Hybrid Flow', true, true],
 						['/flows/ciba-v9', 'CIBA (Backchannel)', true, true],
-						['/v2/flows/userinfo', 'UserInfo (OIDC)', true, true],
-						['/v2/flows/oidc-discovery', 'OIDC Discovery / JWKS', true, true],
-						['/v2/flows/redirectless', 'Redirectless (pi.flow)', true, true],
+						['/flows/userinfo', 'UserInfo (OIDC)', true, true],
+						['/flows/oidc-discovery', 'OIDC Discovery / JWKS', true, true],
+						['/flows/redirectless', 'Redirectless (pi.flow)', true, true],
 					],
 					'oidc-mock'
 				),
@@ -181,13 +181,13 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 				label: 'OAuth 2.0',
 				items: items(
 					[
-						['/v2/flows/device-authorization', 'Device Authorization', true, true],
-						['/v2/flows/client-credentials', 'Client Credentials', true, true],
-						['/v2/flows/token-exchange', 'Token Exchange', true, true],
-						['/v2/flows/token-introspection', 'Token Introspection', true, true],
-						['/v2/flows/token-revocation', 'Token Revocation', true, true],
-						['/v2/flows/refresh-token', 'Refresh Token + Rotation', true, true],
-						['/v2/flows/implicit-hybrid', 'Implicit / Hybrid', true, true],
+						['/flows/device-authorization', 'Device Authorization', true, true],
+						['/flows/client-credentials', 'Client Credentials', true, true],
+						['/flows/token-exchange', 'Token Exchange', true, true],
+						['/flows/token-introspection', 'Token Introspection', true, true],
+						['/flows/token-revocation', 'Token Revocation', true, true],
+						['/flows/refresh-token', 'Refresh Token + Rotation', true, true],
+						['/flows/implicit-hybrid', 'Implicit / Hybrid', true, true],
 						['/flows/jwt-bearer-token-v9', 'JWT Bearer Token', true, true],
 						['/flows/saml-bearer-assertion-v9', 'SAML Bearer Assertion', true, true],
 					],
@@ -199,9 +199,9 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 				label: 'Unsupported OAuth Flows',
 				items: items(
 					[
-						['/v2/flows/par', 'PAR (RFC 9126)', true, true],
-						['/v2/flows/dpop', 'DPoP (RFC 9449)', true, true],
-						['/v2/flows/ropc', 'ROPC (Password Grant)', true, true],
+						['/flows/par', 'PAR (RFC 9126)', true, true],
+						['/flows/dpop', 'DPoP (RFC 9449)', true, true],
+						['/flows/ropc', 'ROPC (Password Grant)', true, true],
 						['/flows/rar-v9', 'Rich Authorization Requests (RAR)', true, true],
 						['/flows/saml-sp-dynamic-acs-v1', 'SAML SP Dynamic ACS', true, true],
 						['/flows/spiffe-spire-v9', 'SPIFFE/SPIRE', true, true],
@@ -231,7 +231,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		groupBadgeType: 'pingone',
 		items: items([
 			
-			['/v8/unified-mfa', 'Unified MFA', true],
+			['/mfa', 'Unified MFA', true],
 			// ['/v8u/enhanced-state-management', 'Enhanced State Management (V2)', true],
 			['/protect-portal', 'Protect Portal App', true],
 		]),
@@ -242,9 +242,9 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 				items: items(
 					[
 						['/v8/delete-all-devices', 'Delete All Devices', true],
-						['/v8u/flow-comparison', 'Flow Comparison Tool', true],
-						['/v8u/token-monitoring', 'Token Monitoring Dashboard', true],
-						['/v8u/unified/oauth-authz', 'OAuth Authz Flow (Test)', true],
+						['/lab/flow-comparison', 'Flow Comparison Tool', true],
+						['/lab/token-monitoring', 'Token Monitoring Dashboard', true],
+						['/lab/oauth-authz', 'OAuth Authz Flow (Test)', true],
 					],
 					'flow-tools'
 				),
@@ -256,7 +256,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		label: 'Tokens & Session',
 		groupBadgeType: 'pingone',
 		items: items([
-			['/flows/worker-token-v9', 'Worker Token', true],
+			['/flows/worker-token', 'Worker Token', true],
 			['/token/operations', 'Token Operations', true],
 			['/flows/pingone-logout', 'PingOne Logout', true],
 		]),
