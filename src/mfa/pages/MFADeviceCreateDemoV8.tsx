@@ -14,7 +14,7 @@ import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import deviceCreateDemoServiceV8 from '@/mfa/services/deviceCreateDemoServiceV8';
 import { MFAServiceV8 } from '@/mfa/services/mfaServiceV8';
 import workerTokenServiceV8 from '@/mfa/services/workerTokenServiceV8';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';
 import { FiAlertTriangle, FiRefreshCw } from '../../icons';
 
 import { logger } from '../../utils/logger';

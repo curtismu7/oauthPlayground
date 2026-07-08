@@ -35,7 +35,7 @@ import { TokenDisplayServiceV8 } from '@/mfa/services/tokenDisplayServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/mfa/services/workerTokenStatusServiceV8';
 import { useMFALoadingStateManager } from '@/mfa/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/mfa/utils/mfaFlowCleanupV8';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';
 import { logger } from '../../../utils/logger';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';

@@ -23,7 +23,7 @@ import { PageTransition } from '@/mfa/components/PageTransition';
 import type { DeviceFlowConfig } from '@/mfa/config/deviceFlowConfigTypes';
 import { borderRadius, colors, spacing, typography } from '@/mfa/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/mfa/flows/shared/MFAFlowBaseV8';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';
 import {
 	FiAlertCircle,
 	FiArrowLeft,

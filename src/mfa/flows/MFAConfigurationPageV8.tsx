@@ -26,7 +26,7 @@ import {
 import { MFAServiceV8, type MFASettings } from '@/mfa/services/mfaServiceV8';
 import { workerTokenServiceV8 } from '@/mfa/services/workerTokenServiceV8';
 import WorkerTokenStatusServiceV8 from '@/mfa/services/workerTokenStatusServiceV8';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';
 
 import { logger } from '../../utils/logger';
 

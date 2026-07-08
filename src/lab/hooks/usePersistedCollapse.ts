@@ -7,7 +7,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { FlowType } from '@/mfa/services/specVersionServiceV8';
-import { loadSettings, saveSettings } from '@/v8u/services/flowSettingsServiceV8U';
+import { loadSettings, saveSettings } from '@/lab/services/flowSettingsServiceV8U';
 
 /**
  * Returns [collapsed, setCollapsed] with persistence. State is saved to localStorage

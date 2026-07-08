@@ -23,15 +23,15 @@ const productionAppFiles = {
     'src/pages/api-status/ApiStatusPage.tsx'
   ],
   'flow-comparison': [
-    'src/v8u/pages/FlowComparisonPage.tsx',
-    'src/v8u/services/flowComparisonService.ts'
+    'src/lab/pages/FlowComparisonPage.tsx',
+    'src/lab/services/flowComparisonService.ts'
   ],
   'resources-api': [
     'src/mfa/pages/ResourcesAPIPageV8.tsx'
   ],
   'spiffe-spire': [
-    'src/v8u/pages/SPIFFESpirePageV8U.tsx',
-    'src/v8u/flows/SPIFFESpireFlowV8U.tsx'
+    'src/lab/pages/SPIFFESpirePageV8U.tsx',
+    'src/lab/flows/SPIFFESpireFlowV8U.tsx'
   ],
   'postman-generator': [
     'src/pages/PostmanCollectionGeneratorPage.tsx',
@@ -42,19 +42,19 @@ const productionAppFiles = {
     'src/mfa/services/mfaServiceV8.ts'
   ],
   'unified-oauth': [
-    'src/v8u/pages/UnifiedOAuthPageV8U.tsx',
-    'src/v8u/flows/UnifiedOAuthFlowV8U.tsx',
-    'src/v8u/services/unifiedOAuthCredentialsServiceV8U.ts'
+    'src/lab/pages/UnifiedOAuthPageV8U.tsx',
+    'src/lab/flows/UnifiedOAuthFlowV8U.tsx',
+    'src/lab/services/unifiedOAuthCredentialsServiceV8U.ts'
   ],
   'delete-devices': [
     'src/mfa/pages/DeleteAllDevicesUtilityV8.tsx'
   ],
   'enhanced-state': [
-    'src/v8u/pages/EnhancedStateManagementPageV8U.tsx'
+    'src/lab/pages/EnhancedStateManagementPageV8U.tsx'
   ],
   'token-monitoring': [
-    'src/v8u/pages/TokenMonitoringPage.tsx',
-    'src/v8u/services/tokenMonitoringService.ts'
+    'src/lab/pages/TokenMonitoringPage.tsx',
+    'src/lab/services/tokenMonitoringService.ts'
   ],
   'protect-portal': [
     'src/pages/protect-portal/ProtectPortalApp.tsx',

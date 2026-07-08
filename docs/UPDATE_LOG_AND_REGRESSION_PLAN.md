@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### Version consolidation Phase 5: rename `src/v8u` → `src/lab` (2026-07-08)
+
+- **What:** Moved OAuth lab UI from `src/v8u` to `src/lab`; updated `@/v8u/*` and relative import paths.
+- **Cause:** Phase 1 canonical routes use `/lab/*`; folder name should match. Legacy `/v8u/*` URL routes remain for redirects.
+- **Fix:** `git mv`; bulk path replace; session-storage keys and OAuth state prefixes left as `v8u_*` for existing browser state. `V8U*` symbols deferred to Phase 8.
+- **Files:** `src/lab/**`, `src/App.tsx`, `src/mfa/**`, `src/platform/**`, `scripts/`, docs
+- **Regression check:** (1) `npm run build` passes. (2) `/lab/token-monitoring` and `/v8u/token-monitoring` (redirect). (3) `/lab/oauth-authz` loads unified OAuth flow.
+
 ### Version consolidation Phase 4: rename `src/v8` → `src/mfa` (2026-07-08)
 
 - **What:** Moved unified MFA module from `src/v8` to `src/mfa`; updated `@/v8/*` path aliases to `@/mfa/*` in `tsconfig.json` and `vite.config.ts`; updated import paths across `src/`.

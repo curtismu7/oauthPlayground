@@ -20,7 +20,7 @@ import V9FlowHeader from '../../../platform/v9FlowHeaderService';
 import { V7MMockBanner } from '../../../v7/components/V7MMockBanner';
 import type { DiscoveredApp } from '../../../mfa/components/AppPickerV8';
 import WorkerTokenStatusDisplayV8 from '../../../mfa/components/WorkerTokenStatusDisplayV8';
-import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import { CompactAppPickerV8U } from '../../../lab/components/CompactAppPickerV8U';
 
 /**
  * Utility function to mask tokens for security

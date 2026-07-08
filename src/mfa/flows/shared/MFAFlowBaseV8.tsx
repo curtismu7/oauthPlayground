@@ -31,7 +31,7 @@ import {
 	WorkerTokenStatusServiceV8,
 } from '@/mfa/services/workerTokenStatusServiceV8';
 import { sendAnalyticsLog } from '@/mfa/utils/analyticsLoggerV8';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';
 import { logger } from '../../../utils/logger';
 import type { DeviceAuthenticationPolicy, DeviceType, MFACredentials, MFAState } from './MFATypes';
 

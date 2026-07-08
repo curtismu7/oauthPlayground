@@ -30,7 +30,7 @@
  * }
  */
 
-import type { UnifiedFlowCredentials } from '@/v8u/services/unifiedFlowIntegrationV8U';
+import type { UnifiedFlowCredentials } from '@/lab/services/unifiedFlowIntegrationV8U';
 import { logger } from '../../utils/logger';
 import { ConfigCheckerServiceV8 } from './configCheckerServiceV8';
 import type { FlowType, SpecVersion } from './specVersionServiceV8';
@@ -579,7 +579,7 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 				// Check for stored PKCE codes with deprecated 'plain' method
 				try {
 					// Try to load PKCE codes from storage (they might be from a previous session)
-					const { PKCEStorageServiceV8U } = await import('@/v8u/services/pkceStorageServiceV8U');
+					const { PKCEStorageServiceV8U } = await import('@/lab/services/pkceStorageServiceV8U');
 					const flowKey = credentials.flowKey || 'default';
 					const storedPKCE = PKCEStorageServiceV8U.loadPKCECodes(flowKey);
 

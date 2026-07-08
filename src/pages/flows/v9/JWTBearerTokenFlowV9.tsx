@@ -13,7 +13,7 @@ import { V9ModernMessagingService } from '../../../platform/V9ModernMessagingSer
 import V9FlowHeader from '../../../platform/v9FlowHeaderService';
 import { V7MMockBanner } from '../../../v7/components/V7MMockBanner';
 import type { DiscoveredApp } from '../../../mfa/components/AppPickerV8';
-import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import { CompactAppPickerV8U } from '../../../lab/components/CompactAppPickerV8U';
 
 // Built-in copy function to replace CopyButtonService
 const copyToClipboard = async (text: string): Promise<void> => {

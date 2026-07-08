@@ -6,7 +6,7 @@
 |------|------:|------|----------------|
 | `src/flows` | 67 | OAuth/OIDC flows (real PingOne) | **Phase 2 done** — folder + routes `/flows/*` |
 | `src/mfa` | 261 | Unified MFA + shared modals | **Phase 4 done** — was `v8`; routes `/mfa` + legacy `/v8/*` |
-| `src/v8u` | 88 | OAuth lab UI | **`/lab/*` aliases** |
+| `src/lab` | 88 | OAuth lab UI | **Phase 5 done** — was `v8u`; routes `/lab/*` + legacy `/v8u/*` |
 | `src/v7` | 10 | Mock settings (legacy) | Unchanged — delete Phase 6 |
 | `src/pages/flows/v9` | ~28 | Specialty flows | Unchanged — migrate Phase 7 |
 | `src/platform` | many | Platform services (not legacy) | **Phase 3 done** — was `services/v9` |
@@ -78,6 +78,14 @@ Constants: `src/config/canonicalRoutes.ts`
 - ~200+ import sites updated; URL routes `/v8/*` unchanged (legacy redirects)
 - `V8*` symbol names unchanged — Phase 8
 
+## Phase 5 (done)
+
+- `git mv src/v8u` → `src/lab`
+- `@/v8u/*` import paths → `@/lab/*` across `src/` and `scripts/`
+- URL routes `/v8u/*` unchanged (legacy redirects to `/lab/*` where applicable)
+- Session keys (`v8u_flow_settings_*`, `v8u-oauth-authz-*` state prefixes) unchanged for browser back-compat
+- `V8U*` symbol names unchanged — Phase 8
+
 ## Next phases
 
-Phase 5 retire `v8u`; Phase 6 delete `v7`.
+Phase 6 delete `v7`.

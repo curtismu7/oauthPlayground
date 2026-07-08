@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import re, sys
 
-path = 'src/v8u/components/UnifiedFlowSteps.tsx'
+path = 'src/lab/components/UnifiedFlowSteps.tsx'
 content = open(path).read()
 orig = content
 

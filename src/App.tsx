@@ -13,7 +13,7 @@ import { ConfirmationModalV8 } from './mfa/components/ConfirmationModalV8';
 import { PromptModalV8 } from './mfa/components/PromptModalV8';
 import { WorkerTokenCredentialModal } from '@/components/WorkerTokenCredentialModal';
 import { FlowStateProvider } from './mfa/contexts/FlowStateContext';
-import UnifiedFlowProvider from './v8u/services/enhancedStateManagement';
+import UnifiedFlowProvider from './lab/services/enhancedStateManagement';
 import './styles/spec-cards.css';
 import './styles/ui-settings.css';
 import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all buttons have white text
@@ -310,7 +310,7 @@ const MobileOTPConfigurationPageV8 = lazy(() =>
 	}))
 );
 const TokenMonitoringPage = lazy(() =>
-	import('./v8u/pages/TokenMonitoringPage').then((m) => ({ default: m.TokenMonitoringPage }))
+	import('./lab/pages/TokenMonitoringPage').then((m) => ({ default: m.TokenMonitoringPage }))
 );
 
 // Lazy load unified MFA flow for code splitting
@@ -321,8 +321,8 @@ const UnifiedMFARegistrationFlowV8 = React.lazy(() =>
 );
 
 // OAuth Authz V2 — new redesigned UI
-const OAuthAuthzV2 = lazy(() => import('./v8u/components/OAuthAuthzV2/OAuthAuthzV2'));
-const AuthCodeFlowV2 = lazy(() => import('./v8u/components/AuthCodeFlowV2/AuthCodeFlowV2'));
+const OAuthAuthzV2 = lazy(() => import('./lab/components/OAuthAuthzV2/OAuthAuthzV2'));
+const AuthCodeFlowV2 = lazy(() => import('./lab/components/AuthCodeFlowV2/AuthCodeFlowV2'));
 const FIDO2FlowV8 = React.lazy(() =>
 	import('./mfa/flows/types/FIDO2FlowV8').then((module) => ({ default: module.FIDO2FlowV8 }))
 );
@@ -369,17 +369,17 @@ const MobileRegistrationDocsPageV8 = lazy(() =>
 const UnifiedCredentialsMockupV8 = lazy(() => import('./mfa/pages/UnifiedCredentialsMockupV8'));
 
 // V8MTokenExchange archived — token-exchange-v7 route now redirects to v9
-import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
-import UnifiedFlowErrorBoundary from './v8u/components/UnifiedFlowErrorBoundary';
+import CallbackHandlerV8U from './lab/components/CallbackHandlerV8U';
+import UnifiedFlowErrorBoundary from './lab/components/UnifiedFlowErrorBoundary';
 
 // Lazy load heavy V8U components for better performance
-const UnifiedFlowHelperPageV8U = lazy(() => import('./v8u/components/UnifiedFlowHelperPageV8U'));
-const SpiffeSpireFlowV8U = lazy(() => import('./v8u/flows/SpiffeSpireFlowV8U'));
-const UnifiedOAuthFlowV8U = lazy(() => import('./v8u/flows/UnifiedOAuthFlowV8U'));
-const SpiffeSpireTokenDisplayV8U = lazy(() => import('./v8u/pages/SpiffeSpireTokenDisplayV8U'));
-const EnhancedStateManagementPage = lazy(() => import('./v8u/pages/EnhancedStateManagementPage'));
-const TokenApiDocumentationPage = lazy(() => import('./v8u/pages/TokenApiDocumentationPage'));
-const FlowComparisonPage = lazy(() => import('./v8u/pages/FlowComparisonPage'));
+const UnifiedFlowHelperPageV8U = lazy(() => import('./lab/components/UnifiedFlowHelperPageV8U'));
+const SpiffeSpireFlowV8U = lazy(() => import('./lab/flows/SpiffeSpireFlowV8U'));
+const UnifiedOAuthFlowV8U = lazy(() => import('./lab/flows/UnifiedOAuthFlowV8U'));
+const SpiffeSpireTokenDisplayV8U = lazy(() => import('./lab/pages/SpiffeSpireTokenDisplayV8U'));
+const EnhancedStateManagementPage = lazy(() => import('./lab/pages/EnhancedStateManagementPage'));
+const TokenApiDocumentationPage = lazy(() => import('./lab/pages/TokenApiDocumentationPage'));
+const FlowComparisonPage = lazy(() => import('./lab/pages/FlowComparisonPage'));
 
 // Import test pages
 const ImplicitFlowTest = lazy(() => import('./pages/test/ImplicitFlowTest'));
@@ -387,7 +387,7 @@ const AllFlowsApiTest = lazy(() => import('./pages/test/AllFlowsApiTest'));
 const MFAFlowsApiTest = lazy(() => import('./pages/test/MFAFlowsApiTest'));
 const PARTest = lazy(() => import('./pages/test/PARTest'));
 const TestCallback = lazy(() => import('./pages/test/TestCallback'));
-const TokenStatusPageV8U = lazy(() => import('./v8u/pages/TokenStatusPageV8U'));
+const TokenStatusPageV8U = lazy(() => import('./lab/pages/TokenStatusPageV8U'));
 const ApiStatusPage = lazy(() => import('./pages/ApiStatusPage'));
 
 // V7M mock flows retired — all routes below redirect to /v2/flows/*
@@ -2050,7 +2050,7 @@ function AppContent() {
 			});
 
 			// Import and initialize token exchange tests
-			import('./v8u/tests/tokenExchangeFlowTest').then(({ default: TokenExchangeFlowTest }) => {
+			import('./lab/tests/tokenExchangeFlowTest').then(({ default: TokenExchangeFlowTest }) => {
 				window.TokenExchangeFlowTest = TokenExchangeFlowTest;
 				window.runTokenExchangeTests = () => {
 					const test = new TokenExchangeFlowTest();
@@ -2060,7 +2060,7 @@ function AppContent() {
 			});
 
 			// Import and initialize integration tests
-			import('./v8u/tests/tokenExchangeIntegrationTest').then(
+			import('./lab/tests/tokenExchangeIntegrationTest').then(
 				({ default: TokenExchangeIntegrationTest }) => {
 					window.TokenExchangeIntegrationTest = TokenExchangeIntegrationTest;
 					window.runIntegrationTests = async () => {

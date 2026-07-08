@@ -48,10 +48,10 @@ npx eslint src/mfa/flows/unified/utils/unifiedFlowValidation.ts --fix --quiet
 
 # Fix Unified OAuth Flow
 echo "📝 Fixing UnifiedOAuthFlowV8U.tsx..."
-npx eslint src/v8u/flows/UnifiedOAuthFlowV8U.tsx --fix --quiet
+npx eslint src/lab/flows/UnifiedOAuthFlowV8U.tsx --fix --quiet
 
 echo "✅ Lint fix complete for Unified components!"
 echo ""
 echo "📊 Summary of remaining issues:"
 echo "Run 'npx eslint src/mfa/flows/unified/ --ext .ts,.tsx' to see remaining issues"
-echo "Run 'npx eslint src/v8u/flows/UnifiedOAuthFlowV8U.tsx' to see OAuth issues"
+echo "Run 'npx eslint src/lab/flows/UnifiedOAuthFlowV8U.tsx' to see OAuth issues"

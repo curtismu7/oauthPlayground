@@ -7,7 +7,7 @@ Fix UserTokenStatusDisplayV8U.tsx:
 """
 import re
 
-path = '/Users/cmuir/P1Import-apps/oauth-playground/src/v8u/components/UserTokenStatusDisplayV8U.tsx'
+path = '/Users/cmuir/P1Import-apps/oauth-playground/src/lab/components/UserTokenStatusDisplayV8U.tsx'
 
 with open(path, 'r', encoding='utf-8') as f:
     src = f.read()

@@ -199,7 +199,7 @@ class CriticalLinterFixer:
             "src/mfa/services/jarRequestObjectServiceV8.ts",
             "src/mfa/services/mfaConfigurationServiceV8.ts",
             "src/mfa/services/oidcDiscoveryServiceV8.ts",
-            "src/v8u/services/unifiedFlowIntegrationV8U.ts"
+            "src/lab/services/unifiedFlowIntegrationV8U.ts"
         ]
         
         # Process priority files first

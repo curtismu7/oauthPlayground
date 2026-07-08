@@ -18,7 +18,7 @@ import {
 	checkPingOneAuthentication,
 	performDetailedAuthenticationCheck,
 } from '@/mfa/services/pingOneAuthenticationServiceV8';
-import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
+import { ReturnTargetServiceV8U } from '@/lab/services/returnTargetServiceV8U';
 import { logger } from '../../utils/logger';
 import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
 

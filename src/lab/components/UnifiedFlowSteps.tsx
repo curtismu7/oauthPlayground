@@ -40,7 +40,7 @@ import { TokenDisplayServiceV8 } from '@/mfa/services/tokenDisplayServiceV8';
 import { TokenOperationsServiceV8 } from '@/mfa/services/tokenOperationsServiceV8';
 
 // Create module-specific logger
-const _log = createModuleLogger('src/v8u/components/UnifiedFlowSteps.tsx');
+const _log = createModuleLogger('src/lab/components/UnifiedFlowSteps.tsx');
 
 import { ButtonSpinner } from '@/components/ui';
 import { getRedirectUriForUnifiedFlow } from '@/platform/V9UnifiedRedirectUriService';

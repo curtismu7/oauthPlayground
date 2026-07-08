@@ -16,9 +16,9 @@ fi
 
 # Test 2: Check AppDiscoveryModalV8U tokenStatus fixes
 echo "📋 Checking AppDiscoveryModalV8U tokenStatus fixes..."
-if grep -q "globalTokenStatus" src/v8u/components/AppDiscoveryModalV8U.tsx && \
-   ! grep -q "tokenStatus" src/v8u/components/AppDiscoveryModalV8U.tsx && \
-   ! grep -q "WorkerTokenStatusServiceV8" src/v8u/components/AppDiscoveryModalV8U.tsx; then
+if grep -q "globalTokenStatus" src/lab/components/AppDiscoveryModalV8U.tsx && \
+   ! grep -q "tokenStatus" src/lab/components/AppDiscoveryModalV8U.tsx && \
+   ! grep -q "WorkerTokenStatusServiceV8" src/lab/components/AppDiscoveryModalV8U.tsx; then
     echo "✅ AppDiscoveryModalV8U tokenStatus references fixed"
 else
     echo "❌ AppDiscoveryModalV8U tokenStatus references not fixed!"
@@ -37,7 +37,7 @@ fi
 # Test 4: Check error handling in both components
 echo "📋 Checking error handling in both components..."
 if grep -q "Failed to access global environment ID for fallback" src/mfa/flows/shared/MFAFlowBaseV8.tsx && \
-   grep -q "Discovery error" src/v8u/components/AppDiscoveryModalV8U.tsx; then
+   grep -q "Discovery error" src/lab/components/AppDiscoveryModalV8U.tsx; then
     echo "✅ Error handling implemented in both components"
 else
     echo "❌ Error handling missing in one or both components!"

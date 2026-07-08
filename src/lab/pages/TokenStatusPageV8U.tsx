@@ -27,7 +27,7 @@ import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/mfa/services/workerTokenStatusServiceV8';
-import UserTokenStatusDisplayV8U from '@/v8u/components/UserTokenStatusDisplayV8U';
+import UserTokenStatusDisplayV8U from '@/lab/components/UserTokenStatusDisplayV8U';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 
 import V9FlowHeader from '../../platform/v9FlowHeaderService';

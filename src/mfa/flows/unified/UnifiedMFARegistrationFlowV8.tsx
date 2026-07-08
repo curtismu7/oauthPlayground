@@ -49,8 +49,8 @@ import { MfaAuthenticationServiceV8 } from '@/mfa/services/mfaAuthenticationServ
 import type { MFAFeatureFlag } from '@/mfa/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/mfa/services/mfaFeatureFlagsV8';
 import { MFAServiceV8, type RegisterDeviceParams } from '@/mfa/services/mfaServiceV8';
-import { usePersistedCollapse } from '@/v8u/hooks/usePersistedCollapse';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { usePersistedCollapse } from '@/lab/hooks/usePersistedCollapse';
+import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';
 import { usePageStepper } from '../../../contexts/FloatingStepperContext';
 import { logger } from '../../../utils/logger';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';

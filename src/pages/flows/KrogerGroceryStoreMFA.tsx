@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import { logger } from '@/utils/logger';
 import type { DiscoveredApp } from '@/mfa/components/AppPickerV8';
-import { CompactAppPickerV8U } from '@/v8u/components/CompactAppPickerV8U';
+import { CompactAppPickerV8U } from '@/lab/components/CompactAppPickerV8U';
 import { ApiCallTable } from '../../components/ApiCallTable';
 import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCodeConfigModal';
 import type { StepCredentials } from '../../components/steps/CommonSteps';

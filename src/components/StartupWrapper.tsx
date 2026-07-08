@@ -5,7 +5,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { LoadingSpinnerModalV8U } from '@/v8u/components/LoadingSpinnerModalV8U';
+import { LoadingSpinnerModalV8U } from '@/lab/components/LoadingSpinnerModalV8U';
 import { useAuth } from '../contexts/NewAuthContext';
 
 interface StartupWrapperProps {
