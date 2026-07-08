@@ -587,8 +587,8 @@ export class CredentialsStorage {
 	static async set(flowId: FlowId, credentials: CredentialsData): Promise<void> {
 		// Store in V9 credentials service
 		try {
-			const { CredentialsServiceV8 } = await import('./v9/credentialsServiceV9');
-			await CredentialsServiceV8.saveCredentials(flowId, credentials);
+			const { CredentialsService } = await import('./v9/credentialsServiceV9');
+			await CredentialsService.saveCredentials(flowId, credentials);
 			logger.info(
 				'FlowStorageService',
 				` [FlowStorage] Saved credentials for ${flowId} to unified storage`
@@ -617,8 +617,8 @@ export class CredentialsStorage {
 	static async get(flowId: FlowId): Promise<CredentialsData | null> {
 		// Try V9 credentials service first
 		try {
-			const { CredentialsServiceV8 } = await import('./v9/credentialsServiceV9');
-			const credentials = await CredentialsServiceV8.loadCredentials(flowId, {
+			const { CredentialsService } = await import('./v9/credentialsServiceV9');
+			const credentials = await CredentialsService.loadCredentials(flowId, {
 				flowKey: flowId,
 				flowType: 'oauth',
 				includeClientSecret: true,

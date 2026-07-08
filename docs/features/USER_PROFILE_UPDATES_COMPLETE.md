@@ -4,7 +4,7 @@
 
 ### **Summary:**
 Successfully updated the PingOneUserProfile page at `/pingone-user-profile` with:
-1. **Dropdown Username Service**: Replaced manual input with UserSearchDropdownV8
+1. **Dropdown Username Service**: Replaced manual input with UserSearchDropdown
 2. **Red Header Theme**: Updated header styling to red with white text
 
 ---
@@ -41,7 +41,7 @@ header: {
 
 **Component Added:**
 ```typescript
-import { UserSearchDropdownV8 } from '../v8/components/UserSearchDropdownV8';
+import { UserSearchDropdown } from '../v8/components/UserSearchDropdown';
 ```
 
 **Manual Input Replaced:**
@@ -57,7 +57,7 @@ import { UserSearchDropdownV8 } from '../v8/components/UserSearchDropdownV8';
 />
 
 // After (Dropdown Service)
-<UserSearchDropdownV8
+<UserSearchDropdown
   environmentId={environmentId}
   value={userIdentifier}
   onChange={(value) => setUserIdentifier(value)}
@@ -71,7 +71,7 @@ import { UserSearchDropdownV8 } from '../v8/components/UserSearchDropdownV8';
 
 ## 🔧 **Technical Implementation**
 
-### **UserSearchDropdownV8 Features:**
+### **UserSearchDropdown Features:**
 - **Search Functionality**: Real-time user search with pagination
 - **Environment Integration**: Uses current environmentId for API calls
 - **Accessibility**: Proper ARIA labels and keyboard navigation
@@ -101,7 +101,7 @@ import { UserSearchDropdownV8 } from '../v8/components/UserSearchDropdownV8';
 - **Brand Consistency**: Matches application color standards
 
 ### **Technical Improvements:**
-- **Service Integration**: Uses existing UserSearchDropdownV8 service
+- **Service Integration**: Uses existing UserSearchDropdown service
 - **API Efficiency**: Leverages PingOne API for user lookup
 - **State Management**: Maintains existing state patterns
 - **Error Handling**: Preserved error display functionality
@@ -156,7 +156,7 @@ import { UserSearchDropdownV8 } from '../v8/components/UserSearchDropdownV8';
 - ✅ **Styling**: Red theme applied correctly
 
 ### **Component Integration:**
-- ✅ **UserSearchDropdownV8**: Successfully integrated
+- ✅ **UserSearchDropdown**: Successfully integrated
 - ✅ **State Management**: Existing patterns maintained
 - ✅ **Event Handling**: Proper onChange integration
 - ✅ **Error Handling**: Preserved existing error display

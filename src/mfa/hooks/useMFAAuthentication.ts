@@ -4,7 +4,7 @@
  * @description Custom hook for managing MFA authentication flow state
  * @version 3.0.0
  *
- * Extracted from MFAAuthenticationMainPageV8.tsx as part of V3 refactoring.
+ * Extracted from MFAAuthenticationMainPage.tsx as part of V3 refactoring.
  * Centralizes all authentication-related logic including:
  * - Authentication flow state machine
  * - Modal state management (OTP, FIDO2, Push, Email)

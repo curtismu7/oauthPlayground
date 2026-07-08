@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-01-06 14:30:00  
 **Version:** 1.0.0  
-**Purpose:** Comprehensive reference for the MFA Documentation Modal (`MFADocumentationModalV8.tsx`)  
+**Purpose:** Comprehensive reference for the MFA Documentation Modal (`MFADocumentationModal.tsx`)  
 **Usage:** Use this document to restore correct implementations when the documentation modal breaks or drifts
 
 ---
@@ -16,13 +16,13 @@
 
 ## Overview
 
-This document provides a comprehensive reference for the MFA Documentation Modal component (`MFADocumentationModalV8.tsx`). This modal allows users to select documentation types (registration, authentication, or specific use cases) and download them as PDF or Markdown.
+This document provides a comprehensive reference for the MFA Documentation Modal component (`MFADocumentationModal.tsx`). This modal allows users to select documentation types (registration, authentication, or specific use cases) and download them as PDF or Markdown.
 
 ---
 
 ## File Location
 
-**Component:** `src/v8/components/MFADocumentationModalV8.tsx`
+**Component:** `src/v8/components/MFADocumentationModal.tsx`
 
 ---
 
@@ -289,7 +289,7 @@ const downloadMarkdown = async (useCases: UseCase[]) => {
 ```
 
 **Notes:**
-- Uses `getApiCalls()` and `generateMarkdown()` from `MFADocumentationPageV8.tsx`
+- Uses `getApiCalls()` and `generateMarkdown()` from `MFADocumentationPage.tsx`
 - Defaults to 'admin' flow type and 'ACTIVATION_REQUIRED' status for registration
 - Filename format: `mfa-documentation-YYYY-MM-DD.md`
 
@@ -320,14 +320,14 @@ const downloadPDF = async (useCases: UseCase[]) => {
     combinedMarkdown += useCaseMarkdown;
   }
 
-  // Use the PDF download function from MFADocumentationPageV8
+  // Use the PDF download function from MFADocumentationPage
   const title = `Ping Identity - MFA Device Documentation (${useCases.length} use case${useCases.length !== 1 ? 's' : ''})`;
   downloadAsPDF(combinedMarkdown, title);
 };
 ```
 
 **Notes:**
-- Uses `downloadAsPDF()` from `MFADocumentationPageV8.tsx`
+- Uses `downloadAsPDF()` from `MFADocumentationPage.tsx`
 - Title format: "Ping Identity - MFA Device Documentation (N use case(s))"
 
 ---
@@ -685,7 +685,7 @@ for (const useCase of useCases) {
 ```
 
 **Notes:**
-- Uses `getApiCalls()` and `generateMarkdown()` from `MFADocumentationPageV8.tsx`
+- Uses `getApiCalls()` and `generateMarkdown()` from `MFADocumentationPage.tsx`
 - Defaults to 'admin' flow type for registration
 - Defaults to 'ACTIVATION_REQUIRED' status for registration
 - Each use case separated by `---` in markdown
@@ -804,5 +804,5 @@ const handleUseCaseToggle = (useCaseId: string) => {
 - **Category Auto-Selection:** Selecting a category automatically updates use case selection
 - **Manual Toggle:** Manually toggling a use case automatically sets category to 'specific'
 - **Download Format:** Defaults to Markdown, user can switch to PDF
-- **Documentation Generation:** Uses functions from `MFADocumentationPageV8.tsx` (`getApiCalls`, `generateMarkdown`, `downloadAsMarkdown`, `downloadAsPDF`)
+- **Documentation Generation:** Uses functions from `MFADocumentationPage.tsx` (`getApiCalls`, `generateMarkdown`, `downloadAsMarkdown`, `downloadAsPDF`)
 

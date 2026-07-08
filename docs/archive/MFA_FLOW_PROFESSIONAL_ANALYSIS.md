@@ -29,17 +29,17 @@ The MFA implementation represents a **sophisticated, enterprise-grade** multi-fa
 The MFA implementation uses a sophisticated **hybrid pattern** that combines:
 
 ```
-Router (MFAFlowV8.tsx)
+Router (MFAFlow.tsx)
   ↓
 Component Factory (MFAFlowComponentFactory)
   ↓
-Device-Specific Component (SMSFlowV8, FIDO2FlowV8, etc.)
+Device-Specific Component (SMSFlow, FIDO2Flow, etc.)
   ↓
 Controller Factory (MFAFlowControllerFactory)
   ↓  
 Device Controller (SMSFlowController, FIDO2FlowController, etc.)
   ↓
-Services (MFAServiceV8, MfaAuthenticationServiceV8)
+Services (MFAService, MfaAuthenticationService)
   ↓
 PingOne APIs
 ```
@@ -57,7 +57,7 @@ PingOne APIs
    // Adding a new device type:
    // 1. Create controller: NewDeviceController extends MFAFlowController
    // 2. Register in factory: MFAFlowControllerFactory.register('NEW_TYPE', ...)
-   // 3. Create component: NewDeviceFlowV8.tsx
+   // 3. Create component: NewDeviceFlow.tsx
    // Done! No changes to existing code.
    ```
 
@@ -87,31 +87,31 @@ PingOne APIs
 **Device Types Implemented:** 8 types
 ```
 src/v8/flows/types/
-├── SMS (SMSFlowV8.tsx)
-├── Email (EmailFlowV8.tsx)  
-├── TOTP (TOTPFlowV8.tsx)
-├── FIDO2 (FIDO2FlowV8.tsx)
-├── Voice (VoiceFlowV8.tsx)
-├── WhatsApp (WhatsAppFlowV8.tsx)
-├── Mobile (MobileFlowV8.tsx)
-└── Platform (OATHFlowV8.tsx)
+├── SMS (SMSFlow.tsx)
+├── Email (EmailFlow.tsx)  
+├── TOTP (TOTPFlow.tsx)
+├── FIDO2 (FIDO2Flow.tsx)
+├── Voice (VoiceFlow.tsx)
+├── WhatsApp (WhatsAppFlow.tsx)
+├── Mobile (MobileFlow.tsx)
+└── Platform (OATHFlow.tsx)
 ```
 
 **Services:**
 ```
 src/v8/services/
-├── mfaServiceV8.ts               # Device registration (Platform API)
-├── mfaAuthenticationServiceV8.ts  # Authentication flows (MFA v1 API)
-├── mfaEducationServiceV8.ts       # Educational content
-├── mfaConfigurationServiceV8.ts   # Settings persistence
-├── mfaReportingServiceV8.ts       # Reporting/analytics
-├── webAuthnServiceV8.ts           # WebAuthn operations
-└── passkeyServiceV8.ts            # Passkey-specific logic
+├── mfaService.ts               # Device registration (Platform API)
+├── mfaAuthenticationService.ts  # Authentication flows (MFA v1 API)
+├── mfaEducationService.ts       # Educational content
+├── mfaConfigurationService.ts   # Settings persistence
+├── mfaReportingService.ts       # Reporting/analytics
+├── webAuthnService.ts           # WebAuthn operations
+└── passkeyService.ts            # Passkey-specific logic
 ```
 
 **Component Structure:**
 ```
-MFAAuthenticationMainPageV8 (6,603 lines)
+MFAAuthenticationMainPage (6,603 lines)
   ├── Environment/Worker Token/Policy Controls
   ├── Username Input with Search
   ├── Device Selection UI
@@ -122,7 +122,7 @@ MFAAuthenticationMainPageV8 (6,603 lines)
 
 **✅ STRENGTHS:**
 - Clear separation by device type
-- Shared base class (`MFAFlowBaseV8`) for common functionality
+- Shared base class (`MFAFlowBase`) for common functionality
 - Dedicated services for different API layers
 - Educational service for user guidance
 
@@ -130,17 +130,17 @@ MFAAuthenticationMainPageV8 (6,603 lines)
 1. **Main Page Size:** 6,603 lines in single file
    - **Recommendation:** Extract into smaller components
    ```
-   MFAAuthenticationMainPageV8 (6,603 lines) →
-     ├── EnvironmentControlsV8.tsx (credentials, worker token, policy)
-     ├── DeviceSelectionV8.tsx (device picker)
-     ├── AuthenticationChallengeV8.tsx (OTP, push, WebAuthn)
-     ├── DeviceDashboardV8.tsx (device list, policy summary)
-     └── AuthenticationModalsV8.tsx (success, error, cooldown)
+   MFAAuthenticationMainPage (6,603 lines) →
+     ├── EnvironmentControls.tsx (credentials, worker token, policy)
+     ├── DeviceSelection.tsx (device picker)
+     ├── AuthenticationChallenge.tsx (OTP, push, WebAuthn)
+     ├── DeviceDashboard.tsx (device list, policy summary)
+     └── AuthenticationModals.tsx (success, error, cooldown)
    ```
 
 2. **Service API Split**
-   - `mfaServiceV8.ts` handles Platform API (registration)
-   - `mfaAuthenticationServiceV8.ts` handles MFA v1 API (authentication)
+   - `mfaService.ts` handles Platform API (registration)
+   - `mfaAuthenticationService.ts` handles MFA v1 API (authentication)
    - **Good:** Clear API boundary separation
    - **Improvement:** Document why split (already has deprecation notices ✅)
 
@@ -197,11 +197,11 @@ export type DeviceType =
 ```typescript
 // Try-catch throughout
 try {
-  const result = await MFAServiceV8.registerDevice(params);
+  const result = await MFAService.registerDevice(params);
   // Success handling
 } catch (error) {
   console.error(`${MODULE_TAG} Registration failed`, error);
-  toastV8.error(error instanceof Error ? error.message : 'Registration failed');
+  toast.error(error instanceof Error ? error.message : 'Registration failed');
   setError(error.message);
 }
 ```
@@ -212,7 +212,7 @@ try {
   ```typescript
   // Suggested:
   try {
-    const result = await MFAServiceV8.registerDevice(params);
+    const result = await MFAService.registerDevice(params);
   } catch (error) {
     UnifiedFlowErrorHandler.handleError(error, {
       flowType: 'mfa',
@@ -459,7 +459,7 @@ try {
    - Used for: Admin device registration, management operations
    - Grant: client_credentials
    - Scope: p1:read:user, p1:update:user:device, p1:create:device
-   - Storage: Centralized via workerTokenServiceV8
+   - Storage: Centralized via workerTokenService
    
    // User Token (OAuth Authorization Code Flow)
    - Used for: User self-service device registration
@@ -691,7 +691,7 @@ await fetch(`/environments/${envId}/users/${userId}/otp/check`);
 
 **✅ CLEAN API SEPARATION:**
 
-1. **MFAServiceV8** - Platform API (Device Registration)
+1. **MFAService** - Platform API (Device Registration)
    ```typescript
    // Platform API v1
    POST /environments/{envId}/users/{userId}/devices
@@ -703,7 +703,7 @@ await fetch(`/environments/${envId}/users/${userId}/otp/check`);
    - ✅ Admin-level operations (worker token)
    - ✅ Device lifecycle management
 
-2. **MfaAuthenticationServiceV8** - MFA v1 API (Authentication)
+2. **MfaAuthenticationService** - MFA v1 API (Authentication)
    ```typescript
    // MFA v1 API
    POST /mfa/v1/environments/{envId}/users/{userId}/deviceAuthentications
@@ -771,7 +771,7 @@ console.error('[MFA-SERVICE-V8] Device registration failed', {
 
 **✅ EXCEPTIONAL EDUCATIONAL CONTENT:**
 
-The `MFAEducationServiceV8` provides comprehensive explanations for:
+The `MFAEducationService` provides comprehensive explanations for:
 
 **Device Types:**
 - factor.sms, factor.email, factor.totp, factor.fido2
@@ -799,7 +799,7 @@ The `MFAEducationServiceV8` provides comprehensive explanations for:
 **✅ EXCELLENT UX GUIDANCE:**
 
 1. **Info Buttons Throughout**
-   - ✅ MFAInfoButtonV8 component
+   - ✅ MFAInfoButton component
    - ✅ Contextual help at each step
    - ✅ Educational modals
 
@@ -880,7 +880,7 @@ export class MFAFlowController {
   
   async registerDevice(credentials: MFACredentials, status: 'ACTIVE' | 'ACTIVATION_REQUIRED') {
     const params = this.getDeviceRegistrationParams(credentials, status);
-    return MFAServiceV8.registerDevice(params);
+    return MFAService.registerDevice(params);
   }
 }
 
@@ -1007,7 +1007,7 @@ export class MFAFlowControllerFactory {
    - Consistent interface across all types
 
 5. ⭐⭐⭐⭐⭐ **Educational Content**
-   - MFAEducationServiceV8 provides excellent guidance
+   - MFAEducationService provides excellent guidance
    - Security level explanations
    - When to use each factor
 
@@ -1026,7 +1026,7 @@ export class MFAFlowControllerFactory {
    - **Benefit:** Structured logging, better debugging
 
 3. 🟡 **Component Size** (Low Priority)
-   - MFAAuthenticationMainPageV8: 6,603 lines
+   - MFAAuthenticationMainPage: 6,603 lines
    - **Recommendation:** Extract into smaller components
    - **Effort:** 16-20 hours
    - **Benefit:** Better maintainability

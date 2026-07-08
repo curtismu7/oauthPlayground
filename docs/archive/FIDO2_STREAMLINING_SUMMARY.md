@@ -52,7 +52,7 @@ Streamlined the FIDO2 device registration and verification flow in the MFA Flow 
 
 ## Files Modified
 
-- `src/v8/flows/MFAFlowV8.tsx` - Main implementation
+- `src/v8/flows/MFAFlow.tsx` - Main implementation
 - `MFA_ENHANCEMENTS_IMPLEMENTED.md` - Updated documentation
 - `MFA_FIDO2_STREAMLINING_COMPLETE.md` - Detailed documentation
 - `FIDO2_STREAMLINING_SUMMARY.md` - This summary

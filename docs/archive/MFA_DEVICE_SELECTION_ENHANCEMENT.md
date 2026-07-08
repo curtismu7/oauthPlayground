@@ -25,7 +25,7 @@ const loadExistingDevices = async () => {
   
   setLoadingDevices(true);
   try {
-    const devices = await MFAServiceV8.getAllDevices({
+    const devices = await MFAService.getAllDevices({
       environmentId: credentials.environmentId,
       username: credentials.username,
     });
@@ -82,7 +82,7 @@ Show spinner while loading devices
 
 ## Implementation Status
 
-Need to modify `src/v8/flows/MFAFlowV8.tsx`:
+Need to modify `src/v8/flows/MFAFlow.tsx`:
 1. Add state variables
 2. Add loadExistingDevices function
 3. Modify renderStep1 to show device selection UI

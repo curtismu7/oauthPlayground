@@ -10,10 +10,10 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import {
-	SQLiteStatsServiceV8,
+	SQLiteStatsService,
 	type SQLiteSyncMetadata,
 	type SQLiteUserStats,
-} from '@/mfa/services/sqliteStatsServiceV8';
+} from '@/mfa/services/sqliteStatsService';
 import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[ USE-SQLITE-STATS]';
@@ -73,8 +73,8 @@ export function useSQLiteStats(options: UseSQLiteStatsOptions): UseSQLiteStatsRe
 		try {
 			// Fetch both stats and metadata in parallel
 			const [statsResult, metadataResult] = await Promise.all([
-				SQLiteStatsServiceV8.getUserCount(environmentId),
-				SQLiteStatsServiceV8.getSyncMetadata(environmentId),
+				SQLiteStatsService.getUserCount(environmentId),
+				SQLiteStatsService.getSyncMetadata(environmentId),
 			]);
 
 			setStats(statsResult);
@@ -94,7 +94,7 @@ export function useSQLiteStats(options: UseSQLiteStatsOptions): UseSQLiteStatsRe
 	}, [environmentId, enabled]);
 
 	const clearCache = () => {
-		SQLiteStatsServiceV8.clearCacheForEnvironment(environmentId);
+		SQLiteStatsService.clearCacheForEnvironment(environmentId);
 		fetchStats(); // Fetch fresh data
 	};
 

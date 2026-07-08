@@ -13,7 +13,7 @@ Created a new V8 flow that demonstrates PingOne MFA API integration with SMS dev
 ## Files Created
 
 ### 1. MFA Flow Component
-**File**: `src/v8/flows/MFAFlowV8.tsx`  
+**File**: `src/v8/flows/MFAFlow.tsx`  
 **Module Tag**: `[📱 MFA-FLOW-V8]`  
 **Flow Key**: `mfa-flow-v8`
 
@@ -26,7 +26,7 @@ Created a new V8 flow that demonstrates PingOne MFA API integration with SMS dev
 - Full V8 compliance (naming, logging, styling)
 
 ### 2. MFA Service
-**File**: `src/v8/services/mfaServiceV8.ts`  
+**File**: `src/v8/services/mfaService.ts`  
 **Module Tag**: `[📱 MFA-SERVICE-V8]`
 
 **Methods**:
@@ -214,19 +214,19 @@ All color combinations meet WCAG AA contrast requirements:
 
 ### Basic Flow
 ```typescript
-import { MFAFlowV8 } from '@/v8/flows/MFAFlowV8';
+import { MFAFlow } from '@/v8/flows/MFAFlow';
 
 function App() {
-  return <MFAFlowV8 />;
+  return <MFAFlow />;
 }
 ```
 
 ### Service Usage
 ```typescript
-import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
+import { MFAService } from '@/v8/services/mfaService';
 
 // Register device
-const device = await MFAServiceV8.registerDevice({
+const device = await MFAService.registerDevice({
   environmentId: 'xxx',
   clientId: 'yyy',
   clientSecret: 'zzz',
@@ -236,7 +236,7 @@ const device = await MFAServiceV8.registerDevice({
 });
 
 // Send OTP
-await MFAServiceV8.sendOTP({
+await MFAService.sendOTP({
   environmentId: 'xxx',
   clientId: 'yyy',
   clientSecret: 'zzz',
@@ -245,7 +245,7 @@ await MFAServiceV8.sendOTP({
 });
 
 // Validate OTP
-const result = await MFAServiceV8.validateOTP({
+const result = await MFAService.validateOTP({
   environmentId: 'xxx',
   clientId: 'yyy',
   clientSecret: 'zzz',
@@ -388,9 +388,9 @@ To make the flow accessible, add it to your routing:
 
 ```typescript
 // In App.tsx or your routing file
-import { MFAFlowV8 } from '@/v8/flows/MFAFlowV8';
+import { MFAFlow } from '@/v8/flows/MFAFlow';
 
-<Route path="/v8/mfa" element={<MFAFlowV8 />} />
+<Route path="/v8/mfa" element={<MFAFlow />} />
 ```
 
 ---

@@ -6,14 +6,14 @@ Phase 2 of the unified credentials form has been successfully implemented. The f
 
 ## What Was Implemented
 
-### 1. Spec Version Service (`specVersionServiceV8.ts`)
+### 1. Spec Version Service (`specVersionService.ts`)
 ✅ Complete - Manages OAuth 2.0, OAuth 2.1, and OpenID Connect specifications
 - Available flows per spec version
 - Compliance rules enforcement
 - Configuration validation
 - Deprecation warnings
 
-### 2. Unified Flow Options Service (`unifiedFlowOptionsServiceV8.ts`)
+### 2. Unified Flow Options Service (`unifiedFlowOptionsService.ts`)
 ✅ Complete - Combines spec awareness with flow options
 - Spec-aware flow options
 - Field visibility per spec/flow combination
@@ -21,7 +21,7 @@ Phase 2 of the unified credentials form has been successfully implemented. The f
 - Compliance warnings generation
 - Helper methods for UI rendering
 
-### 3. Credentials Form Integration (`CredentialsFormV8.tsx`)
+### 3. Credentials Form Integration (`CredentialsForm.tsx`)
 ✅ Complete - Phase 2 UI integration
 
 #### New UI Elements Added:
@@ -130,11 +130,11 @@ const [useRedirectless, setUseRedirectless] = useState(false);
 
 ### New Computed Values
 ```typescript
-const availableFlows = useMemo(() => SpecVersionServiceV8.getAvailableFlows(specVersion), [specVersion]);
+const availableFlows = useMemo(() => SpecVersionService.getAvailableFlows(specVersion), [specVersion]);
 const effectiveFlowType = useMemo(() => { /* ensures flow is available */ }, [selectedFlowType, availableFlows]);
-const fieldVisibility = useMemo(() => UnifiedFlowOptionsServiceV8.getFieldVisibility(specVersion, effectiveFlowType), [specVersion, effectiveFlowType]);
-const checkboxAvailability = useMemo(() => UnifiedFlowOptionsServiceV8.getCheckboxAvailability(specVersion, effectiveFlowType), [specVersion, effectiveFlowType]);
-const complianceWarnings = useMemo(() => UnifiedFlowOptionsServiceV8.getComplianceWarnings(specVersion, effectiveFlowType), [specVersion, effectiveFlowType]);
+const fieldVisibility = useMemo(() => UnifiedFlowOptionsService.getFieldVisibility(specVersion, effectiveFlowType), [specVersion, effectiveFlowType]);
+const checkboxAvailability = useMemo(() => UnifiedFlowOptionsService.getCheckboxAvailability(specVersion, effectiveFlowType), [specVersion, effectiveFlowType]);
+const complianceWarnings = useMemo(() => UnifiedFlowOptionsService.getComplianceWarnings(specVersion, effectiveFlowType), [specVersion, effectiveFlowType]);
 ```
 
 ### New UI Sections
@@ -203,14 +203,14 @@ const complianceWarnings = useMemo(() => UnifiedFlowOptionsServiceV8.getComplian
 
 ## Files Modified
 
-1. `src/v8/services/specVersionServiceV8.ts` - NEW
-2. `src/v8/services/unifiedFlowOptionsServiceV8.ts` - NEW
-3. `src/v8/components/CredentialsFormV8.tsx` - UPDATED
+1. `src/v8/services/specVersionService.ts` - NEW
+2. `src/v8/services/unifiedFlowOptionsService.ts` - NEW
+3. `src/v8/components/CredentialsForm.tsx` - UPDATED
 
 ## Files Not Modified
 
-- `src/v8/services/flowOptionsServiceV8.ts` - Still used for base flow options
-- `src/v8/services/credentialsServiceV8.ts` - Still used for credential management
+- `src/v8/services/flowOptionsService.ts` - Still used for base flow options
+- `src/v8/services/credentialsService.ts` - Still used for credential management
 - All other V8 services and components
 
 ## Backward Compatibility

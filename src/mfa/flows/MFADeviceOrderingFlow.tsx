@@ -1,0 +1,1377 @@
+import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ButtonSpinner } from '@/components/ui';
+import { usePageScroll } from '@/hooks/usePageScroll';
+import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
+import { MFAHeader } from '@/mfa/components/MFAHeader';
+import { SuperSimpleApiDisplay } from '@/mfa/components/SuperSimpleApiDisplay';
+import { WorkerTokenExpiryBanner } from '@/mfa/components/WorkerTokenExpiryBanner';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
+import { useApiDisplayPadding } from '@/mfa/hooks/useApiDisplayPadding';
+import { CredentialsService } from '@/mfa/services/credentialsService';
+import { EnvironmentIdService } from '@/mfa/services/environmentIdService';
+import { MFAConfigurationService } from '@/mfa/services/mfaConfigurationService';
+import { MFAService } from '@/mfa/services/mfaService';
+import { workerTokenService } from '@/mfa/services/workerTokenService';
+import {
+	type TokenStatusInfo,
+	WorkerTokenStatusService,
+} from '@/mfa/services/workerTokenStatusService';
+import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';
+import { logger } from '../../utils/logger';
+
+const MODULE_TAG = '[ DEVICE-ORDER-FLOW-V8]';
+const FLOW_KEY = 'mfa-device-order-v8';
+
+interface Credentials {
+	environmentId: string;
+	username: string;
+	[key: string]: unknown;
+}
+
+interface Device {
+	id: string;
+	type: string;
+	name?: string;
+	nickname?: string;
+	status?: string;
+	phone?: string;
+	email?: string;
+	[key: string]: unknown;
+}
+
+export const MFADeviceOrderingFlow: React.FC = () => {
+	logger.info(`${MODULE_TAG} Initializing device ordering flow`, 'Logger info');
+
+	usePageScroll({ pageName: 'MFA Device Ordering V8', force: true });
+
+	const [credentials, setCredentials] = useState<Credentials>(() => {
+		const stored = CredentialsService.loadCredentials(FLOW_KEY, {
+			flowKey: FLOW_KEY,
+			flowType: 'oidc',
+			includeClientSecret: false,
+			includeRedirectUri: false,
+			includeLogoutUri: false,
+			includeScopes: false,
+		});
+
+		const globalEnvId = EnvironmentIdService.getEnvironmentId();
+		const environmentId = stored.environmentId || globalEnvId || '';
+
+		logger.info(`${MODULE_TAG} Loading credentials`, {
+			flowSpecificEnvId: stored.environmentId,
+			globalEnvId,
+			usingEnvId: environmentId,
+		});
+
+		return {
+			environmentId,
+			username: stored.username || '',
+		};
+	});
+
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>(
+		WorkerTokenStatusService.checkWorkerTokenStatusSync()
+	);
+
+	// Worker Token Settings - Load from config service
+	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
+		try {
+			return MFAConfigurationService.loadConfiguration().workerToken.silentApiRetrieval || false;
+		} catch {
+			return false;
+		}
+	});
+	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
+		try {
+			return MFAConfigurationService.loadConfiguration().workerToken.showTokenAtEnd || true;
+		} catch {
+			return true;
+		}
+	});
+
+	// Listen for config updates
+	useEffect(() => {
+		const handleConfigUpdate = (event: CustomEvent) => {
+			if (event.detail?.workerToken) {
+				setSilentApiRetrieval(event.detail.workerToken.silentApiRetrieval || false);
+				setShowTokenAtEnd(event.detail.workerToken.showTokenAtEnd !== false);
+			}
+		};
+		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
+		return () => {
+			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
+		};
+	}, []);
+
+	const [isReady, setIsReady] = useState(false);
+
+	const [devices, setDevices] = useState<Device[]>([]);
+	const [isLoadingDevices, setIsLoadingDevices] = useState(false);
+	const [isSavingOrder, setIsSavingOrder] = useState(false);
+	const [isRemovingOrder, setIsRemovingOrder] = useState(false);
+	const [loadError, setLoadError] = useState<string | null>(null);
+	const [typeFilter, setTypeFilter] = useState<string>('all');
+	const [statusFilter, setStatusFilter] = useState<string>('all');
+	const filtersActive = typeFilter !== 'all' || statusFilter !== 'all';
+
+	// Get API display padding
+	const { paddingBottom } = useApiDisplayPadding();
+
+	// Check token status periodically
+	useEffect(() => {
+		const checkStatus = () => {
+			const status = WorkerTokenStatusService.checkWorkerTokenStatusSync();
+			setTokenStatus(status);
+		};
+
+		const interval = setInterval(checkStatus, 30000);
+
+		const handleStorageChange = () => {
+			checkStatus();
+		};
+		window.addEventListener('storage', handleStorageChange);
+		window.addEventListener('workerTokenUpdated', handleStorageChange);
+
+		return () => {
+			clearInterval(interval);
+			window.removeEventListener('storage', handleStorageChange);
+			window.removeEventListener('workerTokenUpdated', handleStorageChange);
+		};
+	}, []);
+
+	// Clear API calls on mount
+	useEffect(() => {
+		apiCallTrackerService.clearApiCalls();
+	}, []);
+
+	// Save credentials when they change
+	useEffect(() => {
+		// biome-ignore lint/suspicious/noExplicitAny: CredentialsService requires any type
+		CredentialsService.saveCredentials(FLOW_KEY, credentials as any);
+
+		if (credentials.environmentId) {
+			EnvironmentIdService.saveEnvironmentId(credentials.environmentId);
+			logger.info(`${MODULE_TAG} Environment ID saved globally`, {
+				environmentId: credentials.environmentId,
+			});
+		}
+	}, [credentials]);
+
+	const handleManageWorkerToken = async () => {
+		if (tokenStatus.isValid) {
+			const { uiNotificationService } = await import('@/mfa/services/uiNotificationService');
+			const confirmed = await uiNotificationService.confirm({
+				title: 'Remove Worker Token',
+				message: 'Worker token is currently stored.\n\nDo you want to remove it?',
+				confirmText: 'Remove',
+				cancelText: 'Cancel',
+				severity: 'warning',
+			});
+			if (confirmed) {
+				// #region agent log
+				// #endregion
+				await workerTokenService.clearToken();
+				// #region agent log
+				// #endregion
+				window.dispatchEvent(new Event('workerTokenUpdated'));
+				const newStatus = WorkerTokenStatusService.checkWorkerTokenStatusSync();
+				// #region agent log
+				// #endregion
+				setTokenStatus(newStatus);
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Worker token removed',
+					duration: 3000,
+				});
+			}
+		} else {
+			// Use helper to check silentApiRetrieval before showing modal
+			// Pass current checkbox values to override config (page checkboxes take precedence)
+			// forceShowModal=true because user explicitly clicked the button - always show modal
+			const { handleShowWorkerTokenModal } = await import('@/mfa/utils/workerTokenModalHelper');
+			await handleShowWorkerTokenModal(
+				setShowWorkerTokenModal,
+				setTokenStatus,
+				silentApiRetrieval, // Page checkbox value takes precedence
+				showTokenAtEnd, // Page checkbox value takes precedence
+				true // Force show modal - user clicked button
+			);
+		}
+	};
+
+	const handleWorkerTokenGenerated = () => {
+		window.dispatchEvent(new Event('workerTokenUpdated'));
+		setTokenStatus(WorkerTokenStatusService.checkWorkerTokenStatusSync());
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Worker token generated and saved!',
+			duration: 3000,
+		});
+	};
+
+	const canLoad =
+		credentials.environmentId?.trim() && credentials.username?.trim() && tokenStatus.isValid;
+
+	const handleLoadDevices = async () => {
+		if (!credentials.environmentId?.trim()) {
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Environment ID is required',
+				dismissible: true,
+			});
+			return;
+		}
+		if (!credentials.username?.trim()) {
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Username is required',
+				dismissible: true,
+			});
+			return;
+		}
+		if (!tokenStatus.isValid) {
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Worker token is required',
+				dismissible: true,
+			});
+			return;
+		}
+
+		setIsLoadingDevices(true);
+		setLoadError(null);
+		try {
+			const result = await MFAService.getAllDevices({
+				environmentId: credentials.environmentId.trim(),
+				username: credentials.username.trim(),
+			});
+			setDevices((result || []) as Device[]);
+			setIsReady(true);
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `Loaded ${Array.isArray(result) ? result.length : 0} devices`,
+				duration: 3000,
+			});
+		} catch (error) {
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'load-devices',
+				component: MODULE_TAG,
+			});
+			setLoadError(parsed.userFriendlyMessage);
+		} finally {
+			setIsLoadingDevices(false);
+		}
+	};
+
+	const handleDragEnd = (result: DropResult) => {
+		logger.info(`${MODULE_TAG} Drag ended:`, {
+			source: result.source,
+			destination: result.destination,
+			draggableId: result.draggableId,
+		});
+
+		if (filtersActive) {
+			logger.info(`${MODULE_TAG} Drag attempt ignored because filters are active`, {
+				typeFilter,
+				statusFilter,
+			});
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Clear filters to change device ordering',
+				duration: 3000,
+			});
+			return;
+		}
+
+		if (!result.destination) {
+			logger.info(`${MODULE_TAG} Drag cancelled - no destination`, 'Logger info');
+			return;
+		}
+
+		if (result.destination.index === result.source.index) {
+			logger.info(`${MODULE_TAG} Drag ended at same position - no change`, 'Logger info');
+			return;
+		}
+
+		const items = Array.from(devices);
+		const [reordered] = items.splice(result.source.index, 1);
+		items.splice(result.destination.index, 0, reordered);
+
+		logger.info(`${MODULE_TAG} Reordered devices:`, {
+			from: result.source.index,
+			to: result.destination.index,
+			newOrder: items.map((d, i) => ({ index: i, id: d.id, type: d.type })),
+		});
+
+		setDevices(items);
+	};
+
+	const handleMoveUp = (deviceId: string) => {
+		const index = devices.findIndex((d) => d.id === deviceId);
+		if (index <= 0) return; // Already at top or not found
+		const newDevices = [...devices];
+		const [device] = newDevices.splice(index, 1);
+		newDevices.splice(index - 1, 0, device);
+		setDevices(newDevices);
+	};
+
+	const handleMoveDown = (deviceId: string) => {
+		const index = devices.findIndex((d) => d.id === deviceId);
+		if (index === -1 || index === devices.length - 1) return; // Already at bottom or not found
+		const newDevices = [...devices];
+		const [device] = newDevices.splice(index, 1);
+		newDevices.splice(index + 1, 0, device);
+		setDevices(newDevices);
+	};
+
+	const handleSetAsDefault = async (deviceId: string) => {
+		if (!credentials.environmentId?.trim() || !credentials.username?.trim()) {
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Environment ID and username are required',
+				dismissible: true,
+			});
+			return;
+		}
+
+		const deviceIndex = devices.findIndex((d) => d.id === deviceId);
+		if (deviceIndex === -1) {
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Device not found',
+				dismissible: true,
+			});
+			return;
+		}
+
+		if (deviceIndex === 0) {
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'This device is already the default',
+				duration: 3000,
+			});
+			return;
+		}
+
+		// Move device to first position
+		const newDevices = [...devices];
+		const [deviceToMove] = newDevices.splice(deviceIndex, 1);
+		newDevices.unshift(deviceToMove);
+		setDevices(newDevices);
+
+		// Save the new order
+		setIsSavingOrder(true);
+		try {
+			const user = await MFAService.lookupUserByUsername(
+				credentials.environmentId.trim(),
+				credentials.username.trim()
+			);
+
+			const deviceIds = newDevices.map((d) => d.id).filter((id) => id?.trim());
+
+			if (deviceIds.length === 0) {
+				throw new Error('No valid device IDs found');
+			}
+
+			logger.info(`${MODULE_TAG} Setting device order:`, {
+				userId: user.id,
+				deviceCount: deviceIds.length,
+				deviceIds: deviceIds.slice(0, 3), // Log first 3 for debugging
+			});
+
+			await MFAService.setUserMfaDeviceOrder(
+				credentials.environmentId.trim(),
+				user.id,
+				deviceIds
+			);
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `"${deviceToMove.type}" set as default device`,
+				duration: 3000,
+			});
+		} catch (error) {
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'set-default-device',
+				component: MODULE_TAG,
+			});
+			// Revert on error
+			setDevices(devices);
+		} finally {
+			setIsSavingOrder(false);
+		}
+	};
+
+	const handleSaveOrder = async () => {
+		if (devices.length <= 1) {
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Add more than one device to change ordering',
+				duration: 3000,
+			});
+			return;
+		}
+		if (!credentials.environmentId?.trim() || !credentials.username?.trim()) {
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Environment ID and username are required',
+				dismissible: true,
+			});
+			return;
+		}
+		setIsSavingOrder(true);
+		try {
+			const user = await MFAService.lookupUserByUsername(
+				credentials.environmentId.trim(),
+				credentials.username.trim()
+			);
+
+			const deviceIds = devices.map((d) => d.id).filter((id) => id?.trim());
+
+			if (deviceIds.length === 0) {
+				throw new Error('No valid device IDs found');
+			}
+
+			if (deviceIds.length !== devices.length) {
+				logger.warn(`${MODULE_TAG} Some devices have invalid IDs:`, {
+					totalDevices: devices.length,
+					validDeviceIds: deviceIds.length,
+				});
+			}
+
+			logger.info(`${MODULE_TAG} Saving device order:`, {
+				userId: user.id,
+				deviceCount: deviceIds.length,
+				deviceIds: deviceIds.slice(0, 3), // Log first 3 for debugging
+			});
+
+			await MFAService.setUserMfaDeviceOrder(
+				credentials.environmentId.trim(),
+				user.id,
+				deviceIds
+			);
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Device order updated successfully',
+				duration: 3000,
+			});
+		} catch (error) {
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'save-device-order',
+				component: MODULE_TAG,
+			});
+		} finally {
+			setIsSavingOrder(false);
+		}
+	};
+
+	const handleRemoveOrder = async () => {
+		if (!credentials.environmentId?.trim() || !credentials.username?.trim()) {
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Environment ID and username are required',
+				dismissible: true,
+			});
+			return;
+		}
+		setIsRemovingOrder(true);
+		try {
+			const user = await MFAService.lookupUserByUsername(
+				credentials.environmentId.trim(),
+				credentials.username.trim()
+			);
+			await MFAService.removeUserMfaDeviceOrder(credentials.environmentId.trim(), user.id);
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Device ordering removed successfully',
+				duration: 3000,
+			});
+		} catch (error) {
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'remove-device-order',
+				component: MODULE_TAG,
+			});
+		} finally {
+			setIsRemovingOrder(false);
+		}
+	};
+
+	const normalizeStatus = (status?: string) => status || 'UNKNOWN';
+
+	const typeOptions = Array.from(
+		new Set(devices.map((d) => d.type).filter((t): t is string => !!t))
+	).sort();
+
+	const statusOptions = Array.from(
+		new Set(devices.map((d) => normalizeStatus(d.status as string | undefined)))
+	).sort();
+
+	const filteredDevices = devices.filter((device) => {
+		const matchesType = typeFilter === 'all' || device.type === typeFilter;
+		const deviceStatus = normalizeStatus(device.status as string | undefined);
+		const matchesStatus = statusFilter === 'all' || statusFilter === deviceStatus;
+		return matchesType && matchesStatus;
+	});
+
+	// Compute showTokenOnly for modal
+	const showTokenOnly = useMemo(() => {
+		if (!showWorkerTokenModal) return false;
+		try {
+			const config = MFAConfigurationService.loadConfiguration();
+			const tokenStatus = WorkerTokenStatusService.checkWorkerTokenStatusSync();
+			return config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+		} catch {
+			return false;
+		}
+	}, [showWorkerTokenModal]);
+
+	return (
+		<>
+			<WorkerTokenExpiryBanner
+				onFixToken={() => setShowWorkerTokenModal(true)}
+				marginBottom="24px"
+			/>
+			<div
+				className="mfa-device-order-flow-v8"
+				style={{
+					maxWidth: '1200px',
+					margin: '0 auto',
+					background: '#f8f9fa',
+					minHeight: '100vh',
+					overflowY: 'auto',
+					paddingBottom: paddingBottom !== '0' ? paddingBottom : '40px',
+					transition: 'padding-bottom 0.3s ease',
+					position: 'relative',
+				}}
+			>
+				<MFAHeader
+					title="Device Ordering"
+					description="Drag and drop to set the order of MFA devices. The first device is used as default."
+					versionTag="V8"
+					currentPage="ordering"
+					showRestartFlow={false}
+					showBackToMain
+					headerColor="blue"
+				/>
+				<div
+					className="flow-container"
+					style={{
+						padding: 20,
+					}}
+				>
+					<div className="setup-section">
+						<h2>Setup</h2>
+						<p>Enter user details and load devices to configure their ordering.</p>
+
+						<div style={{ marginBottom: '20px' }}>
+							<div
+								style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}
+							>
+								<ButtonSpinner
+									loading={false}
+									onClick={handleManageWorkerToken}
+									spinnerSize={14}
+									spinnerPosition="left"
+									style={{
+										padding: '10px 16px',
+										background: tokenStatus.isValid ? '#10b981' : '#ef4444',
+										color: 'white',
+										border: 'none',
+										borderRadius: '6px',
+										fontSize: '14px',
+										fontWeight: '600',
+										cursor: 'pointer',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '8px',
+									}}
+								>
+									<span></span>
+									Get worker token
+								</ButtonSpinner>
+								<div
+									style={{
+										flex: 1,
+										padding: '10px 12px',
+										background: tokenStatus.isValid
+											? tokenStatus.status === 'expiring-soon'
+												? '#fef3c7'
+												: '#d1fae5'
+											: '#fee2e2',
+										border: `1px solid ${WorkerTokenStatusService.getStatusColor(tokenStatus.status)}`,
+										borderRadius: '4px',
+										fontSize: '12px',
+										fontWeight: '500',
+										color: tokenStatus.isValid
+											? tokenStatus.status === 'expiring-soon'
+												? '#92400e'
+												: '#065f46'
+											: '#991b1b',
+									}}
+								>
+									<span>{WorkerTokenStatusService.getStatusIcon(tokenStatus.status)}</span>
+									<span style={{ marginLeft: '6px' }}>{tokenStatus.message}</span>
+								</div>
+							</div>
+
+							{/* Worker Token Settings Checkboxes */}
+							<div
+								style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}
+							>
+								<label
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '12px',
+										cursor: 'pointer',
+										userSelect: 'none',
+										padding: '8px',
+										borderRadius: '6px',
+										transition: 'background-color 0.2s ease',
+									}}
+									onMouseEnter={(e) => {
+										e.currentTarget.style.backgroundColor = '#f3f4f6';
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.backgroundColor = 'transparent';
+									}}
+								>
+									<input
+										type="checkbox"
+										checked={silentApiRetrieval}
+										onChange={async (e) => {
+											const newValue = e.target.checked;
+											setSilentApiRetrieval(newValue);
+											// Update config service immediately (no cache)
+											const config = MFAConfigurationService.loadConfiguration();
+											config.workerToken.silentApiRetrieval = newValue;
+											MFAConfigurationService.saveConfiguration(config);
+											// Dispatch event to notify other components
+											window.dispatchEvent(
+												new CustomEvent('mfaConfigurationUpdated', {
+													detail: { workerToken: config.workerToken },
+												})
+											);
+											modernMessaging.showFooterMessage({
+												type: 'info',
+												message: `Silent API Token Retrieval set to: ${newValue}`,
+												duration: 3000,
+											});
+
+											// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
+											if (newValue) {
+												const currentStatus =
+													WorkerTokenStatusService.checkWorkerTokenStatusSync();
+												if (!currentStatus.isValid) {
+													logger.info(
+														'[DEVICE-ORDER-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
+													);
+													const { handleShowWorkerTokenModal } = await import(
+														'@/mfa/utils/workerTokenModalHelper'
+													);
+													await handleShowWorkerTokenModal(
+														setShowWorkerTokenModal,
+														setTokenStatus,
+														newValue, // Use new value
+														showTokenAtEnd,
+														false // Not forced - respect silent setting
+													);
+												}
+											}
+										}}
+										style={{
+											width: '20px',
+											height: '20px',
+											cursor: 'pointer',
+											accentColor: '#6366f1',
+											flexShrink: 0,
+										}}
+									/>
+									<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+										<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+											Silent API Token Retrieval
+										</span>
+										<span style={{ fontSize: '12px', color: '#6b7280' }}>
+											Automatically fetch worker token in the background without showing modals
+										</span>
+									</div>
+								</label>
+
+								<label
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '12px',
+										cursor: 'pointer',
+										userSelect: 'none',
+										padding: '8px',
+										borderRadius: '6px',
+										transition: 'background-color 0.2s ease',
+									}}
+									onMouseEnter={(e) => {
+										e.currentTarget.style.backgroundColor = '#f3f4f6';
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.backgroundColor = 'transparent';
+									}}
+								>
+									<input
+										type="checkbox"
+										checked={showTokenAtEnd}
+										onChange={async (e) => {
+											const newValue = e.target.checked;
+											setShowTokenAtEnd(newValue);
+											// Update config service immediately (no cache)
+											const config = MFAConfigurationService.loadConfiguration();
+											config.workerToken.showTokenAtEnd = newValue;
+											MFAConfigurationService.saveConfiguration(config);
+											// Dispatch event to notify other components
+											window.dispatchEvent(
+												new CustomEvent('mfaConfigurationUpdated', {
+													detail: { workerToken: config.workerToken },
+												})
+											);
+											modernMessaging.showFooterMessage({
+												type: 'info',
+												message: `Show Token After Generation set to: ${newValue}`,
+												duration: 3000,
+											});
+										}}
+										style={{
+											width: '20px',
+											height: '20px',
+											cursor: 'pointer',
+											accentColor: '#6366f1',
+											flexShrink: 0,
+										}}
+									/>
+									<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+										<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+											Show Token After Generation
+										</span>
+										<span style={{ fontSize: '12px', color: '#6b7280' }}>
+											Display the generated worker token in a modal after successful retrieval
+										</span>
+									</div>
+								</label>
+							</div>
+						</div>
+					</div>
+
+					<div className="credentials-grid">
+						<div className="form-group">
+							<label htmlFor="order-env-id">
+								Environment ID <span className="required">*</span>
+							</label>
+							<input
+								id="order-env-id"
+								type="text"
+								value={credentials.environmentId}
+								onChange={(e) => setCredentials({ ...credentials, environmentId: e.target.value })}
+								placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+							/>
+							<small>PingOne environment ID</small>
+						</div>
+
+						<div className="form-group">
+							<label htmlFor="order-username">
+								Username <span className="required">*</span>
+							</label>
+							<input
+								id="order-username"
+								type="text"
+								value={credentials.username}
+								onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
+								placeholder="john.doe"
+							/>
+							<small>PingOne username whose device order you want to manage</small>
+						</div>
+					</div>
+
+					<ButtonSpinner
+						loading={isLoadingDevices}
+						onClick={handleLoadDevices}
+						disabled={!canLoad || isLoadingDevices}
+						spinnerSize={16}
+						spinnerPosition="left"
+						loadingText="Loading devices..."
+						style={{
+							marginTop: '20px',
+							background: '#3b82f6',
+							color: 'white',
+							border: 'none',
+							padding: '0.75rem 1.5rem',
+							borderRadius: '0.5rem',
+							fontWeight: '600',
+							cursor: !canLoad || isLoadingDevices ? 'not-allowed' : 'pointer',
+							transition: 'all 0.2s ease',
+						}}
+					>
+						{isLoadingDevices ? '' : 'Load Devices'}
+					</ButtonSpinner>
+
+					{loadError && (
+						<div className="info-box" style={{ marginTop: '16px' }}>
+							<p>
+								<strong>Error:</strong> {loadError}
+							</p>
+						</div>
+					)}
+				</div>
+
+				{isReady && (
+					<div
+						style={{
+							marginTop: '24px',
+							background: 'white',
+							borderRadius: '8px',
+							border: '1px solid #e5e7eb',
+							padding: '16px',
+						}}
+					>
+						<div
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'space-between',
+								marginBottom: '12px',
+							}}
+						>
+							<div>
+								<h3
+									style={{
+										margin: 0,
+										fontSize: '16px',
+										fontWeight: 600,
+										color: '#111827',
+									}}
+								>
+									Device Ordering
+								</h3>
+								<p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#6b7280' }}>
+									Drag devices to change their order. The first device is treated as the default
+									device.
+								</p>
+							</div>
+							{devices.length > 0 && (
+								<div
+									style={{
+										display: 'flex',
+										flexWrap: 'wrap',
+										gap: '12px',
+										marginTop: '8px',
+									}}
+								>
+									<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+										<label
+											htmlFor="device-type-filter"
+											style={{ fontSize: '13px', fontWeight: 600, color: '#111827' }}
+										>
+											Type
+										</label>
+										<select
+											id="device-type-filter"
+											value={typeFilter}
+											onChange={(e) => setTypeFilter(e.target.value)}
+											style={{
+												padding: '8px 10px',
+												fontSize: '13px',
+												fontWeight: 500,
+												borderRadius: '6px',
+												border: '1px solid #9ca3af',
+												background: '#f9fafb',
+												color: '#111827',
+												minWidth: '160px',
+											}}
+										>
+											<option value="all">All types</option>
+											{typeOptions.map((type) => (
+												<option key={type} value={type}>
+													{type}
+												</option>
+											))}
+										</select>
+									</div>
+									<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+										<label
+											htmlFor="device-status-filter"
+											style={{ fontSize: '13px', fontWeight: 600, color: '#111827' }}
+										>
+											Status
+										</label>
+										<select
+											id="device-status-filter"
+											value={statusFilter}
+											onChange={(e) => setStatusFilter(e.target.value)}
+											style={{
+												padding: '8px 10px',
+												fontSize: '13px',
+												fontWeight: 500,
+												borderRadius: '6px',
+												border: '1px solid #9ca3af',
+												background: '#f9fafb',
+												color: '#111827',
+												minWidth: '160px',
+											}}
+										>
+											<option value="all">All statuses</option>
+											{statusOptions.map((status) => (
+												<option key={status} value={status}>
+													{status}
+												</option>
+											))}
+										</select>
+									</div>
+									{filtersActive && (
+										<ButtonSpinner
+											loading={false}
+											onClick={() => {
+												setTypeFilter('all');
+												setStatusFilter('all');
+											}}
+											spinnerSize={12}
+											spinnerPosition="left"
+											style={{
+												padding: '6px 10px',
+												fontSize: '12px',
+												borderRadius: '6px',
+												border: '1px solid #d1d5db',
+												background: 'white',
+												cursor: 'pointer',
+											}}
+										>
+											Clear filters
+										</ButtonSpinner>
+									)}
+								</div>
+							)}
+							<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+								<ButtonSpinner
+									loading={isSavingOrder}
+									onClick={handleSaveOrder}
+									disabled={devices.length <= 1}
+									spinnerSize={16}
+									spinnerPosition="left"
+									loadingText="Saving..."
+									style={{
+										padding: '10px 20px',
+										background: '#3b82f6',
+										color: 'white',
+										border: 'none',
+										borderRadius: '8px',
+										fontSize: '14px',
+										fontWeight: 600,
+										cursor: isSavingOrder ? 'wait' : 'pointer',
+										opacity: isSavingOrder ? 0.7 : 1,
+									}}
+								>
+									{isSavingOrder ? '' : 'Save Order'}
+								</ButtonSpinner>
+								<ButtonSpinner
+									loading={isRemovingOrder}
+									onClick={handleRemoveOrder}
+									spinnerSize={16}
+									spinnerPosition="left"
+									loadingText="Removing..."
+									style={{
+										padding: '10px 20px',
+										background: '#f97316',
+										color: 'white',
+										border: 'none',
+										borderRadius: '8px',
+										fontSize: '14px',
+										fontWeight: 600,
+										cursor: isRemovingOrder ? 'wait' : 'pointer',
+										opacity: isRemovingOrder ? 0.7 : 1,
+									}}
+								>
+									{isRemovingOrder ? '' : 'Remove Ordering'}
+								</ButtonSpinner>
+							</div>
+						</div>
+
+						{devices.length === 0 ? (
+							<p style={{ fontSize: '13px', color: '#6b7280' }}>
+								No devices found for this user. Register at least one device to configure ordering.
+							</p>
+						) : filteredDevices.length === 0 ? (
+							<p style={{ fontSize: '13px', color: '#6b7280' }}>
+								No devices match the current filters. Try changing or clearing the filters.
+							</p>
+						) : (
+							<DragDropContext
+								onDragEnd={(result) => {
+									if (!filtersActive) {
+										handleDragEnd(result);
+									}
+								}}
+								onDragStart={() => {
+									logger.info(`${MODULE_TAG} Drag started`, 'Logger info');
+								}}
+								onDragUpdate={(update) => {
+									logger.info(`${MODULE_TAG} Drag update:`, update);
+								}}
+							>
+								<Droppable droppableId="order-devices">
+									{(provided) => (
+										<div
+											{...provided.droppableProps}
+											ref={provided.innerRef}
+											style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+										>
+											{filteredDevices.map((device, index) => {
+												const originalIndex = devices.findIndex((d) => d.id === device.id);
+												const isFirst = originalIndex === 0;
+												const isLast = originalIndex === devices.length - 1;
+												const isDefault = devices[0]?.id === device.id;
+												return (
+													<Draggable key={device.id} draggableId={String(device.id)} index={index}>
+														{(draggableProvided, snapshot) => (
+															// biome-ignore lint/a11y/noStaticElementInteractions: DragDrop library handles accessibility
+															// biome-ignore lint/a11y/useKeyWithClickEvents: DragDrop library handles keyboard events
+															<div
+																ref={draggableProvided.innerRef}
+																{...draggableProvided.draggableProps}
+																{...draggableProvided.dragHandleProps}
+																style={{
+																	userSelect: 'none',
+																	padding: '10px 12px',
+																	borderRadius: '6px',
+																	border: '1px solid #e5e7eb',
+																	background: snapshot.isDragging ? '#e0f2fe' : '#f9fafb',
+																	display: 'flex',
+																	alignItems: 'center',
+																	gap: '8px',
+																	boxShadow: snapshot.isDragging
+																		? '0 4px 12px rgba(0, 0, 0, 0.15)'
+																		: 'none',
+																	transform: snapshot.isDragging ? 'rotate(2deg)' : 'none',
+																	transition: snapshot.isDragging ? 'none' : 'box-shadow 0.2s ease',
+																	opacity: snapshot.isDragging ? 0.8 : 1,
+																	position: 'relative',
+																	zIndex: snapshot.isDragging ? 1000 : 1,
+																	cursor: snapshot.isDragging ? 'grabbing' : 'grab',
+																	...draggableProvided.draggableProps.style,
+																}}
+																onClick={(e) => {
+																	// Prevent clicks on buttons from triggering drag
+																	if ((e.target as HTMLElement).tagName === 'BUTTON') {
+																		e.stopPropagation();
+																	}
+																}}
+															>
+																{/* Drag Handle Icon - Visual indicator only */}
+																<div
+																	style={{
+																		padding: '8px 12px',
+																		display: 'flex',
+																		alignItems: 'center',
+																		justifyContent: 'center',
+																		userSelect: 'none',
+																		WebkitUserSelect: 'none',
+																		MozUserSelect: 'none',
+																		msUserSelect: 'none',
+																		fontSize: '20px',
+																		color: '#6b7280',
+																		lineHeight: '1',
+																		flexShrink: 0,
+																		pointerEvents: 'none',
+																	}}
+																	title="Drag to reorder"
+																>
+																	⋮⋮
+																</div>
+																{/* Arrow buttons - separate from drag handle */}
+																<div
+																	style={{
+																		display: 'flex',
+																		flexDirection: 'column',
+																		gap: '2px',
+																		paddingRight: '4px',
+																	}}
+																>
+																	<ButtonSpinner
+																		loading={false}
+																		onClick={(e) => {
+																			e.stopPropagation();
+																			handleMoveUp(device.id);
+																		}}
+																		disabled={isFirst}
+																		spinnerSize={8}
+																		spinnerPosition="left"
+																		style={{
+																			padding: '2px 6px',
+																			background: isFirst ? '#e5e7eb' : '#3b82f6',
+																			color: 'white',
+																			border: 'none',
+																			borderRadius: '4px',
+																			cursor: isFirst ? 'not-allowed' : 'pointer',
+																			fontSize: '12px',
+																			opacity: isFirst ? 0.5 : 1,
+																			display: 'flex',
+																			alignItems: 'center',
+																			justifyContent: 'center',
+																		}}
+																	>
+																		↑
+																	</ButtonSpinner>
+																	<ButtonSpinner
+																		loading={false}
+																		onClick={(e) => {
+																			e.stopPropagation();
+																			handleMoveDown(device.id);
+																		}}
+																		disabled={isLast}
+																		spinnerSize={8}
+																		spinnerPosition="left"
+																		style={{
+																			padding: '2px 6px',
+																			background: isLast ? '#e5e7eb' : '#3b82f6',
+																			color: 'white',
+																			border: 'none',
+																			borderRadius: '4px',
+																			cursor: isLast ? 'not-allowed' : 'pointer',
+																			fontSize: '12px',
+																			opacity: isLast ? 0.5 : 1,
+																			display: 'flex',
+																			alignItems: 'center',
+																			justifyContent: 'center',
+																		}}
+																	>
+																		↓
+																	</ButtonSpinner>
+																</div>
+																<div style={{ flex: 1 }}>
+																	<div
+																		style={{
+																			fontSize: '13px',
+																			fontWeight: 600,
+																			color: '#111827',
+																		}}
+																	>
+																		{isDefault && (
+																			<span
+																				style={{
+																					marginRight: '6px',
+																					padding: '2px 6px',
+																					borderRadius: '999px',
+																					background: '#dcfce7',
+																					color: '#166534',
+																					fontSize: '10px',
+																					fontWeight: 700,
+																				}}
+																			>
+																				DEFAULT
+																			</span>
+																		)}
+																		<span>{device.type}</span>
+																	</div>
+																	{(device.nickname || device.name) && (
+																		<div style={{ fontSize: '12px', color: '#4b5563' }}>
+																			{device.nickname || device.name}
+																		</div>
+																	)}
+																	{(device.phone || device.email) && (
+																		<div style={{ fontSize: '12px', color: '#6b7280' }}>
+																			{device.phone || device.email}
+																		</div>
+																	)}
+																</div>
+																<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+																	<div style={{ fontSize: '11px', color: '#6b7280' }}>
+																		ID: <code style={{ fontSize: '11px' }}>{device.id}</code>
+																	</div>
+																	{!isDefault && (
+																		<ButtonSpinner
+																			loading={isSavingOrder}
+																			onClick={() => handleSetAsDefault(device.id)}
+																			spinnerSize={12}
+																			spinnerPosition="left"
+																			loadingText="Setting..."
+																			style={{
+																				padding: '6px 12px',
+																				background: '#3b82f6',
+																				color: 'white',
+																				border: 'none',
+																				borderRadius: '4px',
+																				fontSize: '11px',
+																				fontWeight: '500',
+																				cursor: isSavingOrder ? 'wait' : 'pointer',
+																				opacity: isSavingOrder ? 0.6 : 1,
+																				whiteSpace: 'nowrap',
+																			}}
+																			title="Set this device as the default (move to first position)"
+																		>
+																			{isSavingOrder ? '' : 'Set as Default'}
+																		</ButtonSpinner>
+																	)}
+																</div>
+															</div>
+														)}
+													</Draggable>
+												);
+											})}
+											{provided.placeholder}
+										</div>
+									)}
+								</Droppable>
+							</DragDropContext>
+						)}
+					</div>
+				)}
+			</div>
+			{showWorkerTokenModal ? (
+				<WorkerTokenModal
+					isOpen={showWorkerTokenModal}
+					onClose={() => {
+						setShowWorkerTokenModal(false);
+						// Refresh token status when modal closes (matches MFA pattern)
+						setTokenStatus(WorkerTokenStatusService.checkWorkerTokenStatusSync());
+					}}
+					onTokenGenerated={handleWorkerTokenGenerated}
+					showTokenOnly={showTokenOnly}
+				/>
+			) : null}
+			<SuperSimpleApiDisplay flowFilter="mfa" />
+			<style>{`
+			.mfa-device-order-flow-v8 .credentials-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+				gap: 20px;
+				margin-bottom: 20px;
+			}
+
+			.mfa-device-order-flow-v8 .form-group {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+			}
+
+			.mfa-device-order-flow-v8 .form-group label {
+				font-size: 14px;
+				font-weight: 600;
+				color: #374151;
+				display: flex;
+				align-items: center;
+				gap: 4px;
+			}
+
+			.mfa-device-order-flow-v8 .form-group .required {
+				color: #ef4444;
+				font-weight: 600;
+			}
+
+			.mfa-device-order-flow-v8 .form-group input[type="text"] {
+				width: 100%;
+				padding: 10px 12px;
+				border: 1px solid #d1d5db;
+				border-radius: 6px;
+				font-size: 14px;
+				font-family: inherit;
+				background: white;
+				color: #1f2937;
+				box-sizing: border-box;
+				transition: border-color 0.2s ease, box-shadow 0.2s ease;
+			}
+
+			.mfa-device-order-flow-v8 .form-group input[type="text"]:focus {
+				outline: none;
+				border-color: #3b82f6;
+				box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+			}
+
+			.mfa-device-order-flow-v8 .form-group input[type="text"]:hover {
+				border-color: #9ca3af;
+			}
+
+			.mfa-device-order-flow-v8 .form-group small {
+				font-size: 12px;
+				color: #6b7280;
+				margin-top: -4px;
+				line-height: 1.4;
+			}
+
+			@media (max-width: 768px) {
+				.mfa-device-order-flow-v8 .credentials-grid {
+					grid-template-columns: 1fr;
+				}
+			}
+
+			/* Drag and Drop Styles - Ensure drag works */
+			.mfa-device-order-flow-v8 [data-rbd-droppable-id] {
+				min-height: 50px;
+			}
+
+			.mfa-device-order-flow-v8 [data-rbd-draggable-id] {
+				position: relative;
+				touch-action: none;
+			}
+
+			.mfa-device-order-flow-v8 [data-rbd-draggable-id]:hover {
+				background: #f3f4f6 !important;
+			}
+
+			/* Ensure drag handle is visible and clickable */
+			.mfa-device-order-flow-v8 [data-rbd-drag-handle-draggable-id] {
+				cursor: grab !important;
+			}
+
+			.mfa-device-order-flow-v8 [data-rbd-drag-handle-draggable-id]:active {
+				cursor: grabbing !important;
+			}
+
+			/* Prevent text selection during drag */
+			.mfa-device-order-flow-v8 [data-rbd-draggable-context-id] {
+				user-select: none;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+			}
+
+			/* Ensure placeholder is visible */
+			.mfa-device-order-flow-v8 [data-rbd-placeholder-context-id] {
+				background: #f0f9ff;
+				border: 2px dashed #3b82f6;
+				border-radius: 6px;
+			}
+
+			/* Fix for react-beautiful-dnd in React 18 */
+			.mfa-device-order-flow-v8 [data-rbd-drag-handle-context-id] {
+				cursor: grab !important;
+				touch-action: none;
+			}
+
+			.mfa-device-order-flow-v8 [data-rbd-drag-handle-context-id]:active {
+				cursor: grabbing !important;
+			}
+
+			/* Ensure drag handle is always clickable */
+			.mfa-device-order-flow-v8 [data-rbd-drag-handle-draggable-id] {
+				pointer-events: auto !important;
+				z-index: 10 !important;
+			}
+
+			/* Allow pointer events on buttons but not on draggable container during drag */
+			.mfa-device-order-flow-v8 [data-rbd-draggable-id] button {
+				pointer-events: auto;
+			}
+
+			/* Prevent drag handle from being blocked */
+			.mfa-device-order-flow-v8 [data-rbd-draggable-id] > div:first-child {
+				pointer-events: auto !important;
+				}
+		`}</style>
+		</>
+	);
+};
+
+export default MFADeviceOrderingFlow;

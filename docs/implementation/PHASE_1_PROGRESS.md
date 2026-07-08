@@ -184,14 +184,14 @@ The **error handler service is production-ready** and available for:
 5. Create service dependency diagram
 
 **Services to Document:**
-- ⚠️ `CredentialsServiceV8` - Used by MFA
-- ⚠️ `EnvironmentIdServiceV8` - Used by MFA
-- ⚠️ `WorkerTokenStatusServiceV8` - Used by MFA
-- ⚠️ `MFAServiceV8` - MFA-specific
-- ⚠️ `MFAConfigurationServiceV8` - MFA-specific
-- ⚠️ `SpecVersionServiceV8` - Shared spec logic
-- ⚠️ `OidcDiscoveryServiceV8` - Shared OIDC discovery
-- ⚠️ `SharedCredentialsServiceV8` - Cross-flow credentials
+- ⚠️ `CredentialsService` - Used by MFA
+- ⚠️ `EnvironmentIdService` - Used by MFA
+- ⚠️ `WorkerTokenStatusService` - Used by MFA
+- ⚠️ `MFAService` - MFA-specific
+- ⚠️ `MFAConfigurationService` - MFA-specific
+- ⚠️ `SpecVersionService` - Shared spec logic
+- ⚠️ `OidcDiscoveryService` - Shared OIDC discovery
+- ⚠️ `SharedCredentialsService` - Cross-flow credentials
 
 ---
 

@@ -8,7 +8,7 @@ Integrated the existing V8 token display service and component into the SPIFFE/S
 
 ### 1. Service Integration
 
-#### TokenDisplayServiceV8
+#### TokenDisplayService
 - **Purpose**: Centralized token handling utilities
 - **Features Used**:
   - `copyToClipboard()` - Secure clipboard operations with logging
@@ -29,7 +29,7 @@ const handleCopy = (text: string, field: string) => {
 **After:**
 ```typescript
 const handleCopy = async (text: string, field: string) => {
-  const success = await TokenDisplayServiceV8.copyToClipboard(text, field);
+  const success = await TokenDisplayService.copyToClipboard(text, field);
   if (success) {
     setCopiedField(field);
     setTimeout(() => setCopiedField(null), 2000);
@@ -108,7 +108,7 @@ Workload Identity: ${svid?.spiffeId}`}
 ```typescript
 <CodeBlock>
 {`Token Type: ${pingOneToken.tokenType}
-Expires In: ${pingOneToken.expiresIn} seconds (${TokenDisplayServiceV8.formatExpiry(pingOneToken.expiresIn)})
+Expires In: ${pingOneToken.expiresIn} seconds (${TokenDisplayService.formatExpiry(pingOneToken.expiresIn)})
 Scope: ${pingOneToken.scope}
 Workload SPIFFE ID: ${svid?.spiffeId}
 Issued At: ${new Date().toISOString()}`}
@@ -182,7 +182,7 @@ Issued At: ${new Date().toISOString()}`}
 - Custom `TokenDisplay` styled component (replaced by TokenDisplayV8U)
 - Custom `CopyButton` styled component (built into TokenDisplayV8U)
 - Custom `TokenText` styled component (built into TokenDisplayV8U)
-- Custom clipboard logic (replaced by TokenDisplayServiceV8)
+- Custom clipboard logic (replaced by TokenDisplayService)
 
 ### Lines of Code Saved
 - Approximately 50 lines of custom token display code removed
@@ -192,7 +192,7 @@ Issued At: ${new Date().toISOString()}`}
 ## Files Modified
 
 1. **src/v8u/flows/SpiffeSpireFlowV8U.tsx**
-   - Added imports: `TokenDisplayServiceV8`, `TokenDisplayV8U`
+   - Added imports: `TokenDisplayService`, `TokenDisplayV8U`
    - Updated `handleCopy` to use service
    - Replaced custom token display with `TokenDisplayV8U` component
    - Enhanced token metadata with formatted expiry
@@ -219,7 +219,7 @@ Potential improvements leveraging the token service:
 
 ## References
 
-- **TokenDisplayServiceV8**: `src/v8/services/tokenDisplayServiceV8.ts`
+- **TokenDisplayService**: `src/v8/services/tokenDisplayService.ts`
 - **TokenDisplayV8U**: `src/v8u/components/TokenDisplayV8U.tsx`
 - **V8 Development Rules**: `.kiro/steering/v8-development-rules.md`
 

@@ -167,8 +167,8 @@ class MockIndexedDB {
 	}
 }
 
-// Mock UserCacheServiceV8 for CLI usage
-class MockUserCacheServiceV8 {
+// Mock UserCacheService for CLI usage
+class MockUserCacheService {
 	static getCacheDir() {
 		const cacheDir = path.join(__dirname, 'user-cache');
 		if (!fs.existsSync(cacheDir)) {
@@ -178,12 +178,12 @@ class MockUserCacheServiceV8 {
 	}
 
 	static getCacheFile(environmentId) {
-		return path.join(MockUserCacheServiceV8.getCacheDir(), `${environmentId}.json`);
+		return path.join(MockUserCacheService.getCacheDir(), `${environmentId}.json`);
 	}
 
 	static async saveUsers(environmentId, users) {
 		console.log(`💾 Saving ${users.length} users to cache for environment ${environmentId}`);
-		const cacheFile = MockUserCacheServiceV8.getCacheFile(environmentId);
+		const cacheFile = MockUserCacheService.getCacheFile(environmentId);
 		const cacheData = {
 			environmentId,
 			users,
@@ -202,7 +202,7 @@ class MockUserCacheServiceV8 {
 	}
 
 	static async getCacheInfo(environmentId) {
-		const cacheFile = MockUserCacheServiceV8.getCacheFile(environmentId);
+		const cacheFile = MockUserCacheService.getCacheFile(environmentId);
 		if (!fs.existsSync(cacheFile)) {
 			return null;
 		}
@@ -223,7 +223,7 @@ class MockUserCacheServiceV8 {
 
 	static async clearCache(environmentId) {
 		console.log(`🗑️ Clearing cache for environment ${environmentId}`);
-		const cacheFile = MockUserCacheServiceV8.getCacheFile(environmentId);
+		const cacheFile = MockUserCacheService.getCacheFile(environmentId);
 		if (fs.existsSync(cacheFile)) {
 			fs.unlinkSync(cacheFile);
 		}
@@ -232,7 +232,7 @@ class MockUserCacheServiceV8 {
 
 	static async loadUsers(environmentId) {
 		console.log(`📖 Loading users from cache for environment ${environmentId}`);
-		const cacheFile = MockUserCacheServiceV8.getCacheFile(environmentId);
+		const cacheFile = MockUserCacheService.getCacheFile(environmentId);
 		if (!fs.existsSync(cacheFile)) {
 			return [];
 		}
@@ -247,8 +247,8 @@ class MockUserCacheServiceV8 {
 	}
 }
 
-// Mock UserServiceV8 for CLI usage
-class MockUserServiceV8 {
+// Mock UserService for CLI usage
+class MockUserService {
 	static async fetchUsersPaginated(params) {
 		const { environmentId, page = 1, pageSize = 100, workerToken } = params;
 
@@ -291,7 +291,7 @@ class MockUserServiceV8 {
  * Real PingOne User Service for CLI
  * Makes direct API calls to PingOne (similar to backend implementation)
  */
-class PingOneUserServiceV8 {
+class PingOneUserService {
 	static async fetchUsersPaginated(params) {
 		const { environmentId, page = 1, pageSize = 100, workerToken, region = 'us' } = params;
 

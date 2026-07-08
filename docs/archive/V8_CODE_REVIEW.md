@@ -34,7 +34,7 @@ The V8 implementation demonstrates solid architecture with good separation of co
 
 ### 1. Type Safety Issues
 
-**Location:** `src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx`
+**Location:** `src/v8/flows/OAuthAuthorizationCodeFlow.tsx`
 
 **Issue:** Using `any` type in component props and state
 
@@ -60,12 +60,12 @@ onChange: (credentials: Credentials) => void;
 
 ```typescript
 // ❌ CURRENT
-const result = OAuthIntegrationServiceV8.generateAuthorizationUrl(credentials);
+const result = OAuthIntegrationService.generateAuthorizationUrl(credentials);
 setAuthState({...});
 
 // ✅ RECOMMENDED
 try {
-  const result = OAuthIntegrationServiceV8.generateAuthorizationUrl(credentials);
+  const result = OAuthIntegrationService.generateAuthorizationUrl(credentials);
   setAuthState({...});
 } catch (error) {
   console.error(`${MODULE_TAG} Error generating authorization URL`, error);
@@ -112,7 +112,7 @@ console.warn(`${MODULE_TAG} Warning message`);
 
 ```typescript
 // ❌ CURRENT
-const stored = StorageServiceV8.getCredentials('oauth-authz-v8');
+const stored = StorageService.getCredentials('oauth-authz-v8');
 const defaultRedirectUri = 'http://localhost:3000/callback';
 
 // ✅ RECOMMENDED
@@ -129,7 +129,7 @@ export const DEFAULT_REDIRECT_URIS = {
 } as const;
 
 // In component
-const stored = StorageServiceV8.getCredentials(FLOW_KEYS.OAUTH_AUTHZ);
+const stored = StorageService.getCredentials(FLOW_KEYS.OAUTH_AUTHZ);
 ```
 
 **Impact:** Harder to maintain, prone to typos
@@ -140,13 +140,13 @@ const stored = StorageServiceV8.getCredentials(FLOW_KEYS.OAUTH_AUTHZ);
 
 ### 5. Testability
 
-**Location:** `src/v8/services/credentialsServiceV8.ts`
+**Location:** `src/v8/services/credentialsService.ts`
 
 **Issue:** Services use static methods, hard to mock
 
 ```typescript
 // ❌ CURRENT
-export class CredentialsServiceV8 {
+export class CredentialsService {
   static getSmartDefaults(flowKey: string): Credentials { ... }
 }
 
@@ -156,7 +156,7 @@ export interface ICredentialsService {
   loadCredentials(flowKey: string, config: CredentialsConfig): Credentials;
 }
 
-export class CredentialsServiceV8 implements ICredentialsService {
+export class CredentialsService implements ICredentialsService {
   getSmartDefaults(flowKey: string): Credentials { ... }
 }
 
@@ -195,7 +195,7 @@ static loadCredentials(flowKey: string, config: CredentialsConfig): Credentials
  * @returns Saved credentials or defaults if not found
  * @throws {Error} If localStorage is unavailable
  * @example
- * const creds = CredentialsServiceV8.loadCredentials('oauth-authz-v8', config);
+ * const creds = CredentialsService.loadCredentials('oauth-authz-v8', config);
  * @see {@link saveCredentials} for saving credentials
  */
 static loadCredentials(flowKey: string, config: CredentialsConfig): Credentials
@@ -209,7 +209,7 @@ static loadCredentials(flowKey: string, config: CredentialsConfig): Credentials
 
 ### 7. Code Reusability
 
-**Location:** `src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx`
+**Location:** `src/v8/flows/OAuthAuthorizationCodeFlow.tsx`
 
 **Issue:** Flow-specific logic mixed with generic flow logic
 
@@ -219,7 +219,7 @@ const renderStep1 = () => (
   <div className="step-content">
     <h2>Step 1: Generate Authorization URL</h2>
     <button onClick={() => {
-      const result = OAuthIntegrationServiceV8.generateAuthorizationUrl(credentials);
+      const result = OAuthIntegrationService.generateAuthorizationUrl(credentials);
       setAuthState({...});
     }}>
       Generate Authorization URL
@@ -228,7 +228,7 @@ const renderStep1 = () => (
 );
 
 // ✅ RECOMMENDED - Extract to reusable component
-<GenerateAuthUrlStepV8
+<GenerateAuthUrlStep
   credentials={credentials}
   onGenerate={(result) => setAuthState({...})}
   onError={(error) => nav.setValidationErrors([error])}
@@ -243,20 +243,20 @@ const renderStep1 = () => (
 
 ### 8. Performance
 
-**Location:** `src/v8/components/CredentialsFormV8.tsx`
+**Location:** `src/v8/components/CredentialsForm.tsx`
 
 **Issue:** No memoization of expensive operations
 
 ```typescript
 // ❌ CURRENT
-const config = CredentialsServiceV8.getFlowConfig(flowKey);
+const config = CredentialsService.getFlowConfig(flowKey);
 const handleChange = (field: string, value: string) => {
   // Called on every keystroke
 };
 
 // ✅ RECOMMENDED
 const config = useMemo(
-  () => CredentialsServiceV8.getFlowConfig(flowKey),
+  () => CredentialsService.getFlowConfig(flowKey),
   [flowKey]
 );
 
@@ -298,12 +298,12 @@ const handleChange = useCallback(
 
 ## Files to Update
 
-1. `src/v8/services/credentialsServiceV8.ts` - Add error handling, interfaces
-2. `src/v8/services/oauthIntegrationServiceV8.ts` - Add error handling
-3. `src/v8/services/implicitFlowIntegrationServiceV8.ts` - Add error handling
-4. `src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx` - Add error handling, memoization
-5. `src/v8/flows/ImplicitFlowV8.tsx` - Add error handling, memoization
-6. `src/v8/components/CredentialsFormV8.tsx` - Add memoization, proper types
+1. `src/v8/services/credentialsService.ts` - Add error handling, interfaces
+2. `src/v8/services/oauthIntegrationService.ts` - Add error handling
+3. `src/v8/services/implicitFlowIntegrationService.ts` - Add error handling
+4. `src/v8/flows/OAuthAuthorizationCodeFlow.tsx` - Add error handling, memoization
+5. `src/v8/flows/ImplicitFlow.tsx` - Add error handling, memoization
+6. `src/v8/components/CredentialsForm.tsx` - Add memoization, proper types
 7. Create `src/v8/config/constants.ts` - Centralize constants
 8. Create `src/v8/types/services.ts` - Service interfaces
 

@@ -11,14 +11,14 @@
 ## 📋 **Issues Resolved**
 
 ### **1. Username/User ID Dropdown Service Integration** ✅ COMPLETE
-**Objective**: Replace all manual username/user ID input fields with UserSearchDropdownV8 component
+**Objective**: Replace all manual username/user ID input fields with UserSearchDropdown component
 
 **Files Updated:**
 - `src/pages/PingOneUserProfile.tsx` - Comparison user identifier
 - `src/pages/PasskeyManager.tsx` - User ID for passkey management  
 - `src/pages/flows/OAuth2ResourceOwnerPasswordFlow.tsx` - Username for OAuth flow
 
-**Key Enhancement**: Added autoLoad feature to UserSearchDropdownV8 for automatic user population
+**Key Enhancement**: Added autoLoad feature to UserSearchDropdown for automatic user population
 
 **Impact**: Users never have to type usernames or user IDs manually - zero typing required!
 
@@ -64,7 +64,7 @@
 
 ## 🔧 **Technical Improvements Made**
 
-### **UserSearchDropdownV8 Enhancement**
+### **UserSearchDropdown Enhancement**
 ```typescript
 // Auto-load feature added
 useEffect(() => {

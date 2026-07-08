@@ -46,7 +46,7 @@ Central registry of all tracked issues with status, priority, and tracking infor
 - **Created**: 2025-03-11
 - **Assignee**: Development Team
 - **Target Fix**: 2025-03-11
-- **Components**: workerTokenRepository, workerTokenStatusServiceV8
+- **Components**: workerTokenRepository, workerTokenStatusService
 - **Impact**: RangeError crashes with invalid expiration dates
 - **Root Cause**: Calling toISOString() on invalid dates without validation
 - **Fix Status**: Date validation implemented, error handling added

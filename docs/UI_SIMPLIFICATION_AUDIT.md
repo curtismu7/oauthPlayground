@@ -35,7 +35,7 @@ High-priority (3+ duplicate implementations of one concept):
 | Authorization Code | `v9/V7MOAuthAuthCodeV9.tsx`, `pages/AuthorizationCodeFlow.tsx` (already unrouted) | `/flows/oauth-authorization-code-v9`, `/flows/oidc-authorization-code-v9` → `/v2/flows/authorization-code` |
 | Implicit + Hybrid | `v9/V7MImplicitFlowV9.tsx`, `v9/V7MOIDCHybridFlowV9.tsx`, `pages/flows/OAuthImplicitFlowCompletion.tsx` | `/flows/implicit-v9`, `/flows/oidc-implicit-v9`, `/flows/oidc-hybrid-v9` → `/v2/flows/implicit-hybrid` |
 | ROPC | `v9/OAuthROPCFlowV9.tsx`, `v9/V7MROPCV9.tsx`, `pages/flows/OAuth2ResourceOwnerPasswordFlow.tsx` | `/flows/oauth-ropc-v9`, `/v7/oauth/ropc`, `/v7/oidc/ropc`, `/flows/oauth2-resource-owner-password` → `/v2/flows/ropc` |
-| DPoP | `pages/flows/DPoPFlow.tsx`, `pages/DpopAuthorizationCodeFlowV8.tsx` (unrouted) | `/flows/dpop` → `/v2/flows/dpop` |
+| DPoP | `pages/flows/DPoPFlow.tsx`, `pages/DpopAuthorizationCodeFlow.tsx` (unrouted) | `/flows/dpop` → `/v2/flows/dpop` |
 | Device Authorization | `v9/V7MDeviceAuthorizationV9.tsx`, `v9/DeviceAuthorizationVerifyPage.tsx` | `/flows/device-authorization-v9` → `/v2/flows/device-authorization` |
 
 Remaining single/double duplicates:
@@ -52,7 +52,7 @@ Remaining single/double duplicates:
 
 Plus the **V8U umbrella** `src/v8u/flows/UnifiedOAuthFlowV8U.tsx` — covers Auth Code / CC / Device / Implicit / Hybrid / ROPC / Refresh, all now in flows2. It is the redirect target for many legacy routes; repoint `/v8u/unified` → `/v2/flows/authorization-code` and retire (keep `SpiffeSpireFlowV8U` — that's a gap).
 
-**~18 legacy flow files retirable** (2 already unrouted = instant deletes: `pages/AuthorizationCodeFlow.tsx`, `pages/DpopAuthorizationCodeFlowV8.tsx`; 1 unrouted orphan: `v9/MFALoginHintFlowV9.tsx`).
+**~18 legacy flow files retirable** (2 already unrouted = instant deletes: `pages/AuthorizationCodeFlow.tsx`, `pages/DpopAuthorizationCodeFlow.tsx`; 1 unrouted orphan: `v9/MFALoginHintFlowV9.tsx`).
 
 ### 1b. flows2 GAPS — KEEP (no flows2 equivalent yet; migrate later)
 

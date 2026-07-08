@@ -133,18 +133,18 @@ JWKSCacheService.clearCache(issuer?: string): void
    - Add nonce validation
    - Error handling
 
-3. **oauthIntegrationServiceV8.ts** - OAuth callbacks
+3. **oauthIntegrationService.ts** - OAuth callbacks
    - Add state validation
    - Add PKCE validation
    - Error handling
 
-4. **hybridFlowIntegrationServiceV8.ts** - Hybrid callbacks
+4. **hybridFlowIntegrationService.ts** - Hybrid callbacks
    - Add state validation
    - Add nonce validation
    - Add PKCE validation
    - Error handling
 
-5. **implicitFlowIntegrationServiceV8.ts** - Implicit callbacks
+5. **implicitFlowIntegrationService.ts** - Implicit callbacks
    - Add state validation
    - Add nonce validation
    - Error handling

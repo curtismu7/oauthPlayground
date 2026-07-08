@@ -19,7 +19,7 @@
 ### Example 1: Validate Credentials in Step 0
 
 ```typescript
-import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
+import { ValidationService } from '@/v8/services/validationService';
 
 // In your component
 const Step0ConfigureCredentials: React.FC = () => {
@@ -33,7 +33,7 @@ const Step0ConfigureCredentials: React.FC = () => {
 
   // Validate on every change
   const validation = useMemo(() => {
-    return ValidationServiceV8.validateCredentials(credentials, 'oidc');
+    return ValidationService.validateCredentials(credentials, 'oidc');
   }, [credentials]);
 
   return (
@@ -123,7 +123,7 @@ const Step0ConfigureCredentials: React.FC = () => {
 ### Example 2: Validate Authorization URL Parameters
 
 ```typescript
-import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
+import { ValidationService } from '@/v8/services/validationService';
 
 const Step1GenerateAuthUrl: React.FC = () => {
   const [authUrl, setAuthUrl] = useState('');
@@ -166,7 +166,7 @@ const Step1GenerateAuthUrl: React.FC = () => {
       };
     }
 
-    return ValidationServiceV8.validateAuthorizationUrlParams({
+    return ValidationService.validateAuthorizationUrlParams({
       authorizationEndpoint: endpoints.authorization_endpoint,
       clientId: credentials.clientId,
       redirectUri: credentials.redirectUri,
@@ -216,7 +216,7 @@ const Step1GenerateAuthUrl: React.FC = () => {
 ### Example 3: Validate Callback Parameters
 
 ```typescript
-import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
+import { ValidationService } from '@/v8/services/validationService';
 
 const Step2HandleCallback: React.FC = () => {
   const [callbackParams, setCallbackParams] = useState<{
@@ -239,7 +239,7 @@ const Step2HandleCallback: React.FC = () => {
 
   // Validate callback
   const validation = useMemo(() => {
-    return ValidationServiceV8.validateCallbackParams(
+    return ValidationService.validateCallbackParams(
       callbackParams,
       expectedState // From Step 1
     );
@@ -301,7 +301,7 @@ const Step2HandleCallback: React.FC = () => {
 ### Example 4: Validate Token Response
 
 ```typescript
-import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
+import { ValidationService } from '@/v8/services/validationService';
 
 const Step3ExchangeTokens: React.FC = () => {
   const [tokens, setTokens] = useState<{
@@ -346,7 +346,7 @@ const Step3ExchangeTokens: React.FC = () => {
       };
     }
 
-    return ValidationServiceV8.validateTokenResponse(tokens, 'oidc');
+    return ValidationService.validateTokenResponse(tokens, 'oidc');
   }, [tokens]);
 
   return (
@@ -409,14 +409,14 @@ const Step3ExchangeTokens: React.FC = () => {
 ### Example 1: Tooltip Component
 
 ```typescript
-import { EducationServiceV8 } from '@/v8/services/educationServiceV8';
+import { EducationService } from '@/v8/services/educationService';
 
 const EducationTooltip: React.FC<{
   contentKey: string;
   children: React.ReactNode;
 }> = ({ contentKey, children }) => {
   const [showTooltip, setShowTooltip] = useState(false);
-  const tooltip = EducationServiceV8.getTooltip(contentKey);
+  const tooltip = EducationService.getTooltip(contentKey);
 
   return (
     <div 
@@ -462,7 +462,7 @@ const EducationTooltip: React.FC<{
 ### Example 2: Quick Start Modal
 
 ```typescript
-import { EducationServiceV8 } from '@/v8/services/educationServiceV8';
+import { EducationService } from '@/v8/services/educationService';
 
 const QuickStartModal: React.FC<{
   isOpen: boolean;
@@ -470,7 +470,7 @@ const QuickStartModal: React.FC<{
   onSelectPreset: (preset: QuickStartPreset) => void;
   flowType: 'oauth' | 'oidc';
 }> = ({ isOpen, onClose, onSelectPreset, flowType }) => {
-  const presets = EducationServiceV8.getAvailablePresets(flowType);
+  const presets = EducationService.getAvailablePresets(flowType);
 
   if (!isOpen) return null;
 
@@ -543,7 +543,7 @@ const handleSelectPreset = (preset: QuickStartPreset) => {
 ### Example 3: Detailed Explanation Modal
 
 ```typescript
-import { EducationServiceV8 } from '@/v8/services/educationServiceV8';
+import { EducationService } from '@/v8/services/educationService';
 
 const ExplanationModal: React.FC<{
   isOpen: boolean;
@@ -552,7 +552,7 @@ const ExplanationModal: React.FC<{
 }> = ({ isOpen, onClose, explanationKey }) => {
   if (!isOpen) return null;
 
-  const explanation = EducationServiceV8.getExplanation(explanationKey);
+  const explanation = EducationService.getExplanation(explanationKey);
 
   return (
     <div className="modal">
@@ -635,7 +635,7 @@ const [explanationKey, setExplanationKey] = useState('');
 ### Example: Complete Step Navigation Component
 
 ```typescript
-import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
+import { ValidationService } from '@/v8/services/validationService';
 
 interface StepDefinition {
   id: number;
@@ -647,7 +647,7 @@ interface StepDefinition {
   completed: boolean;
 }
 
-const OAuthAuthorizationCodeFlowV8: React.FC = () => {
+const OAuthAuthorizationCodeFlow: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [credentials, setCredentials] = useState({...});
   const [authUrl, setAuthUrl] = useState('');
@@ -662,7 +662,7 @@ const OAuthAuthorizationCodeFlowV8: React.FC = () => {
       shortLabel: 'Config',
       description: 'Set up your OAuth/OIDC application credentials',
       required: true,
-      validation: () => ValidationServiceV8.validateCredentials(credentials, 'oidc'),
+      validation: () => ValidationService.validateCredentials(credentials, 'oidc'),
       completed: isStep0Complete()
     },
     {
@@ -836,7 +836,7 @@ const OAuthAuthorizationCodeFlowV8: React.FC = () => {
             onClick={handleNext}
             title={
               !currentValidation.canProceed
-                ? `Cannot proceed:\n${ValidationServiceV8.formatErrors(currentValidation.errors)}`
+                ? `Cannot proceed:\n${ValidationService.formatErrors(currentValidation.errors)}`
                 : 'Proceed to next step'
             }
           >
@@ -875,7 +875,7 @@ See the full integration example above in Section 3!
 ```typescript
 // Validate on every change
 const validation = useMemo(() => {
-  return ValidationServiceV8.validateCredentials(credentials, 'oidc');
+  return ValidationService.validateCredentials(credentials, 'oidc');
 }, [credentials]);
 
 // Use validation result to control UI

@@ -275,7 +275,7 @@ If test mode still makes API calls:
 
 2. **Check State:**
    - Open React DevTools
-   - Find MFAFlowV8 component
+   - Find MFAFlow component
    - Check `testMode` state value
 
 3. **Check Network Tab:**
@@ -292,7 +292,7 @@ If test mode still makes API calls:
 
 ## 📁 Files Modified
 
-- ✅ `src/v8/flows/MFAFlowV8.tsx` - Enhanced test mode logic and visual feedback
+- ✅ `src/v8/flows/MFAFlow.tsx` - Enhanced test mode logic and visual feedback
 - ✅ `MFA_TEST_MODE_FIX.md` - This documentation
 
 ---

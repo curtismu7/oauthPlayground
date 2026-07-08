@@ -80,19 +80,19 @@ const V8_AUDIT_ITEMS: AuditItem[] = [
 		status: 'fixed',
 		countLabel: '0 files (was 8)',
 		detail:
-			'All 8 files resolved. ActionButtonV8 was a false-positive (JSDoc comment only). icons:check now reports ✓ 0 invalid icon names across 2324 files.',
+			'All 8 files resolved. ActionButton was a false-positive (JSDoc comment only). icons:check now reports ✓ 0 invalid icon names across 2324 files.',
 	},
 	{
 		id: 'v8-protect-cred-bug',
 		description: 'Protect flow: worker token not loading / saving from storage',
 		status: 'fixed',
-		countLabel: 'PingOneProtectFlowV8.tsx',
+		countLabel: 'PingOneProtectFlow.tsx',
 		detail:
 			'Three bugs fixed: (1) useState lazy-init called async loadCredentials synchronously, (2) syncCredentials effect had same async/sync mismatch, (3) saveCredentials omitted workerToken + region fields',
 	},
 	{
 		id: 'v8-credential-store-migration',
-		description: 'useCredentialStoreV8 → CredentialStorageService migration',
+		description: 'useCredentialStore → CredentialStorageService migration',
 		status: 'fixed',
 		countLabel: '5 / 5 pages migrated',
 		detail:
@@ -104,7 +104,7 @@ const V8_AUDIT_ITEMS: AuditItem[] = [
 		status: 'fixed',
 		countLabel: '8 files deleted',
 		detail:
-			'credentialStoreV8.ts · useCredentialStoreV8.ts · credentialStoreV8 types · ClientCredentialManager.tsx · SuperSimpleApiDisplayV8-old.tsx · mfaServiceV8_Legacy.ts · MFAConfigurationStepV8-V2.tsx · NewMFAFlowV8.tsx',
+			'credentialStore.ts · useCredentialStore.ts · credentialStore types · ClientCredentialManager.tsx · SuperSimpleApiDisplay-old.tsx · mfaServiceV8_Legacy.ts · MFAConfigurationStep-V2.tsx · NewMFAFlow.tsx',
 	},
 	{
 		id: 'v8-migration-services',
@@ -127,7 +127,7 @@ const V8_AUDIT_ITEMS: AuditItem[] = [
 		status: 'fixed',
 		countLabel: '2 files renamed/merged',
 		detail:
-			'UnifiedMFARegistrationFlowV8_Legacy → UnifiedMFARegistrationFlowV8 (App.tsx + MFAFlowV8.tsx updated; null stub replaced with real lazy import). workerTokenModalHelperV8_SIMPLE merged into workerTokenModalHelperV8 + deleted (RegistrationFlowStepperV8 + AuthenticationFlowStepperV8 import paths updated).',
+			'UnifiedMFARegistrationFlowV8_Legacy → UnifiedMFARegistrationFlow (App.tsx + MFAFlow.tsx updated; null stub replaced with real lazy import). workerTokenModalHelperV8_SIMPLE merged into workerTokenModalHelper + deleted (RegistrationFlowStepper + AuthenticationFlowStepper import paths updated).',
 	},
 	{
 		id: 'v8-flows-archive',
@@ -135,7 +135,7 @@ const V8_AUDIT_ITEMS: AuditItem[] = [
 		status: 'fixed',
 		countLabel: '27 files / ~22,991 lines deleted',
 		detail:
-			'Deleted MFAAuthenticationMainPageV8 monolith + 5 hooks, CompleteMFAFlowV8, MFASettingsV8, OAuthAuthorizationCodeFlowV8, ResourcesAPIFlowV8, TokenExchangeFlowV8, PingOnePARFlowV8 (6 files), 4 OTP config pages, 3 .txt artifacts, V8MTokenExchange. Routes /flows/ciba-v8, /flows/implicit-v8, /flows/hybrid-v8 now redirect to V9 equivalents.',
+			'Deleted MFAAuthenticationMainPage monolith + 5 hooks, CompleteMFAFlow, MFASettings, OAuthAuthorizationCodeFlow, ResourcesAPIFlow, TokenExchangeFlow, PingOnePARFlow (6 files), 4 OTP config pages, 3 .txt artifacts, V8MTokenExchange. Routes /flows/ciba-v8, /flows/implicit-v8, /flows/hybrid-v8 now redirect to V9 equivalents.',
 	},
 	{
 		id: 'v8-total-files',

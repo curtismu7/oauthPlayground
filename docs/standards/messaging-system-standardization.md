@@ -31,11 +31,11 @@ v4ToastManager.showError('Error occurred');
 ### **V8 - Enhanced Toast Wrapper**
 ```typescript
 // V8 Toast (Current Standard)
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-toastV8.success('Configuration saved successfully');
-toastV8.error('Failed to save configuration');
-toastV8.warning('Please fill in required fields');
-toastV8.info('Authorization URL copied to clipboard');
+import { toast } from '@/v8/utils/toastNotifications';
+toast.success('Configuration saved successfully');
+toast.error('Failed to save configuration');
+toast.warning('Please fill in required fields');
+toast.info('Authorization URL copied to clipboard');
 ```
 
 ### **V9 - Modern State-Based Messaging**
@@ -104,13 +104,13 @@ v4ToastManager.showSuccess('Flow completed');
 ### **V8 Flows - Current Standard**
 ```typescript
 // V8: Use enhanced toast wrapper
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { toast } from '@/v8/utils/toastNotifications';
 
 // Standard V8 messaging patterns
-toastV8.success('Credentials saved successfully');
-toastV8.error('Failed to generate authorization URL');
-toastV8.warning('Please fill in all required fields');
-toastV8.info('Authorization URL copied to clipboard');
+toast.success('Credentials saved successfully');
+toast.error('Failed to generate authorization URL');
+toast.warning('Please fill in all required fields');
+toast.info('Authorization URL copied to clipboard');
 ```
 
 ### **V9 Flows - Modern Messaging**
@@ -181,16 +181,16 @@ import { v4ToastManager } from '@/utils/v4ToastMessages';
 v4ToastManager.showSuccess('Operation completed');
 
 // After (V8)
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-toastV8.success('Operation completed');
+import { toast } from '@/v8/utils/toastNotifications';
+toast.success('Operation completed');
 ```
 
 ### **Step 2: V8 → V9 Modern Messaging Migration**
 ```typescript
 // Before (V8)
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-toastV8.success('Configuration saved');
-toastV8.error('Failed to save configuration');
+import { toast } from '@/v8/utils/toastNotifications';
+toast.success('Configuration saved');
+toast.error('Failed to save configuration');
 
 // After (V9)
 import { useModernMessaging } from '@/services/v9/ModernMessagingService';
@@ -234,10 +234,10 @@ modernMessaging.showFooterMessage({
 
 | Toast Type | Modern Messaging | Use Case |
 |------------|------------------|----------|
-| `toastV8.success()` | `modernMessaging.showBanner({ type: 'success' })` | Successful operations |
-| `toastV8.error()` | `modernMessaging.showCriticalError()` | Critical errors requiring attention |
-| `toastV8.warning()` | `modernMessaging.showBanner({ type: 'warning' })` | Warnings and validation issues |
-| `toastV8.info()` | `modernMessaging.showFooterMessage()` | Status updates and info |
+| `toast.success()` | `modernMessaging.showBanner({ type: 'success' })` | Successful operations |
+| `toast.error()` | `modernMessaging.showCriticalError()` | Critical errors requiring attention |
+| `toast.warning()` | `modernMessaging.showBanner({ type: 'warning' })` | Warnings and validation issues |
+| `toast.info()` | `modernMessaging.showFooterMessage()` | Status updates and info |
 
 ### **Message Priority Hierarchy**
 
@@ -307,10 +307,10 @@ interface MessagingAdapter {
 
 // V8 Adapter
 const V8MessagingAdapter: MessagingAdapter = {
-  success: (message) => toastV8.success(message),
-  error: (message) => toastV8.error(message),
-  warning: (message) => toastV8.warning(message),
-  info: (message) => toastV8.info(message),
+  success: (message) => toast.success(message),
+  error: (message) => toast.error(message),
+  warning: (message) => toast.warning(message),
+  info: (message) => toast.info(message),
 };
 
 // V9 Adapter
@@ -345,12 +345,12 @@ const V9MessagingAdapter: MessagingAdapter = {
 
 ### **V8 Toast Testing**
 ```typescript
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { toast } from '@/v8/utils/toastNotifications';
 
 describe('V8 Toast Messaging', () => {
   it('should show success message', () => {
     const spy = jest.spyOn(v4ToastManager, 'showSuccess');
-    toastV8.success('Test success');
+    toast.success('Test success');
     expect(spy).toHaveBeenCalledWith('Test success', {}, undefined);
   });
 });
@@ -389,7 +389,7 @@ describe('V9 Modern Messaging', () => {
 - [ ] Test toast functionality
 
 ### **For V8 Flows**
-- [ ] Use `toastV8` for all messaging
+- [ ] Use `toast` for all messaging
 - [ ] Replace direct `v4ToastManager` calls
 - [ ] Follow V8 toast patterns
 - [ ] Test toast notifications
@@ -495,7 +495,7 @@ describe('V9 Modern Messaging', () => {
 ### **Import Statements**
 ```typescript
 // V8 Toast
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { toast } from '@/v8/utils/toastNotifications';
 
 // V9 Modern Messaging
 import { useModernMessaging } from '@/services/v9/ModernMessagingService';
@@ -505,7 +505,7 @@ import { ModernMessagingComponents } from '@/components/ModernMessagingComponent
 ### **Common Patterns**
 ```typescript
 // V8 Success
-toastV8.success('Operation completed successfully');
+toast.success('Operation completed successfully');
 
 // V9 Success Banner
 modernMessaging.showBanner({

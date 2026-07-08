@@ -3,7 +3,7 @@
 ## 🎯 **Mission Accomplished: February 28, 2026**
 
 ### **Objective:**
-Ensure ALL username or user ID fields across the application use the dropdown username service (UserSearchDropdownV8) so users never have to type usernames or user IDs manually.
+Ensure ALL username or user ID fields across the application use the dropdown username service (UserSearchDropdown) so users never have to type usernames or user IDs manually.
 
 ---
 
@@ -28,7 +28,7 @@ Ensure ALL username or user ID fields across the application use the dropdown us
 />
 
 // Comparison User Identifier - AFTER
-<UserSearchDropdownV8
+<UserSearchDropdown
   environmentId={environmentId}
   value={compareIdentifier}
   onChange={(value) => setCompareIdentifier(value)}
@@ -60,7 +60,7 @@ Ensure ALL username or user ID fields across the application use the dropdown us
 />
 
 // User ID Input - AFTER
-<UserSearchDropdownV8
+<UserSearchDropdown
   environmentId={environmentId}
   value={userId}
   onChange={(value) => setUserId(value)}
@@ -90,7 +90,7 @@ Ensure ALL username or user ID fields across the application use the dropdown us
 />
 
 // Username Input - AFTER
-<UserSearchDropdownV8
+<UserSearchDropdown
   environmentId={controller.credentials.environmentId}
   value={controller.credentials.username}
   onChange={(value) => handleCredentialChange('username', value)}
@@ -104,7 +104,7 @@ Ensure ALL username or user ID fields across the application use the dropdown us
 
 ## 🔧 **Technical Implementation Details**
 
-### **UserSearchDropdownV8 Enhancement**
+### **UserSearchDropdown Enhancement**
 **Auto-Load Feature Added:**
 ```typescript
 interface UserSearchDropdownV8Props {
@@ -137,7 +137,7 @@ useEffect(() => {
 - **🎯 Smart Discovery**: Users can browse available users without knowing exact identifiers
 
 ### **Technical Benefits**
-- **🌐 API Integration**: Leverages existing MFAServiceV8.listUsers API
+- **🌐 API Integration**: Leverages existing MFAService.listUsers API
 - **💾 Storage Service**: Uses unifiedWorkerTokenService for environment ID
 - **🔐 Security**: Maintains existing authentication patterns
 - **🛡️ Error Handling**: Preserved error states and messages

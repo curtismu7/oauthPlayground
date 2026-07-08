@@ -22,8 +22,8 @@
   - Service layer for API calls
   - Validation utilities
 
-#### 2. **MFAAuthenticationMainPageV8.tsx** (5,259 lines)
-**Location:** `src/v8/flows/MFAAuthenticationMainPageV8.tsx`  
+#### 2. **MFAAuthenticationMainPage.tsx** (5,259 lines)
+**Location:** `src/v8/flows/MFAAuthenticationMainPage.tsx`  
 **Issues:**
 - Combines authentication UI, device management, and flow orchestration
 - Contains multiple concerns: device selection, authentication, reporting
@@ -33,16 +33,16 @@
   - `MFAReportingPage.tsx` (reporting)
   - Shared hooks for common logic
 
-#### 3. **mfaServiceV8.ts** (5,174 lines)
-**Location:** `src/v8/services/mfaServiceV8.ts`  
+#### 3. **mfaService.ts** (5,174 lines)
+**Location:** `src/v8/services/mfaService.ts`  
 **Issues:**
 - Single service file handling all MFA operations
 - Mixes device registration, authentication, verification, and management
 - **Recommendation:** Split into:
-  - `mfaDeviceServiceV8.ts` (device CRUD)
-  - `mfaAuthenticationServiceV8.ts` (authentication flows)
-  - `mfaVerificationServiceV8.ts` (OTP verification)
-  - `mfaManagementServiceV8.ts` (device management)
+  - `mfaDeviceService.ts` (device CRUD)
+  - `mfaAuthenticationService.ts` (authentication flows)
+  - `mfaVerificationService.ts` (OTP verification)
+  - `mfaManagementService.ts` (device management)
 
 #### 4. **server.js** (15,142 lines)
 **Location:** `server.js`  
@@ -57,8 +57,8 @@
 
 ### 🟡 Moderate Issues
 
-#### 5. **SMSFlowV8.tsx** (2,662 lines)
-**Location:** `src/v8/flows/types/SMSFlowV8.tsx`  
+#### 5. **SMSFlow.tsx** (2,662 lines)
+**Location:** `src/v8/flows/types/SMSFlow.tsx`  
 **Issues:**
 - Large but better structured than others
 - Uses controller pattern (good)
@@ -78,10 +78,10 @@
 
 ### ✅ Good Practices Found
 
-1. **PKCE Implementation:** Properly implemented in `oauthIntegrationServiceV8.ts`
+1. **PKCE Implementation:** Properly implemented in `oauthIntegrationService.ts`
 2. **State Management:** State parameter used for CSRF protection
 3. **Discovery Usage:** OIDC discovery endpoints used correctly
-4. **Token Storage:** Secure storage patterns in `credentialsServiceV8.ts`
+4. **Token Storage:** Secure storage patterns in `credentialsService.ts`
 
 ### ⚠️ Issues Found
 
@@ -114,7 +114,7 @@
 
 1. **Token Type Confusion:**
    - Some flows don't clearly distinguish between worker and user tokens
-   - **Location:** `MFAConfigurationStepV8.tsx` - token type switching logic is complex
+   - **Location:** `MFAConfigurationStep.tsx` - token type switching logic is complex
    - **Recommendation:** Add explicit token type validation before operations
 
 2. **Authorization Header Format:**
@@ -144,7 +144,7 @@
 
 2. **Device Ordering:**
    - Device ordering logic is scattered across multiple files
-   - **Recommendation:** Centralize in `mfaManagementServiceV8.ts`
+   - **Recommendation:** Centralize in `mfaManagementService.ts`
 
 3. **Error Handling:**
    - Inconsistent error handling across MFA flows
@@ -163,7 +163,7 @@
 
 2. **Discovery Utilities:**
    - Multiple implementations of OIDC discovery
-   - **Location:** `oauthIntegrationServiceV8.ts`, `specVersionServiceV8.ts`
+   - **Location:** `oauthIntegrationService.ts`, `specVersionService.ts`
    - **Recommendation:** Single discovery service
 
 3. **Token Handlers:**
@@ -347,7 +347,7 @@
 - **Risk:** Medium (ensure all flows still work)
 - **Files:** Create 6-8 new flow-specific components
 
-#### 2. **Split mfaServiceV8.ts** (Priority: 🔴 Critical)
+#### 2. **Split mfaService.ts** (Priority: 🔴 Critical)
 - **Impact:** Better separation of concerns
 - **Effort:** Medium (1-2 days)
 - **Dependencies:** None
@@ -368,7 +368,7 @@
 - **Risk:** Low (already using `useUnifiedOTPFlow`)
 - **Files:** Enhance existing hook
 
-#### 5. **Split MFAAuthenticationMainPageV8.tsx** (Priority: 🟡 High)
+#### 5. **Split MFAAuthenticationMainPage.tsx** (Priority: 🟡 High)
 - **Impact:** Better component organization
 - **Effort:** Medium (1-2 days)
 - **Dependencies:** None
@@ -380,7 +380,7 @@
 - **Effort:** Low-Medium (1 day)
 - **Dependencies:** None
 - **Risk:** Low
-- **Files:** Single `tokenServiceV8.ts`
+- **Files:** Single `tokenService.ts`
 
 #### 7. **Standardize Error Handling** (Priority: 🟢 Medium)
 - **Impact:** Better UX, easier debugging
@@ -422,7 +422,7 @@
 
 ### Immediate Actions
 1. Split `UnifiedFlowSteps.tsx` into flow-specific components
-2. Split `mfaServiceV8.ts` into focused services
+2. Split `mfaService.ts` into focused services
 3. Consolidate callback handlers
 4. Extract more shared MFA logic
 

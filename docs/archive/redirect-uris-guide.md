@@ -130,7 +130,7 @@ const protocol = window.location.hostname === 'localhost' ? 'https' : 'https';
 ```
 
 ### **Flow-Specific Services**
-- **MFA Flows:** `MFARedirectUriServiceV8.getRedirectUri()`
+- **MFA Flows:** `MFARedirectUriService.getRedirectUri()`
 - **OAuth Flows:** `generateRedirectUriForFlow()`
 - **Callback Service:** `CallbackUriService.getCallbackUri()`
 

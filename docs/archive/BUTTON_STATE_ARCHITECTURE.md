@@ -131,13 +131,13 @@
 │                                                                 │
 │  App.tsx                                                        │
 │    └─ FlowStateProvider                                         │
-│        ├─ OAuthAuthorizationCodeFlowV8                          │
+│        ├─ OAuthAuthorizationCodeFlow                          │
 │        │   ├─ useActionButton() × 3                            │
 │        │   └─ PrimaryButton × 3                                │
-│        ├─ MFAAuthenticationMainPageV8                           │
+│        ├─ MFAAuthenticationMainPage                           │
 │        │   ├─ useActionButton() × 5                            │
 │        │   └─ PrimaryButton × 5                                │
-│        └─ ImplicitFlowV8                                        │
+│        └─ ImplicitFlow                                        │
 │            ├─ useActionButton() × 2                            │
 │            └─ PrimaryButton × 2                                │
 │                                                                 │

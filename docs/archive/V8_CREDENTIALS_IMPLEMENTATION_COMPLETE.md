@@ -6,8 +6,8 @@ A centralized, intelligent credentials management system for all V8 flows that m
 
 ## Components
 
-### 1. CredentialsFormV8 Component
-**File:** `src/v8/components/CredentialsFormV8.tsx`
+### 1. CredentialsForm Component
+**File:** `src/v8/components/CredentialsForm.tsx`
 
 Smart form component that:
 - Automatically shows/hides fields based on flow type
@@ -23,8 +23,8 @@ Smart form component that:
 - Helpful field hints
 - Responsive design
 
-### 2. CredentialsServiceV8 Service
-**File:** `src/v8/services/credentialsServiceV8.ts`
+### 2. CredentialsService Service
+**File:** `src/v8/services/credentialsService.ts`
 
 Centralized service that:
 - Manages credentials storage/retrieval
@@ -60,20 +60,20 @@ Pre-configured for 7 flow types:
 ## Updated Flows
 
 ### Authorization Code Flow V8
-**File:** `src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx`
+**File:** `src/v8/flows/OAuthAuthorizationCodeFlow.tsx`
 
 Changes:
-- Uses `CredentialsFormV8` component
-- Uses `CredentialsServiceV8.getSmartDefaults()` for initialization
+- Uses `CredentialsForm` component
+- Uses `CredentialsService.getSmartDefaults()` for initialization
 - Simplified credentials management
 - Automatic field visibility
 
 ### Implicit Flow V8
-**File:** `src/v8/flows/ImplicitFlowV8.tsx`
+**File:** `src/v8/flows/ImplicitFlow.tsx`
 
 Changes:
-- Uses `CredentialsFormV8` component
-- Uses `CredentialsServiceV8.getSmartDefaults()` for initialization
+- Uses `CredentialsForm` component
+- Uses `CredentialsService.getSmartDefaults()` for initialization
 - Simplified credentials management
 - Automatic field visibility (no client secret)
 
@@ -119,7 +119,7 @@ Each field shows context-specific guidance:
 
 ```typescript
 // Simple usage - automatic field visibility
-<CredentialsFormV8
+<CredentialsForm
   flowKey="oauth-authz-v8"
   credentials={credentials}
   onChange={setCredentials}
@@ -128,7 +128,7 @@ Each field shows context-specific guidance:
 />
 
 // With app discovery
-<CredentialsFormV8
+<CredentialsForm
   flowKey="oauth-authz-v8"
   credentials={credentials}
   onChange={setCredentials}
@@ -139,7 +139,7 @@ Each field shows context-specific guidance:
 />
 
 // Get smart defaults
-const defaults = CredentialsServiceV8.getSmartDefaults('oauth-authz-v8');
+const defaults = CredentialsService.getSmartDefaults('oauth-authz-v8');
 // Returns: { environmentId: '', clientId: '', clientSecret: '', 
 //            redirectUri: 'http://localhost:3000/callback', 
 //            scopes: 'openid profile email' }
@@ -161,14 +161,14 @@ const defaults = CredentialsServiceV8.getSmartDefaults('oauth-authz-v8');
 ## Files Created/Modified
 
 ### Created
-- `src/v8/components/CredentialsFormV8.tsx` - Smart form component
-- `src/v8/services/credentialsServiceV8.ts` - Credentials service
+- `src/v8/components/CredentialsForm.tsx` - Smart form component
+- `src/v8/services/credentialsService.ts` - Credentials service
 - `docs/V8_SHARED_CREDENTIALS_SYSTEM.md` - Initial documentation
 - `docs/V8_SMART_CREDENTIALS_GUIDE.md` - Comprehensive guide
 
 ### Modified
-- `src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx` - Updated to use smart system
-- `src/v8/flows/ImplicitFlowV8.tsx` - Updated to use smart system
+- `src/v8/flows/OAuthAuthorizationCodeFlow.tsx` - Updated to use smart system
+- `src/v8/flows/ImplicitFlow.tsx` - Updated to use smart system
 - `src/App.tsx` - Fixed import paths (already done)
 
 ## Next Steps

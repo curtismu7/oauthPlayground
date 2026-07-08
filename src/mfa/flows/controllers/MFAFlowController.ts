@@ -6,11 +6,11 @@
  */
 
 import { modernMessaging } from '@/platform/ModernMessagingService';
-import type { useStepNavigationV8 } from '@/mfa/hooks/useStepNavigationV8';
-import { MfaAuthenticationServiceV8 } from '@/mfa/services/mfaAuthenticationServiceV8';
-import { MFAServiceV8, type RegisterDeviceParams } from '@/mfa/services/mfaServiceV8';
-import type { TokenStatusInfo } from '@/mfa/services/workerTokenStatusServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/mfa/services/workerTokenStatusServiceV8';
+import type { useStepNavigation } from '@/mfa/hooks/useStepNavigation';
+import { MfaAuthenticationService } from '@/mfa/services/mfaAuthenticationService';
+import { MFAService, type RegisterDeviceParams } from '@/mfa/services/mfaService';
+import type { TokenStatusInfo } from '@/mfa/services/workerTokenStatusService';
+import { WorkerTokenStatusService } from '@/mfa/services/workerTokenStatusService';
 import { logger } from '../../../utils/logger';
 import type { DeviceType, MFACredentials, MFAState } from '../shared/MFATypes';
 
@@ -76,8 +76,8 @@ export abstract class MFAFlowController {
 	async loadExistingDevices(
 		credentials: MFACredentials,
 		mfaState: MFAState,
-		tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
-		nav: ReturnType<typeof useStepNavigationV8>
+		tokenStatus: ReturnType<typeof WorkerTokenStatusService.checkWorkerTokenStatus>,
+		nav: ReturnType<typeof useStepNavigation>
 	): Promise<Array<Record<string, unknown>>>;
 
 	/**
@@ -87,7 +87,7 @@ export abstract class MFAFlowController {
 		credentials: MFACredentials,
 		mfaStateOrTokenStatus: MFAState | TokenStatusInfo,
 		tokenStatus?: TokenStatusInfo,
-		_nav?: ReturnType<typeof useStepNavigationV8>
+		_nav?: ReturnType<typeof useStepNavigation>
 	): Promise<Array<Record<string, unknown>>> {
 		// Handle both signatures:
 		// Legacy: (credentials, tokenStatus)
@@ -101,7 +101,7 @@ export abstract class MFAFlowController {
 
 		try {
 			logger.info(`${MODULE_TAG} Loading existing ${this.deviceType} devices`, 'Logger info');
-			const devices = await MFAServiceV8.getAllDevices({
+			const devices = await MFAService.getAllDevices({
 				environmentId: credentials.environmentId,
 				username: credentials.username,
 				deviceType: this.deviceType,
@@ -144,8 +144,8 @@ export abstract class MFAFlowController {
 	async registerDevice(
 		credentials: MFACredentials,
 		mfaState: MFAState,
-		tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
-		nav: ReturnType<typeof useStepNavigationV8>
+		tokenStatus: ReturnType<typeof WorkerTokenStatusService.checkWorkerTokenStatus>,
+		nav: ReturnType<typeof useStepNavigation>
 	): Promise<{ deviceId: string; status: string; [key: string]: any }>;
 
 	/**
@@ -154,8 +154,8 @@ export abstract class MFAFlowController {
 	async registerDevice(
 		credentials: MFACredentials,
 		deviceParamsOrMfaState: Partial<RegisterDeviceParams> | MFAState,
-		tokenStatus?: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
-		_nav?: ReturnType<typeof useStepNavigationV8>
+		tokenStatus?: ReturnType<typeof WorkerTokenStatusService.checkWorkerTokenStatus>,
+		_nav?: ReturnType<typeof useStepNavigation>
 	): Promise<{ deviceId: string; status: string; [key: string]: any }> {
 		// Handle both signatures:
 		// Legacy: (credentials, deviceParams)
@@ -182,7 +182,7 @@ export abstract class MFAFlowController {
 			...deviceParams,
 		} as RegisterDeviceParams;
 
-		const result = await MFAServiceV8.registerDevice(params);
+		const result = await MFAService.registerDevice(params);
 
 		if (this.callbacks.onDeviceRegistered) {
 			this.callbacks.onDeviceRegistered(result.deviceId, result.status);
@@ -243,7 +243,7 @@ export abstract class MFAFlowController {
 		deviceId: string,
 		state: OTPState,
 		setState: (state: Partial<OTPState> | ((prev: OTPState) => Partial<OTPState>)) => void,
-		nav: ReturnType<typeof useStepNavigationV8>,
+		nav: ReturnType<typeof useStepNavigation>,
 		setIsLoading: (loading: boolean) => void
 	): Promise<void> {
 		logger.info(`${MODULE_TAG} Sending OTP to ${this.deviceType} device`, 'Logger info');
@@ -251,7 +251,7 @@ export abstract class MFAFlowController {
 		setState({ sendError: null });
 
 		try {
-			const { deviceAuthId, otpCheckUrl } = await MFAServiceV8.sendOTP({
+			const { deviceAuthId, otpCheckUrl } = await MFAService.sendOTP({
 				environmentId: credentials.environmentId,
 				username: credentials.username,
 				deviceId,
@@ -308,7 +308,7 @@ export abstract class MFAFlowController {
 	}
 
 	// ========================================================================
-	// UNIFIED FLOW METHODS (for UnifiedMFARegistrationFlowV8 components)
+	// UNIFIED FLOW METHODS (for UnifiedMFARegistrationFlow components)
 	// ========================================================================
 
 	/**
@@ -329,8 +329,8 @@ export abstract class MFAFlowController {
 		otp: string,
 		credentials: MFACredentials,
 		mfaState: MFAState,
-		_tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
-		_nav: ReturnType<typeof useStepNavigationV8>
+		_tokenStatus: ReturnType<typeof WorkerTokenStatusService.checkWorkerTokenStatus>,
+		_nav: ReturnType<typeof useStepNavigation>
 	): Promise<any> {
 		logger.info(`${MODULE_TAG} Validating OTP (unified flow)`, {
 			deviceId,
@@ -338,10 +338,10 @@ export abstract class MFAFlowController {
 		});
 
 		try {
-			const workerToken = await MFAServiceV8.getWorkerToken();
+			const workerToken = await MFAService.getWorkerToken();
 			const cleanToken = workerToken.trim().replace(/^Bearer\s+/i, '');
 
-			const result = await MFAServiceV8.validateOTP({
+			const result = await MFAService.validateOTP({
 				environmentId: credentials.environmentId,
 				deviceAuthId: mfaState.deviceAuthId || deviceId,
 				otp,
@@ -377,8 +377,8 @@ export abstract class MFAFlowController {
 		deviceId: string,
 		credentials: MFACredentials,
 		mfaState: MFAState,
-		_tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
-		_nav: ReturnType<typeof useStepNavigationV8>
+		_tokenStatus: ReturnType<typeof WorkerTokenStatusService.checkWorkerTokenStatus>,
+		_nav: ReturnType<typeof useStepNavigation>
 	): Promise<void> {
 		logger.info(`${MODULE_TAG} Resending OTP (unified flow)`, {
 			deviceId,
@@ -386,7 +386,7 @@ export abstract class MFAFlowController {
 		});
 
 		try {
-			const { deviceAuthId, otpCheckUrl } = await MFAServiceV8.sendOTP({
+			const { deviceAuthId, otpCheckUrl } = await MFAService.sendOTP({
 				environmentId: credentials.environmentId,
 				username: credentials.username,
 				deviceId,
@@ -420,7 +420,7 @@ export abstract class MFAFlowController {
 		setValidationState: (
 			state: Partial<ValidationState> | ((prev: ValidationState) => Partial<ValidationState>)
 		) => void,
-		nav: ReturnType<typeof useStepNavigationV8>,
+		nav: ReturnType<typeof useStepNavigation>,
 		setIsLoading: (loading: boolean) => void
 	): Promise<boolean> {
 		logger.info(`${MODULE_TAG} Validating OTP`, 'Logger info');
@@ -428,10 +428,10 @@ export abstract class MFAFlowController {
 		setValidationState({ lastValidationError: null });
 
 		try {
-			const workerToken = await MFAServiceV8.getWorkerToken();
+			const workerToken = await MFAService.getWorkerToken();
 			const cleanToken = workerToken.trim().replace(/^Bearer\s+/i, '');
 
-			const result = await MFAServiceV8.validateOTP({
+			const result = await MFAService.validateOTP({
 				environmentId: credentials.environmentId,
 				deviceAuthId: mfaState.deviceAuthId || '',
 				otp: otpCode,
@@ -528,7 +528,7 @@ export abstract class MFAFlowController {
 	 */
 	protected handleOTPSendError(
 		errorMessage: string,
-		nav: ReturnType<typeof useStepNavigationV8>
+		nav: ReturnType<typeof useStepNavigation>
 	): void {
 		if (
 			errorMessage.toLowerCase().includes('worker token') ||
@@ -561,7 +561,7 @@ export abstract class MFAFlowController {
 	 */
 	protected handleOTPValidationError(
 		errorMessage: string,
-		nav: ReturnType<typeof useStepNavigationV8>
+		nav: ReturnType<typeof useStepNavigation>
 	): void {
 		if (errorMessage.toLowerCase().includes('expired')) {
 			nav.setValidationErrors(['OTP code has expired. Please go back and request a new code.']);
@@ -617,9 +617,9 @@ export abstract class MFAFlowController {
 			}
 		);
 
-		// Use MfaAuthenticationServiceV8 which correctly implements PingOne MFA API
+		// Use MfaAuthenticationService which correctly implements PingOne MFA API
 		// DeviceId in the request body immediately targets this device for OTP
-		const result = await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
+		const result = await MfaAuthenticationService.initializeDeviceAuthentication({
 			environmentId: credentials.environmentId,
 			username: credentials.username,
 			deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
@@ -658,7 +658,7 @@ export abstract class MFAFlowController {
 		if (!credentials.username) {
 			throw new Error('Username is required to cancel device authentication');
 		}
-		return await MfaAuthenticationServiceV8.cancelDeviceAuthentication(
+		return await MfaAuthenticationService.cancelDeviceAuthentication(
 			credentials.environmentId,
 			credentials.username,
 			authenticationId,
@@ -669,7 +669,7 @@ export abstract class MFAFlowController {
 
 	/**
 	 * Select device for authentication (when multiple devices available)
-	 * Uses MfaAuthenticationServiceV8 which correctly implements PingOne MFA API
+	 * Uses MfaAuthenticationService which correctly implements PingOne MFA API
 	 */
 	async selectDeviceForAuthentication(
 		credentials: MFACredentials,
@@ -677,7 +677,7 @@ export abstract class MFAFlowController {
 		deviceId: string
 	): Promise<{ status: string; nextStep?: string; [key: string]: unknown }> {
 		logger.info(`${MODULE_TAG} Selecting device for authentication`, 'Logger info');
-		const result = await MfaAuthenticationServiceV8.selectDeviceForAuthentication({
+		const result = await MfaAuthenticationService.selectDeviceForAuthentication({
 			environmentId: credentials.environmentId,
 			username: credentials.username,
 			authenticationId,
@@ -694,7 +694,7 @@ export abstract class MFAFlowController {
 
 	/**
 	 * Validate OTP for device authentication (for existing devices)
-	 * Uses MfaAuthenticationServiceV8.validateOTP() which correctly implements PingOne MFA API
+	 * Uses MfaAuthenticationService.validateOTP() which correctly implements PingOne MFA API
 	 */
 	async validateOTPForDevice(
 		credentials: MFACredentials,
@@ -706,7 +706,7 @@ export abstract class MFAFlowController {
 		setValidationState: (
 			state: Partial<ValidationState> | ((prev: ValidationState) => Partial<ValidationState>)
 		) => void,
-		nav: ReturnType<typeof useStepNavigationV8>,
+		nav: ReturnType<typeof useStepNavigation>,
 		setIsLoading: (loading: boolean) => void
 	): Promise<boolean> {
 		logger.info(`${MODULE_TAG} Validating OTP for device authentication`, 'Logger info');
@@ -714,9 +714,9 @@ export abstract class MFAFlowController {
 		setValidationState({ lastValidationError: null });
 
 		try {
-			// Use MfaAuthenticationServiceV8.validateOTP() which correctly implements PingOne MFA API
+			// Use MfaAuthenticationService.validateOTP() which correctly implements PingOne MFA API
 			// It uses _links.otp.check URL when available, or constructs the correct endpoint
-			const result = await MfaAuthenticationServiceV8.validateOTP({
+			const result = await MfaAuthenticationService.validateOTP({
 				environmentId: credentials.environmentId,
 				username: credentials.username,
 				authenticationId,
@@ -807,8 +807,8 @@ export abstract class MFAFlowController {
 	 */
 	abstract validateCredentials(
 		credentials: MFACredentials,
-		tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
-		nav: ReturnType<typeof useStepNavigationV8>
+		tokenStatus: ReturnType<typeof WorkerTokenStatusService.checkWorkerTokenStatus>,
+		nav: ReturnType<typeof useStepNavigation>
 	): boolean;
 
 	/**

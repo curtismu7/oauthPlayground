@@ -34,7 +34,7 @@ The admin device activation feature enables administrators to bypass the normal 
 
 ### **Frontend Changes**
 
-#### **MFADeviceManagerV8.tsx**
+#### **MFADeviceManager.tsx**
 ```typescript
 // Admin activation handler
 const handleAdminActivate = async (deviceId: string) => {
@@ -49,22 +49,22 @@ const handleAdminActivate = async (deviceId: string) => {
     
     // Use appropriate activation method based on device type
     if (device.type === 'TOTP') {
-      activationResult = await MFAServiceV8.activateDevice({
+      activationResult = await MFAService.activateDevice({
         environmentId,
         username,
         deviceId,
         otp: 'ADMIN_ACTIVATION', // Special token for admin activation
       });
     } else if (device.type === 'FIDO2') {
-      activationResult = await MFAServiceV8.activateFIDO2Device({
+      activationResult = await MFAService.activateFIDO2Device({
         environmentId,
         username,
         deviceId,
-        workerToken: await MFAServiceV8.getWorkerToken(),
+        workerToken: await MFAService.getWorkerToken(),
       });
     } else {
       // For SMS, EMAIL, VOICE devices
-      activationResult = await MFAServiceV8.activateDevice({
+      activationResult = await MFAService.activateDevice({
         environmentId,
         username,
         deviceId,
@@ -72,10 +72,10 @@ const handleAdminActivate = async (deviceId: string) => {
       });
     }
 
-    toastV8.success('Device activated successfully using admin privileges');
+    toast.success('Device activated successfully using admin privileges');
     await loadDevices();
   } catch (error) {
-    toastV8.error(`Failed to activate device: ${error.message}`);
+    toast.error(`Failed to activate device: ${error.message}`);
   } finally {
     setProcessingDeviceId(null);
   }
@@ -261,7 +261,7 @@ curl -k -X POST https://localhost:3000/api/pingone/mfa/activate-device \
 ## 🚀 **Deployment**
 
 ### **Frontend Deployment**
-- **Component Update** - MFADeviceManagerV8.tsx changes
+- **Component Update** - MFADeviceManager.tsx changes
 - **No Breaking Changes** - Backward compatible
 - **Progressive Enhancement** - Feature available when needed
 

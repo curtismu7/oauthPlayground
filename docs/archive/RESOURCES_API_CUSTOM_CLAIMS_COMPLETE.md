@@ -6,7 +6,7 @@ Enhanced the Resources API educational flow with comprehensive real-world exampl
 ## Changes Made
 
 ### 1. New Section: Custom Claims in Tokens
-**Location:** `src/v8/flows/ResourcesAPIFlowV8.tsx` - `customClaims` modal
+**Location:** `src/v8/flows/ResourcesAPIFlow.tsx` - `customClaims` modal
 
 **Content Added:**
 - **ID Token vs Access Token Claims** - Clear explanation of the difference
@@ -31,7 +31,7 @@ Enhanced the Resources API educational flow with comprehensive real-world exampl
   - Better scalability (less load on user database)
 
 ### 2. New Section: Admin API Automation
-**Location:** `src/v8/flows/ResourcesAPIFlowV8.tsx` - `adminAPI` modal
+**Location:** `src/v8/flows/ResourcesAPIFlow.tsx` - `adminAPI` modal
 
 **Content Added:**
 - **Prerequisites:** Worker app setup with required scopes
@@ -175,7 +175,7 @@ POST /resources/{resourceId}/attributes
    - Test with your PingOne environment
 
 ## Files Modified
-- `src/v8/flows/ResourcesAPIFlowV8.tsx` - Added 2 new comprehensive sections
+- `src/v8/flows/ResourcesAPIFlow.tsx` - Added 2 new comprehensive sections
 
 ## Compliance
 ✅ V8 naming conventions followed

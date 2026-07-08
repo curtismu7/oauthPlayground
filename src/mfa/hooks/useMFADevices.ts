@@ -4,7 +4,7 @@
  * @description Custom hook for managing MFA device state and operations
  * @version 3.0.0
  *
- * Extracted from MFAAuthenticationMainPageV8.tsx as part of V3 refactoring.
+ * Extracted from MFAAuthenticationMainPage.tsx as part of V3 refactoring.
  * Centralizes all device-related logic including:
  * - Loading user devices
  * - Device list management
@@ -15,7 +15,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { MFAServiceV8 } from '@/mfa/services/mfaServiceV8';
+import { MFAService } from '@/mfa/services/mfaService';
 
 import { logger } from '../../utils/logger';
 // Device type from PingOne API
@@ -103,7 +103,7 @@ export const useMFADevices = (config: UseMFADevicesConfig = {}): UseMFADevicesRe
 		setError(null);
 
 		try {
-			const loadedDevices = await MFAServiceV8.getAllDevices({
+			const loadedDevices = await MFAService.getAllDevices({
 				environmentId: currentEnvId,
 				username: currentUsername,
 			});

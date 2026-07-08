@@ -102,10 +102,10 @@ Added the missing route in `src/App.tsx`:
 
 ```typescript
 // Added import
-import MFADeviceManagementFlowV8 from './v8/flows/MFADeviceManagementFlowV8';
+import MFADeviceManagementFlow from './v8/flows/MFADeviceManagementFlow';
 
 // Added route
-<Route path="/v8/mfa-device-management" element={<MFADeviceManagementFlowV8 />} />
+<Route path="/v8/mfa-device-management" element={<MFADeviceManagementFlow />} />
 ```
 
 ## Status

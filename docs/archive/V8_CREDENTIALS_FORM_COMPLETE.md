@@ -14,9 +14,9 @@ The V8 credentials form has been completely rebuilt to include all V7 functional
 
 ```typescript
 // Example usage
-const result = await OidcDiscoveryServiceV8.discoverFromInput('https://auth.example.com');
+const result = await OidcDiscoveryService.discoverFromInput('https://auth.example.com');
 // or
-const result = await OidcDiscoveryServiceV8.discoverFromInput('12345678-1234-1234-1234-123456789012');
+const result = await OidcDiscoveryService.discoverFromInput('12345678-1234-1234-1234-123456789012');
 ```
 
 ### 2. Enhanced Credentials Fields
@@ -52,7 +52,7 @@ Enhanced validation with field-level feedback:
 - **Detailed Error Messages**: Clear guidance on what's missing
 
 ```typescript
-const result = CredentialsServiceV8.validateCredentials(credentials, 'oauth');
+const result = CredentialsService.validateCredentials(credentials, 'oauth');
 // Returns: { errors: [...], warnings: [...] }
 // Each with message and field information
 ```
@@ -103,36 +103,36 @@ Integrated with V8 toast system:
 
 ## Services
 
-### CredentialsServiceV8
+### CredentialsService
 Main service for credentials management:
 ```typescript
 // Get smart defaults
-const defaults = CredentialsServiceV8.getSmartDefaults('oauth-authz-v8');
+const defaults = CredentialsService.getSmartDefaults('oauth-authz-v8');
 
 // Load with app discovery
-const creds = CredentialsServiceV8.loadWithAppDiscovery('oauth-authz-v8', appConfig);
+const creds = CredentialsService.loadWithAppDiscovery('oauth-authz-v8', appConfig);
 
 // Validate credentials
-const result = CredentialsServiceV8.validateCredentials(credentials, 'oauth');
+const result = CredentialsService.validateCredentials(credentials, 'oauth');
 
 // Save/load/clear
-CredentialsServiceV8.saveCredentials('oauth-authz-v8', credentials);
-CredentialsServiceV8.loadCredentials('oauth-authz-v8', config);
-CredentialsServiceV8.clearCredentials('oauth-authz-v8');
+CredentialsService.saveCredentials('oauth-authz-v8', credentials);
+CredentialsService.loadCredentials('oauth-authz-v8', config);
+CredentialsService.clearCredentials('oauth-authz-v8');
 ```
 
-### OidcDiscoveryServiceV8
+### OidcDiscoveryService
 New service for OIDC discovery:
 ```typescript
 // Discover from issuer URL
-const result = await OidcDiscoveryServiceV8.discover('https://auth.example.com');
+const result = await OidcDiscoveryService.discover('https://auth.example.com');
 
 // Discover from environment ID
-const result = await OidcDiscoveryServiceV8.discoverFromInput('12345678-1234-1234-1234-123456789012');
+const result = await OidcDiscoveryService.discoverFromInput('12345678-1234-1234-1234-123456789012');
 
 // Validate inputs
-const isValid = OidcDiscoveryServiceV8.isValidIssuerUrl(url);
-const isEnvId = OidcDiscoveryServiceV8.isValidEnvironmentId(value);
+const isValid = OidcDiscoveryService.isValidIssuerUrl(url);
+const isEnvId = OidcDiscoveryService.isValidEnvironmentId(value);
 ```
 
 ## Component Props
@@ -163,16 +163,16 @@ interface CredentialsFormV8Props {
 ## Usage Example
 
 ```typescript
-import { CredentialsFormV8 } from '@/v8/components/CredentialsFormV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { CredentialsForm } from '@/v8/components/CredentialsForm';
+import { CredentialsService } from '@/v8/services/credentialsService';
 
 export const MyFlow = () => {
   const [credentials, setCredentials] = useState(() =>
-    CredentialsServiceV8.getSmartDefaults('oauth-authz-v8')
+    CredentialsService.getSmartDefaults('oauth-authz-v8')
   );
 
   return (
-    <CredentialsFormV8
+    <CredentialsForm
       flowKey="oauth-authz-v8"
       flowType="oauth"
       credentials={credentials}

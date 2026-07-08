@@ -36,7 +36,7 @@ A comprehensive professional code review of the V8 OAuth/OIDC implementation, re
 - Structured error logging
 - Error categorization
 - Log history tracking
-- **File:** `src/v8/services/errorHandlerV8.ts` (300+ lines)
+- **File:** `src/v8/services/errorHandler.ts` (300+ lines)
 
 ### 5. Code Standards Document
 - 16 sections of professional standards
@@ -111,7 +111,7 @@ A comprehensive professional code review of the V8 OAuth/OIDC implementation, re
 | `docs/V8_CODE_REVIEW.md` | Code review findings | 300+ |
 | `src/v8/config/constants.ts` | Centralized constants | 200+ |
 | `src/v8/types/services.ts` | Service interfaces | 400+ |
-| `src/v8/services/errorHandlerV8.ts` | Error handling | 300+ |
+| `src/v8/services/errorHandler.ts` | Error handling | 300+ |
 | `src/v8/CODE_STANDARDS.md` | Code standards | 500+ |
 | `docs/V8_PROFESSIONAL_CODE_REVIEW_COMPLETE.md` | Review summary | 400+ |
 | `docs/V8_READY_FOR_PRODUCTION.md` | Production guide | 300+ |
@@ -210,13 +210,13 @@ const flowKey = FLOW_KEYS.OAUTH_AUTHZ;
 try {
   // operation
 } catch (error) {
-  ErrorHandlerV8.handleError(error, { context });
+  ErrorHandler.handleError(error, { context });
 }
 ```
 
 ### 3. Service Interfaces
 ```typescript
-export class ServiceV8 implements IServiceV8 {
+export class Service implements IService {
   // implementation
 }
 ```
@@ -262,7 +262,7 @@ src/v8/
 ├── types/
 │   └── services.ts                    ← Interfaces
 └── services/
-    └── errorHandlerV8.ts              ← Error handling
+    └── errorHandler.ts              ← Error handling
 ```
 
 ---
@@ -277,9 +277,9 @@ src/v8/
 - [x] Standards documented
 
 ### Phase 2: Update Existing Code (Ready)
-- [ ] Update credentialsServiceV8.ts
-- [ ] Update oauthIntegrationServiceV8.ts
-- [ ] Update implicitFlowIntegrationServiceV8.ts
+- [ ] Update credentialsService.ts
+- [ ] Update oauthIntegrationService.ts
+- [ ] Update implicitFlowIntegrationService.ts
 - [ ] Update flows with error handling
 - [ ] Add memoization
 

@@ -62,8 +62,8 @@ This document provides the complete restoration plan for device management and d
 #### **1.1 Fix API Integration Issues**
 ```typescript
 // Files to modify:
-// - src/v8/services/mfaServiceV8.ts
-// - src/v8/components/MFADeviceManagerV8.tsx
+// - src/v8/services/mfaService.ts
+// - src/v8/components/MFADeviceManager.tsx
 
 // Tasks:
 - Fix setUserMfaDeviceOrder request format ✅ COMPLETED
@@ -74,7 +74,7 @@ This document provides the complete restoration plan for device management and d
 
 #### **1.2 Restore Device Management UI**
 ```typescript
-// Component: MFADeviceManagerV8.tsx
+// Component: MFADeviceManager.tsx
 interface DeviceManagementState {
   devices: MFADevice[];
   loading: boolean;
@@ -92,7 +92,7 @@ interface DeviceManagementState {
 
 #### **1.3 Device Ordering Restoration**
 ```typescript
-// Component: MFADeviceOrderingFlowV8.tsx
+// Component: MFADeviceOrderingFlow.tsx
 interface DeviceOrderingState {
   devices: MFADevice[];
   orderedDevices: string[];
@@ -111,8 +111,8 @@ interface DeviceOrderingState {
 
 #### **2.1 Implement Role-Based Access Control**
 ```typescript
-// Service: deviceManagementLockdownServiceV8.ts
-export class DeviceManagementLockdownServiceV8 {
+// Service: deviceManagementLockdownService.ts
+export class DeviceManagementLockdownService {
   static canBlockDevice(userRole: string, deviceStatus: string): boolean
   static canUnblockDevice(userRole: string): boolean  
   static canDeleteDevice(userRole: string): boolean
@@ -333,7 +333,7 @@ describe('Device Management Accessibility', () => {
 
 ## 🔧 **Specific Code Fixes Required**
 
-### **1. MFADeviceManagerV8.tsx Fixes**
+### **1. MFADeviceManager.tsx Fixes**
 ```typescript
 // Current Issues & Fixes:
 
@@ -342,12 +342,12 @@ describe('Device Management Accessibility', () => {
 const handleBlock = async (deviceId: string) => {
   setProcessingDeviceId(deviceId);
   try {
-    await MFAServiceV8.blockDevice({ deviceId, environmentId, userId });
-    toastV8.success('Device blocked successfully');
+    await MFAService.blockDevice({ deviceId, environmentId, userId });
+    toast.success('Device blocked successfully');
     await loadDevices();
   } catch (error) {
     console.error(`${MODULE_TAG} Failed to block device`, error);
-    toastV8.error('Failed to block device. Please try again.');
+    toast.error('Failed to block device. Please try again.');
   } finally {
     setProcessingDeviceId(null);
   }
@@ -373,7 +373,7 @@ const handleBlock = async (deviceId: string) => {
 </button>
 ```
 
-### **2. MFADeviceOrderingFlowV8.tsx Fixes**
+### **2. MFADeviceOrderingFlow.tsx Fixes**
 ```typescript
 // Issue: Drag and drop not working
 // Fix: Implement proper drag handlers
@@ -398,11 +398,11 @@ const handleDrop = (e: React.DragEvent, targetIndex: number) => {
 // Fix: Add order validation
 const validateOrder = (devices: string[]) => {
   if (devices.length > 10) {
-    toastV8.error('Maximum 10 devices can be ordered');
+    toast.error('Maximum 10 devices can be ordered');
     return false;
   }
   if (devices.length === 0) {
-    toastV8.error('At least one device must be selected');
+    toast.error('At least one device must be selected');
     return false;
   }
   return true;
@@ -418,7 +418,7 @@ export const setUserMfaDeviceOrder = async (
   userId: string,
   orderedDeviceIds: string[]
 ): Promise<Record<string, unknown>> => {
-  const token = await MFAServiceV8.getWorkerToken();
+  const token = await MFAService.getWorkerToken();
   
   try {
     const response = await pingOneFetch('/api/pingone/mfa/set-device-order', {

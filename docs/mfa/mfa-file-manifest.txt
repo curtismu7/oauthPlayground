@@ -4,27 +4,27 @@
 # Backup Branch: backup/pre-mfa-consolidation
 
 ## Configuration Pages (6 files)
-src/v8/flows/types/EmailOTPConfigurationPageV8.tsx
-src/v8/flows/types/FIDO2ConfigurationPageV8.tsx
-src/v8/flows/types/MobileOTPConfigurationPageV8.tsx
-src/v8/flows/types/SMSOTPConfigurationPageV8.tsx
-src/v8/flows/types/TOTPConfigurationPageV8.tsx
-src/v8/flows/types/WhatsAppOTPConfigurationPageV8.tsx
+src/v8/flows/types/EmailOTPConfigurationPage.tsx
+src/v8/flows/types/FIDO2ConfigurationPage.tsx
+src/v8/flows/types/MobileOTPConfigurationPage.tsx
+src/v8/flows/types/SMSOTPConfigurationPage.tsx
+src/v8/flows/types/TOTPConfigurationPage.tsx
+src/v8/flows/types/WhatsAppOTPConfigurationPage.tsx
 
 ## Device Flow Pages (6 files)
-src/v8/flows/types/EmailFlowV8.tsx
-src/v8/flows/types/FIDO2FlowV8.tsx
-src/v8/flows/types/MobileFlowV8.tsx
-src/v8/flows/types/SMSFlowV8.tsx
-src/v8/flows/types/TOTPFlowV8.tsx
-src/v8/flows/types/WhatsAppFlowV8.tsx
+src/v8/flows/types/EmailFlow.tsx
+src/v8/flows/types/FIDO2Flow.tsx
+src/v8/flows/types/MobileFlow.tsx
+src/v8/flows/types/SMSFlow.tsx
+src/v8/flows/types/TOTPFlow.tsx
+src/v8/flows/types/WhatsAppFlow.tsx
 
 ## Documentation Pages (5 files)
-src/v8/pages/EmailRegistrationDocsPageV8.tsx
-src/v8/pages/FIDO2RegistrationDocsPageV8.tsx
-src/v8/pages/MobileRegistrationDocsPageV8.tsx
-src/v8/pages/SMSRegistrationDocsPageV8.tsx
-src/v8/pages/WhatsAppRegistrationDocsPageV8.tsx
+src/v8/pages/EmailRegistrationDocsPage.tsx
+src/v8/pages/FIDO2RegistrationDocsPage.tsx
+src/v8/pages/MobileRegistrationDocsPage.tsx
+src/v8/pages/SMSRegistrationDocsPage.tsx
+src/v8/pages/WhatsAppRegistrationDocsPage.tsx
 
 ## Total Files to be Consolidated: 17
 

@@ -31,8 +31,8 @@ The OAuth 2.0 Authorization Code Flow V8 is the first complete V8 flow implement
 ### Component Structure
 
 ```
-OAuthAuthorizationCodeFlowV8
-├── StepNavigationV8 (Progress bar)
+OAuthAuthorizationCodeFlow
+├── StepNavigation (Progress bar)
 ├── Step 0: Configure Credentials
 │   ├── Environment ID input
 │   ├── Client ID input
@@ -49,21 +49,21 @@ OAuthAuthorizationCodeFlowV8
 │   ├── Access Token display
 │   ├── ID Token display
 │   └── Refresh Token display
-├── StepValidationFeedbackV8 (Errors/warnings)
-└── StepActionButtonsV8 (Navigation)
+├── StepValidationFeedback (Errors/warnings)
+└── StepActionButtons (Navigation)
 ```
 
 ### Service Integration
 
 ```
-OAuthAuthorizationCodeFlowV8
-├── ValidationServiceV8 (Validate credentials)
-├── EducationServiceV8 (Tooltips)
-├── ErrorHandlerV8 (Error messages)
-├── StorageServiceV8 (Save credentials)
-├── FlowResetServiceV8 (Reset flow)
-├── AppDiscoveryServiceV8 (Optional)
-└── useStepNavigationV8 (State management)
+OAuthAuthorizationCodeFlow
+├── ValidationService (Validate credentials)
+├── EducationService (Tooltips)
+├── ErrorHandler (Error messages)
+├── StorageService (Save credentials)
+├── FlowResetService (Reset flow)
+├── AppDiscoveryService (Optional)
+└── useStepNavigation (State management)
 ```
 
 ---
@@ -158,7 +158,7 @@ OAuthAuthorizationCodeFlowV8
 ```
 User Input (Step 0)
     ↓
-ValidationServiceV8.validateCredentials()
+ValidationService.validateCredentials()
     ↓
     ├─→ Valid? → Enable Next button
     └─→ Invalid? → Show errors, disable Next
@@ -191,10 +191,10 @@ Exchange for tokens (Step 3)
 ### Basic Implementation
 
 ```typescript
-import OAuthAuthorizationCodeFlowV8 from '@/v8/flows/OAuthAuthorizationCodeFlowV8';
+import OAuthAuthorizationCodeFlow from '@/v8/flows/OAuthAuthorizationCodeFlow';
 
 export const MyApp: React.FC = () => {
-	return <OAuthAuthorizationCodeFlowV8 />;
+	return <OAuthAuthorizationCodeFlow />;
 };
 ```
 
@@ -202,7 +202,7 @@ export const MyApp: React.FC = () => {
 
 ```typescript
 <div className="custom-container">
-	<OAuthAuthorizationCodeFlowV8 />
+	<OAuthAuthorizationCodeFlow />
 </div>
 
 <style>{`
@@ -240,7 +240,7 @@ export const MyApp: React.FC = () => {
 npm test
 
 # Run flow tests only
-npm test OAuthAuthorizationCodeFlowV8
+npm test OAuthAuthorizationCodeFlow
 
 # Run with coverage
 npm test -- --coverage
@@ -317,37 +317,37 @@ Progress: 100% (4 of 4)
 
 ## 📚 Integration with Services
 
-### ValidationServiceV8
+### ValidationService
 
 ```typescript
-const result = ValidationServiceV8.validateCredentials(credentials, 'oauth');
+const result = ValidationService.validateCredentials(credentials, 'oauth');
 if (!result.valid) {
 	nav.setValidationErrors(result.errors.map(e => e.message));
 }
 ```
 
-### EducationServiceV8
+### EducationService
 
 ```typescript
-const tooltip = EducationServiceV8.getTooltip('credential.environmentId');
+const tooltip = EducationService.getTooltip('credential.environmentId');
 // Returns: { title, description, learnMore }
 ```
 
-### StorageServiceV8
+### StorageService
 
 ```typescript
 // Save credentials
-StorageServiceV8.saveCredentials('oauth-authz-v8', credentials);
+StorageService.saveCredentials('oauth-authz-v8', credentials);
 
 // Load credentials
-const stored = StorageServiceV8.getCredentials('oauth-authz-v8');
+const stored = StorageService.getCredentials('oauth-authz-v8');
 ```
 
-### FlowResetServiceV8
+### FlowResetService
 
 ```typescript
 // Reset flow
-FlowResetServiceV8.resetFlow('oauth-authz-v8');
+FlowResetService.resetFlow('oauth-authz-v8');
 ```
 
 ---
@@ -365,10 +365,10 @@ FlowResetServiceV8.resetFlow('oauth-authz-v8');
 
 ### Phase 3: Additional Flows
 
-- [ ] ImplicitFlowV8
-- [ ] DeviceCodeFlowV8
-- [ ] ClientCredentialsFlowV8
-- [ ] OIDCDiscoveryFlowV8
+- [ ] ImplicitFlow
+- [ ] DeviceCodeFlow
+- [ ] ClientCredentialsFlow
+- [ ] OIDCDiscoveryFlow
 
 ---
 

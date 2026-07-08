@@ -6,7 +6,7 @@
 
 ## Flow Types to Support
 
-Based on `SpecVersionServiceV8`, V8U needs to support:
+Based on `SpecVersionService`, V8U needs to support:
 
 1. ✅ **oauth-authz** - Authorization Code Flow
 2. ✅ **implicit** - Implicit Flow  
@@ -20,12 +20,12 @@ Based on `SpecVersionServiceV8`, V8U needs to support:
 ## Current Status
 
 ### ✅ Already Implemented in V8
-- **Authorization Code**: `OAuthIntegrationServiceV8` ✅
-- **Implicit**: `ImplicitFlowIntegrationServiceV8` ✅
-- **Client Credentials**: `ClientCredentialsIntegrationServiceV8` ✅
-- **Device Code**: `DeviceCodeIntegrationServiceV8` ✅
-- **ROPC**: `ROPCIntegrationServiceV8` ✅
-- **Hybrid**: `HybridFlowIntegrationServiceV8` ✅
+- **Authorization Code**: `OAuthIntegrationService` ✅
+- **Implicit**: `ImplicitFlowIntegrationService` ✅
+- **Client Credentials**: `ClientCredentialsIntegrationService` ✅
+- **Device Code**: `DeviceCodeIntegrationService` ✅
+- **ROPC**: `ROPCIntegrationService` ✅
+- **Hybrid**: `HybridFlowIntegrationService` ✅
 
 ### ❌ Need to Implement
 - None! All integration services are implemented.
@@ -38,31 +38,31 @@ Based on `SpecVersionServiceV8`, V8U needs to support:
 
 Create V8 integration services for missing flows (these will be used by V8U):
 
-1. **ClientCredentialsIntegrationServiceV8**
+1. **ClientCredentialsIntegrationService**
    - Token endpoint: `POST /{env}/as/token`
    - Grant type: `client_credentials`
    - Uses: `client_id`, `client_secret`, `scope`
 
-2. **DeviceCodeIntegrationServiceV8**
+2. **DeviceCodeIntegrationService**
    - Device authorization: `POST /{env}/as/device_authorization`
    - Token endpoint: `POST /{env}/as/token` (with `device_code`)
    - Grant type: `urn:ietf:params:oauth:grant-type:device_code`
 
-3. **ROPCIntegrationServiceV8**
+3. **ROPCIntegrationService**
    - Token endpoint: `POST /{env}/as/token`
    - Grant type: `password`
    - Uses: `client_id`, `client_secret`, `username`, `password`, `scope`
 
-4. **HybridFlowIntegrationServiceV8**
+4. **HybridFlowIntegrationService**
    - Authorization URL: Like authz code + OIDC
    - Response types: `code id_token`, `code token`, `code token id_token`
    - Token endpoint: Exchange code for tokens
 
 **Files to create:**
-- `src/v8/services/clientCredentialsIntegrationServiceV8.ts`
-- `src/v8/services/deviceCodeIntegrationServiceV8.ts`
-- `src/v8/services/ropcIntegrationServiceV8.ts`
-- `src/v8/services/hybridFlowIntegrationServiceV8.ts`
+- `src/v8/services/clientCredentialsIntegrationService.ts`
+- `src/v8/services/deviceCodeIntegrationService.ts`
+- `src/v8/services/ropcIntegrationService.ts`
+- `src/v8/services/hybridFlowIntegrationService.ts`
 
 ---
 
@@ -79,15 +79,15 @@ static generateAuthorizationUrl(
   switch (flowType) {
     case 'oauth-authz':
     case 'hybrid':
-      return OAuthIntegrationServiceV8.generateAuthorizationUrl(...);
+      return OAuthIntegrationService.generateAuthorizationUrl(...);
     case 'implicit':
-      return ImplicitFlowIntegrationServiceV8.generateAuthorizationUrl(...);
+      return ImplicitFlowIntegrationService.generateAuthorizationUrl(...);
     case 'device-code':
-      return DeviceCodeIntegrationServiceV8.requestDeviceAuthorization(...);
+      return DeviceCodeIntegrationService.requestDeviceAuthorization(...);
     case 'client-credentials':
-      return ClientCredentialsIntegrationServiceV8.requestToken(...);
+      return ClientCredentialsIntegrationService.requestToken(...);
     case 'ropc':
-      return ROPCIntegrationServiceV8.requestToken(...);
+      return ROPCIntegrationService.requestToken(...);
   }
 }
 ```
@@ -160,12 +160,12 @@ Each individual flow will:
 
 ```
 src/v8/services/
-├── oauthIntegrationServiceV8.ts ✅
-├── implicitFlowIntegrationServiceV8.ts ✅
-├── clientCredentialsIntegrationServiceV8.ts ✅
-├── deviceCodeIntegrationServiceV8.ts ✅
-├── ropcIntegrationServiceV8.ts ✅
-└── hybridFlowIntegrationServiceV8.ts ✅
+├── oauthIntegrationService.ts ✅
+├── implicitFlowIntegrationService.ts ✅
+├── clientCredentialsIntegrationService.ts ✅
+├── deviceCodeIntegrationService.ts ✅
+├── ropcIntegrationService.ts ✅
+└── hybridFlowIntegrationService.ts ✅
 
 src/v8u/
 ├── flows/

@@ -1,72 +1,72 @@
-# Plan: Migrate All V8, V8U, and V8M to workerTokenServiceV8
+# Plan: Migrate All V8, V8U, and V8M to workerTokenService
 
 ## Overview
-This plan outlines the migration of all worker token usage across V8, V8U, and V8M codebases to use the centralized `workerTokenServiceV8`. This ensures a single source of truth for worker tokens across the entire application.
+This plan outlines the migration of all worker token usage across V8, V8U, and V8M codebases to use the centralized `workerTokenService`. This ensures a single source of truth for worker tokens across the entire application.
 
 ## Current State Analysis
 
 ### ✅ Already Migrated
-- `src/pages/ClientGenerator.tsx` - Uses `workerTokenServiceV8`
-- `src/pages/Configuration.tsx` - Uses `workerTokenServiceV8`
-- `src/components/WorkerTokenStatusLabel.tsx` - Uses `workerTokenServiceV8`
-- `src/components/ConfigurationURIChecker.tsx` - Uses `workerTokenServiceV8`
-- `src/components/WorkerTokenModal.tsx` - Uses `workerTokenServiceV8`
+- `src/pages/ClientGenerator.tsx` - Uses `workerTokenService`
+- `src/pages/Configuration.tsx` - Uses `workerTokenService`
+- `src/components/WorkerTokenStatusLabel.tsx` - Uses `workerTokenService`
+- `src/components/ConfigurationURIChecker.tsx` - Uses `workerTokenService`
+- `src/components/WorkerTokenModal.tsx` - Uses `workerTokenService`
 
 ### ❌ Needs Migration
 
 #### V8 Services (High Priority)
-1. **`src/v8/services/appDiscoveryServiceV8.ts`**
-   - Currently uses: `DualStorageServiceV8` with custom keys (`v8:worker-token`)
+1. **`src/v8/services/appDiscoveryService.ts`**
+   - Currently uses: `DualStorageService` with custom keys (`v8:worker-token`)
    - Methods to update:
-     - `getWorkerToken()` - Should use `workerTokenServiceV8.getToken()`
-     - `getStoredWorkerToken()` - Should use `workerTokenServiceV8.getToken()`
-     - `getStoredWorkerTokenSync()` - Should use `workerTokenServiceV8.loadCredentialsSync()` + `getToken()`
-     - `storeWorkerToken()` - Should use `workerTokenServiceV8.saveToken()`
-     - `clearWorkerToken()` - Should use `workerTokenServiceV8.clearToken()`
+     - `getWorkerToken()` - Should use `workerTokenService.getToken()`
+     - `getStoredWorkerToken()` - Should use `workerTokenService.getToken()`
+     - `getStoredWorkerTokenSync()` - Should use `workerTokenService.loadCredentialsSync()` + `getToken()`
+     - `storeWorkerToken()` - Should use `workerTokenService.saveToken()`
+     - `clearWorkerToken()` - Should use `workerTokenService.clearToken()`
 
-2. **`src/v8/services/configCheckerServiceV8.ts`**
+2. **`src/v8/services/configCheckerService.ts`**
    - Currently: Accepts `workerToken` as parameter
-   - Action: Update callers to use `workerTokenServiceV8.getToken()` before calling
+   - Action: Update callers to use `workerTokenService.getToken()` before calling
    - Note: Service itself doesn't need changes, just callers
 
-3. **`src/v8/services/workerTokenStatusServiceV8.ts`**
+3. **`src/v8/services/workerTokenStatusService.ts`**
    - Currently: Checks localStorage directly
-   - Action: Update to use `workerTokenServiceV8.getToken()` and `loadCredentials()`
+   - Action: Update to use `workerTokenService.getToken()` and `loadCredentials()`
 
 #### V8 Components (High Priority)
-4. **`src/v8/components/AppPickerV8.tsx`**
-   - Currently: Uses `AppDiscoveryServiceV8.getStoredWorkerToken()` and `localStorage.removeItem('worker_token_expires_at')`
+4. **`src/v8/components/AppPicker.tsx`**
+   - Currently: Uses `AppDiscoveryService.getStoredWorkerToken()` and `localStorage.removeItem('worker_token_expires_at')`
    - Action: 
-     - Replace `AppDiscoveryServiceV8.getStoredWorkerToken()` with `workerTokenServiceV8.getToken()`
+     - Replace `AppDiscoveryService.getStoredWorkerToken()` with `workerTokenService.getToken()`
      - Remove direct localStorage access
-     - Use `workerTokenServiceV8.clearToken()` instead of manual clearing
+     - Use `workerTokenService.clearToken()` instead of manual clearing
 
-5. **`src/v8/components/WorkerTokenModalV8.tsx`**
+5. **`src/v8/components/WorkerTokenModal.tsx`**
    - Currently: Uses `localStorage.getItem('worker_credentials_v8')` and `localStorage.setItem('worker_credentials_v8')`
    - Action:
-     - Replace with `workerTokenServiceV8.loadCredentials()` and `workerTokenServiceV8.saveCredentials()`
-     - After token generation, use `workerTokenServiceV8.saveToken()`
+     - Replace with `workerTokenService.loadCredentials()` and `workerTokenService.saveCredentials()`
+     - After token generation, use `workerTokenService.saveToken()`
 
 #### V8U Components (High Priority)
 6. **`src/v8u/components/AppDiscoveryModalV8U.tsx`**
-   - Currently: Uses `AppDiscoveryServiceV8.getStoredWorkerToken()`
-   - Action: Replace with `workerTokenServiceV8.getToken()`
+   - Currently: Uses `AppDiscoveryService.getStoredWorkerToken()`
+   - Action: Replace with `workerTokenService.getToken()`
 
 7. **`src/v8u/components/CompactAppPickerV8U.tsx`**
-   - Currently: Uses `AppDiscoveryServiceV8.getStoredWorkerToken()`
-   - Action: Replace with `workerTokenServiceV8.getToken()`
+   - Currently: Uses `AppDiscoveryService.getStoredWorkerToken()`
+   - Action: Replace with `workerTokenService.getToken()`
 
 8. **`src/v8u/components/CredentialsFormV8U.tsx`**
-   - Currently: May use `AppDiscoveryServiceV8` for config checker
-   - Action: Ensure config checker calls use `workerTokenServiceV8.getToken()`
+   - Currently: May use `AppDiscoveryService` for config checker
+   - Action: Ensure config checker calls use `workerTokenService.getToken()`
 
 9. **`src/v8u/components/UnifiedFlowSteps.tsx`**
    - Currently: May use worker token for config checker
-   - Action: Ensure all worker token access uses `workerTokenServiceV8.getToken()`
+   - Action: Ensure all worker token access uses `workerTokenService.getToken()`
 
 10. **`src/v8u/flows/UnifiedOAuthFlowV8U.tsx`**
     - Currently: May use worker token indirectly
-    - Action: Review and ensure all worker token access uses `workerTokenServiceV8.getToken()`
+    - Action: Review and ensure all worker token access uses `workerTokenService.getToken()`
 
 #### V8M (Medium Priority - Verify Usage)
 11. **`src/v8m/pages/V8MTokenExchange.tsx`**
@@ -74,43 +74,43 @@ This plan outlines the migration of all worker token usage across V8, V8U, and V
     - Action: Search for worker token usage and migrate if found
 
 #### V8 Flows (Medium Priority)
-12. **`src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx`**
+12. **`src/v8/flows/OAuthAuthorizationCodeFlow.tsx`**
     - Action: Review for worker token usage (likely via config checker)
 
-13. **`src/v8/flows/ImplicitFlowV8.tsx`**
+13. **`src/v8/flows/ImplicitFlow.tsx`**
     - Action: Review for worker token usage (likely via config checker)
 
-14. **`src/v8/flows/PingOnePARFlowV8/PingOnePARFlowV8.tsx`**
+14. **`src/v8/flows/PingOnePARFlow/PingOnePARFlow.tsx`**
     - Action: Review for worker token usage (likely via config checker)
 
 #### Test Files (Low Priority)
-15. **`src/v8/services/__tests__/appDiscoveryServiceV8.test.ts`**
-    - Action: Update tests to mock `workerTokenServiceV8` instead of localStorage
+15. **`src/v8/services/__tests__/appDiscoveryService.test.ts`**
+    - Action: Update tests to mock `workerTokenService` instead of localStorage
 
-16. **`src/v8/services/__tests__/flowResetServiceV8.test.ts`**
-    - Action: Update tests to use `workerTokenServiceV8` instead of direct localStorage
+16. **`src/v8/services/__tests__/flowResetService.test.ts`**
+    - Action: Update tests to use `workerTokenService` instead of direct localStorage
 
 ## Migration Strategy
 
 ### Phase 1: Core Services (Week 1)
 **Priority: CRITICAL** - These are the foundation that other components depend on.
 
-1. **Migrate `appDiscoveryServiceV8.ts`**
-   - Replace all worker token storage/retrieval with `workerTokenServiceV8`
+1. **Migrate `appDiscoveryService.ts`**
+   - Replace all worker token storage/retrieval with `workerTokenService`
    - Keep the service interface the same (backwards compatible)
    - Update internal implementation only
    - **Estimated Time**: 2-3 hours
 
-2. **Migrate `workerTokenStatusServiceV8.ts`**
-   - Update to read from `workerTokenServiceV8`
+2. **Migrate `workerTokenStatusService.ts`**
+   - Update to read from `workerTokenService`
    - **Estimated Time**: 1 hour
 
 ### Phase 2: Components (Week 1-2)
 **Priority: HIGH** - These directly affect user experience.
 
 3. **Migrate V8 Components**
-   - `AppPickerV8.tsx`
-   - `WorkerTokenModalV8.tsx`
+   - `AppPicker.tsx`
+   - `WorkerTokenModal.tsx`
    - **Estimated Time**: 2-3 hours
 
 4. **Migrate V8U Components**
@@ -125,9 +125,9 @@ This plan outlines the migration of all worker token usage across V8, V8U, and V
 **Priority: MEDIUM** - These use worker tokens indirectly.
 
 5. **Review and Update V8 Flows**
-   - `OAuthAuthorizationCodeFlowV8.tsx`
-   - `ImplicitFlowV8.tsx`
-   - `PingOnePARFlowV8.tsx`
+   - `OAuthAuthorizationCodeFlow.tsx`
+   - `ImplicitFlow.tsx`
+   - `PingOnePARFlow.tsx`
    - **Estimated Time**: 2-3 hours
 
 6. **Review V8M**
@@ -138,25 +138,25 @@ This plan outlines the migration of all worker token usage across V8, V8U, and V
 **Priority: LOW** - Ensure everything works correctly.
 
 7. **Update Tests**
-   - Update all test files to use `workerTokenServiceV8` mocks
+   - Update all test files to use `workerTokenService` mocks
    - **Estimated Time**: 2-3 hours
 
 8. **Remove Legacy Code**
    - Remove old localStorage keys: `v8:worker-token`, `worker_credentials_v8`, `worker_token_expires_at`
-   - Remove deprecated methods from `appDiscoveryServiceV8` if any
+   - Remove deprecated methods from `appDiscoveryService` if any
    - **Estimated Time**: 1 hour
 
 ## Detailed Migration Steps
 
-### Step 1: Update `appDiscoveryServiceV8.ts`
+### Step 1: Update `appDiscoveryService.ts`
 
 ```typescript
 // BEFORE
 static async getStoredWorkerToken(): Promise<string | null> {
-  const result = await DualStorageServiceV8.load<WorkerTokenInfo>({
-    directory: AppDiscoveryServiceV8.WORKER_TOKEN_DIRECTORY,
-    filename: AppDiscoveryServiceV8.WORKER_TOKEN_FILENAME,
-    browserStorageKey: AppDiscoveryServiceV8.WORKER_TOKEN_KEY,
+  const result = await DualStorageService.load<WorkerTokenInfo>({
+    directory: AppDiscoveryService.WORKER_TOKEN_DIRECTORY,
+    filename: AppDiscoveryService.WORKER_TOKEN_FILENAME,
+    browserStorageKey: AppDiscoveryService.WORKER_TOKEN_KEY,
   });
   // ... expiration checking
   return tokenInfo.token;
@@ -164,19 +164,19 @@ static async getStoredWorkerToken(): Promise<string | null> {
 
 // AFTER
 static async getStoredWorkerToken(): Promise<string | null> {
-  return await workerTokenServiceV8.getToken();
+  return await workerTokenService.getToken();
 }
 ```
 
 **Changes:**
 - Remove `WORKER_TOKEN_KEY`, `WORKER_TOKEN_DIRECTORY`, `WORKER_TOKEN_FILENAME` constants
-- Remove `DualStorageServiceV8` dependency
-- Simplify `getStoredWorkerToken()` to call `workerTokenServiceV8.getToken()`
-- Simplify `getStoredWorkerTokenSync()` to use `workerTokenServiceV8.loadCredentialsSync()` + check token
-- Update `storeWorkerToken()` to use `workerTokenServiceV8.saveToken()`
-- Update `clearWorkerToken()` to use `workerTokenServiceV8.clearToken()`
+- Remove `DualStorageService` dependency
+- Simplify `getStoredWorkerToken()` to call `workerTokenService.getToken()`
+- Simplify `getStoredWorkerTokenSync()` to use `workerTokenService.loadCredentialsSync()` + check token
+- Update `storeWorkerToken()` to use `workerTokenService.saveToken()`
+- Update `clearWorkerToken()` to use `workerTokenService.clearToken()`
 
-### Step 2: Update `workerTokenStatusServiceV8.ts`
+### Step 2: Update `workerTokenStatusService.ts`
 
 ```typescript
 // BEFORE
@@ -188,9 +188,9 @@ static checkWorkerTokenStatus(): WorkerTokenStatus {
 
 // AFTER
 static checkWorkerTokenStatus(): WorkerTokenStatus {
-  const credentials = workerTokenServiceV8.loadCredentialsSync();
+  const credentials = workerTokenService.loadCredentialsSync();
   const token = credentials ? /* get token from service */ : null;
-  // Use workerTokenServiceV8.getToken() for async version
+  // Use workerTokenService.getToken() for async version
   // ... validation logic
 }
 ```
@@ -200,13 +200,13 @@ static checkWorkerTokenStatus(): WorkerTokenStatus {
 **Pattern for all components:**
 ```typescript
 // BEFORE
-const workerToken = await AppDiscoveryServiceV8.getStoredWorkerToken();
+const workerToken = await AppDiscoveryService.getStoredWorkerToken();
 // or
 const workerToken = localStorage.getItem('worker_token');
 
 // AFTER
-import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
-const workerToken = await workerTokenServiceV8.getToken();
+import { workerTokenService } from '../v8/services/workerTokenService';
+const workerToken = await workerTokenService.getToken();
 ```
 
 **For clearing tokens:**
@@ -216,7 +216,7 @@ localStorage.removeItem('worker_token');
 localStorage.removeItem('worker_token_expires_at');
 
 // AFTER
-await workerTokenServiceV8.clearToken(); // or clearCredentials() if clearing everything
+await workerTokenService.clearToken(); // or clearCredentials() if clearing everything
 ```
 
 ### Step 4: Update Config Checker Usage
@@ -224,19 +224,19 @@ await workerTokenServiceV8.clearToken(); // or clearCredentials() if clearing ev
 **Pattern:**
 ```typescript
 // BEFORE
-const config = await ConfigCheckerServiceV8.fetchAppConfig(
+const config = await ConfigCheckerService.fetchAppConfig(
   environmentId,
   clientId,
   workerToken // passed from component state
 );
 
 // AFTER
-const workerToken = await workerTokenServiceV8.getToken();
+const workerToken = await workerTokenService.getToken();
 if (!workerToken) {
-  toastV8.error('Worker token required');
+  toast.error('Worker token required');
   return;
 }
-const config = await ConfigCheckerServiceV8.fetchAppConfig(
+const config = await ConfigCheckerService.fetchAppConfig(
   environmentId,
   clientId,
   workerToken
@@ -268,7 +268,7 @@ If issues arise:
 
 ## Success Criteria
 
-✅ All V8, V8U, and V8M code uses `workerTokenServiceV8`  
+✅ All V8, V8U, and V8M code uses `workerTokenService`  
 ✅ No direct localStorage access for worker tokens  
 ✅ No duplicate worker token storage mechanisms  
 ✅ All components show consistent worker token status  
@@ -286,7 +286,7 @@ If issues arise:
 
 ## Notes
 
-- The `workerTokenServiceV8` already handles:
+- The `workerTokenService` already handles:
   - Memory caching
   - Browser localStorage
   - IndexedDB backup

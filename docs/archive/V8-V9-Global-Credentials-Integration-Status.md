@@ -20,12 +20,12 @@ This document answers the question: **"If I run V8 flow, will Unified and MFA se
 
 ### **V8 Flows Updated**
 
-**1. OAuthAuthorizationCodeFlowV8**
+**1. OAuthAuthorizationCodeFlow**
 - ✅ **Added**: `useUnifiedSharedCredentials` hook
 - ✅ **Enhanced**: Credential saving to unified shared storage
 - ✅ **Preserved**: All existing flow-specific functionality
 
-**2. ImplicitFlowV8**
+**2. ImplicitFlow**
 - ✅ **Added**: `useUnifiedSharedCredentials` hook
 - ✅ **Enhanced**: Credential saving to unified shared storage
 - ✅ **Preserved**: All existing flow-specific functionality
@@ -37,11 +37,11 @@ This document answers the question: **"If I run V8 flow, will Unified and MFA se
 User enters credentials in V8 flow
         ↓
 1. Save to flow-specific storage (existing behavior)
-   CredentialsServiceV8.saveCredentials('oauth-authz-v8', credentials)
+   CredentialsService.saveCredentials('oauth-authz-v8', credentials)
         ↓
 2. Save to unified shared storage (NEW integration)
-   - saveEnvironmentId(credentials.environmentId, 'OAuthAuthorizationCodeFlowV8')
-   - saveOAuthCredentials(oauthCreds, 'OAuthAuthorizationCodeFlowV8')
+   - saveEnvironmentId(credentials.environmentId, 'OAuthAuthorizationCodeFlow')
+   - saveOAuthCredentials(oauthCreds, 'OAuthAuthorizationCodeFlow')
         ↓
 3. Event dispatched: 'unifiedSharedCredentialsUpdated'
         ↓
@@ -160,13 +160,13 @@ await saveOAuthCredentials({
 ### **Before Integration**
 ```
 ┌─ V8 Flows (Isolated)
-│  ├─ OAuthAuthorizationCodeFlowV8 (flow-specific storage only)
-│  ├─ ImplicitFlowV8 (flow-specific storage only)
+│  ├─ OAuthAuthorizationCodeFlow (flow-specific storage only)
+│  ├─ ImplicitFlow (flow-specific storage only)
 │  └─ No cross-flow sharing
 ├─ Unified Flows (Isolated)
 │  └─ UnifiedOAuthFlowV8U (flow-specific + shared storage)
 └─ MFA Flows (Isolated)
-   └─ MFAFlowBaseV8 (flow-specific + shared storage)
+   └─ MFAFlowBase (flow-specific + shared storage)
 ```
 
 ### **After Integration**
@@ -177,18 +177,18 @@ await saveOAuthCredentials({
 │  ├─ Unified Worker Token Service (worker tokens)
 │  └─ Event-driven synchronization
 ├─ V8 Flows (Enhanced)
-│  ├─ OAuthAuthorizationCodeFlowV8 (flow-specific + shared storage)
-│  ├─ ImplicitFlowV8 (flow-specific + shared storage)
+│  ├─ OAuthAuthorizationCodeFlow (flow-specific + shared storage)
+│  ├─ ImplicitFlow (flow-specific + shared storage)
 │  └─ Syncs with global credentials
 ├─ Unified Flows (Enhanced)
 │  └─ UnifiedOAuthFlowV8U (flow-specific + shared storage)
 └─ MFA Flows (Enhanced)
-   └─ MFAFlowBaseV8 (flow-specific + shared storage)
+   └─ MFAFlowBase (flow-specific + shared storage)
 ```
 
 ## 📋 Implementation Details
 
-### **V8 OAuthAuthorizationCodeFlowV8 Integration**
+### **V8 OAuthAuthorizationCodeFlow Integration**
 ```typescript
 // Added unified shared credentials hook
 const {
@@ -199,13 +199,13 @@ const {
 // Enhanced credential saving
 useEffect(() => {
   // Save flow-specific credentials (existing behavior)
-  CredentialsServiceV8.saveCredentials('oauth-authz-v8', credentials);
+  CredentialsService.saveCredentials('oauth-authz-v8', credentials);
   
   // Save to unified shared credentials for cross-flow sync
   if (credentials.environmentId || credentials.clientId) {
     // Save Environment ID separately
     if (credentials.environmentId) {
-      saveEnvironmentId(credentials.environmentId, 'OAuthAuthorizationCodeFlowV8');
+      saveEnvironmentId(credentials.environmentId, 'OAuthAuthorizationCodeFlow');
     }
     
     // Save OAuth credentials
@@ -221,12 +221,12 @@ useEffect(() => {
     if (credentials.issuerUrl) oauthCreds.issuerUrl = credentials.issuerUrl;
     if (credentials.clientAuthMethod) oauthCreds.clientAuthMethod = credentials.clientAuthMethod;
     
-    saveOAuthCredentials(oauthCreds, 'OAuthAuthorizationCodeFlowV8');
+    saveOAuthCredentials(oauthCreds, 'OAuthAuthorizationCodeFlow');
   }
 }, [credentials, saveEnvironmentId, saveOAuthCredentials]);
 ```
 
-### **V8 ImplicitFlowV8 Integration**
+### **V8 ImplicitFlow Integration**
 ```typescript
 // Similar integration but without client secret (implicit flow)
 const oauthCreds = {
@@ -241,7 +241,7 @@ if (credentials.clientId) oauthCreds.clientId = credentials.clientId;
 if (credentials.issuerUrl) oauthCreds.issuerUrl = credentials.issuerUrl;
 if (credentials.clientAuthMethod) oauthCreds.clientAuthMethod = credentials.clientAuthMethod;
 
-saveOAuthCredentials(oauthCreds, 'ImplicitFlowV8');
+saveOAuthCredentials(oauthCreds, 'ImplicitFlow');
 ```
 
 ## ✅ Verification Checklist

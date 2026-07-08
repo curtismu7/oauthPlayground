@@ -22,9 +22,9 @@ echo "📦 Backup created: $BACKUP_DIR"
 # Priority files for migration
 echo ""
 echo "🎯 Priority Files for Migration:"
-echo "1. src/mfa/services/mfaServiceV8.ts ($(grep -c "console\." src/mfa/services/mfaServiceV8.ts | cut -d: -f2) statements)"
-echo "2. src/mfa/services/mfaAuthenticationServiceV8.ts ($(grep -c "console\." src/mfa/services/mfaAuthenticationServiceV8.ts | cut -d: -f2) statements)"
-echo "3. src/mfa/services/mfaConfigurationServiceV8.ts ($(grep -c "console\." src/mfa/services/mfaConfigurationServiceV8.ts | cut -d: -f2) statements)"
+echo "1. src/mfa/services/mfaService.ts ($(grep -c "console\." src/mfa/services/mfaService.ts | cut -d: -f2) statements)"
+echo "2. src/mfa/services/mfaAuthenticationService.ts ($(grep -c "console\." src/mfa/services/mfaAuthenticationService.ts | cut -d: -f2) statements)"
+echo "3. src/mfa/services/mfaConfigurationService.ts ($(grep -c "console\." src/mfa/services/mfaConfigurationService.ts | cut -d: -f2) statements)"
 
 # Migration pattern
 echo ""

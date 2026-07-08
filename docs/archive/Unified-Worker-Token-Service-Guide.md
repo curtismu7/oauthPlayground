@@ -2,7 +2,7 @@
 
 ## 🎯 Overview
 
-The `UnifiedWorkerTokenServiceV8` combines all worker token functionality into a single, reusable component:
+The `UnifiedWorkerTokenService` combines all worker token functionality into a single, reusable component:
 - ✅ **Get Worker Token button**
 - ✅ **Real-time token status display**  
 - ✅ **Settings management** (Silent API retrieval, Show token at end)
@@ -14,8 +14,8 @@ The `UnifiedWorkerTokenServiceV8` combines all worker token functionality into a
 ### **Before (Duplicated Components)**
 ```typescript
 // ❌ Multiple separate components
-<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
-<WorkerTokenSettingsV8 settings={settings} onSettingsChange={handleSettingsChange} />
+<WorkerTokenStatusDisplay mode="compact" showRefresh={true} />
+<WorkerTokenSettings settings={settings} onSettingsChange={handleSettingsChange} />
 <ActionButton onClick={handleGetWorkerToken}>Get Worker Token</ActionButton>
 
 // ❌ Duplicated state management
@@ -37,7 +37,7 @@ useEffect(() => {
 ### **After (Unified Service)**
 ```typescript
 // ✅ Single unified component
-<UnifiedWorkerTokenServiceV8 
+<UnifiedWorkerTokenService 
   mode="detailed"
   showRefresh={true}
   onTokenUpdate={handleTokenUpdate}
@@ -71,7 +71,7 @@ export interface UnifiedWorkerTokenServiceV8Props {
 - Real-time updates every 30 seconds
 
 ```typescript
-<UnifiedWorkerTokenServiceV8 mode="detailed" />
+<UnifiedWorkerTokenService mode="detailed" />
 ```
 
 #### **Compact Mode**
@@ -81,7 +81,7 @@ export interface UnifiedWorkerTokenServiceV8Props {
 - Clean, minimal layout
 
 ```typescript
-<UnifiedWorkerTokenServiceV8 mode="compact" />
+<UnifiedWorkerTokenService mode="compact" />
 ```
 
 #### **Minimal Mode**
@@ -90,18 +90,18 @@ export interface UnifiedWorkerTokenServiceV8Props {
 - Perfect for headers or tight spaces
 
 ```typescript
-<UnifiedWorkerTokenServiceV8 mode="minimal" />
+<UnifiedWorkerTokenService mode="minimal" />
 ```
 
 ## 🚀 Usage Examples
 
 ### **Basic Usage**
 ```typescript
-import { UnifiedWorkerTokenServiceV8 } from '@/v8/services/unifiedWorkerTokenServiceV8';
+import { UnifiedWorkerTokenService } from '@/v8/services/unifiedWorkerTokenService';
 
 function MyComponent() {
   return (
-    <UnifiedWorkerTokenServiceV8 
+    <UnifiedWorkerTokenService 
       mode="detailed"
       showRefresh={true}
     />
@@ -123,7 +123,7 @@ function MyComponent() {
   };
 
   return (
-    <UnifiedWorkerTokenServiceV8 
+    <UnifiedWorkerTokenService 
       mode="compact"
       onTokenUpdate={handleTokenUpdate}
       onSettingsChange={handleSettingsChange}
@@ -136,7 +136,7 @@ function MyComponent() {
 
 #### **Dashboard Widget**
 ```typescript
-<UnifiedWorkerTokenServiceV8 
+<UnifiedWorkerTokenService 
   mode="minimal"
   showRefresh={false}
   className="dashboard-widget"
@@ -145,7 +145,7 @@ function MyComponent() {
 
 #### **Settings Page**
 ```typescript
-<UnifiedWorkerTokenServiceV8 
+<UnifiedWorkerTokenService 
   mode="detailed"
   showRefresh={true}
   onSettingsChange={(settings) => {
@@ -157,7 +157,7 @@ function MyComponent() {
 
 #### **Modal/Popup**
 ```typescript
-<UnifiedWorkerTokenServiceV8 
+<UnifiedWorkerTokenService 
   mode="compact"
   showRefresh={false}
 />
@@ -170,15 +170,15 @@ function MyComponent() {
 **Before:**
 ```typescript
 // TokenStatusPageV8U.tsx
-<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
-<WorkerTokenSettingsV8 settings={workerTokenSettings} onSettingsChange={handleWorkerTokenSettingsChange} />
+<WorkerTokenStatusDisplay mode="compact" showRefresh={true} />
+<WorkerTokenSettings settings={workerTokenSettings} onSettingsChange={handleWorkerTokenSettingsChange} />
 <ActionButton onClick={handleShowWorkerTokenModal}>Get Worker Token</ActionButton>
 ```
 
 **After:**
 ```typescript
 // TokenStatusPageV8U.tsx
-<UnifiedWorkerTokenServiceV8 
+<UnifiedWorkerTokenService 
   mode="detailed"
   showRefresh={true}
   onTokenUpdate={setTokenStatus}
@@ -222,14 +222,14 @@ const refreshStatus = async () => { /* ... */ };
 
 **Before:**
 ```typescript
-import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
-import { WorkerTokenSettingsV8 } from '@/v8/components/WorkerTokenSettingsV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenStatusDisplay } from '@/v8/components/WorkerTokenStatusDisplay';
+import { WorkerTokenSettings } from '@/v8/components/WorkerTokenSettings';
+import { WorkerTokenStatusService } from '@/v8/services/workerTokenStatusService';
 ```
 
 **After:**
 ```typescript
-import { UnifiedWorkerTokenServiceV8 } from '@/v8/services/unifiedWorkerTokenServiceV8';
+import { UnifiedWorkerTokenService } from '@/v8/services/unifiedWorkerTokenService';
 ```
 
 ## 📊 Impact Analysis
@@ -279,7 +279,7 @@ All instances automatically sync when settings change:
 
 ```typescript
 // Any component can listen for changes
-<UnifiedWorkerTokenServiceV8 
+<UnifiedWorkerTokenService 
   onSettingsChange={(settings) => {
     // Sync with other parts of the app
     updateGlobalSettings(settings);
@@ -301,11 +301,11 @@ The button automatically adapts based on token status:
 ### **Unit Testing**
 ```typescript
 import { render, screen, fireEvent } from '@testing-library/react';
-import { UnifiedWorkerTokenServiceV8 } from '@/v8/services/unifiedWorkerTokenServiceV8';
+import { UnifiedWorkerTokenService } from '@/v8/services/unifiedWorkerTokenService';
 
-describe('UnifiedWorkerTokenServiceV8', () => {
+describe('UnifiedWorkerTokenService', () => {
   it('should display token status', async () => {
-    render(<UnifiedWorkerTokenServiceV8 mode="compact" />);
+    render(<UnifiedWorkerTokenService mode="compact" />);
     
     expect(screen.getByText('Worker Token')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /get worker token/i })).toBeInTheDocument();
@@ -313,7 +313,7 @@ describe('UnifiedWorkerTokenServiceV8', () => {
 
   it('should handle settings changes', async () => {
     const onSettingsChange = jest.fn();
-    render(<UnifiedWorkerTokenServiceV8 mode="detailed" onSettingsChange={onSettingsChange} />);
+    render(<UnifiedWorkerTokenService mode="detailed" onSettingsChange={onSettingsChange} />);
     
     const silentCheckbox = screen.getByLabelText(/silent api retrieval/i);
     fireEvent.click(silentCheckbox);
@@ -330,7 +330,7 @@ describe('UnifiedWorkerTokenServiceV8', () => {
 ```typescript
 // Test real token retrieval
 it('should get worker token when button clicked', async () => {
-  render(<UnifiedWorkerTokenServiceV8 mode="compact" />);
+  render(<UnifiedWorkerTokenService mode="compact" />);
   
   const button = screen.getByRole('button', { name: /get worker token/i });
   fireEvent.click(button);
@@ -344,7 +344,7 @@ it('should get worker token when button clicked', async () => {
 
 ## 🎉 Summary
 
-The `UnifiedWorkerTokenServiceV8` provides:
+The `UnifiedWorkerTokenService` provides:
 
 - ✅ **Complete functionality** in a single component
 - ✅ **Zero duplication** across pages

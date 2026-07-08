@@ -8,7 +8,7 @@ A centralized credentials management system for all V8 flows, eliminating code d
 
 ### Components
 
-**CredentialsFormV8** (`src/v8/components/CredentialsFormV8.tsx`)
+**CredentialsForm** (`src/v8/components/CredentialsForm.tsx`)
 - Reusable form component for all flows
 - Configurable fields (client secret, redirect URI, scopes)
 - Consistent styling and validation feedback
@@ -16,7 +16,7 @@ A centralized credentials management system for all V8 flows, eliminating code d
 
 ### Services
 
-**CredentialsServiceV8** (`src/v8/services/credentialsServiceV8.ts`)
+**CredentialsService** (`src/v8/services/credentialsService.ts`)
 - Centralized credential management
 - Storage/retrieval from localStorage
 - Validation with flow-specific rules
@@ -27,12 +27,12 @@ A centralized credentials management system for all V8 flows, eliminating code d
 ### Basic Setup
 
 ```typescript
-import CredentialsFormV8 from '@/v8/components/CredentialsFormV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import CredentialsForm from '@/v8/components/CredentialsForm';
+import { CredentialsService } from '@/v8/services/credentialsService';
 
 // Load credentials
 const [credentials, setCredentials] = useState(() => {
-  return CredentialsServiceV8.loadCredentials('my-flow-v8', {
+  return CredentialsService.loadCredentials('my-flow-v8', {
     flowKey: 'my-flow-v8',
     flowType: 'oauth',
     includeClientSecret: true,
@@ -45,11 +45,11 @@ const [credentials, setCredentials] = useState(() => {
 
 // Save credentials
 useEffect(() => {
-  CredentialsServiceV8.saveCredentials('my-flow-v8', credentials);
+  CredentialsService.saveCredentials('my-flow-v8', credentials);
 }, [credentials]);
 
 // Render form
-<CredentialsFormV8
+<CredentialsForm
   credentials={credentials}
   onChange={setCredentials}
   flowType="oauth"
@@ -121,41 +121,41 @@ useEffect(() => {
 
 ## Service API
 
-### CredentialsServiceV8
+### CredentialsService
 
 #### `loadCredentials(flowKey, config)`
 Load credentials from storage or return defaults.
 
 ```typescript
-const creds = CredentialsServiceV8.loadCredentials('oauth-authz-v8', config);
+const creds = CredentialsService.loadCredentials('oauth-authz-v8', config);
 ```
 
 #### `saveCredentials(flowKey, credentials)`
 Save credentials to localStorage.
 
 ```typescript
-CredentialsServiceV8.saveCredentials('oauth-authz-v8', credentials);
+CredentialsService.saveCredentials('oauth-authz-v8', credentials);
 ```
 
 #### `getDefaultCredentials(flowKey, config)`
 Get default credentials without loading from storage.
 
 ```typescript
-const defaults = CredentialsServiceV8.getDefaultCredentials('oauth-authz-v8', config);
+const defaults = CredentialsService.getDefaultCredentials('oauth-authz-v8', config);
 ```
 
 #### `clearCredentials(flowKey)`
 Clear credentials from storage.
 
 ```typescript
-CredentialsServiceV8.clearCredentials('oauth-authz-v8');
+CredentialsService.clearCredentials('oauth-authz-v8');
 ```
 
 #### `validateCredentials(credentials, config)`
 Validate credentials with flow-specific rules.
 
 ```typescript
-const result = CredentialsServiceV8.validateCredentials(credentials, config);
+const result = CredentialsService.validateCredentials(credentials, config);
 if (result.errors.length > 0) {
   console.error('Validation failed:', result.errors);
 }
@@ -165,21 +165,21 @@ if (result.errors.length > 0) {
 Export credentials as JSON string.
 
 ```typescript
-const json = CredentialsServiceV8.exportCredentials(credentials);
+const json = CredentialsService.exportCredentials(credentials);
 ```
 
 #### `importCredentials(json)`
 Import credentials from JSON string.
 
 ```typescript
-const creds = CredentialsServiceV8.importCredentials(jsonString);
+const creds = CredentialsService.importCredentials(jsonString);
 ```
 
 #### `hasStoredCredentials(flowKey)`
 Check if credentials exist in storage.
 
 ```typescript
-if (CredentialsServiceV8.hasStoredCredentials('oauth-authz-v8')) {
+if (CredentialsService.hasStoredCredentials('oauth-authz-v8')) {
   // Load existing credentials
 }
 ```
@@ -247,18 +247,18 @@ All operations use module tag `[💾 CREDENTIALS-SERVICE-V8]`:
 ### For Existing V8 Flows
 
 1. Import the new component and service
-2. Replace inline credentials form with `CredentialsFormV8`
-3. Replace `StorageServiceV8.getCredentials()` with `CredentialsServiceV8.loadCredentials()`
-4. Replace `StorageServiceV8.saveCredentials()` with `CredentialsServiceV8.saveCredentials()`
-5. Update reset logic to use `CredentialsServiceV8.getDefaultCredentials()`
+2. Replace inline credentials form with `CredentialsForm`
+3. Replace `StorageService.getCredentials()` with `CredentialsService.loadCredentials()`
+4. Replace `StorageService.saveCredentials()` with `CredentialsService.saveCredentials()`
+5. Update reset logic to use `CredentialsService.getDefaultCredentials()`
 
 ### For New V8 Flows
 
-1. Create flow component (e.g., `ClientCredentialsFlowV8.tsx`)
-2. Import `CredentialsFormV8` and `CredentialsServiceV8`
+1. Create flow component (e.g., `ClientCredentialsFlow.tsx`)
+2. Import `CredentialsForm` and `CredentialsService`
 3. Define flow-specific configuration
 4. Use `loadCredentials()` in state initialization
-5. Use `CredentialsFormV8` in render step 0
+5. Use `CredentialsForm` in render step 0
 6. Use `saveCredentials()` in useEffect
 
 ## Examples
@@ -267,7 +267,7 @@ All operations use module tag `[💾 CREDENTIALS-SERVICE-V8]`:
 
 ```typescript
 const [credentials, setCredentials] = useState(() => {
-  return CredentialsServiceV8.loadCredentials('oauth-authz-v8', {
+  return CredentialsService.loadCredentials('oauth-authz-v8', {
     flowKey: 'oauth-authz-v8',
     flowType: 'oauth',
     includeClientSecret: true,
@@ -279,11 +279,11 @@ const [credentials, setCredentials] = useState(() => {
 });
 
 useEffect(() => {
-  CredentialsServiceV8.saveCredentials('oauth-authz-v8', credentials);
+  CredentialsService.saveCredentials('oauth-authz-v8', credentials);
 }, [credentials]);
 
 const renderStep0 = () => (
-  <CredentialsFormV8
+  <CredentialsForm
     credentials={credentials}
     onChange={setCredentials}
     flowType="oauth"
@@ -300,7 +300,7 @@ const renderStep0 = () => (
 
 ```typescript
 const [credentials, setCredentials] = useState(() => {
-  return CredentialsServiceV8.loadCredentials('implicit-flow-v8', {
+  return CredentialsService.loadCredentials('implicit-flow-v8', {
     flowKey: 'implicit-flow-v8',
     flowType: 'oidc',
     includeClientSecret: false,
@@ -312,11 +312,11 @@ const [credentials, setCredentials] = useState(() => {
 });
 
 useEffect(() => {
-  CredentialsServiceV8.saveCredentials('implicit-flow-v8', credentials);
+  CredentialsService.saveCredentials('implicit-flow-v8', credentials);
 }, [credentials]);
 
 const renderStep0 = () => (
-  <CredentialsFormV8
+  <CredentialsForm
     credentials={credentials}
     onChange={setCredentials}
     flowType="oidc"
@@ -331,10 +331,10 @@ const renderStep0 = () => (
 
 ## Files
 
-- `src/v8/components/CredentialsFormV8.tsx` - Reusable form component
-- `src/v8/services/credentialsServiceV8.ts` - Credentials management service
-- `src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx` - Updated to use shared system
-- `src/v8/flows/ImplicitFlowV8.tsx` - Updated to use shared system
+- `src/v8/components/CredentialsForm.tsx` - Reusable form component
+- `src/v8/services/credentialsService.ts` - Credentials management service
+- `src/v8/flows/OAuthAuthorizationCodeFlow.tsx` - Updated to use shared system
+- `src/v8/flows/ImplicitFlow.tsx` - Updated to use shared system
 
 ## Next Steps
 

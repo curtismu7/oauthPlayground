@@ -82,7 +82,7 @@ else
 fi
 
 # Test 10: Check credentials saving to storage
-if grep -q "CredentialsServiceV8.saveCredentials(FLOW_KEY" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx && \
+if grep -q "CredentialsService.saveCredentials(FLOW_KEY" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx && \
    grep -q "environmentId," src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx && \
    grep -q "username," src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
     echo "✅ Credentials saved to storage with environment ID and username"
@@ -100,7 +100,7 @@ else
 fi
 
 # Test 12: Check that old useEffect was removed
-if ! grep -q "Save environment ID and username to storage for MFAFlowBaseV8 to pick up" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
+if ! grep -q "Save environment ID and username to storage for MFAFlowBase to pick up" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
     echo "✅ Old useEffect properly removed"
 else
     echo "❌ Old useEffect still present - may cause race condition!"
@@ -122,7 +122,7 @@ echo "🎉 Environment ID Passing Fix Test Complete!"
 echo "✅ All required interface updates present"
 echo "✅ State management implemented correctly"
 echo "✅ Data flow from device selection to MFA flow established"
-echo "✅ Credentials saved to storage for MFAFlowBaseV8"
+echo "✅ Credentials saved to storage for MFAFlowBase"
 echo "✅ Build successful"
 echo ""
 echo "🔍 Next steps to test the fix:"

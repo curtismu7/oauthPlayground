@@ -76,7 +76,7 @@ Created a new compact, educational flow that teaches developers about the PingOn
 ## File Structure
 
 ```
-src/v8/flows/ResourcesAPIFlowV8.tsx
+src/v8/flows/ResourcesAPIFlow.tsx
 ```
 
 **Following V8 Development Rules:**

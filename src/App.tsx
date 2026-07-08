@@ -8,9 +8,9 @@ import { useComponentTracker } from './hooks/useComponentTracker';
 import { theme as baseTheme, GlobalStyle } from './styles/global';
 import { useComponentTracker as useCleanlinessTracker } from './utils/componentTracker';
 import { ExternalScriptErrorBoundary, useExternalErrorHandling } from './utils/errorBoundaryUtils';
-import { BackendDownModalV8 } from './mfa/components/BackendDownModalV8';
-import { ConfirmationModalV8 } from './mfa/components/ConfirmationModalV8';
-import { PromptModalV8 } from './mfa/components/PromptModalV8';
+import { BackendDownModal } from './mfa/components/BackendDownModal';
+import { ConfirmationModal } from './mfa/components/ConfirmationModal';
+import { PromptModal } from './mfa/components/PromptModal';
 import { WorkerTokenCredentialModal } from '@/components/WorkerTokenCredentialModal';
 import { FlowStateProvider } from './mfa/contexts/FlowStateContext';
 import UnifiedFlowProvider from './lab/services/enhancedStateManagement';
@@ -145,7 +145,7 @@ import { credentialManager } from './utils/credentialManager';
 // Import unified token storage service to make it globally available
 import './services/unifiedTokenStorageService';
 // MFA redirect URI migration disabled - MFA hub is no longer used
-// import { migrateAllMFARedirectUris } from './mfa/utils/mfaRedirectUriMigrationV8';
+// import { migrateAllMFARedirectUris } from './mfa/utils/mfaRedirectUriMigration';
 
 // Run migration immediately on module load - DISABLED
 // migrateAllMFARedirectUris();
@@ -281,32 +281,32 @@ const IntegratedMFASample = lazy(() =>
 const SMSSampleApp = lazy(() =>
 	import('./samples/p1mfa/sms/SMSSampleApp').then((m) => ({ default: m.SMSSampleApp }))
 );
-// CIBAFlowV8 — /flows/ciba-v8 redirects to /v8u/unified
-const EmailMFASignOnFlowV8 = lazy(() =>
-	import('./mfa/flows/EmailMFASignOnFlowV8').then((m) => ({ default: m.EmailMFASignOnFlowV8 }))
+// CIBAFlow — /flows/ciba-v8 redirects to /v8u/unified
+const EmailMFASignOnFlow = lazy(() =>
+	import('./mfa/flows/EmailMFASignOnFlow').then((m) => ({ default: m.EmailMFASignOnFlow }))
 );
-// ImplicitFlowV8 archived — /flows/implicit-v8 now redirects to /flows/implicit-v9
-const MFAConfigurationPageV8 = lazy(() =>
-	import('./mfa/flows/MFAConfigurationPageV8').then((m) => ({ default: m.MFAConfigurationPageV8 }))
+// ImplicitFlow archived — /flows/implicit-v8 now redirects to /flows/implicit-v9
+const MFAConfigurationPage = lazy(() =>
+	import('./mfa/flows/MFAConfigurationPage').then((m) => ({ default: m.MFAConfigurationPage }))
 );
-const MFADeviceManagementFlowV8 = lazy(() => import('./mfa/flows/MFADeviceManagementFlowV8'));
-const MFADeviceOrderingFlowV8 = lazy(() =>
-	import('./mfa/flows/MFADeviceOrderingFlowV8').then((m) => ({ default: m.MFADeviceOrderingFlowV8 }))
+const MFADeviceManagementFlow = lazy(() => import('./mfa/flows/MFADeviceManagementFlow'));
+const MFADeviceOrderingFlow = lazy(() =>
+	import('./mfa/flows/MFADeviceOrderingFlow').then((m) => ({ default: m.MFADeviceOrderingFlow }))
 );
-const MFAFlowV8 = lazy(() =>
-	import('./mfa/flows/MFAFlowV8').then((m) => ({ default: m.MFAFlowV8 }))
+const MFARouterFlow = lazy(() =>
+	import('./mfa/flows/MFARouterFlow').then((m) => ({ default: m.MFARouterFlow }))
 );
-const MFAReportingFlowV8 = lazy(() => import('./mfa/flows/MFAReportingFlowV8'));
-// OIDCHybridFlowV8 archived — /flows/hybrid-v8 now redirects to /flows/oidc-hybrid-v9
-const PingOneProtectFlowV8 = lazy(() => import('./mfa/flows/PingOneProtectFlowV8'));
-const FIDO2ConfigurationPageV8 = lazy(() =>
-	import('./mfa/flows/types/FIDO2ConfigurationPageV8').then((m) => ({
-		default: m.FIDO2ConfigurationPageV8,
+const MFAReportingFlow = lazy(() => import('./mfa/flows/MFAReportingFlow'));
+// OIDCHybridFlow archived — /flows/hybrid-v8 now redirects to /flows/oidc-hybrid-v9
+const PingOneProtectFlow = lazy(() => import('./mfa/flows/PingOneProtectFlow'));
+const FIDO2ConfigurationPage = lazy(() =>
+	import('./mfa/flows/types/FIDO2ConfigurationPage').then((m) => ({
+		default: m.FIDO2ConfigurationPage,
 	}))
 );
-const MobileOTPConfigurationPageV8 = lazy(() =>
-	import('./mfa/flows/types/MobileOTPConfigurationPageV8').then((m) => ({
-		default: m.MobileOTPConfigurationPageV8,
+const MobileOTPConfigurationPage = lazy(() =>
+	import('./mfa/flows/types/MobileOTPConfigurationPage').then((m) => ({
+		default: m.MobileOTPConfigurationPage,
 	}))
 );
 const TokenMonitoringPage = lazy(() =>
@@ -314,20 +314,20 @@ const TokenMonitoringPage = lazy(() =>
 );
 
 // Lazy load unified MFA flow for code splitting
-const UnifiedMFARegistrationFlowV8 = React.lazy(() =>
-	import('./mfa/flows/unified/UnifiedMFARegistrationFlowV8').then((module) => ({
-		default: module.UnifiedMFARegistrationFlowV8,
+const UnifiedMFARegistrationFlow = React.lazy(() =>
+	import('./mfa/flows/unified/UnifiedMFARegistrationFlow').then((module) => ({
+		default: module.UnifiedMFARegistrationFlow,
 	}))
 );
 
 // OAuth Authz V2 — new redesigned UI
 const OAuthAuthzV2 = lazy(() => import('./lab/components/OAuthAuthzV2/OAuthAuthzV2'));
 const AuthCodeFlowV2 = lazy(() => import('./lab/components/AuthCodeFlowV2/AuthCodeFlowV2'));
-const FIDO2FlowV8 = React.lazy(() =>
-	import('./mfa/flows/types/FIDO2FlowV8').then((module) => ({ default: module.FIDO2FlowV8 }))
+const FIDO2Flow = React.lazy(() =>
+	import('./mfa/flows/types/FIDO2Flow').then((module) => ({ default: module.FIDO2Flow }))
 );
-const MobileFlowV8 = React.lazy(() =>
-	import('./mfa/flows/types/MobileFlowV8').then((module) => ({ default: module.MobileFlowV8 }))
+const MobileFlow = React.lazy(() =>
+	import('./mfa/flows/types/MobileFlow').then((module) => ({ default: module.MobileFlow }))
 );
 
 import { FloatingStepperProvider } from './contexts/FloatingStepperContext';
@@ -342,31 +342,31 @@ const DavinciTodoApp = lazy(() => import('./sdk-examples/davinci-todo-app/Davinc
 const DebugLogViewerPopoutV9 = lazy(() =>
 	import('./pages/v9/DebugLogViewerPopoutV9').then((m) => ({ default: m.DebugLogViewerPopoutV9 }))
 );
-const DebugLogViewerPopoutV8 = lazy(() =>
-	import('./mfa/pages/DebugLogViewerPopoutV8Test').then((m) => ({
-		default: m.DebugLogViewerPopoutV8Test,
+const DebugLogViewerPopout = lazy(() =>
+	import('./mfa/pages/DebugLogViewerPopoutTest').then((m) => ({
+		default: m.DebugLogViewerPopoutTest,
 	}))
 );
 
 import { logger } from './utils/logger';
 
-const DebugLogViewerV8 = lazy(() => import('./mfa/pages/DebugLogViewerV8'));
-const DeleteAllDevicesUtilityV8 = lazy(() => import('./mfa/pages/DeleteAllDevicesUtilityV8'));
-const DeviceAuthenticationDetailsV8 = lazy(
-	() => import('./mfa/pages/DeviceAuthenticationDetailsV8')
+const DebugLogViewer = lazy(() => import('./mfa/pages/DebugLogViewer'));
+const DeleteAllDevicesUtility = lazy(() => import('./mfa/pages/DeleteAllDevicesUtility'));
+const DeviceAuthenticationDetails = lazy(
+	() => import('./mfa/pages/DeviceAuthenticationDetails')
 );
-const FIDO2RegistrationDocsPageV8 = lazy(() =>
-	import('./mfa/pages/FIDO2RegistrationDocsPageV8').then((m) => ({
-		default: m.FIDO2RegistrationDocsPageV8,
+const FIDO2RegistrationDocsPage = lazy(() =>
+	import('./mfa/pages/FIDO2RegistrationDocsPage').then((m) => ({
+		default: m.FIDO2RegistrationDocsPage,
 	}))
 );
-const MFADeviceCreateDemoV8 = lazy(() => import('./mfa/pages/MFADeviceCreateDemoV8'));
-const MobileRegistrationDocsPageV8 = lazy(() =>
-	import('./mfa/pages/MobileRegistrationDocsPageV8').then((m) => ({
-		default: m.MobileRegistrationDocsPageV8,
+const MFADeviceCreateDemo = lazy(() => import('./mfa/pages/MFADeviceCreateDemo'));
+const MobileRegistrationDocsPage = lazy(() =>
+	import('./mfa/pages/MobileRegistrationDocsPage').then((m) => ({
+		default: m.MobileRegistrationDocsPage,
 	}))
 );
-const UnifiedCredentialsMockupV8 = lazy(() => import('./mfa/pages/UnifiedCredentialsMockupV8'));
+const UnifiedCredentialsMockup = lazy(() => import('./mfa/pages/UnifiedCredentialsMockup'));
 
 // V8MTokenExchange archived — token-exchange-v7 route now redirects to v9
 import CallbackHandlerV8U from './lab/components/CallbackHandlerV8U';
@@ -703,7 +703,7 @@ const AppRoutes: React.FC = () => {
 				// Debug log viewer popout - render without layout
 				<Suspense fallback={<LoadingFallback message="Loading..." />}>
 					<Routes>
-						<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
+						<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopout />} />
 						<Route path="/v9/debug-logs-popout" element={<DebugLogViewerPopoutV9 />} />
 						<Route path="*" element={<Navigate to="/v9/debug-logs-popout" replace />} />
 					</Routes>
@@ -833,12 +833,12 @@ const AppRoutes: React.FC = () => {
 										path="/flows/dpop-authorization-code-v9"
 										element={<Navigate to="/v8u/unified" replace />}
 									/>
-									<Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
+									<Route path="/flows/mfa-v8" element={<MFARouterFlow />} />
 									<Route
 										path="/mfa"
 										element={
 											<React.Suspense fallback={<div>Loading...</div>}>
-												<UnifiedMFARegistrationFlowV8 registrationFlowType="admin" />
+												<UnifiedMFARegistrationFlow registrationFlowType="admin" />
 											</React.Suspense>
 										}
 									/>
@@ -853,22 +853,22 @@ const AppRoutes: React.FC = () => {
 										element={
 											<React.Suspense fallback={<div>Loading...</div>}>
 												{/* Temporarily commented out due to import issue */}
-												{/* <UnifiedMFARegistrationFlowV8 deviceType="TOTP" /> */}
+												{/* <UnifiedMFARegistrationFlow deviceType="TOTP" /> */}
 											</React.Suspense>
 										}
 									/>
-									<Route path="/v8/mfa/register/fido2" element={<FIDO2ConfigurationPageV8 />} />
+									<Route path="/v8/mfa/register/fido2" element={<FIDO2ConfigurationPage />} />
 									<Route
 										path="/v8/mfa/register/fido2/device"
 										element={
 											<React.Suspense fallback={<div>Loading...</div>}>
-												<FIDO2FlowV8 />
+												<FIDO2Flow />
 											</React.Suspense>
 										}
 									/>
 									<Route
 										path="/v8/mfa/register/fido2/docs"
-										element={<FIDO2RegistrationDocsPageV8 />}
+										element={<FIDO2RegistrationDocsPage />}
 									/>
 									{/* Platform and Security Key routes redirect to FIDO2 (they use the same flow) */}
 									<Route
@@ -899,36 +899,36 @@ const AppRoutes: React.FC = () => {
 									{/* Mobile routes - separate app from SMS */}
 									<Route
 										path="/v8/mfa/register/mobile"
-										element={<MobileOTPConfigurationPageV8 />}
+										element={<MobileOTPConfigurationPage />}
 									/>
 									<Route
 										path="/v8/mfa/register/mobile/device"
 										element={
 											<React.Suspense fallback={<div>Loading...</div>}>
-												<MobileFlowV8 />
+												<MobileFlow />
 											</React.Suspense>
 										}
 									/>
 									<Route
 										path="/v8/mfa/register/mobile/docs"
-										element={<MobileRegistrationDocsPageV8 />}
+										element={<MobileRegistrationDocsPage />}
 									/>
 									<Route
 										path="/v8/mfa/configure/fido2"
 										element={<Navigate to="/v8/mfa/register/fido2" replace />}
 									/>
-									<Route path="/v8/mfa-config" element={<MFAConfigurationPageV8 />} />
-									<Route path="/v8/mfa-device-management" element={<MFADeviceManagementFlowV8 />} />
-									<Route path="/v8/mfa-device-ordering" element={<MFADeviceOrderingFlowV8 />} />
-									<Route path="/v8/mfa-reporting" element={<MFAReportingFlowV8 />} />
+									<Route path="/v8/mfa-config" element={<MFAConfigurationPage />} />
+									<Route path="/v8/mfa-device-management" element={<MFADeviceManagementFlow />} />
+									<Route path="/v8/mfa-device-ordering" element={<MFADeviceOrderingFlow />} />
+									<Route path="/v8/mfa-reporting" element={<MFAReportingFlow />} />
 									<Route
 										path="/v8/mfa/device-authentication-details"
-										element={<DeviceAuthenticationDetailsV8 />}
+										element={<DeviceAuthenticationDetails />}
 									/>
-									<Route path="/v8/mfa/create-device" element={<MFADeviceCreateDemoV8 />} />
-									<Route path="/v8/email-mfa-signon" element={<EmailMFASignOnFlowV8 />} />
+									<Route path="/v8/mfa/create-device" element={<MFADeviceCreateDemo />} />
+									<Route path="/v8/email-mfa-signon" element={<EmailMFASignOnFlow />} />
 									<Route path="/v9/resources-api" element={<ResourcesAPIFlowV9 />} />
-									<Route path="/v8/protect" element={<PingOneProtectFlowV8 />} />
+									<Route path="/v8/protect" element={<PingOneProtectFlow />} />
 									<Route
 										path="/flows/oauth-authorization-code-v7-condensed-mock"
 										element={<Navigate to="/v8u/unified" replace />}
@@ -1023,7 +1023,7 @@ const AppRoutes: React.FC = () => {
 									{/* V8 Unified UI Mockup */}
 									<Route
 										path="/v8/unified-credentials-mockup"
-										element={<UnifiedCredentialsMockupV8 />}
+										element={<UnifiedCredentialsMockup />}
 									/>
 									{/* V8U Unified Flow - Single UI for all flows with real PingOne APIs */}
 									<Route
@@ -1169,9 +1169,9 @@ const AppRoutes: React.FC = () => {
 									/>
 									<Route path="/v8u/flow-comparison" element={<Navigate to="/lab/flow-comparison" replace />} />
 									{/* V8 Utilities */}
-									<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtilityV8 />} />
-									<Route path="/v8/debug-logs" element={<DebugLogViewerV8 />} />
-									<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
+									<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtility />} />
+									<Route path="/v8/debug-logs" element={<DebugLogViewer />} />
+									<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopout />} />
 									{/* V9 Utilities */}
 									<Route path="/v9/debug-logs-popout" element={<DebugLogViewerPopoutV9 />} />
 									{/* SPIFFE/SPIRE Mock Flow V9 - canonical routes */}
@@ -1887,8 +1887,8 @@ const AppRoutes: React.FC = () => {
 			/>
 
 			{/* Global Confirmation and Prompt Modals - Replace system modals */}
-			<ConfirmationModalV8 />
-			<PromptModalV8 />
+			<ConfirmationModal />
+			<PromptModal />
 		</>
 	);
 };
@@ -2215,7 +2215,7 @@ function AppContent() {
 				)}
 
 				{/* Global Backend Connectivity Modal */}
-				<BackendDownModalV8 />
+				<BackendDownModal />
 
 				{/* Debug Log Viewer Button — visible on all pages (including AI Assistant) to view MCP calls */}
 				{!isStandaloneLogViewerRoute && (

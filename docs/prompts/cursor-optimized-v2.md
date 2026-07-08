@@ -176,7 +176,7 @@ minHeight: '100vh'
 - If component exceeds 5,000 lines, consider splitting
 - Current exceptions (technical debt):
   - `UnifiedFlowSteps.tsx` (13,832 lines) - Consider splitting by step
-  - `MFAAuthenticationMainPageV8.tsx` (6,603 lines) - Acceptable for all-in-one page
+  - `MFAAuthenticationMainPage.tsx` (6,603 lines) - Acceptable for all-in-one page
 
 **When splitting:**
 - Extract step-specific logic to separate components
@@ -246,7 +246,7 @@ const state: any = { ... };
 
 ```typescript
 // Run pre-flight validation
-const result = await PreFlightValidationServiceV8.validateBeforeAuthUrl({
+const result = await PreFlightValidationService.validateBeforeAuthUrl({
   specVersion,
   flowType,
   credentials,
@@ -315,7 +315,7 @@ if (result.warnings.length > 0) {
 **File naming:**
 - V8U components: `*V8U.tsx` (Unified-specific)
 - V8 components: `*V8.tsx` (Core/MFA)
-- Services: `*ServiceV8.ts` or `*IntegrationV8.ts`
+- Services: `*Service.ts` or `*Integration.ts`
 - Types: `*Types.ts`
 
 ---

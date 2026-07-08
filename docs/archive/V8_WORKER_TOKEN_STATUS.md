@@ -6,7 +6,7 @@ Converted V7 worker token status checking to V8 and integrated it with the App P
 
 ## Components Created
 
-### WorkerTokenStatusServiceV8
+### WorkerTokenStatusService
 **Purpose:** Check and format worker token status
 
 **Functions:**
@@ -83,7 +83,7 @@ Status updates automatically:
 
 ### Custom Event: `workerTokenUpdated`
 Dispatched when:
-- Token is generated in WorkerTokenModalV8
+- Token is generated in WorkerTokenModal
 - Token is removed in App Picker
 - Token is updated anywhere
 
@@ -169,10 +169,10 @@ Listeners:
 ## Code Example
 
 ```typescript
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenStatusService } from '@/v8/services/workerTokenStatusService';
 
 // Check status
-const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+const status = WorkerTokenStatusService.checkWorkerTokenStatus();
 
 console.log(status.status);      // 'valid' | 'expiring-soon' | 'expired' | 'missing'
 console.log(status.message);     // User-friendly message
@@ -180,8 +180,8 @@ console.log(status.isValid);     // true/false - can use token?
 console.log(status.minutesRemaining); // Number of minutes until expiry
 
 // Get UI colors/icons
-const color = WorkerTokenStatusServiceV8.getStatusColor(status.status);
-const icon = WorkerTokenStatusServiceV8.getStatusIcon(status.status);
+const color = WorkerTokenStatusService.getStatusColor(status.status);
+const icon = WorkerTokenStatusService.getStatusIcon(status.status);
 ```
 
 ---

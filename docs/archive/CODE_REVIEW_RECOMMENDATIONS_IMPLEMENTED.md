@@ -39,8 +39,8 @@ Users can now:
 
 ### Unit Tests Created
 
-**`src/v8/services/__tests__/specVersionServiceV8.test.ts`**
-- Comprehensive unit tests for `SpecVersionServiceV8`
+**`src/v8/services/__tests__/specVersionService.test.ts`**
+- Comprehensive unit tests for `SpecVersionService`
 - Tests cover:
   - `getAvailableFlows()` - Verifies correct flows for each spec version
   - `isFlowAvailable()` - Tests flow availability checks
@@ -117,7 +117,7 @@ This refactoring can be done incrementally without breaking existing functionali
 npm test
 
 # Run specific test file
-npm test specVersionServiceV8.test.ts
+npm test specVersionService.test.ts
 
 # Run integration tests
 npm test unifiedFlowIntegrationV8U.integration.test.ts
@@ -132,7 +132,7 @@ npm run test:coverage
 - `src/v8u/components/SpecVersionSelector.tsx` - Added user guidance UI
 
 ### Created
-- `src/v8/services/__tests__/specVersionServiceV8.test.ts` - Unit tests
+- `src/v8/services/__tests__/specVersionService.test.ts` - Unit tests
 - `src/v8u/services/__tests__/unifiedFlowIntegrationV8U.integration.test.ts` - Integration tests
 - `src/v8u/utils/flowTypeManager.ts` - Flow type management utilities
 - `CODE_REVIEW_RECOMMENDATIONS_IMPLEMENTED.md` - This document

@@ -9,54 +9,54 @@
 
 | Service | UI Contract | Restore | Priority | Category |
 |---------|-------------|---------|----------|----------|
-| `specVersionServiceV8` | ✅ | ✅ | High | Config |
-| `preFlightValidationServiceV8` | ✅ | ✅ | High | Config |
-| `credentialsServiceV8` | ✅ | ✅ | High | Config |
-| `oauthIntegrationServiceV8` | ✅ | ✅ | High | Core |
-| `workerTokenServiceV8` | ✅ | ✅ | High | Token |
-| `mfaServiceV8` | ✅ | ✅ | High | MFA |
-| `mfaAuthenticationServiceV8` | ✅ | ✅ | High | MFA |
-| `implicitFlowIntegrationServiceV8` | ⏳ | ⏳ | Medium | Core |
-| `hybridFlowIntegrationServiceV8` | ⏳ | ⏳ | Medium | Core |
-| `clientCredentialsIntegrationServiceV8` | ⏳ | ⏳ | Medium | Core |
-| `deviceCodeIntegrationServiceV8` | ⏳ | ⏳ | Medium | Core |
-| `tokenOperationsServiceV8` | ⏳ | ⏳ | Medium | Token |
-| `oidcDiscoveryServiceV8` | ⏳ | ⏳ | Medium | Token |
-| `appDiscoveryServiceV8` | ⏳ | ⏳ | Medium | Utils |
-| `configCheckerServiceV8` | ⏳ | ⏳ | Low | Config |
-| `unifiedFlowOptionsServiceV8` | ⏳ | ⏳ | Low | Config |
-| `flowOptionsServiceV8` | ⏳ | ⏳ | Low | Config |
-| `tokenDisplayServiceV8` | ⏳ | ⏳ | Low | Token |
-| `workerTokenStatusServiceV8` | ⏳ | ⏳ | Low | Token |
-| `mfaConfigurationServiceV8` | ⏳ | ⏳ | Low | MFA |
-| `mfaEducationServiceV8` | ⏳ | ⏳ | Low | MFA |
-| `mfaReportingServiceV8` | ⏳ | ⏳ | Low | MFA |
-| `passkeyServiceV8` | ⏳ | ⏳ | Low | MFA |
-| `webAuthnAuthenticationServiceV8` | ⏳ | ⏳ | Low | MFA |
-| `fido2SessionCookieServiceV8` | ⏳ | ⏳ | Low | MFA |
-| `emailMfaSignOnFlowServiceV8` | ⏳ | ⏳ | Low | MFA |
-| `authMethodServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `tokenEndpointAuthMethodServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `redirectUriServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `responseTypeServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `redirectlessServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `flowResetServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `storageServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `dualStorageServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `validationServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `errorHandlerV8` | ⏳ | ⏳ | Low | Utils |
-| `oauthErrorCodesServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `uiNotificationServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `tooltipContentServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `apiDisplayServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `specUrlServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `environmentIdServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `phoneAutoPopulationServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `protectServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `sharedCredentialsServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `deviceCreateDemoServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `unifiedMFASuccessPageServiceV8` | ⏳ | ⏳ | Low | Utils |
-| `ropcIntegrationServiceV8` | ⏳ | ⏳ | Low | Core |
+| `specVersionService` | ✅ | ✅ | High | Config |
+| `preFlightValidationService` | ✅ | ✅ | High | Config |
+| `credentialsService` | ✅ | ✅ | High | Config |
+| `oauthIntegrationService` | ✅ | ✅ | High | Core |
+| `workerTokenService` | ✅ | ✅ | High | Token |
+| `mfaService` | ✅ | ✅ | High | MFA |
+| `mfaAuthenticationService` | ✅ | ✅ | High | MFA |
+| `implicitFlowIntegrationService` | ⏳ | ⏳ | Medium | Core |
+| `hybridFlowIntegrationService` | ⏳ | ⏳ | Medium | Core |
+| `clientCredentialsIntegrationService` | ⏳ | ⏳ | Medium | Core |
+| `deviceCodeIntegrationService` | ⏳ | ⏳ | Medium | Core |
+| `tokenOperationsService` | ⏳ | ⏳ | Medium | Token |
+| `oidcDiscoveryService` | ⏳ | ⏳ | Medium | Token |
+| `appDiscoveryService` | ⏳ | ⏳ | Medium | Utils |
+| `configCheckerService` | ⏳ | ⏳ | Low | Config |
+| `unifiedFlowOptionsService` | ⏳ | ⏳ | Low | Config |
+| `flowOptionsService` | ⏳ | ⏳ | Low | Config |
+| `tokenDisplayService` | ⏳ | ⏳ | Low | Token |
+| `workerTokenStatusService` | ⏳ | ⏳ | Low | Token |
+| `mfaConfigurationService` | ⏳ | ⏳ | Low | MFA |
+| `mfaEducationService` | ⏳ | ⏳ | Low | MFA |
+| `mfaReportingService` | ⏳ | ⏳ | Low | MFA |
+| `passkeyService` | ⏳ | ⏳ | Low | MFA |
+| `webAuthnAuthenticationService` | ⏳ | ⏳ | Low | MFA |
+| `fido2SessionCookieService` | ⏳ | ⏳ | Low | MFA |
+| `emailMfaSignOnFlowService` | ⏳ | ⏳ | Low | MFA |
+| `authMethodService` | ⏳ | ⏳ | Low | Utils |
+| `tokenEndpointAuthMethodService` | ⏳ | ⏳ | Low | Utils |
+| `redirectUriService` | ⏳ | ⏳ | Low | Utils |
+| `responseTypeService` | ⏳ | ⏳ | Low | Utils |
+| `redirectlessService` | ⏳ | ⏳ | Low | Utils |
+| `flowResetService` | ⏳ | ⏳ | Low | Utils |
+| `storageService` | ⏳ | ⏳ | Low | Utils |
+| `dualStorageService` | ⏳ | ⏳ | Low | Utils |
+| `validationService` | ⏳ | ⏳ | Low | Utils |
+| `errorHandler` | ⏳ | ⏳ | Low | Utils |
+| `oauthErrorCodesService` | ⏳ | ⏳ | Low | Utils |
+| `uiNotificationService` | ⏳ | ⏳ | Low | Utils |
+| `tooltipContentService` | ⏳ | ⏳ | Low | Utils |
+| `apiDisplayService` | ⏳ | ⏳ | Low | Utils |
+| `specUrlService` | ⏳ | ⏳ | Low | Utils |
+| `environmentIdService` | ⏳ | ⏳ | Low | Utils |
+| `phoneAutoPopulationService` | ⏳ | ⏳ | Low | Utils |
+| `protectService` | ⏳ | ⏳ | Low | Utils |
+| `sharedCredentialsService` | ⏳ | ⏳ | Low | Utils |
+| `deviceCreateDemoService` | ⏳ | ⏳ | Low | Utils |
+| `unifiedMFASuccessPageService` | ⏳ | ⏳ | Low | Utils |
+| `ropcIntegrationService` | ⏳ | ⏳ | Low | Core |
 
 **Legend:**
 - ✅ = Documented
@@ -89,13 +89,13 @@
 ## Documentation Priority
 
 ### Phase 1: High Priority (Complete)
-- ✅ `specVersionServiceV8`
-- ✅ `preFlightValidationServiceV8`
-- ✅ `credentialsServiceV8`
-- ✅ `oauthIntegrationServiceV8`
-- ✅ `workerTokenServiceV8`
-- ✅ `mfaServiceV8`
-- ✅ `mfaAuthenticationServiceV8`
+- ✅ `specVersionService`
+- ✅ `preFlightValidationService`
+- ✅ `credentialsService`
+- ✅ `oauthIntegrationService`
+- ✅ `workerTokenService`
+- ✅ `mfaService`
+- ✅ `mfaAuthenticationService`
 
 ### Phase 2: Medium Priority (In Progress)
 - ⏳ Core OAuth flow integrations

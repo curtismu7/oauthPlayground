@@ -430,9 +430,9 @@ pm.environment.set("variableName", jsonData.property);
 - Postman Collection Schema v2.1.0
 
 ### Internal Dependencies
-- `@/v8/services/credentialsServiceV8`
-- `@/v8/services/environmentIdServiceV8`
-- `@/v8/services/specVersionServiceV8`
+- `@/v8/services/credentialsService`
+- `@/v8/services/environmentIdService`
+- `@/v8/services/specVersionService`
 - `@/services/apiCallTrackerService`
 
 ## File Structure

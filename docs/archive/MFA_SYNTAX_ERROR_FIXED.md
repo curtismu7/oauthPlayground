@@ -4,11 +4,11 @@
 The application was failing to compile with the error:
 ```
 'import' and 'export' may only appear at the top level. (1809:0)
-export default MFAFlowV8;
+export default MFAFlow;
 ```
 
 ## Root Cause
-The `MFAFlowV8` component in `src/v8/flows/MFAFlowV8.tsx` was missing a closing curly brace `}`. The component function had:
+The `MFAFlow` component in `src/v8/flows/MFAFlow.tsx` was missing a closing curly brace `}`. The component function had:
 - **453 opening braces `{`**
 - **452 closing braces `}`**
 
@@ -23,7 +23,7 @@ Added the missing closing brace before the final `};` that closes the arrow func
 	);
 };
 
-export default MFAFlowV8;
+export default MFAFlow;
 
 // After (correct):
 		</div>
@@ -31,7 +31,7 @@ export default MFAFlowV8;
 	}  // ✅ Added missing closing brace
 };
 
-export default MFAFlowV8;
+export default MFAFlow;
 ```
 
 ## Verification

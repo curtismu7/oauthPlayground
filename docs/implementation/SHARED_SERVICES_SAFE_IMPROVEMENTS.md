@@ -12,9 +12,9 @@ These services are shared between Unified Flow (v8u) and MFA flows. All suggesti
 
 ---
 
-## 1. CredentialsServiceV8
+## 1. CredentialsService
 
-**File:** `src/v8/services/credentialsServiceV8.ts`  
+**File:** `src/v8/services/credentialsService.ts`  
 **Used By:** Unified, MFA, FIDO2, Passkey Manager, Login, Postman Generator  
 **Risk Level:** 🟢 LOW (if additive only)
 
@@ -26,9 +26,9 @@ These services are shared between Unified Flow (v8u) and MFA flows. All suggesti
 - Uses `saveCredentials()` for persistence
 
 **MFA Flows:**
-- `MFADeviceOrderingFlowV8.tsx` - Loads credentials
-- `MFADeviceManagementFlowV8.tsx` - Loads credentials
-- `FIDO2ConfigurationPageV8.tsx` - Loads credentials
+- `MFADeviceOrderingFlow.tsx` - Loads credentials
+- `MFADeviceManagementFlow.tsx` - Loads credentials
+- `FIDO2ConfigurationPage.tsx` - Loads credentials
 
 ### ✅ Safe Improvements (Additive Only)
 
@@ -133,9 +133,9 @@ static sanitizeForLogging(credentials: Credentials): Record<string, unknown> {
 
 ---
 
-## 2. EnvironmentIdServiceV8
+## 2. EnvironmentIdService
 
-**File:** `src/v8/services/environmentIdServiceV8.ts`  
+**File:** `src/v8/services/environmentIdService.ts`  
 **Used By:** Unified, MFA, FIDO2, Login, Passkey Manager  
 **Risk Level:** 🟢 LOW (if additive only)
 
@@ -238,9 +238,9 @@ private static addToHistory(envId: string): void {
 
 ---
 
-## 3. WorkerTokenStatusServiceV8
+## 3. WorkerTokenStatusService
 
-**File:** `src/v8/services/workerTokenStatusServiceV8.ts`  
+**File:** `src/v8/services/workerTokenStatusService.ts`  
 **Used By:** Unified, MFA  
 **Risk Level:** 🟢 LOW (if additive only)
 
@@ -252,7 +252,7 @@ private static addToHistory(envId: string): void {
 
 **MFA Flows:**
 - Critical for MFA device management
-- Used in `MFADeviceManagementFlowV8.tsx`
+- Used in `MFADeviceManagementFlow.tsx`
 
 ### ✅ Safe Improvements (Additive Only)
 
@@ -347,9 +347,9 @@ static getHealthCheck(): {
 
 ---
 
-## 4. MFAServiceV8 (MFA-Specific)
+## 4. MFAService (MFA-Specific)
 
-**File:** `src/v8/services/mfaServiceV8.ts`  
+**File:** `src/v8/services/mfaService.ts`  
 **Used By:** MFA flows only  
 **Risk Level:** 🔴 HIGH (MFA-critical)
 
@@ -386,9 +386,9 @@ static async isMFAConfigured(
 
 ---
 
-## 5. MFAConfigurationServiceV8 (MFA-Specific)
+## 5. MFAConfigurationService (MFA-Specific)
 
-**File:** `src/v8/services/mfaConfigurationServiceV8.ts`  
+**File:** `src/v8/services/mfaConfigurationService.ts`  
 **Used By:** MFA flows, FIDO2  
 **Risk Level:** 🔴 HIGH (MFA-critical)
 
@@ -407,17 +407,17 @@ This service manages MFA configuration and is critical for MFA flows.
 ## Implementation Priority
 
 ### Phase 1: Low-Hanging Fruit (1-2 hours)
-1. ✅ Add `CredentialsServiceV8.sanitizeForLogging()` - Immediate security benefit
-2. ✅ Add `EnvironmentIdServiceV8.validateEnvironmentId()` - Prevents errors
-3. ✅ Add `WorkerTokenStatusServiceV8.getExpirationWarning()` - Better UX
+1. ✅ Add `CredentialsService.sanitizeForLogging()` - Immediate security benefit
+2. ✅ Add `EnvironmentIdService.validateEnvironmentId()` - Prevents errors
+3. ✅ Add `WorkerTokenStatusService.getExpirationWarning()` - Better UX
 
 ### Phase 2: Enhanced Validation (2-3 hours)
-1. ✅ Add `CredentialsServiceV8.validateCredentials()` - Consistent validation
-2. ✅ Add `WorkerTokenStatusServiceV8.getHealthCheck()` - Comprehensive status
+1. ✅ Add `CredentialsService.validateCredentials()` - Consistent validation
+2. ✅ Add `WorkerTokenStatusService.getHealthCheck()` - Comprehensive status
 
 ### Phase 3: Nice-to-Have (1-2 hours)
-1. ✅ Add `CredentialsServiceV8.hasCredentialsChanged()` - Optimization
-2. ✅ Add `EnvironmentIdServiceV8.getRecentEnvironmentIds()` - UX improvement
+1. ✅ Add `CredentialsService.hasCredentialsChanged()` - Optimization
+2. ✅ Add `EnvironmentIdService.getRecentEnvironmentIds()` - UX improvement
 
 ---
 

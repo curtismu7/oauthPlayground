@@ -14,24 +14,24 @@ Successfully implemented and integrated 4 new OAuth/OIDC parameters with educati
 ## Implemented Parameters
 
 ### 1. ✅ response_mode (Already Complete)
-- **Component:** `ResponseModeDropdownV8.tsx`
+- **Component:** `ResponseModeDropdown.tsx`
 - **Values:** query, fragment, form_post, pi.flow
 - **Status:** ✅ Complete and tested
 
 ### 2. ✅ login_hint (NEW - Implemented)
-- **Component:** `LoginHintInputV8.tsx`
+- **Component:** `LoginHintInput.tsx`
 - **Type:** String (email or username)
 - **Purpose:** Pre-fills username/email in login form
 - **Status:** ✅ Fully integrated
 
 ### 3. ✅ max_age (NEW - Implemented)
-- **Component:** `MaxAgeInputV8.tsx`
+- **Component:** `MaxAgeInput.tsx`
 - **Type:** Number (seconds)
 - **Purpose:** Forces fresh authentication if session is older
 - **Status:** ✅ Fully integrated
 
 ### 4. ✅ display (NEW - Implemented)
-- **Component:** `DisplayModeDropdownV8.tsx`
+- **Component:** `DisplayModeDropdown.tsx`
 - **Type:** Enum (page, popup, touch, wap)
 - **Purpose:** Controls how authentication UI is displayed
 - **Status:** ✅ Fully integrated
@@ -43,10 +43,10 @@ Successfully implemented and integrated 4 new OAuth/OIDC parameters with educati
 ### Files Modified
 
 **Components:**
-1. ✅ `src/v8/components/ResponseModeDropdownV8.tsx` - Created
-2. ✅ `src/v8/components/LoginHintInputV8.tsx` - Created
-3. ✅ `src/v8/components/MaxAgeInputV8.tsx` - Created
-4. ✅ `src/v8/components/DisplayModeDropdownV8.tsx` - Created
+1. ✅ `src/v8/components/ResponseModeDropdown.tsx` - Created
+2. ✅ `src/v8/components/LoginHintInput.tsx` - Created
+3. ✅ `src/v8/components/MaxAgeInput.tsx` - Created
+4. ✅ `src/v8/components/DisplayModeDropdown.tsx` - Created
 5. ✅ `src/v8u/components/CredentialsFormV8U.tsx` - Updated
 
 **Services:**

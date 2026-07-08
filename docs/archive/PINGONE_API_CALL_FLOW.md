@@ -7,13 +7,13 @@
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │ 1. USER CLICKS "Register Device" BUTTON                        │
-│    Location: SMSFlowV8.tsx:2188                                 │
+│    Location: SMSFlow.tsx:2188                                 │
 │    <button onClick={handleRegisterDevice}>                      │
 └─────────────────────────────────────────────────────────────────┘
                             ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │ 2. handleRegisterDevice() FUNCTION                              │
-│    Location: SMSFlowV8.tsx:1064                                 │
+│    Location: SMSFlow.tsx:1064                                 │
 │    - Validates credentials                                       │
 │    - Determines device status (ACTIVE/ACTIVATION_REQUIRED)      │
 │    - Calls: correctController.registerDevice()                  │
@@ -23,12 +23,12 @@
 │ 3. MFAFlowController.registerDevice()                           │
 │    Location: MFAFlowController.ts:96                            │
 │    - Builds RegisterDeviceParams                                │
-│    - Calls: MFAServiceV8.registerDevice(params)                 │
+│    - Calls: MFAService.registerDevice(params)                 │
 └─────────────────────────────────────────────────────────────────┘
                             ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│ 4. MFAServiceV8.registerDevice()                                │
-│    Location: mfaServiceV8.ts:434                                │
+│ 4. MFAService.registerDevice()                                │
+│    Location: mfaService.ts:434                                │
 │    - Looks up user by username                                  │
 │    - Gets token (worker or user)                                │
 │    - Builds devicePayload with status field                     │
@@ -87,7 +87,7 @@
                             ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │ 8. FRONTEND RECEIVES RESPONSE                                    │
-│    Location: mfaServiceV8.ts:609                                │
+│    Location: mfaService.ts:609                                │
 │    - Extracts _metadata                                          │
 │    - Tracks actual PingOne API call in API Call Tracker          │
 │    - Removes _metadata before processing                        │
@@ -120,7 +120,7 @@ const response = await global.fetch(deviceEndpoint, {
 
 ### Where the Status Field is Set
 
-**Frontend Service:** `src/v8/services/mfaServiceV8.ts`
+**Frontend Service:** `src/v8/services/mfaService.ts`
 - **Line 480-488:** Sets status in `devicePayload`
 - **Line 531:** Includes status in `requestBody.status` sent to backend
 
@@ -131,19 +131,19 @@ const response = await global.fetch(deviceEndpoint, {
 ## Status Field Flow
 
 ```
-1. User selects status in UI (SMSFlowV8.tsx:1149)
+1. User selects status in UI (SMSFlow.tsx:1149)
    ↓ deviceStatus = 'ACTIVE' or 'ACTIVATION_REQUIRED'
 
-2. Passed to controller (SMSFlowV8.tsx:1171)
+2. Passed to controller (SMSFlow.tsx:1171)
    ↓ getDeviceRegistrationParams(credentials, deviceStatus)
 
 3. Controller sets in params (SMSFlowController.ts:93)
    ↓ params.status = deviceStatus
 
-4. Service sets in devicePayload (mfaServiceV8.ts:480-488)
+4. Service sets in devicePayload (mfaService.ts:480-488)
    ↓ devicePayload.status = params.status || default
 
-5. Service includes in requestBody (mfaServiceV8.ts:531)
+5. Service includes in requestBody (mfaService.ts:531)
    ↓ requestBody.status = devicePayload.status
 
 6. Backend receives status (server.js:7713)
@@ -160,7 +160,7 @@ const response = await global.fetch(deviceEndpoint, {
 ## How to See the Actual PingOne API Call
 
 ### Method 1: API Display Component
-The `SuperSimpleApiDisplayV8` component (shown in the UI) will now display:
+The `SuperSimpleApiDisplay` component (shown in the UI) will now display:
 1. **Proxy Call:** `POST /api/pingone/mfa/register-device`
 2. **Actual PingOne Call:** `POST https://api.pingone.com/v1/environments/{envId}/users/{userId}/devices`
 
@@ -179,7 +179,7 @@ In browser DevTools → Network tab:
 
 If the status field is not being set correctly, check:
 
-1. **Frontend Service (mfaServiceV8.ts:480-488):**
+1. **Frontend Service (mfaService.ts:480-488):**
    ```typescript
    if (params.status) {
      devicePayload.status = params.status;

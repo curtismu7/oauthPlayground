@@ -4,7 +4,7 @@
  * @description Custom hook for managing worker token state and operations
  * @version 3.0.0
  *
- * Extracted from MFAAuthenticationMainPageV8.tsx as part of V3 refactoring.
+ * Extracted from MFAAuthenticationMainPage.tsx as part of V3 refactoring.
  * Centralizes all worker token-related logic including:
  * - Token status monitoring
  * - Token refresh/update
@@ -14,9 +14,9 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import { MFAConfigurationServiceV8 } from '@/mfa/services/mfaConfigurationServiceV8';
-import type { TokenStatusInfo } from '@/mfa/services/workerTokenStatusServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/mfa/services/workerTokenStatusServiceV8';
+import { MFAConfigurationService } from '@/mfa/services/mfaConfigurationService';
+import type { TokenStatusInfo } from '@/mfa/services/workerTokenStatusService';
+import { WorkerTokenStatusService } from '@/mfa/services/workerTokenStatusService';
 
 import { logger } from '../../utils/logger';
 export interface UseWorkerTokenConfig {
@@ -68,7 +68,7 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 	useEffect(() => {
 		const initializeTokenStatus = async () => {
 			try {
-				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				const status = await WorkerTokenStatusService.checkWorkerTokenStatus();
 				setTokenStatus(status);
 			} catch (error) {
 				logger.error(`${MODULE_TAG} Failed to initialize token status:`, error);
@@ -87,7 +87,7 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 	useEffect(() => {
 		const loadConfig = () => {
 			try {
-				const config = MFAConfigurationServiceV8.loadConfiguration();
+				const config = MFAConfigurationService.loadConfiguration();
 				setSilentApiRetrieval(config.workerToken.silentApiRetrieval);
 				setShowTokenAtEnd(config.workerToken.showTokenAtEnd);
 			} catch (error) {
@@ -108,7 +108,7 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 		);
 
 		try {
-			const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const status = await WorkerTokenStatusService.checkWorkerTokenStatus();
 			setTokenStatus(status);
 			logger.info(`${MODULE_TAG} Manual token refresh completed:`, status.status);
 		} catch (error) {
@@ -133,7 +133,7 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 			logger.info(`${MODULE_TAG} Token update triggered - showing loading state`, 'Logger info');
 
 			try {
-				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				const status = await WorkerTokenStatusService.checkWorkerTokenStatus();
 				setTokenStatus(status);
 				logger.info(`${MODULE_TAG} Token status updated:`, status.status);
 
@@ -188,13 +188,13 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 		if (!enableAutoRefresh) return;
 
 		try {
-			const config = MFAConfigurationServiceV8.loadConfiguration();
+			const config = MFAConfigurationService.loadConfiguration();
 			if (!config.workerToken.silentApiRetrieval) {
 				logger.info(`${MODULE_TAG} Silent API retrieval disabled, skipping auto-refresh`);
 				return;
 			}
 
-			const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const status = await WorkerTokenStatusService.checkWorkerTokenStatus();
 			logger.info(`${MODULE_TAG} Checking token for auto-refresh:`, {
 				status: status.status,
 				isValid: status.isValid,
@@ -214,8 +214,8 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 					);
 
 					// Trigger silent token retrieval directly
-					const { tokenGatewayV8 } = await import('@/mfa/services/auth/tokenGatewayV8');
-					const result = await tokenGatewayV8.getWorkerToken({
+					const { tokenGateway } = await import('@/mfa/services/auth/tokenGateway');
+					const result = await tokenGateway.getWorkerToken({
 						mode: 'silent',
 						forceRefresh: true,
 						timeout: 10000,
@@ -240,8 +240,8 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 					setIsRefreshing(true);
 
 					// Trigger silent token retrieval for expired token
-					const { tokenGatewayV8 } = await import('@/mfa/services/auth/tokenGatewayV8');
-					const result = await tokenGatewayV8.getWorkerToken({
+					const { tokenGateway } = await import('@/mfa/services/auth/tokenGateway');
+					const result = await tokenGateway.getWorkerToken({
 						mode: 'silent',
 						forceRefresh: true,
 						timeout: 10000,
@@ -266,8 +266,8 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 				setIsRefreshing(true);
 
 				// Trigger silent token retrieval for invalid token
-				const { tokenGatewayV8 } = await import('@/mfa/services/auth/tokenGatewayV8');
-				const result = await tokenGatewayV8.getWorkerToken({
+				const { tokenGateway } = await import('@/mfa/services/auth/tokenGateway');
+				const result = await tokenGateway.getWorkerToken({
 					mode: 'silent',
 					forceRefresh: true,
 					timeout: 10000,
@@ -305,7 +305,7 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 	const showTokenOnly = (() => {
 		if (!showWorkerTokenModal) return false;
 		try {
-			const config = MFAConfigurationServiceV8.loadConfiguration();
+			const config = MFAConfigurationService.loadConfiguration();
 			return config.workerToken.showTokenAtEnd && tokenStatus.isValid;
 		} catch {
 			return false;

@@ -80,7 +80,7 @@ const protocol = window.location.hostname === 'localhost' ? 'https' : 'https';
 ```
 
 ### **V8+ Flow-Specific Services**
-- **MFA Flows:** `MFARedirectUriServiceV8.getRedirectUri('unified-mfa-v8')`
+- **MFA Flows:** `MFARedirectUriService.getRedirectUri('unified-mfa-v8')`
 - **V8U OAuth Flows:** `generateRedirectUriForFlow('oauth-authz-v8u')`
 - **Callback Service:** `CallbackHandlerV8U` handles all V8+ callbacks
 
@@ -168,7 +168,7 @@ Use the **User Login Modal Debug Section** to see:
 
 #### **🔧 Core V8+ Components**
 
-1. **V8 Unified MFA Service** (`src/v8/services/mfaRedirectUriServiceV8.ts`)
+1. **V8 Unified MFA Service** (`src/v8/services/mfaRedirectUriService.ts`)
    - V8-specific redirect URI management
    - Flow-aware V8 redirect URI generation
    - V8 MFA flow detection and handling
@@ -187,7 +187,7 @@ Use the **User Login Modal Debug Section** to see:
 
 ```typescript
 // V8 Unified MFA Flow
-MFARedirectUriServiceV8.getRedirectUri('unified-mfa-v8')
+MFARedirectUriService.getRedirectUri('unified-mfa-v8')
 // Returns: https://localhost:3000/v8/unified-mfa-callback
 
 // V8U Unified OAuth Flow
@@ -262,11 +262,11 @@ generateRedirectUriForFlow('oauth-authz-v8u')
 ## 📚 **V8+ IMPLEMENTATION FILES**
 
 ### **🔄 Current V8+ Files**
-- `src/v8/services/mfaRedirectUriServiceV8.ts` - V8 MFA redirect URI service
+- `src/v8/services/mfaRedirectUriService.ts` - V8 MFA redirect URI service
 - `src/utils/flowRedirectUriMapping.ts` - V8+ flow redirect URI mapping
 - `src/v8u/components/CallbackHandlerV8U.tsx` - V8+ callback handler
-- `src/v8/flows/shared/MFAFlowBaseV8.tsx` - V8 MFA flow base
-- `src/v8/components/UserLoginModalV8.tsx` - V8 user login modal
+- `src/v8/flows/shared/MFAFlowBase.tsx` - V8 MFA flow base
+- `src/v8/components/UserLoginModal.tsx` - V8 user login modal
 
 ### **📋 V8+ References**
 - **V8+ Architecture**: Unified V8 and V8U flow implementations

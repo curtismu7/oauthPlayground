@@ -3,8 +3,8 @@
 ## What's Been Accomplished
 
 ### 1. Smart Credentials System
-- ✅ Created `CredentialsFormV8` component - flow-aware, intelligent form
-- ✅ Created `CredentialsServiceV8` service - centralized credentials management
+- ✅ Created `CredentialsForm` component - flow-aware, intelligent form
+- ✅ Created `CredentialsService` service - centralized credentials management
 - ✅ Pre-configured for 7 flow types (AuthZ, Implicit, Client Creds, Device Code, ROPC, Hybrid, PKCE)
 - ✅ Smart defaults minimize user input
 - ✅ App discovery integration
@@ -37,29 +37,29 @@
 ```
 src/v8/
 ├── components/
-│   ├── CredentialsFormV8.tsx          ✅ NEW
-│   ├── StepActionButtonsV8.tsx
-│   ├── StepNavigationV8.tsx
-│   ├── StepProgressBarV8.tsx
-│   └── StepValidationFeedbackV8.tsx
+│   ├── CredentialsForm.tsx          ✅ NEW
+│   ├── StepActionButtons.tsx
+│   ├── StepNavigation.tsx
+│   ├── StepProgressBar.tsx
+│   └── StepValidationFeedback.tsx
 │
 ├── flows/
-│   ├── OAuthAuthorizationCodeFlowV8.tsx  ✅ UPDATED
-│   └── ImplicitFlowV8.tsx               ✅ UPDATED
+│   ├── OAuthAuthorizationCodeFlow.tsx  ✅ UPDATED
+│   └── ImplicitFlow.tsx               ✅ UPDATED
 │
 ├── hooks/
-│   └── useStepNavigationV8.ts
+│   └── useStepNavigation.ts
 │
 ├── services/
-│   ├── credentialsServiceV8.ts          ✅ NEW
-│   ├── oauthIntegrationServiceV8.ts
-│   ├── implicitFlowIntegrationServiceV8.ts
-│   ├── validationServiceV8.ts
-│   ├── storageServiceV8.ts
-│   ├── appDiscoveryServiceV8.ts
-│   ├── configCheckerServiceV8.ts
-│   ├── errorHandlerV8.ts
-│   └── flowResetServiceV8.ts
+│   ├── credentialsService.ts          ✅ NEW
+│   ├── oauthIntegrationService.ts
+│   ├── implicitFlowIntegrationService.ts
+│   ├── validationService.ts
+│   ├── storageService.ts
+│   ├── appDiscoveryService.ts
+│   ├── configCheckerService.ts
+│   ├── errorHandler.ts
+│   └── flowResetService.ts
 │
 ├── types/
 │   └── stepNavigation.ts
@@ -149,16 +149,16 @@ src/v8/
 ### Basic Usage
 
 ```typescript
-import CredentialsFormV8 from '@/v8/components/CredentialsFormV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import CredentialsForm from '@/v8/components/CredentialsForm';
+import { CredentialsService } from '@/v8/services/credentialsService';
 
 // Load smart defaults
 const [credentials, setCredentials] = useState(() => {
-  return CredentialsServiceV8.getSmartDefaults('oauth-authz-v8');
+  return CredentialsService.getSmartDefaults('oauth-authz-v8');
 });
 
 // Render - fields automatically shown/hidden
-<CredentialsFormV8
+<CredentialsForm
   flowKey="oauth-authz-v8"
   credentials={credentials}
   onChange={setCredentials}
@@ -171,10 +171,10 @@ const [credentials, setCredentials] = useState(() => {
 
 ```typescript
 // Load with app config
-const creds = CredentialsServiceV8.loadWithAppDiscovery('oauth-authz-v8', appConfig);
+const creds = CredentialsService.loadWithAppDiscovery('oauth-authz-v8', appConfig);
 
 // Render with callbacks
-<CredentialsFormV8
+<CredentialsForm
   flowKey="oauth-authz-v8"
   credentials={credentials}
   onChange={setCredentials}
@@ -191,12 +191,12 @@ All V8 imports use the `@/v8/` alias:
 
 ```typescript
 // ✅ CORRECT
-import { CredentialsFormV8 } from '@/v8/components/CredentialsFormV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
+import { CredentialsForm } from '@/v8/components/CredentialsForm';
+import { CredentialsService } from '@/v8/services/credentialsService';
+import { useStepNavigation } from '@/v8/hooks/useStepNavigation';
 
 // ❌ WRONG
-import { CredentialsFormV8 } from '../components/CredentialsFormV8';
+import { CredentialsForm } from '../components/CredentialsForm';
 ```
 
 ## Documentation
@@ -234,10 +234,10 @@ All will use the same smart credentials system with appropriate field visibility
 ## Compilation Status
 
 ✅ All files compile without errors:
-- `src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx` - No diagnostics
-- `src/v8/flows/ImplicitFlowV8.tsx` - No diagnostics
-- `src/v8/components/CredentialsFormV8.tsx` - No diagnostics
-- `src/v8/services/credentialsServiceV8.ts` - No diagnostics
+- `src/v8/flows/OAuthAuthorizationCodeFlow.tsx` - No diagnostics
+- `src/v8/flows/ImplicitFlow.tsx` - No diagnostics
+- `src/v8/components/CredentialsForm.tsx` - No diagnostics
+- `src/v8/services/credentialsService.ts` - No diagnostics
 - `src/App.tsx` - No diagnostics
 
 ## Benefits

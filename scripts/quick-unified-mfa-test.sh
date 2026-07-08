@@ -26,7 +26,7 @@ fi
 # Test 3: Check import is correct
 echo ""
 echo "📋 Checking import..."
-if grep -q "UnifiedMFARegistrationFlowV8.*default.*module.UnifiedMFARegistrationFlowV8" src/App.tsx; then
+if grep -q "UnifiedMFARegistrationFlow.*default.*module.UnifiedMFARegistrationFlow" src/App.tsx; then
     echo "✅ Import uses correct export name"
 else
     echo "❌ Import issue"

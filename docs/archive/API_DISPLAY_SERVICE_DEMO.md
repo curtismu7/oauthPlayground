@@ -83,16 +83,16 @@ The actual SuperSimpleAPIDisplay component at the bottom showing:
 ### ✨ Centralized State Management
 ```typescript
 // Single service controls everything
-apiDisplayServiceV8.show();
-apiDisplayServiceV8.hide();
-apiDisplayServiceV8.toggle();
+apiDisplayService.show();
+apiDisplayService.hide();
+apiDisplayService.toggle();
 ```
 
 ### 🔄 Subscription Pattern
 ```typescript
 // Components subscribe to changes
 useEffect(() => {
-  const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
+  const unsubscribe = apiDisplayService.subscribe((visible) => {
     setIsVisible(visible);
   });
   return () => unsubscribe();
@@ -152,8 +152,8 @@ export let globalSetIsVisible: ((value: boolean) => void) | null = null;
 ### After (Service-Based)
 ```typescript
 // ✅ Clean and maintainable
-const apiDisplayServiceV8 = new ApiDisplayServiceV8();
-export { apiDisplayServiceV8 };
+const apiDisplayService = new ApiDisplayService();
+export { apiDisplayService };
 ```
 
 ---
@@ -175,11 +175,11 @@ export { apiDisplayServiceV8 };
 - `API_DISPLAY_SERVICE_DEMO.md` - This documentation
 
 ### Service Files
-- `src/v8/services/apiDisplayServiceV8.ts` - Service implementation
-- `src/v8/services/__tests__/apiDisplayServiceV8.test.ts` - Tests
+- `src/v8/services/apiDisplayService.ts` - Service implementation
+- `src/v8/services/__tests__/apiDisplayService.test.ts` - Tests
 
 ### Component Files
-- `src/v8/components/SuperSimpleApiDisplayV8.tsx` - Display component
+- `src/v8/components/SuperSimpleApiDisplay.tsx` - Display component
 
 ### App Files
 - `src/App.tsx` - Route registration
@@ -191,7 +191,7 @@ export { apiDisplayServiceV8 };
 After exploring the demo:
 
 1. **Check the implementation** - Read the service code to understand the pattern
-2. **Run the tests** - `npm test apiDisplayServiceV8.test.ts`
+2. **Run the tests** - `npm test apiDisplayService.test.ts`
 3. **Try it in real flows** - Navigate to MFA, Unified, or SPIFFE/SPIRE flows
 4. **Extend the pattern** - Use similar service pattern for other features
 

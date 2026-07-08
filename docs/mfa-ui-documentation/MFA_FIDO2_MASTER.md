@@ -57,7 +57,7 @@ This document provides a comprehensive reference for FIDO2 (WebAuthn) device reg
 
 #### Step 1: Pre-Registration Check
 
-**Location:** `src/v8/flows/types/FIDO2FlowV8.tsx`
+**Location:** `src/v8/flows/types/FIDO2Flow.tsx`
 
 **Critical:** Must check for existing FIDO2 devices before allowing registration.
 
@@ -77,10 +77,10 @@ if (existingDevices.length > 0 && existingDevices.some(d => d.deviceType === 'FI
 
 #### Step 2: Device Registration
 
-**Location:** `src/v8/flows/types/FIDO2FlowV8.tsx` → `handleRegisterDevice()`
+**Location:** `src/v8/flows/types/FIDO2Flow.tsx` → `handleRegisterDevice()`
 
 **Process:**
-1. Call `MFAServiceV8.registerFIDO2Device()` to create device in PingOne
+1. Call `MFAService.registerFIDO2Device()` to create device in PingOne
 2. Receive `publicKeyCredentialCreationOptions` (JSON string)
 3. Parse JSON string to object
 4. Convert byte arrays to `Uint8Array` for WebAuthn API
@@ -91,7 +91,7 @@ if (existingDevices.length > 0 && existingDevices.some(d => d.deviceType === 'FI
 **Critical Code:**
 ```typescript
 // 1. Register device in PingOne
-const deviceResponse = await MFAServiceV8.registerFIDO2Device({
+const deviceResponse = await MFAService.registerFIDO2Device({
   environmentId: credentials.environmentId,
   userId: credentials.userId,
   deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
@@ -100,7 +100,7 @@ const deviceResponse = await MFAServiceV8.registerFIDO2Device({
     name: fido2Config.rpName,
   },
   name: credentials.deviceName || 'FIDO2',
-  workerToken: await MFAServiceV8.getWorkerToken(),
+  workerToken: await MFAService.getWorkerToken(),
   region: credentials.region,
   customDomain: credentials.customDomain,
 });
@@ -157,12 +157,12 @@ const attestation = {
 };
 
 // 7. Activate device
-await MFAServiceV8.activateFIDO2Device({
+await MFAService.activateFIDO2Device({
   deviceId: deviceResponse.id,
   attestation,
   origin: window.location.origin,
   environmentId: credentials.environmentId,
-  workerToken: await MFAServiceV8.getWorkerToken(),
+  workerToken: await MFAService.getWorkerToken(),
   region: credentials.region,
   customDomain: credentials.customDomain,
 });
@@ -185,7 +185,7 @@ await MFAServiceV8.activateFIDO2Device({
 
 #### Step 1: Initialize Device Authentication
 
-**Location:** `src/v8/services/mfaAuthenticationServiceV8.ts` → `initializeDeviceAuthentication()`
+**Location:** `src/v8/services/mfaAuthenticationService.ts` → `initializeDeviceAuthentication()`
 
 **Critical:** Must include `region` and `customDomain` in request body for correct PingOne URL construction.
 
@@ -206,7 +206,7 @@ const requestBody = {
 
 #### Step 2: Get WebAuthn Assertion
 
-**Location:** `src/v8/flows/MFAAuthenticationMainPageV8.tsx`
+**Location:** `src/v8/flows/MFAAuthenticationMainPage.tsx`
 
 **Process:**
 1. Initialize device authentication
@@ -219,12 +219,12 @@ const requestBody = {
 **Critical Code:**
 ```typescript
 // 1. Initialize authentication
-const authResponse = await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
+const authResponse = await MfaAuthenticationService.initializeDeviceAuthentication({
   environmentId: credentials.environmentId,
   username: credentials.username,
   deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
   deviceId: selectedDeviceId, // Optional - omit to get list
-  workerToken: await MFAServiceV8.getWorkerToken(),
+  workerToken: await MFAService.getWorkerToken(),
   region: credentials.region,
   customDomain: credentials.customDomain,
 });
@@ -285,7 +285,7 @@ if (authResponse.publicKeyCredentialRequestOptions) {
   };
 
   // 7. Check assertion with PingOne
-  await MfaAuthenticationServiceV8.checkFIDO2Assertion(
+  await MfaAuthenticationService.checkFIDO2Assertion(
     authResponse.id, // deviceAuthId
     assertion,
     credentials.environmentId,
@@ -489,7 +489,7 @@ const requestBody = {
 };
 ```
 
-**Location:** `src/v8/services/mfaAuthenticationServiceV8.ts` → `checkFIDO2Assertion()`
+**Location:** `src/v8/services/mfaAuthenticationService.ts` → `checkFIDO2Assertion()`
 
 **Fixed:** Assertion is now stringified before being sent to PingOne.
 
@@ -548,7 +548,7 @@ const requestBody = {
 };
 ```
 
-**Location:** `src/v8/services/mfaAuthenticationServiceV8.ts` → `checkFIDO2Assertion()`
+**Location:** `src/v8/services/mfaAuthenticationService.ts` → `checkFIDO2Assertion()`
 
 **Fixed:** `origin` and `compatibility` are now always included in the request body.
 
@@ -570,7 +570,7 @@ const endpoint = `${authPath}/${environmentId}/deviceAuthentications/${deviceAut
 const endpoint = `${authPath}/${environmentId}/deviceAuthentications/${deviceAuthId}`;
 ```
 
-**Location:** `server.js` → `/api/pingone/mfa/check-fido2-assertion` and `src/v8/services/mfaAuthenticationServiceV8.ts` → `checkFIDO2Assertion()`
+**Location:** `server.js` → `/api/pingone/mfa/check-fido2-assertion` and `src/v8/services/mfaAuthenticationService.ts` → `checkFIDO2Assertion()`
 
 **Fixed:** Endpoint now correctly excludes `/assertion` suffix. The Content-Type header (`application/vnd.pingidentity.assertion.check+json`) indicates this is an assertion check operation, not the URL path.
 
@@ -585,14 +585,14 @@ const endpoint = `${authPath}/${environmentId}/deviceAuthentications/${deviceAut
 **Solution:**
 ```typescript
 // ❌ WRONG - Missing region and customDomain
-await MFAServiceV8.registerFIDO2Device({
+await MFAService.registerFIDO2Device({
   environmentId,
   userId,
   // region and customDomain missing
 });
 
 // ✅ CORRECT - Include region and customDomain
-await MFAServiceV8.registerFIDO2Device({
+await MFAService.registerFIDO2Device({
   environmentId,
   userId,
   region: credentials.region, // REQUIRED
@@ -630,7 +630,7 @@ if (Array.isArray(opts.excludeCredentials)) {
 }
 ```
 
-**Location:** `src/v8/flows/types/FIDO2FlowV8.tsx` → `handleRegisterDevice()`
+**Location:** `src/v8/flows/types/FIDO2Flow.tsx` → `handleRegisterDevice()`
 
 **Fixed:** All byte arrays are now converted to `Uint8Array` before calling WebAuthn API.
 
@@ -688,7 +688,7 @@ if (existingDevices.length > 0 && existingDevices.some(d => d.deviceType === 'FI
 }
 ```
 
-**Location:** `src/v8/flows/types/FIDO2FlowV8.tsx` → `handleRegisterDevice()`
+**Location:** `src/v8/flows/types/FIDO2Flow.tsx` → `handleRegisterDevice()`
 
 **Fixed:** System now checks for existing FIDO2 devices and shows a user-friendly modal if one exists.
 
@@ -713,14 +713,14 @@ const credentialsWithDeviceType = {
 // 2. Explicitly set in successData
 successData.deviceType = 'FIDO2' as DeviceType;
 
-// 3. Pass modified credentials to MFASuccessPageV8
-<MFASuccessPageV8
+// 3. Pass modified credentials to MFASuccessPage
+<MFASuccessPage
   {...props}
   credentials={credentialsWithDeviceType} // Pass modified credentials
   successData={successData}
 />
 
-// 4. In UnifiedMFASuccessPageV8, normalize deviceType check
+// 4. In UnifiedMFASuccessPage, normalize deviceType check
 const deviceTypeStr = String(deviceType || '').toUpperCase();
 const hasDocumentation = deviceTypeStr && ['SMS', 'EMAIL', 'WHATSAPP', 'VOICE', 'FIDO2'].includes(deviceTypeStr);
 const showDocumentationButton = flowType === 'registration' && hasDocumentation;
@@ -732,9 +732,9 @@ const showDocumentationButton = flowType === 'registration' && hasDocumentation;
 ```
 
 **Location:** 
-- `src/v8/flows/types/FIDO2FlowV8.tsx` → `renderStep3`
-- `src/v8/flows/shared/mfaSuccessPageServiceV8.tsx` → `convertToUnifiedData`
-- `src/v8/services/unifiedMFASuccessPageServiceV8.tsx` → Documentation button rendering
+- `src/v8/flows/types/FIDO2Flow.tsx` → `renderStep3`
+- `src/v8/flows/shared/mfaSuccessPageService.tsx` → `convertToUnifiedData`
+- `src/v8/services/unifiedMFASuccessPageService.tsx` → Documentation button rendering
 
 **Fixed:** Documentation button now appears correctly on FIDO2 success page with proper deviceType preservation and fallback logic.
 
@@ -750,10 +750,10 @@ const showDocumentationButton = flowType === 'registration' && hasDocumentation;
 **Solution:**
 ```typescript
 // ✅ CORRECT - Add dynamic bottom padding based on API display visibility
-const [apiDisplayVisible, setApiDisplayVisible] = useState(apiDisplayServiceV8.isVisible());
+const [apiDisplayVisible, setApiDisplayVisible] = useState(apiDisplayService.isVisible());
 
 useEffect(() => {
-  const unsubscribe = apiDisplayServiceV8.subscribe((isVisible) => {
+  const unsubscribe = apiDisplayService.subscribe((isVisible) => {
     setApiDisplayVisible(isVisible);
   });
   return unsubscribe;
@@ -779,7 +779,7 @@ return (
 );
 ```
 
-**Location:** `src/v8/services/unifiedMFASuccessPageServiceV8.tsx`
+**Location:** `src/v8/services/unifiedMFASuccessPageService.tsx`
 
 **Fixed:** Success page now has dynamic bottom padding that adjusts based on API display visibility, ensuring all buttons are accessible via scrolling.
 
@@ -795,7 +795,7 @@ return (
 **Solution:**
 ```typescript
 // ✅ CORRECT - Validate token format before sending
-const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
+const cleanToken = await MfaAuthenticationService.getWorkerTokenWithAutoRenew();
 
 // Validate token format (JWT should have 3 parts)
 const tokenParts = cleanToken.split('.');
@@ -810,7 +810,7 @@ if (cleanToken.length < 100) {
 ```
 
 **Location:** 
-- `src/v8/services/mfaAuthenticationServiceV8.ts` → `checkFIDO2Assertion()`
+- `src/v8/services/mfaAuthenticationService.ts` → `checkFIDO2Assertion()`
 - `server.js` → `/api/pingone/mfa/check-fido2-assertion`
 
 **Fixed:** Worker token is now validated before sending to PingOne, providing clear error messages if the token is invalid.
@@ -820,7 +820,7 @@ if (cleanToken.length < 100) {
 ### Error 12: DeviceType Not Preserved in Success Page Chain
 
 **Problem:**
-- `deviceType` was being lost when passing through `MFASuccessPageV8` → `UnifiedMFASuccessPageV8`
+- `deviceType` was being lost when passing through `MFASuccessPage` → `UnifiedMFASuccessPage`
 - Original `credentials` from props didn't have `deviceType` set
 - `convertToUnifiedData` was using wrong fallback
 
@@ -835,14 +835,14 @@ return {
   // ... other fields
 };
 
-// In UnifiedMFASuccessPageV8:
+// In UnifiedMFASuccessPage:
 const deviceTypeStr = String(deviceType || '').toUpperCase();
 const hasDocumentation = deviceTypeStr && ['SMS', 'EMAIL', 'WHATSAPP', 'VOICE', 'FIDO2'].includes(deviceTypeStr);
 ```
 
 **Location:** 
-- `src/v8/flows/shared/mfaSuccessPageServiceV8.tsx` → `convertToUnifiedData`
-- `src/v8/services/unifiedMFASuccessPageServiceV8.tsx` → Documentation button check
+- `src/v8/flows/shared/mfaSuccessPageService.tsx` → `convertToUnifiedData`
+- `src/v8/services/unifiedMFASuccessPageService.tsx` → Documentation button check
 
 **Fixed:** DeviceType is now properly preserved through the entire success page component chain with proper fallback logic.
 
@@ -853,20 +853,20 @@ const hasDocumentation = deviceTypeStr && ['SMS', 'EMAIL', 'WHATSAPP', 'VOICE', 
 ### Frontend Files
 
 **Flow Components:**
-- `src/v8/flows/types/FIDO2FlowV8.tsx` - Main FIDO2 registration flow
-- `src/v8/flows/FIDO2ConfigurationPageV8.tsx` - FIDO2 configuration page
-- `src/v8/flows/MFAAuthenticationMainPageV8.tsx` - FIDO2 authentication page
+- `src/v8/flows/types/FIDO2Flow.tsx` - Main FIDO2 registration flow
+- `src/v8/flows/FIDO2ConfigurationPage.tsx` - FIDO2 configuration page
+- `src/v8/flows/MFAAuthenticationMainPage.tsx` - FIDO2 authentication page
 
 **UI Components:**
-- `src/v8/components/FIDODeviceExistsModalV8.tsx` - Error modal for existing device
+- `src/v8/components/FIDODeviceExistsModal.tsx` - Error modal for existing device
 
 **Services:**
-- `src/v8/services/mfaServiceV8.ts` - FIDO2 device registration and activation
-- `src/v8/services/mfaAuthenticationServiceV8.ts` - FIDO2 authentication and assertion check
+- `src/v8/services/mfaService.ts` - FIDO2 device registration and activation
+- `src/v8/services/mfaAuthenticationService.ts` - FIDO2 authentication and assertion check
 - `src/v8/flows/controllers/FIDO2FlowController.ts` - FIDO2 flow controller
 
 **Configuration:**
-- `src/v8/services/mfaConfigurationServiceV8.ts` - FIDO2 configuration storage
+- `src/v8/services/mfaConfigurationService.ts` - FIDO2 configuration storage
 
 ### Backend Files
 
@@ -889,14 +889,14 @@ const hasDocumentation = deviceTypeStr && ['SMS', 'EMAIL', 'WHATSAPP', 'VOICE', 
 - Script: `scripts/lockdown/lockdown.mjs`
 
 **Locked Files:**
-1. `src/v8/flows/types/FIDO2FlowV8.tsx` - Main registration flow
-2. `src/v8/flows/types/FIDO2ConfigurationPageV8.tsx` - Configuration page
-3. `src/v8/flows/MFAAuthenticationMainPageV8.tsx` - Authentication page
-4. `src/v8/components/FIDODeviceExistsModalV8.tsx` - Error modal
-5. `src/v8/services/mfaServiceV8.ts` - Registration/activation methods
-6. `src/v8/services/mfaAuthenticationServiceV8.ts` - Authentication/assertion check
+1. `src/v8/flows/types/FIDO2Flow.tsx` - Main registration flow
+2. `src/v8/flows/types/FIDO2ConfigurationPage.tsx` - Configuration page
+3. `src/v8/flows/MFAAuthenticationMainPage.tsx` - Authentication page
+4. `src/v8/components/FIDODeviceExistsModal.tsx` - Error modal
+5. `src/v8/services/mfaService.ts` - Registration/activation methods
+6. `src/v8/services/mfaAuthenticationService.ts` - Authentication/assertion check
 7. `src/v8/flows/controllers/FIDO2FlowController.ts` - Flow controller
-8. `src/v8/services/mfaConfigurationServiceV8.ts` - Configuration storage
+8. `src/v8/services/mfaConfigurationService.ts` - Configuration storage
 9. `server.js` - Backend FIDO2 API endpoints
 
 **Verification:**
@@ -928,7 +928,7 @@ If FIDO2 breaks due to file modifications:
 
 ### Success Page
 
-**Location:** `src/v8/flows/types/FIDO2FlowV8.tsx` → `renderStep3`
+**Location:** `src/v8/flows/types/FIDO2Flow.tsx` → `renderStep3`
 
 **Features:**
 - Displays after successful FIDO2 device registration
@@ -941,7 +941,7 @@ If FIDO2 breaks due to file modifications:
 
 **Documentation Button:**
 - **Route:** `/v8/mfa/register/fido2/docs`
-- **Component:** `FIDO2RegistrationDocsPageV8`
+- **Component:** `FIDO2RegistrationDocsPage`
 - **Condition:** Only shown for registration flows (not authentication)
 - **Implementation:** The success page ensures `deviceType` is set to `'FIDO2'` when building success data, which enables the documentation button to appear
 - **Button Color:** Orange/yellow (`#f59e0b`) with book icon
@@ -968,7 +968,7 @@ successData.deviceType = 'FIDO2' as DeviceType;
 
 // Pass modified credentials to ensure deviceType is preserved
 return (
-  <MFASuccessPageV8
+  <MFASuccessPage
     {...props}
     credentials={credentialsWithDeviceType}
     successData={successData}
@@ -980,12 +980,12 @@ return (
 **Error Fixed:** Previously, the documentation button was not appearing because `deviceType` wasn't being passed correctly through the success page chain. Now we:
 1. Set `deviceType` in `credentialsWithDeviceType`
 2. Explicitly set `successData.deviceType = 'FIDO2'`
-3. Pass `credentialsWithDeviceType` to `MFASuccessPageV8`
-4. Normalize deviceType check in `UnifiedMFASuccessPageV8` with fallback logic
+3. Pass `credentialsWithDeviceType` to `MFASuccessPage`
+4. Normalize deviceType check in `UnifiedMFASuccessPage` with fallback logic
 
 ### Documentation Page
 
-**Location:** `src/v8/pages/FIDO2RegistrationDocsPageV8.tsx`
+**Location:** `src/v8/pages/FIDO2RegistrationDocsPage.tsx`
 
 **Route:** `/v8/mfa/register/fido2/docs`
 

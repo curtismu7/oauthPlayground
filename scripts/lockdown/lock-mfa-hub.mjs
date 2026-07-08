@@ -33,24 +33,24 @@ const DEPS_DIR = join(LOCKED_DIR, 'dependencies');
 const MANIFEST_PATH = join(LOCKED_DIR, 'manifest.json');
 
 // MFA Hub feature files to lock
-const HUB_FILES = ['src/mfa/flows/MFAHubV8.tsx'];
+const HUB_FILES = ['src/mfa/flows/MFAHub.tsx'];
 
 // Critical dependencies to lock
 const CRITICAL_DEPS = [
 	// Services
-	'src/mfa/services/credentialsServiceV8.ts',
-	'src/mfa/services/mfaConfigurationServiceV8.ts',
-	'src/mfa/services/workerTokenServiceV8.ts',
-	'src/mfa/services/workerTokenStatusServiceV8.ts',
+	'src/mfa/services/credentialsService.ts',
+	'src/mfa/services/mfaConfigurationService.ts',
+	'src/mfa/services/workerTokenService.ts',
+	'src/mfa/services/workerTokenStatusService.ts',
 	// Components
-	'src/mfa/components/MFAHeaderV8.tsx',
-	'src/mfa/components/WorkerTokenGaugeV8.tsx',
-	'src/mfa/components/WorkerTokenModalV8.tsx',
+	'src/mfa/components/MFAHeader.tsx',
+	'src/mfa/components/WorkerTokenGauge.tsx',
+	'src/mfa/components/WorkerTokenModal.tsx',
 	// Hooks
 	'src/mfa/hooks/useApiDisplayPadding.ts',
 	// Utils
-	'src/mfa/utils/workerTokenModalHelperV8.ts',
-	'src/mfa/utils/toastNotificationsV8.ts',
+	'src/mfa/utils/workerTokenModalHelper.ts',
+	'src/mfa/utils/toastNotifications.ts',
 	// Shared services (postman generator)
 	'src/services/postmanCollectionGeneratorV8.ts',
 	'src/services/pingOneLogoutService.ts',

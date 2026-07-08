@@ -24,7 +24,7 @@ Created a new `/unified-callback` route that all V8U flows use:
 
 ### 1. Updated Redirect URI Service
 
-**File:** `src/v8/services/redirectUriServiceV8.ts`
+**File:** `src/v8/services/redirectUriService.ts`
 
 Changed all V8U flows to use `unified-callback`:
 

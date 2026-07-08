@@ -10,16 +10,16 @@
 **Last Updated**: 2026-02-12
 
 #### **Problem Summary:**
-The Protect Portal login page was using a plain text input for the username field instead of the searchable UserSearchDropdownV8 component used in other parts of the application (MFA flows, OAuth flows). This created an inconsistent user experience and required manual username entry.
+The Protect Portal login page was using a plain text input for the username field instead of the searchable UserSearchDropdown component used in other parts of the application (MFA flows, OAuth flows). This created an inconsistent user experience and required manual username entry.
 
 #### **Root Cause Analysis:**
 - Login page implemented with basic text input for email/username
-- Inconsistent with UserSearchDropdownV8 pattern used in MFA and OAuth flows
+- Inconsistent with UserSearchDropdown pattern used in MFA and OAuth flows
 - No user search functionality for easier username selection
-- Missing integration with CredentialsServiceV8 for environment ID
+- Missing integration with CredentialsService for environment ID
 
 #### **Files Modified:**
-- `src/protect-app/pages/LoginPage.tsx` - Replaced email input with UserSearchDropdownV8
+- `src/protect-app/pages/LoginPage.tsx` - Replaced email input with UserSearchDropdown
 
 #### **Solution Implemented:**
 ```typescript
@@ -35,7 +35,7 @@ The Protect Portal login page was using a plain text input for the username fiel
 
 // ✅ AFTER (Consistent with MFA/OAuth):
 {environmentId ? (
-  <UserSearchDropdownV8
+  <UserSearchDropdown
     id="email"
     environmentId={environmentId}
     value={formData.email}
@@ -53,25 +53,25 @@ The Protect Portal login page was using a plain text input for the username fiel
 - ✅ Consistent UX across all applications (Protect Portal, MFA, OAuth)
 - ✅ Searchable user dropdown with pagination
 - ✅ Easier username selection (no manual typing required)
-- ✅ Integration with CredentialsServiceV8
+- ✅ Integration with CredentialsService
 - ✅ Fallback to text input if environment ID not available
 
 #### **Prevention Commands:**
 ```bash
-# Check for text input username fields (should use UserSearchDropdownV8)
+# Check for text input username fields (should use UserSearchDropdown)
 grep -rn "type=\"email\"\|type=\"text\"" src/protect-app/pages/LoginPage.tsx | grep -i "username\|email"
 
-# Verify UserSearchDropdownV8 usage
-grep -rn "UserSearchDropdownV8" src/protect-app/pages/LoginPage.tsx && echo "✅ USING DROPDOWN" || echo "❌ USING TEXT INPUT"
+# Verify UserSearchDropdown usage
+grep -rn "UserSearchDropdown" src/protect-app/pages/LoginPage.tsx && echo "✅ USING DROPDOWN" || echo "❌ USING TEXT INPUT"
 
-# Check for CredentialsServiceV8 integration
-grep -rn "CredentialsServiceV8" src/protect-app/pages/LoginPage.tsx && echo "✅ CREDENTIALS INTEGRATION" || echo "❌ MISSING CREDENTIALS"
+# Check for CredentialsService integration
+grep -rn "CredentialsService" src/protect-app/pages/LoginPage.tsx && echo "✅ CREDENTIALS INTEGRATION" || echo "❌ MISSING CREDENTIALS"
 ```
 
 #### **SWE-15 Compliance:**
-- ✅ **Single Responsibility**: UserSearchDropdownV8 handles user search
+- ✅ **Single Responsibility**: UserSearchDropdown handles user search
 - ✅ **Open/Closed**: Extended LoginPage without breaking existing functionality
-- ✅ **Liskov Substitution**: UserSearchDropdownV8 is proper replacement for text input
+- ✅ **Liskov Substitution**: UserSearchDropdown is proper replacement for text input
 - ✅ **Interface Segregation**: Clean separation of concerns
 - ✅ **Dependency Inversion**: Uses established service patterns
 
@@ -84,17 +84,17 @@ grep -rn "CredentialsServiceV8" src/protect-app/pages/LoginPage.tsx && echo "✅
 ```bash
 # === CRITICAL PROTECT PORTAL PREVENTION COMMANDS ===
 
-# 1. Check for UserSearchDropdownV8 usage consistency
-echo "=== Checking UserSearchDropdownV8 Usage ==="
-grep -rn "UserSearchDropdownV8" src/protect-app/ --include="*.tsx" --include="*.ts" && echo "✅ USING DROPDOWN" || echo "❌ MISSING DROPDOWN"
+# 1. Check for UserSearchDropdown usage consistency
+echo "=== Checking UserSearchDropdown Usage ==="
+grep -rn "UserSearchDropdown" src/protect-app/ --include="*.tsx" --include="*.ts" && echo "✅ USING DROPDOWN" || echo "❌ MISSING DROPDOWN"
 
 # 2. Verify no text inputs for username fields
 echo "=== Checking for Text Input Username Fields ==="
 grep -rn "type=\"email\"\|type=\"text\"" src/protect-app/pages/LoginPage.tsx | grep -i "username\|email" && echo "❌ TEXT INPUT FOUND" || echo "✅ USING DROPDOWN"
 
-# 3. Check CredentialsServiceV8 integration
-echo "=== Checking CredentialsServiceV8 Integration ==="
-grep -rn "CredentialsServiceV8" src/protect-app/ --include="*.tsx" --include="*.ts" | head -5
+# 3. Check CredentialsService integration
+echo "=== Checking CredentialsService Integration ==="
+grep -rn "CredentialsService" src/protect-app/ --include="*.tsx" --include="*.ts" | head -5
 
 # 4. Verify React DOM prop warnings fixed
 echo "=== Checking React DOM Props ==="
@@ -131,7 +131,7 @@ npx playwright test e2e/tests/golden-path-flows.spec.ts
 **What It Checks:**
 1. **Static Analysis**: Protect Portal-specific patterns and known issues
 2. **Dynamic Testing**: Protect Portal accessibility and functionality
-3. **UX Consistency**: UserSearchDropdownV8 usage, corporate branding
+3. **UX Consistency**: UserSearchDropdown usage, corporate branding
 
 **Exit Codes:**
 - `0`: All Protect Portal checks passed ✅
@@ -148,9 +148,9 @@ npx playwright test e2e/tests/golden-path-flows.spec.ts
 # 2. Run only Protect Portal-specific checks
 echo "=== PROTECT PORTAL-SPECIFIC REGRESSION CHECKS ==="
 
-# Check for UserSearchDropdownV8 usage
-if ! grep -rn "UserSearchDropdownV8" src/protect-app/pages/LoginPage.tsx | head -1; then
-  echo "❌ PP-060: UserSearchDropdownV8 not being used in LoginPage"
+# Check for UserSearchDropdown usage
+if ! grep -rn "UserSearchDropdown" src/protect-app/pages/LoginPage.tsx | head -1; then
+  echo "❌ PP-060: UserSearchDropdown not being used in LoginPage"
   exit 1
 fi
 

@@ -55,7 +55,7 @@ Added complete redirectless mode support to the Authorization Code flow in the V
 
 ## Implementation Details
 
-### 1. Service Layer (`unifiedFlowOptionsServiceV8.ts`)
+### 1. Service Layer (`unifiedFlowOptionsService.ts`)
 
 Added redirectless checkbox availability for Authorization Code flow:
 
@@ -92,9 +92,9 @@ onChange={(e) => {
   });
   
   if (checked) {
-    toastV8.info('Redirectless mode enabled - authorization response will be returned via POST to your backend');
+    toast.info('Redirectless mode enabled - authorization response will be returned via POST to your backend');
   } else {
-    toastV8.info('Redirectless mode disabled - standard redirect flow will be used');
+    toast.info('Redirectless mode disabled - standard redirect flow will be used');
   }
 }}
 ```
@@ -292,7 +292,7 @@ Potential future additions:
 
 ## Files Modified
 
-- `src/v8/services/unifiedFlowOptionsServiceV8.ts` - Added redirectless checkbox availability
+- `src/v8/services/unifiedFlowOptionsService.ts` - Added redirectless checkbox availability
 - `src/v8u/components/CredentialsFormV8U.tsx` - Added checkbox UI and state management
 
 ---

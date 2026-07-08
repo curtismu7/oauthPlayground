@@ -4,8 +4,8 @@
 
 The **SMS OTP MFA V8 flow** needs the same kind of wiring fix we applied to FIDO2:
 
-- The **SMS configuration page** (`SMSOTPConfigurationPageV8`) must hand off data cleanly to  
-  the **SMS MFA flow** (`SMSFlowV8`), which in turn relies on the shared base flow (`MFAFlowBaseV8`).
+- The **SMS configuration page** (`SMSOTPConfigurationPage`) must hand off data cleanly to  
+  the **SMS MFA flow** (`SMSFlow`), which in turn relies on the shared base flow (`MFAFlowBase`).
 - SMS device registration and OTP send/verify must use the **correct environment, user, policy, and phone/email**
   information every time.
 
@@ -15,9 +15,9 @@ The objective is to:
 3. Avoid breaking **other MFA flows** (FIDO2, Email, TOTP, etc.).
 
 Key files:
-- `SMSFlowV8.tsx` fileciteturn0file0  
-- `SMSOTPConfigurationPageV8.tsx` fileciteturn0file1  
-- `MFAFlowBaseV8.tsx` fileciteturn0file2  
+- `SMSFlow.tsx` fileciteturn0file0  
+- `SMSOTPConfigurationPage.tsx` fileciteturn0file1  
+- `MFAFlowBase.tsx` fileciteturn0file2  
 
 You are refactoring behavior and wiring, not re‑them­ing the experience.
 
@@ -104,11 +104,11 @@ And we never check whether those are actually set before skipping Configure.
 
 ### 3. Base flow depends on stored credentials, not config state
 
-`MFAFlowBaseV8` initializes credentials from `CredentialsServiceV8`:
+`MFAFlowBase` initializes credentials from `CredentialsService`:
 
 ```ts
 const [credentials, setCredentials] = useState<MFACredentials>(() => {
-  const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+  const stored = CredentialsService.loadCredentials(FLOW_KEY, {
     flowKey: FLOW_KEY,
     flowType: 'oidc',
     includeClientSecret: false,
@@ -177,12 +177,12 @@ The result: “SMS registration is not working” when started from the SMS conf
 
 You have two safe patterns to combine:
 
-1. **When coming from SMSOTPConfigurationPageV8**, allow it to pass more data via `location.state`, e.g.:  
+1. **When coming from SMSOTPConfigurationPage**, allow it to pass more data via `location.state`, e.g.:  
    - `environmentId`
    - `username`
    - (optionally) `phoneNumber`
 
-2. In `SMSFlowV8`, **merge those values into `credentials` exactly once** on first render, similar to how you currently merge `deviceAuthenticationPolicyId`.
+2. In `SMSFlow`, **merge those values into `credentials` exactly once** on first render, similar to how you currently merge `deviceAuthenticationPolicyId`.
 
 ### B. Don’t skip Configure if essentials are missing
 
@@ -196,7 +196,7 @@ If any of those are missing after applying `location.state`, the flow should **s
 
 ### C. Keep Email/SMS dual‑mode behavior intact
 
-`SMSFlowV8` already supports a dual deviceType (`SMS` vs `EMAIL`) registration path in Step 2:
+`SMSFlow` already supports a dual deviceType (`SMS` vs `EMAIL`) registration path in Step 2:
 
 - Validate phone number for SMS.
 - Validate email format for Email.
@@ -208,7 +208,7 @@ Fixes should **not** break that behavior. Instead, they should guarantee that wh
 
 ## Concrete Implementation Plan
 
-### 1. Extend what SMSOTPConfigurationPageV8 can send (non‑breaking)
+### 1. Extend what SMSOTPConfigurationPage can send (non‑breaking)
 
 Optionally enhance the config page to **optionally** include environment/username in the `navigate` call when those are known.
 
@@ -229,7 +229,7 @@ navigate('/v8/mfa/register/sms/device', {
 
 Make these optional so existing calls remain valid. fileciteturn0file1
 
-### 2. In SMSFlowV8, merge `location.state` into credentials in a **single place**
+### 2. In SMSFlow, merge `location.state` into credentials in a **single place**
 
 In `renderStep0` (inside `SMSFlowV8WithDeviceSelection`), expand the `locationState` type and merge logic:
 
@@ -331,11 +331,11 @@ You don’t need to redesign – just **short‑circuit bad states** early with 
 While implementing this fix:
 
 1. **Do not change visual styling** (CSS, colors, layout) beyond tiny label tweaks if absolutely necessary.
-2. **Do not remove or weaken** the dual SMS/Email device support in `SMSFlowV8`.
+2. **Do not remove or weaken** the dual SMS/Email device support in `SMSFlow`.
 3. **Do not regress FIDO2 or other MFA flows** – all changes must be scoped to:
-   - `SMSFlowV8.tsx`
-   - `SMSOTPConfigurationPageV8.tsx`
-   - Small, shared pieces in `MFAFlowBaseV8.tsx` (only if absolutely required).
+   - `SMSFlow.tsx`
+   - `SMSOTPConfigurationPage.tsx`
+   - Small, shared pieces in `MFAFlowBase.tsx` (only if absolutely required).
 4. Keep TypeScript strict mode happy:
    - Types for extended `location.state` must be correct and optional.
    - `MFACredentials` remains backward‑compatible if you add any fields.
@@ -347,12 +347,12 @@ While implementing this fix:
 
 The SMS OTP flow is considered **fixed** when all of the following hold:
 
-1. Starting from **SMSOTPConfigurationPageV8**:
+1. Starting from **SMSOTPConfigurationPage**:
    - User selects a **Device Authentication Policy**.
    - If the config page has env/username fields, they are used; otherwise the flow safely falls back to Step 0.
-   - Clicking “Proceed to registration” takes the user into `SMSFlowV8` with `configured === true`.
+   - Clicking “Proceed to registration” takes the user into `SMSFlow` with `configured === true`.
 
-2. In **SMSFlowV8**:
+2. In **SMSFlow**:
    - When coming from config and required fields (env, username, policy) are available, Step 0 is **skipped** and we start at device selection/registration.
    - When coming from config but fields are missing, Step 0 is **not skipped**, and the user is guided to fill in missing data.
    - `credentials.environmentId`, `credentials.username`, and `credentials.deviceAuthenticationPolicyId` are always valid by the time we register a device or send an OTP.
@@ -368,12 +368,12 @@ The SMS OTP flow is considered **fixed** when all of the following hold:
 
 5. Regression safety:
    - Other MFA flows (FIDO2, Email, TOTP, etc.) continue to work exactly as before.
-   - No new runtime errors in `MFAFlowBaseV8` or shared services.
+   - No new runtime errors in `MFAFlowBase` or shared services.
 
 Use this prompt to guide a **surgical refactor** of:
 
-- `SMSFlowV8.tsx`
-- `SMSOTPConfigurationPageV8.tsx`
-- (optionally) minimal helpers in `MFAFlowBaseV8.tsx`
+- `SMSFlow.tsx`
+- `SMSOTPConfigurationPage.tsx`
+- (optionally) minimal helpers in `MFAFlowBase.tsx`
 
 so that SMS OTP registration behaves as reliably as the fixed FIDO2 flow, while keeping the UX familiar and educational.

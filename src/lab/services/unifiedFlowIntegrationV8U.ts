@@ -13,28 +13,28 @@ import type { ResponseMode } from '@/services/responseModeService';
 import { UnifiedRedirectUriService as UnifiedRedirectUriServiceV8U } from '@/platform/UnifiedRedirectUriService';
 import {
 	type ClientCredentialsCredentials,
-	ClientCredentialsIntegrationServiceV8,
-} from '@/mfa/services/clientCredentialsIntegrationServiceV8';
+	ClientCredentialsIntegrationService,
+} from '@/mfa/services/clientCredentialsIntegrationService';
 import {
 	type DeviceCodeCredentials,
-	DeviceCodeIntegrationServiceV8,
-} from '@/mfa/services/deviceCodeIntegrationServiceV8';
+	DeviceCodeIntegrationService,
+} from '@/mfa/services/deviceCodeIntegrationService';
 import {
 	type HybridFlowCredentials,
-	HybridFlowIntegrationServiceV8,
-} from '@/mfa/services/hybridFlowIntegrationServiceV8';
-import { ImplicitFlowIntegrationServiceV8 } from '@/mfa/services/implicitFlowIntegrationServiceV8';
+	HybridFlowIntegrationService,
+} from '@/mfa/services/hybridFlowIntegrationService';
+import { ImplicitFlowIntegrationService } from '@/mfa/services/implicitFlowIntegrationService';
 import {
 	type OAuthCredentials,
-	OAuthIntegrationServiceV8,
-} from '@/mfa/services/oauthIntegrationServiceV8';
+	OAuthIntegrationService,
+} from '@/mfa/services/oauthIntegrationService';
 // ROPC flow removed - not supported by PingOne, use mock flows instead
 import {
 	type FlowType,
 	type SpecVersion,
-	SpecVersionServiceV8,
-} from '@/mfa/services/specVersionServiceV8';
-import { UnifiedFlowOptionsServiceV8 } from '@/mfa/services/unifiedFlowOptionsServiceV8';
+	SpecVersionService,
+} from '@/mfa/services/specVersionService';
+import { UnifiedFlowOptionsService } from '@/mfa/services/unifiedFlowOptionsService';
 import { UnifiedFlowErrorHandler } from './unifiedFlowErrorHandlerV8U';
 import { logger } from './unifiedFlowLoggerServiceV8U';
 
@@ -95,43 +95,43 @@ export interface UnifiedFlowState {
 export class UnifiedFlowIntegrationV8U {
 	/**
 	 * Get available flows for a spec version
-	 * Delegates to SpecVersionServiceV8
+	 * Delegates to SpecVersionService
 	 */
 	static getAvailableFlows(specVersion: SpecVersion): FlowType[] {
 		logger.debug(`Getting available flows for spec`, { specVersion });
-		return SpecVersionServiceV8.getAvailableFlows(specVersion);
+		return SpecVersionService.getAvailableFlows(specVersion);
 	}
 
 	/**
 	 * Check if a flow is available for a spec version
-	 * Delegates to SpecVersionServiceV8
+	 * Delegates to SpecVersionService
 	 */
 	static isFlowAvailable(specVersion: SpecVersion, flowType: FlowType): boolean {
-		return SpecVersionServiceV8.isFlowAvailable(specVersion, flowType);
+		return SpecVersionService.isFlowAvailable(specVersion, flowType);
 	}
 
 	/**
 	 * Get flow options for spec version + flow type
-	 * Delegates to UnifiedFlowOptionsServiceV8
+	 * Delegates to UnifiedFlowOptionsService
 	 */
 	static getFlowOptions(specVersion: SpecVersion, flowType: FlowType) {
-		return UnifiedFlowOptionsServiceV8.getOptionsForFlow(specVersion, flowType);
+		return UnifiedFlowOptionsService.getOptionsForFlow(specVersion, flowType);
 	}
 
 	/**
 	 * Get field visibility for spec version + flow type
-	 * Delegates to UnifiedFlowOptionsServiceV8
+	 * Delegates to UnifiedFlowOptionsService
 	 */
 	static getFieldVisibility(specVersion: SpecVersion, flowType: FlowType) {
-		return UnifiedFlowOptionsServiceV8.getFieldVisibility(specVersion, flowType);
+		return UnifiedFlowOptionsService.getFieldVisibility(specVersion, flowType);
 	}
 
 	/**
 	 * Get checkbox availability for spec version + flow type
-	 * Delegates to UnifiedFlowOptionsServiceV8
+	 * Delegates to UnifiedFlowOptionsService
 	 */
 	static getCheckboxAvailability(specVersion: SpecVersion, flowType: FlowType) {
-		return UnifiedFlowOptionsServiceV8.getCheckboxAvailability(specVersion, flowType);
+		return UnifiedFlowOptionsService.getCheckboxAvailability(specVersion, flowType);
 	}
 
 	/**
@@ -141,24 +141,24 @@ export class UnifiedFlowIntegrationV8U {
 	 * @returns Array of error messages for critical violations
 	 */
 	static getComplianceErrors(specVersion: SpecVersion, flowType: FlowType): string[] {
-		return UnifiedFlowOptionsServiceV8.getComplianceErrors(specVersion, flowType);
+		return UnifiedFlowOptionsService.getComplianceErrors(specVersion, flowType);
 	}
 
 	/**
 	 * Get compliance warnings for spec version + flow type
-	 * Delegates to UnifiedFlowOptionsServiceV8
+	 * Delegates to UnifiedFlowOptionsService
 	 */
 	static getComplianceWarnings(specVersion: SpecVersion, flowType: FlowType): string[] {
-		return UnifiedFlowOptionsServiceV8.getComplianceWarnings(specVersion, flowType);
+		return UnifiedFlowOptionsService.getComplianceWarnings(specVersion, flowType);
 	}
 
 	/**
 	 * Generate authorization URL for OAuth/OIDC flows
 	 *
 	 * This is a unified entry point that delegates to flow-specific services:
-	 * - Implicit flow → ImplicitFlowIntegrationServiceV8
-	 * - Authorization Code flow → OAuthIntegrationServiceV8
-	 * - Hybrid flow → HybridFlowIntegrationServiceV8
+	 * - Implicit flow → ImplicitFlowIntegrationService
+	 * - Authorization Code flow → OAuthIntegrationService
+	 * - Hybrid flow → HybridFlowIntegrationService
 	 *
 	 * CRITICAL: State prefixing for callback handling
 	 * All flows prefix the state parameter with their flow type (e.g., "v8u-oauth-authz-{state}").
@@ -239,7 +239,7 @@ export class UnifiedFlowIntegrationV8U {
 			const startTime = Date.now();
 			const authorizationEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
 
-			const result = await ImplicitFlowIntegrationServiceV8.generateAuthorizationUrl(
+			const result = await ImplicitFlowIntegrationService.generateAuthorizationUrl(
 				{
 					environmentId: credentials.environmentId,
 					clientId: credentials.clientId,
@@ -526,7 +526,7 @@ export class UnifiedFlowIntegrationV8U {
 			if (credentials.clientAuthMethod) {
 				oauthCredentials.clientAuthMethod = credentials.clientAuthMethod;
 			}
-			const result = await OAuthIntegrationServiceV8.generateAuthorizationUrl(
+			const result = await OAuthIntegrationService.generateAuthorizationUrl(
 				oauthCredentials,
 				pkceCodes,
 				appConfig
@@ -707,7 +707,7 @@ export class UnifiedFlowIntegrationV8U {
 			if (credentials.clientAuthMethod) {
 				hybridCredentials.clientAuthMethod = credentials.clientAuthMethod;
 			}
-			const result = await HybridFlowIntegrationServiceV8.generateAuthorizationUrl(
+			const result = await HybridFlowIntegrationService.generateAuthorizationUrl(
 				hybridCredentials,
 				pkceCodes,
 				appConfig
@@ -912,7 +912,7 @@ export class UnifiedFlowIntegrationV8U {
 		if (credentials.scopes) {
 			deviceCredentials.scopes = credentials.scopes;
 		}
-		return DeviceCodeIntegrationServiceV8.requestDeviceAuthorization(deviceCredentials);
+		return DeviceCodeIntegrationService.requestDeviceAuthorization(deviceCredentials);
 	}
 
 	/**
@@ -988,7 +988,7 @@ export class UnifiedFlowIntegrationV8U {
 		if (credentials.scopes) {
 			deviceCredentials.scopes = credentials.scopes;
 		}
-		return DeviceCodeIntegrationServiceV8.pollForTokens(
+		return DeviceCodeIntegrationService.pollForTokens(
 			deviceCredentials,
 			deviceCode,
 			interval,
@@ -1098,7 +1098,7 @@ export class UnifiedFlowIntegrationV8U {
 				scopes: ccCredentials.scopes || '(none)',
 				authMethod: ccCredentials.clientAuthMethod || 'client_secret_basic',
 			});
-			return ClientCredentialsIntegrationServiceV8.requestToken(ccCredentials);
+			return ClientCredentialsIntegrationService.requestToken(ccCredentials);
 		}
 
 		throw new Error(
@@ -1292,7 +1292,7 @@ export class UnifiedFlowIntegrationV8U {
 				step: 'unified-token-exchange',
 			});
 
-			logger.debug(` Calling OAuthIntegrationServiceV8.exchangeCodeForTokens...`, 'Logger debug');
+			logger.debug(` Calling OAuthIntegrationService.exchangeCodeForTokens...`, 'Logger debug');
 			logger.debug(`Parameters:`, {
 				hasCredentials: !!oauthCredentials,
 				codeLength: code.length,
@@ -1301,7 +1301,7 @@ export class UnifiedFlowIntegrationV8U {
 			});
 
 			try {
-				const result = await OAuthIntegrationServiceV8.exchangeCodeForTokens(
+				const result = await OAuthIntegrationService.exchangeCodeForTokens(
 					oauthCredentials,
 					code,
 					codeVerifier || ''
@@ -1411,7 +1411,7 @@ export class UnifiedFlowIntegrationV8U {
 			});
 
 			try {
-				const result = await HybridFlowIntegrationServiceV8.exchangeCodeForTokens(
+				const result = await HybridFlowIntegrationService.exchangeCodeForTokens(
 					hybridCredentials,
 					code,
 					codeVerifier
@@ -1480,14 +1480,14 @@ export class UnifiedFlowIntegrationV8U {
 		logger.debug(`Parsing callback fragment`, { flowType });
 
 		if (flowType === 'implicit') {
-			const result = ImplicitFlowIntegrationServiceV8.parseCallbackFragment(
+			const result = ImplicitFlowIntegrationService.parseCallbackFragment(
 				callbackUrl,
 				expectedState
 			);
 
 			// Validate nonce if provided
 			if (expectedNonce && result.id_token) {
-				const nonceValid = ImplicitFlowIntegrationServiceV8.validateNonce(
+				const nonceValid = ImplicitFlowIntegrationService.validateNonce(
 					result.id_token,
 					expectedNonce
 				);
@@ -1502,14 +1502,14 @@ export class UnifiedFlowIntegrationV8U {
 		}
 
 		if (flowType === 'hybrid') {
-			const result = HybridFlowIntegrationServiceV8.parseCallbackFragment(
+			const result = HybridFlowIntegrationService.parseCallbackFragment(
 				callbackUrl,
 				expectedState
 			);
 
 			// Validate nonce if provided
 			if (expectedNonce && result.id_token) {
-				const nonceValid = HybridFlowIntegrationServiceV8.validateNonce(
+				const nonceValid = HybridFlowIntegrationService.validateNonce(
 					result.id_token,
 					expectedNonce
 				);
@@ -1528,22 +1528,22 @@ export class UnifiedFlowIntegrationV8U {
 
 	/**
 	 * Parse callback URL (for authorization code flow)
-	 * Delegates to OAuthIntegrationServiceV8
+	 * Delegates to OAuthIntegrationService
 	 */
 	static parseCallbackUrl(callbackUrl: string, expectedState: string) {
-		return OAuthIntegrationServiceV8.parseCallbackUrl(callbackUrl, expectedState);
+		return OAuthIntegrationService.parseCallbackUrl(callbackUrl, expectedState);
 	}
 
 	/**
 	 * Validate configuration
-	 * Delegates to SpecVersionServiceV8
+	 * Delegates to SpecVersionService
 	 */
 	static validateConfiguration(
 		specVersion: SpecVersion,
 		flowType: FlowType,
 		credentials: UnifiedFlowCredentials
 	) {
-		return SpecVersionServiceV8.validateConfiguration(
+		return SpecVersionService.validateConfiguration(
 			specVersion,
 			flowType,
 			credentials as unknown as Record<string, unknown>

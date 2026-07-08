@@ -42,7 +42,7 @@ Successfully modernized the MFA Unified Flow with:
    - 124 lines
 
 4. **UnifiedFlowServiceIntegration** (`src/v8/flows/unified/services/unifiedFlowServiceIntegration.ts`)
-   - Service layer using MFAServiceV8
+   - Service layer using MFAService
    - Uses global services
    - Simplified API
    - 195 lines

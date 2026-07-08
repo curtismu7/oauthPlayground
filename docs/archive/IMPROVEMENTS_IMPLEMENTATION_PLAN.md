@@ -28,8 +28,8 @@ This document tracks the implementation of improvements identified in the Profes
 **Issue:** PingOne requires `openid` scope for ALL flows (not just OIDC spec version)
 
 **Files to Update:**
-- `src/v8/services/preFlightValidationServiceV8.ts` - Add validation for all flows
-- `src/v8/services/credentialsServiceV8.ts` - Auto-add openid scope
+- `src/v8/services/preFlightValidationService.ts` - Add validation for all flows
+- `src/v8/services/credentialsService.ts` - Auto-add openid scope
 - `src/v8u/components/CredentialsFormV8U.tsx` - UI guidance
 
 **Changes:**
@@ -43,7 +43,7 @@ This document tracks the implementation of improvements identified in the Profes
 **Issue:** Credentials should persist across browser restarts
 
 **Files to Update:**
-- `src/v8/services/credentialsServiceV8.ts` - Make IndexedDB primary
+- `src/v8/services/credentialsService.ts` - Make IndexedDB primary
 - `src/v8u/services/indexedDBBackupServiceV8U.ts` - Enhance for primary use
 
 **Changes:**
@@ -57,13 +57,13 @@ This document tracks the implementation of improvements identified in the Profes
 **Status:** Pending  
 **Priority:** Medium  
 **Files:**
-- `src/v8/services/oidcDiscoveryServiceV8.ts` - Add caching layer
+- `src/v8/services/oidcDiscoveryService.ts` - Add caching layer
 
 #### 2.2 Cache JWKS
 **Status:** Pending  
 **Priority:** Medium  
 **Files:**
-- Create `src/v8/services/jwksCacheServiceV8.ts` - New service
+- Create `src/v8/services/jwksCacheService.ts` - New service
 
 ### ⏳ Phase 3: Compliance Enhancements
 
@@ -71,7 +71,7 @@ This document tracks the implementation of improvements identified in the Profes
 **Status:** Pending  
 **Priority:** High  
 **Files:**
-- Create `src/v8/services/idTokenValidationServiceV8.ts` - New service
+- Create `src/v8/services/idTokenValidationService.ts` - New service
 
 #### 3.2 Enhanced Token Introspection
 **Status:** Pending  
@@ -110,7 +110,7 @@ This document tracks the implementation of improvements identified in the Profes
 
 **Code Changes:**
 ```typescript
-// In preFlightValidationServiceV8.ts
+// In preFlightValidationService.ts
 // Change from:
 if (specVersion === 'oidc' && !credentials.scopes?.includes('openid')) {
   // ...
@@ -138,7 +138,7 @@ if (!credentials.scopes?.includes('openid')) {
 
 **Code Changes:**
 ```typescript
-// In credentialsServiceV8.ts
+// In credentialsService.ts
 // Change load order:
 // 1. IndexedDB (primary, persistent)
 // 2. localStorage (fast cache)
@@ -169,7 +169,7 @@ if (!credentials.scopes?.includes('openid')) {
 ### 5. ID Token Validation
 
 **Implementation:**
-- Create `idTokenValidationServiceV8.ts`
+- Create `idTokenValidationService.ts`
 - Implement JWKS-based signature verification
 - Validate all OIDC claims (iss, aud, exp, iat, nonce, azp)
 - Show validation results in UI

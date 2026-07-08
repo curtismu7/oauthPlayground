@@ -233,11 +233,11 @@ const [expandedMFAUseCases, setExpandedMFAUseCases] = useState<Map<DeviceType, b
 **Correct Implementation:**
 ```typescript
 const getCredentials = () => {
-  const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
+  const environmentId = EnvironmentIdService.getEnvironmentId();
   const flowKey = 'oauth-authz-v8u';
   
   // Get flow config with proper fallback
-  let config = CredentialsServiceV8.getFlowConfig(flowKey);
+  let config = CredentialsService.getFlowConfig(flowKey);
   if (!config) {
     config = {
       flowKey,
@@ -249,11 +249,11 @@ const getCredentials = () => {
     };
   }
   
-  const unifiedCreds = CredentialsServiceV8.loadCredentials(flowKey, config);
+  const unifiedCreds = CredentialsService.loadCredentials(flowKey, config);
   
   // Load MFA credentials with proper flowKey and config
   const mfaFlowKey = 'mfa-flow-v8';
-  const mfaConfig = CredentialsServiceV8.getFlowConfig(mfaFlowKey) || {
+  const mfaConfig = CredentialsService.getFlowConfig(mfaFlowKey) || {
     flowKey: mfaFlowKey,
     flowType: 'oidc' as const,
     includeClientSecret: false,
@@ -261,7 +261,7 @@ const getCredentials = () => {
     includeLogoutUri: false,
     includeScopes: false,
   };
-  const mfaCreds = CredentialsServiceV8.loadCredentials(mfaFlowKey, mfaConfig);
+  const mfaCreds = CredentialsService.loadCredentials(mfaFlowKey, mfaConfig);
 
   return {
     environmentId: environmentId || unifiedCreds?.environmentId || mfaCreds?.environmentId,
@@ -276,7 +276,7 @@ const getCredentials = () => {
 ```typescript
 // ❌ WRONG: Missing fallback config
 const getCredentials = () => {
-  const unifiedCreds = CredentialsServiceV8.loadCredentials('oauth-authz-v8u');
+  const unifiedCreds = CredentialsService.loadCredentials('oauth-authz-v8u');
   // Missing config parameter - will fail
 };
 ```
@@ -291,17 +291,17 @@ const getCredentials = () => {
 ```typescript
 const handleGenerateCollection = async () => {
   if (!includeUnified && !includeMFA) {
-    toastV8.error('Please select at least one collection type (Unified or MFA)');
+    toast.error('Please select at least one collection type (Unified or MFA)');
     return;
   }
 
   if (includeUnified && !includeOAuth20 && !includeOAuth21 && !includeOIDC) {
-    toastV8.error('Please select at least one Unified spec version (OAuth 2.0, OAuth 2.1, or OIDC)');
+    toast.error('Please select at least one Unified spec version (OAuth 2.0, OAuth 2.1, or OIDC)');
     return;
   }
 
   if (includeMFA && selectedDeviceTypes.size === 0) {
-    toastV8.error('Please select at least one MFA device type');
+    toast.error('Please select at least one MFA device type');
     return;
   }
 
@@ -535,13 +535,13 @@ const selectAllUnifiedSpecs = () => {
 - Username missing
 
 **Debug Steps:**
-1. Check `CredentialsServiceV8.loadCredentials` calls
+1. Check `CredentialsService.loadCredentials` calls
 2. Verify flow configs are correct
 3. Check fallback logic in `getCredentials()`
 
 **Fix:**
 - Ensure `getCredentials()` has proper fallbacks
-- Ensure `CredentialsServiceV8.getFlowConfig()` is called before `loadCredentials()`
+- Ensure `CredentialsService.getFlowConfig()` is called before `loadCredentials()`
 - Ensure MFA credentials use `flowType: 'oidc'` in config
 
 ---
@@ -550,10 +550,10 @@ const selectAllUnifiedSpecs = () => {
 
 - `src/pages/PostmanCollectionGenerator.tsx` - Main component
 - `src/services/postmanCollectionGeneratorV8.ts` - Collection generation service
-- `src/v8/services/credentialsServiceV8.ts` - Credential service
-- `src/v8/services/environmentIdServiceV8.ts` - Environment ID service
-- `src/v8/services/specVersionServiceV8.ts` - Spec version service
-- `src/v8/utils/toastNotificationsV8.ts` - Toast notifications
+- `src/v8/services/credentialsService.ts` - Credential service
+- `src/v8/services/environmentIdService.ts` - Environment ID service
+- `src/v8/services/specVersionService.ts` - Spec version service
+- `src/v8/utils/toastNotifications.ts` - Toast notifications
 
 ---
 

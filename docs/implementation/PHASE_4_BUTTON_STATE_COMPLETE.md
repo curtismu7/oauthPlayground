@@ -49,7 +49,7 @@ Successfully implemented a global flow state management system for button state 
 </AuthProvider>
 ```
 
-#### OAuthAuthorizationCodeFlowV8.tsx (Reference Implementation)
+#### OAuthAuthorizationCodeFlow.tsx (Reference Implementation)
 - Migrated from local `isActionInProgress` state
 - Now using `useActionButton()` hooks
 - Step 1 button fully refactored as demonstration
@@ -145,7 +145,7 @@ const { isLoading, disabled, executeAction } = useActionButton();
 
 ### Modified (2 files)
 1. `src/App.tsx` - Added FlowStateProvider to hierarchy
-2. `src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx` - Reference implementation
+2. `src/v8/flows/OAuthAuthorizationCodeFlow.tsx` - Reference implementation
 
 ## Benefits Delivered
 
@@ -159,7 +159,7 @@ const { isLoading, disabled, executeAction } = useActionButton();
 - **Consistent loading states** across all flows
 - **Prevents accidental double-clicks** with global coordination
 - **Better error handling** with centralized boundaries
-- **Accessible by default** via ActionButtonV8
+- **Accessible by default** via ActionButton
 
 ### 3. Code Quality
 - **Single Responsibility** - buttons just handle UI
@@ -170,13 +170,13 @@ const { isLoading, disabled, executeAction } = useActionButton();
 ## Migration Path
 
 ### High Priority Flows (Next)
-1. `src/v8/flows/MFAAuthenticationMainPageV8.tsx` - Already has loading states
-2. `src/v8/flows/PingOnePARFlowV8/PingOnePARFlowV8.tsx` - Complex flow
-3. `src/v8/flows/ImplicitFlowV8.tsx` - Simple flow for testing
+1. `src/v8/flows/MFAAuthenticationMainPage.tsx` - Already has loading states
+2. `src/v8/flows/PingOnePARFlow/PingOnePARFlow.tsx` - Complex flow
+3. `src/v8/flows/ImplicitFlow.tsx` - Simple flow for testing
 
 ### Medium Priority Components
-1. `src/v8/components/UserLoginModalV8.tsx` - Modal actions
-2. `src/v8/components/MFADeviceManagerV8.tsx` - Device management
+1. `src/v8/components/UserLoginModal.tsx` - Modal actions
+2. `src/v8/components/MFADeviceManager.tsx` - Device management
 
 ### Low Priority
 - Simple buttons (copy, paste)

@@ -178,7 +178,7 @@
     <div className="form-group">
       <label>Grant Type</label>
       <div style={{ padding: '10px 12px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '4px' }}>
-        {SpecVersionServiceV8.getFlowLabel(effectiveFlowType)}
+        {SpecVersionService.getFlowLabel(effectiveFlowType)}
       </div>
       <small>Based on selected flow type</small>
     </div>

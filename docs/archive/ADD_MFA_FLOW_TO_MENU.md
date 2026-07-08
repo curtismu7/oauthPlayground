@@ -6,10 +6,10 @@ Find the routes section in `src/App.tsx` and add:
 
 ```typescript
 // Import the MFA Flow
-import { MFAFlowV8 } from './v8/flows/MFAFlowV8';
+import { MFAFlow } from './v8/flows/MFAFlow';
 
 // In the Routes section, add:
-<Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
+<Route path="/flows/mfa-v8" element={<MFAFlow />} />
 ```
 
 **Note**: The path should be `/flows/mfa-v8` (not `/v8/mfa`) to match the existing flow URL pattern.
@@ -67,16 +67,16 @@ This follows the existing pattern where all flows are under `/flows/` prefix.
 
 ```typescript
 // Near the top with other imports
-import { MFAFlowV8 } from './v8/flows/MFAFlowV8';
+import { MFAFlow } from './v8/flows/MFAFlow';
 
 // In the Routes component
 <Routes>
   {/* ... existing routes ... */}
   
   {/* V8 Flows */}
-  <Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
-  <Route path="/flows/oauth-authz-v8" element={<OAuthAuthorizationCodeFlowV8 />} />
-  <Route path="/flows/implicit-v8" element={<ImplicitFlowV8 />} />
+  <Route path="/flows/mfa-v8" element={<MFAFlow />} />
+  <Route path="/flows/oauth-authz-v8" element={<OAuthAuthorizationCodeFlow />} />
+  <Route path="/flows/implicit-v8" element={<ImplicitFlow />} />
   
   {/* ... other routes ... */}
 </Routes>

@@ -3,17 +3,17 @@
 ## ✅ COMPLETED IMPLEMENTATIONS
 
 ### Phase 1: Device Selector (COMPLETE)
-1. ✅ Created `MFADeviceSelectorV8` component
+1. ✅ Created `MFADeviceSelector` component
 2. ✅ Fixed OTP sending for SMS/EMAIL devices
-3. ✅ Integrated device selector into `MFAFlowV8.tsx`
+3. ✅ Integrated device selector into `MFAFlow.tsx`
 4. ✅ Added device loading function (`loadExistingDevices`)
 5. ✅ Added state management for device selection
 6. ✅ Conditional registration form display
 7. ✅ Refresh devices button
 
 ### Phase 2: Educational UI (COMPLETE)
-1. ✅ Created `MFAEducationServiceV8` - Comprehensive education content service
-2. ✅ Created `MFAInfoButtonV8` - "What's this?" info button component
+1. ✅ Created `MFAEducationService` - Comprehensive education content service
+2. ✅ Created `MFAInfoButton` - "What's this?" info button component
 3. ✅ Added educational content for:
    - Factor types (SMS, Email, TOTP, FIDO2)
    - Device management concepts
@@ -27,7 +27,7 @@
 
 ### 1. Add Import
 ```typescript
-import { MFADeviceSelectorV8 } from '@/v8/components/MFADeviceSelectorV8';
+import { MFADeviceSelector } from '@/v8/components/MFADeviceSelector';
 ```
 
 ### 2. Add State Variables (after line ~120)
@@ -49,7 +49,7 @@ const loadExistingDevices = async () => {
   setLoadingDevices(true);
   
   try {
-    const devices = await MFAServiceV8.getAllDevices({
+    const devices = await MFAService.getAllDevices({
       environmentId: credentials.environmentId,
       username: credentials.username,
     });
@@ -85,7 +85,7 @@ React.useEffect(() => {
 
 Add device selector before the registration form:
 ```typescript
-<MFADeviceSelectorV8
+<MFADeviceSelector
   devices={existingDevices}
   loading={loadingDevices}
   selectedDeviceId={selectedExistingDevice}
@@ -107,7 +107,7 @@ Add device selector before the registration form:
   onUseDevice={() => {
     console.log(`${MODULE_TAG} Using existing device`, { deviceId: selectedExistingDevice });
     nav.markStepComplete();
-    toastV8.success('Device selected successfully!');
+    toast.success('Device selected successfully!');
   }}
   onRegisterNew={() => {
     setSelectedExistingDevice('new');
@@ -160,7 +160,7 @@ Wrap existing registration form in conditional:
 
 
 
-### MFAEducationServiceV8
+### MFAEducationService
 Centralized service providing educational content for all MFA concepts:
 
 **Content Categories:**
@@ -182,7 +182,7 @@ Centralized service providing educational content for all MFA concepts:
 - Links to PingOne documentation
 - Consistent educational messaging
 
-### MFAInfoButtonV8
+### MFAInfoButton
 Reusable info button component with two display modes:
 
 **Tooltip Mode** (default):
@@ -209,11 +209,11 @@ Reusable info button component with two display modes:
 ## 🎯 Next Steps: Integrate Educational UI into MFA Flow
 
 ### Step 1: Import Components
-Add to `src/v8/flows/MFAFlowV8.tsx`:
+Add to `src/v8/flows/MFAFlow.tsx`:
 
 ```typescript
-import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
-import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
+import { MFAInfoButton } from '@/v8/components/MFAInfoButton';
+import { MFAEducationService } from '@/v8/services/mfaEducationService';
 ```
 
 ### Step 2: Add Info Buttons to Key Fields
@@ -222,7 +222,7 @@ import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 ```typescript
 <label htmlFor="mfa-env-id">
   Environment ID <span className="required">*</span>
-  <MFAInfoButtonV8 contentKey="credential.environmentId" displayMode="modal" />
+  <MFAInfoButton contentKey="credential.environmentId" displayMode="modal" />
 </label>
 ```
 
@@ -230,7 +230,7 @@ import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 ```typescript
 <label htmlFor="mfa-username">
   Username <span className="required">*</span>
-  <MFAInfoButtonV8 contentKey="credential.username" />
+  <MFAInfoButton contentKey="credential.username" />
 </label>
 ```
 
@@ -238,7 +238,7 @@ import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 ```typescript
 <label htmlFor="mfa-device-type">
   Device Type <span className="required">*</span>
-  <MFAInfoButtonV8 contentKey="factor.sms" /> {/* Dynamic based on selected type */}
+  <MFAInfoButton contentKey="factor.sms" /> {/* Dynamic based on selected type */}
 </label>
 ```
 
@@ -246,12 +246,12 @@ import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 ```typescript
 <label htmlFor="mfa-country-code">
   Country Code <span className="required">*</span>
-  <MFAInfoButtonV8 contentKey="phone.countryCode" />
+  <MFAInfoButton contentKey="phone.countryCode" />
 </label>
 
 <label htmlFor="mfa-phone-number">
   Phone Number <span className="required">*</span>
-  <MFAInfoButtonV8 contentKey="phone.number" />
+  <MFAInfoButton contentKey="phone.number" />
 </label>
 ```
 
@@ -259,7 +259,7 @@ import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 ```typescript
 <label htmlFor="mfa-device-name">
   Device Name <span className="required">*</span>
-  <MFAInfoButtonV8 contentKey="device.nickname" />
+  <MFAInfoButton contentKey="device.nickname" />
 </label>
 ```
 
@@ -267,7 +267,7 @@ import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 ```typescript
 <button onClick={handleManageWorkerToken}>
   🔑 {tokenStatus.isValid ? 'Manage Token' : 'Add Token'}
-  <MFAInfoButtonV8 contentKey="credential.workerToken" displayMode="modal" />
+  <MFAInfoButton contentKey="credential.workerToken" displayMode="modal" />
 </button>
 ```
 
@@ -275,7 +275,7 @@ import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 ```typescript
 <label htmlFor="otp-code">
   Enter OTP Code <span className="required">*</span>
-  <MFAInfoButtonV8 contentKey="otp.code" />
+  <MFAInfoButton contentKey="otp.code" />
 </label>
 ```
 
@@ -289,7 +289,7 @@ Add a factor comparison section in Step 0:
     📚 MFA Factor Types
   </h4>
   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
-    {MFAEducationServiceV8.getAllFactorTypes().map(({ key, content }) => (
+    {MFAEducationService.getAllFactorTypes().map(({ key, content }) => (
       <div
         key={key}
         style={{
@@ -301,16 +301,16 @@ Add a factor comparison section in Step 0:
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
           <span style={{ fontSize: '16px' }}>
-            {MFAEducationServiceV8.getSecurityLevelIcon(content.securityLevel)}
+            {MFAEducationService.getSecurityLevelIcon(content.securityLevel)}
           </span>
           <strong style={{ fontSize: '13px', color: '#1f2937' }}>{key}</strong>
-          <MFAInfoButtonV8 contentKey={`factor.${key.toLowerCase()}`} size="small" />
+          <MFAInfoButton contentKey={`factor.${key.toLowerCase()}`} size="small" />
         </div>
         <div
           style={{
             fontSize: '11px',
             padding: '3px 6px',
-            background: MFAEducationServiceV8.getSecurityLevelColor(content.securityLevel),
+            background: MFAEducationService.getSecurityLevelColor(content.securityLevel),
             color: 'white',
             borderRadius: '3px',
             display: 'inline-block',
@@ -334,7 +334,7 @@ In TOTP enrollment step:
 <div style={{ marginBottom: '16px' }}>
   <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
     Scan QR Code
-    <MFAInfoButtonV8 contentKey="totp.qrCode" displayMode="modal" />
+    <MFAInfoButton contentKey="totp.qrCode" displayMode="modal" />
   </h4>
   <img src={mfaState.qrCodeUrl} alt="TOTP QR Code" />
 </div>
@@ -342,7 +342,7 @@ In TOTP enrollment step:
 <div style={{ marginTop: '12px' }}>
   <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
     Or Enter Secret Manually
-    <MFAInfoButtonV8 contentKey="totp.secret" displayMode="modal" />
+    <MFAInfoButton contentKey="totp.secret" displayMode="modal" />
   </h4>
   <code>{mfaState.totpSecret}</code>
 </div>
@@ -356,7 +356,7 @@ In FIDO2 enrollment step:
 <div className="info-box">
   <p>
     <strong>🔑 FIDO2 / WebAuthn Authentication</strong>
-    <MFAInfoButtonV8 contentKey="fido2.webauthn" displayMode="modal" />
+    <MFAInfoButton contentKey="fido2.webauthn" displayMode="modal" />
   </p>
   <p>
     Your browser will prompt you to use your security key, fingerprint, or other authenticator.
@@ -438,7 +438,7 @@ Based on analysis of `/v8u/unified/oauth-authz/0`, we're implementing:
 
 **Phase 1 (Device Selector)**: ✅ COMPLETE
 **Phase 2 (Educational UI)**: ✅ COMPLETE - Ready for integration
-**Phase 3 (Integration)**: ⏳ PENDING - Manual integration into MFAFlowV8.tsx
+**Phase 3 (Integration)**: ⏳ PENDING - Manual integration into MFAFlow.tsx
 
 ---
 

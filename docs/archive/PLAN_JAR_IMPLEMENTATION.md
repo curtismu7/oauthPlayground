@@ -57,9 +57,9 @@ To fully support JAR, we need:
    - Key storage in credentials (with security considerations)
 
 4. **Authorization URL Generation**
-   - `src/v8/services/oauthIntegrationServiceV8.ts` - Authorization code flow
-   - `src/v8/services/hybridFlowIntegrationServiceV8.ts` - Hybrid flow
-   - `src/v8/services/implicitFlowIntegrationServiceV8.ts` - Implicit flow
+   - `src/v8/services/oauthIntegrationService.ts` - Authorization code flow
+   - `src/v8/services/hybridFlowIntegrationService.ts` - Hybrid flow
+   - `src/v8/services/implicitFlowIntegrationService.ts` - Implicit flow
 
 ### ❌ What We Need to Build
 
@@ -91,7 +91,7 @@ To fully support JAR, we need:
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Authorization URL Generator               │
-│  (oauthIntegrationServiceV8, hybridFlowIntegrationServiceV8) │
+│  (oauthIntegrationService, hybridFlowIntegrationService) │
 └────────────────────┬────────────────────────────────────────┘
                      │
                      ▼
@@ -166,7 +166,7 @@ To fully support JAR, we need:
 **Goal**: Build a service that can generate RFC 9101-compliant request objects
 
 **Tasks**:
-1. Create `src/v8/services/jarRequestObjectServiceV8.ts`
+1. Create `src/v8/services/jarRequestObjectService.ts`
    - `buildRequestObjectPayload()` - Convert OAuth params to JWT claims
    - `signRequestObject()` - Sign the request object using selected algorithm
    - `generateRequestObjectJWT()` - Main method combining payload + signing
@@ -183,7 +183,7 @@ To fully support JAR, we need:
 4. Add unit tests for request object generation
 
 **Deliverables**:
-- `jarRequestObjectServiceV8.ts` service
+- `jarRequestObjectService.ts` service
 - Unit tests covering all parameter types
 - Integration tests with PingOne
 
@@ -194,17 +194,17 @@ To fully support JAR, we need:
 **Goal**: Modify authorization URL generators to use JAR when required
 
 **Tasks**:
-1. Update `oauthIntegrationServiceV8.ts`
+1. Update `oauthIntegrationService.ts`
    - Detect `appConfig.requireSignedRequestObject`
    - Call JAR service if needed
    - Replace query params with `request` parameter
    - Keep `client_id` in query (required by spec)
 
-2. Update `hybridFlowIntegrationServiceV8.ts`
+2. Update `hybridFlowIntegrationService.ts`
    - Same JAR integration as authorization code flow
    - Ensure `response_type` and other hybrid-specific params are included
 
-3. Update `implicitFlowIntegrationServiceV8.ts`
+3. Update `implicitFlowIntegrationService.ts`
    - Same JAR integration
    - Note: Implicit flow typically uses fragment, but JAR uses `request` param in query
 
@@ -385,7 +385,7 @@ https://auth.pingone.com/{env-id}/as/authorize?
 
 - ✅ JWT generation utilities (`jwtGenerator.ts`, `jwtAuthServiceV8.ts`)
 - ✅ Private key handling (already in `JWTConfigV8`)
-- ✅ Pre-flight validation service (`preFlightValidationServiceV8.ts`)
+- ✅ Pre-flight validation service (`preFlightValidationService.ts`)
 - ✅ App discovery service (for `requireSignedRequestObject` detection)
 
 ### Browser Support

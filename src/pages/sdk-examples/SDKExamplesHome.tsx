@@ -1,17 +1,17 @@
 // src/pages/sdk-examples/SDKExamplesHome.tsx
 // SDK Examples Home Page - Main landing page for SDK examples
-// Cache bust: 2025-02-17-12:45 - Fixed API Display with SuperSimpleApiDisplayV8
+// Cache bust: 2025-02-17-12:45 - Fixed API Display with SuperSimpleApiDisplay
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
-import { ShowTokenConfigCheckboxV8 } from '@/mfa/components/ShowTokenConfigCheckboxV8';
-import { SilentApiConfigCheckboxV8 } from '@/mfa/components/SilentApiConfigCheckboxV8';
+import { ShowTokenConfigCheckbox } from '@/mfa/components/ShowTokenConfigCheckbox';
+import { SilentApiConfigCheckbox } from '@/mfa/components/SilentApiConfigCheckbox';
 import {
 	ApiDisplayCheckbox,
-	SuperSimpleApiDisplayV8,
-} from '@/mfa/components/SuperSimpleApiDisplayV8';
+	SuperSimpleApiDisplay,
+} from '@/mfa/components/SuperSimpleApiDisplay';
 import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { FlowHeader } from '../../services/flowHeaderService';
 
@@ -165,8 +165,8 @@ const SDKExamplesHome: React.FC = () => {
 
 			{/* Worker Token Management */}
 			<div style={{ marginBottom: '2rem' }}>
-				<SilentApiConfigCheckboxV8 />
-				<ShowTokenConfigCheckboxV8 />
+				<SilentApiConfigCheckbox />
+				<ShowTokenConfigCheckbox />
 				<ApiDisplayCheckbox />
 				{!hasValidToken && (
 					<button
@@ -246,7 +246,7 @@ const SDKExamplesHome: React.FC = () => {
 			</ExamplesGrid>
 
 			{/* API Display - Using the unified service */}
-			<SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />
+			<SuperSimpleApiDisplay flowFilter="all" reserveSpace={true} />
 
 			<DocumentationSection>
 				<DocumentationTitle>SDK Documentation</DocumentationTitle>

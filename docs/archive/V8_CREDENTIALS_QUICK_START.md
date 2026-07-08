@@ -14,14 +14,14 @@ The V8 credentials form now includes **all V7 functionality** plus:
 ## Basic Usage
 
 ```typescript
-import { CredentialsFormV8 } from '@/v8/components/CredentialsFormV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { CredentialsForm } from '@/v8/components/CredentialsForm';
+import { CredentialsService } from '@/v8/services/credentialsService';
 
 const [credentials, setCredentials] = useState(() =>
-  CredentialsServiceV8.getSmartDefaults('oauth-authz-v8')
+  CredentialsService.getSmartDefaults('oauth-authz-v8')
 );
 
-<CredentialsFormV8
+<CredentialsForm
   flowKey="oauth-authz-v8"
   credentials={credentials}
   onChange={setCredentials}
@@ -63,7 +63,7 @@ Automatically adjusts fields based on flow type:
 
 ```typescript
 // Authorization Code Flow (response_type: code)
-<CredentialsFormV8
+<CredentialsForm
   flowKey="oauth-authz-v8"
   flowType="oauth"
   // Shows: All fields
@@ -71,7 +71,7 @@ Automatically adjusts fields based on flow type:
 />
 
 // Implicit Flow (response_type: token)
-<CredentialsFormV8
+<CredentialsForm
   flowKey="implicit-flow-v8"
   flowType="oidc"
   // Shows: No client secret
@@ -79,7 +79,7 @@ Automatically adjusts fields based on flow type:
 />
 
 // Client Credentials (no response_type)
-<CredentialsFormV8
+<CredentialsForm
   flowKey="client-credentials-v8"
   flowType="client-credentials"
   // Shows: No redirect URI
@@ -91,7 +91,7 @@ Automatically adjusts fields based on flow type:
 Automatic validation with clear error messages:
 
 ```typescript
-const result = CredentialsServiceV8.validateCredentials(credentials, 'oauth');
+const result = CredentialsService.validateCredentials(credentials, 'oauth');
 
 if (result.errors.length > 0) {
   result.errors.forEach(err => {
@@ -105,26 +105,26 @@ Credentials automatically save to localStorage:
 
 ```typescript
 // Save
-CredentialsServiceV8.saveCredentials('oauth-authz-v8', credentials);
+CredentialsService.saveCredentials('oauth-authz-v8', credentials);
 
 // Load
-const saved = CredentialsServiceV8.loadCredentials('oauth-authz-v8', config);
+const saved = CredentialsService.loadCredentials('oauth-authz-v8', config);
 
 // Clear
-CredentialsServiceV8.clearCredentials('oauth-authz-v8');
+CredentialsService.clearCredentials('oauth-authz-v8');
 ```
 
 ## Common Tasks
 
 ### Get Smart Defaults
 ```typescript
-const defaults = CredentialsServiceV8.getSmartDefaults('oauth-authz-v8');
+const defaults = CredentialsService.getSmartDefaults('oauth-authz-v8');
 // Returns: { environmentId: '', clientId: '', redirectUri: 'http://localhost:3000/callback', scopes: 'openid profile email', ... }
 ```
 
 ### Discover OIDC Configuration
 ```typescript
-const result = await OidcDiscoveryServiceV8.discoverFromInput('https://auth.example.com');
+const result = await OidcDiscoveryService.discoverFromInput('https://auth.example.com');
 if (result.success) {
   console.log('Discovered:', result.data);
 }
@@ -132,23 +132,23 @@ if (result.success) {
 
 ### Validate Credentials
 ```typescript
-const result = CredentialsServiceV8.validateCredentials(credentials, 'oauth');
+const result = CredentialsService.validateCredentials(credentials, 'oauth');
 console.log('Errors:', result.errors);
 console.log('Warnings:', result.warnings);
 ```
 
 ### Check if Credentials are Saved
 ```typescript
-const hasSaved = CredentialsServiceV8.hasStoredCredentials('oauth-authz-v8');
+const hasSaved = CredentialsService.hasStoredCredentials('oauth-authz-v8');
 ```
 
 ### Export/Import Credentials
 ```typescript
 // Export
-const json = CredentialsServiceV8.exportCredentials(credentials);
+const json = CredentialsService.exportCredentials(credentials);
 
 // Import
-const imported = CredentialsServiceV8.importCredentials(json);
+const imported = CredentialsService.importCredentials(json);
 ```
 
 ## UI Sections
@@ -188,13 +188,13 @@ All errors are displayed as toast notifications:
 
 ```typescript
 // Success
-toastV8.success('Credentials saved!');
+toast.success('Credentials saved!');
 
 // Error
-toastV8.error('Invalid redirect URI');
+toast.error('Invalid redirect URI');
 
 // Info
-toastV8.info('Discovering configuration...');
+toast.info('Discovering configuration...');
 ```
 
 ## Props Reference
@@ -263,7 +263,7 @@ Supported flow keys:
 ```typescript
 export const MyOAuthFlow = () => {
   const [credentials, setCredentials] = useState(() =>
-    CredentialsServiceV8.getSmartDefaults('oauth-authz-v8')
+    CredentialsService.getSmartDefaults('oauth-authz-v8')
   );
 
   const handleDiscovery = (result) => {
@@ -271,9 +271,9 @@ export const MyOAuthFlow = () => {
   };
 
   const handleGenerateUrl = () => {
-    const validation = CredentialsServiceV8.validateCredentials(credentials, 'oauth');
+    const validation = CredentialsService.validateCredentials(credentials, 'oauth');
     if (validation.errors.length > 0) {
-      toastV8.error('Please fix validation errors');
+      toast.error('Please fix validation errors');
       return;
     }
     // Generate authorization URL...
@@ -281,7 +281,7 @@ export const MyOAuthFlow = () => {
 
   return (
     <>
-      <CredentialsFormV8
+      <CredentialsForm
         flowKey="oauth-authz-v8"
         flowType="oauth"
         credentials={credentials}

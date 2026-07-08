@@ -241,16 +241,16 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
 
 #### **2.1 Device Management Spinners**
 
-**MFADeviceManagerV8.tsx**
+**MFADeviceManager.tsx**
 ```typescript
 // BEFORE
 const handleBlock = async (deviceId: string) => {
   setProcessingDeviceId(deviceId);
   try {
-    await MFAServiceV8.blockDevice({ deviceId, environmentId, userId });
-    toastV8.success('Device blocked successfully');
+    await MFAService.blockDevice({ deviceId, environmentId, userId });
+    toast.success('Device blocked successfully');
   } catch (error) {
-    toastV8.error('Failed to block device');
+    toast.error('Failed to block device');
   } finally {
     setProcessingDeviceId(null);
   }
@@ -260,10 +260,10 @@ const handleBlock = async (deviceId: string) => {
 const handleBlock = async (deviceId: string) => {
   setProcessingDeviceId(deviceId);
   try {
-    await MFAServiceV8.blockDevice({ deviceId, environmentId, userId });
-    toastV8.success('Device blocked successfully');
+    await MFAService.blockDevice({ deviceId, environmentId, userId });
+    toast.success('Device blocked successfully');
   } catch (error) {
-    toastV8.error('Failed to block device');
+    toast.error('Failed to block device');
   } finally {
     setProcessingDeviceId(null);
   }
@@ -289,15 +289,15 @@ const handleBlock = async (deviceId: string) => {
 
 #### **2.2 MFA Authentication Spinners**
 
-**MFAAuthenticationMainPageV8.tsx**
+**MFAAuthenticationMainPage.tsx**
 ```typescript
 // Device Loading
 const loadDevices = async () => {
   setIsLoadingDevices(true);
   try {
-    await MFAServiceV8.getRegisteredDevices(credentials);
+    await MFAService.getRegisteredDevices(credentials);
   } catch (error) {
-    toastV8.error('Failed to load devices');
+    toast.error('Failed to load devices');
   } finally {
     setIsLoadingDevices(false);
   }
@@ -319,7 +319,7 @@ const handleTokenExchange = async () => {
   try {
     await exchangeToken(authCode);
   } catch (error) {
-    toastV8.error('Token exchange failed');
+    toast.error('Token exchange failed');
   } finally {
     setIsExchanging(false);
   }
@@ -356,14 +356,14 @@ const handleTokenExchange = async () => {
 
 #### **3.2 Report Generation Spinners**
 
-**MFAReportingFlowV8.tsx**
+**MFAReportingFlow.tsx**
 ```typescript
 const generateReport = async (reportType: string) => {
   setGeneratingReport(reportType);
   try {
     await createReport(reportType);
   } catch (error) {
-    toastV8.error('Report generation failed');
+    toast.error('Report generation failed');
   } finally {
     setGeneratingReport(null);
   }
@@ -417,7 +417,7 @@ const diagnoseError = async () => {
   try {
     await performDiagnosis(errorInput);
   } catch (error) {
-    toastV8.error('Diagnosis failed');
+    toast.error('Diagnosis failed');
   } finally {
     setIsDiagnosing(false);
   }
@@ -450,7 +450,7 @@ const searchApplications = async (query: string) => {
   try {
     await searchApps(query);
   } catch (error) {
-    toastV8.error('Search failed');
+    toast.error('Search failed');
   } finally {
     setIsSearching(false);
   }
@@ -471,7 +471,7 @@ const searchApplications = async (query: string) => {
 
 ## 🎯 **Specific Implementation Areas**
 
-### **1. Device Management (MFADeviceManagerV8.tsx)**
+### **1. Device Management (MFADeviceManager.tsx)**
 
 #### **Current Issues:**
 - No feedback during device operations
@@ -504,7 +504,7 @@ const [loadingDevices, setLoadingDevices] = useState(false);
 </button>
 ```
 
-### **2. MFA Authentication (MFAAuthenticationMainPageV8.tsx)**
+### **2. MFA Authentication (MFAAuthenticationMainPage.tsx)**
 
 #### **Current Issues:**
 - No feedback during device loading
@@ -679,7 +679,7 @@ describe('Spinner Components', () => {
 ```typescript
 describe('Spinner Integration', () => {
   test('Device blocking shows spinner during operation', async () => {
-    render(<MFADeviceManagerV8 />);
+    render(<MFADeviceManager />);
     
     const blockButton = screen.getByText('Block Device');
     fireEvent.click(blockButton);
@@ -741,8 +741,8 @@ describe('Spinner Performance', () => {
 - [ ] Add accessibility features
 
 ### **Phase 2: High Priority Areas**
-- [ ] MFADeviceManagerV8 spinners
-- [ ] MFAAuthenticationMainPageV8 spinners
+- [ ] MFADeviceManager spinners
+- [ ] MFAAuthenticationMainPage spinners
 - [ ] Token operation spinners
 - [ ] Configuration saving spinners
 - [ ] API testing spinners

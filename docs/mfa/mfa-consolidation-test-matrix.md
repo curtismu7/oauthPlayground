@@ -408,8 +408,8 @@ Use screenshots from old flows as baseline. Compare new unified flow visually.
 - [x] Create E2E test stubs
 
 ### Week 1-2 (Services)
-- [ ] Unit tests for MFATokenManagerV8
-- [ ] Unit tests for MFACredentialManagerV8
+- [ ] Unit tests for MFATokenManager
+- [ ] Unit tests for MFACredentialManager
 
 ### Week 3 (Config) - ✅ COMPLETE
 - [x] Unit tests for deviceFlowConfigs
@@ -427,7 +427,7 @@ Use screenshots from old flows as baseline. Compare new unified flow visually.
   - Documentation metadata complete
 
 ### Week 4-5 (Component)
-- [ ] Component tests for UnifiedMFARegistrationFlowV8
+- [ ] Component tests for UnifiedMFARegistrationFlow
 - [ ] Integration tests with services
 
 ### Week 6 (Routes)
@@ -525,4 +525,4 @@ Use screenshots from old flows as baseline. Compare new unified flow visually.
 ---
 
 **Status:** ✅ Week 3 Complete - Device flow configurations implemented and validated
-**Next:** Week 4-5 - UnifiedMFARegistrationFlowV8 component tests
+**Next:** Week 4-5 - UnifiedMFARegistrationFlow component tests

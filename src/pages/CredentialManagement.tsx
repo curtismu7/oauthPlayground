@@ -9,7 +9,7 @@ import { FiAlertCircle, FiCheckCircle, FiXCircle } from '../icons';
 import { credentialStorageManager } from '../services/credentialStorageManager';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { logger } from '../utils/logger';
-import { WorkerTokenSectionV8 } from '../mfa/components/WorkerTokenSectionV8';
+import { WorkerTokenSection } from '../mfa/components/WorkerTokenSection';
 
 const styles = {
 	container: {
@@ -651,7 +651,7 @@ export const CredentialManagement: React.FC<CredentialManagementProps> = ({ embe
 						<span></span> Credential Management
 					</h1>
 					<p style={styles.pageSubtitle}>Manage PingOne credentials and validate worker tokens</p>
-					<WorkerTokenSectionV8 compact />
+					<WorkerTokenSection compact />
 				</div>
 			)}
 

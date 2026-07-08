@@ -18,7 +18,7 @@ Added `onGenerateWorkerToken` callback to `PingOneApplicationPickerModal` that:
 
 ## Changes Made
 
-### File: `src/pages/flows/OAuthAuthorizationCodeFlowV8.tsx`
+### File: `src/pages/flows/OAuthAuthorizationCodeFlow.tsx`
 
 Added the `onGenerateWorkerToken` prop to PingOneApplicationPickerModal:
 

@@ -20,7 +20,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 /** Read environmentId synchronously from localStorage only (for use in useState initializer). */
 export function readBestEnvironmentId(): string {
-	// 1. Canonical global store (EnvironmentIdServiceV8 / environmentIdService)
+	// 1. Canonical global store (EnvironmentIdService / environmentIdService)
 	const v8Global = localStorage.getItem('v8:global_environment_id');
 	if (v8Global && UUID_RE.test(v8Global.trim())) return v8Global.trim();
 

@@ -16,10 +16,10 @@ Do **not** redesign the UI – extend/adjust existing steps and modals.
 
 Adapt to the actual filenames in the repo, but expect to touch:
 
-- `FIDO2FlowV8.tsx` (or equivalent)
-- `FIDO2ConfigurationPageV8.tsx` (if present)
+- `FIDO2Flow.tsx` (or equivalent)
+- `FIDO2ConfigurationPage.tsx` (if present)
 - `FIDO2FlowController.ts` / FIDO2 service file
-- Shared: `MFAFlowBaseV8.tsx` and any `CredentialsServiceV8` or `MFACredentials` types used by MFA flows
+- Shared: `MFAFlowBase.tsx` and any `CredentialsService` or `MFACredentials` types used by MFA flows
 
 ---
 
@@ -226,7 +226,7 @@ Backend then responds to frontend: “FIDO2 device registered successfully.”
 
 Integrate this into your existing MFA stepper flows with minimal disruption:
 
-**High-level steps in `FIDO2FlowV8` (or equivalent):**
+**High-level steps in `FIDO2Flow` (or equivalent):**
 
 1. **Configuration step (optional)**  
    - Choose device policy, nickname, etc. if your flow supports that (like other MFA device flows).

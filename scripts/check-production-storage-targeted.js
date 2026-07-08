@@ -16,8 +16,8 @@ const __dirname = path.dirname(__filename);
 // Define the specific files for each Production app
 const productionAppFiles = {
   'mfa-feature-flags': [
-    'src/mfa/pages/MFAFeatureFlagsAdminPageV8.tsx',
-    'src/mfa/services/mfaFeatureFlagsServiceV8.ts'
+    'src/mfa/pages/MFAFeatureFlagsAdminPage.tsx',
+    'src/mfa/services/mfaFeatureFlagsService.ts'
   ],
   'api-status': [
     'src/pages/api-status/ApiStatusPage.tsx'
@@ -27,7 +27,7 @@ const productionAppFiles = {
     'src/lab/services/flowComparisonService.ts'
   ],
   'resources-api': [
-    'src/mfa/pages/ResourcesAPIPageV8.tsx'
+    'src/mfa/pages/ResourcesAPIPage.tsx'
   ],
   'spiffe-spire': [
     'src/lab/pages/SPIFFESpirePageV8U.tsx',
@@ -39,7 +39,7 @@ const productionAppFiles = {
   ],
   'unified-mfa': [
     'src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx',
-    'src/mfa/services/mfaServiceV8.ts'
+    'src/mfa/services/mfaService.ts'
   ],
   'unified-oauth': [
     'src/lab/pages/UnifiedOAuthPageV8U.tsx',
@@ -47,7 +47,7 @@ const productionAppFiles = {
     'src/lab/services/unifiedOAuthCredentialsServiceV8U.ts'
   ],
   'delete-devices': [
-    'src/mfa/pages/DeleteAllDevicesUtilityV8.tsx'
+    'src/mfa/pages/DeleteAllDevicesUtility.tsx'
   ],
   'enhanced-state': [
     'src/lab/pages/EnhancedStateManagementPageV8U.tsx'
@@ -69,7 +69,7 @@ const storagePatterns = {
     /unifiedStorageManager/i,
     /workerTokenManager/i,
     /unifiedWorkerTokenService/i,
-    /DualStorageServiceV8/i,
+    /DualStorageService/i,
     /UnifiedOAuthCredentialsServiceV8U/i,
     /sqlite/i
   ],

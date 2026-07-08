@@ -119,7 +119,7 @@ console.log(`Region: ${region}`);
 console.log(`Command: ${command}`);
 console.log('---');
 
-// Mock implementation - in a real scenario, this would use the actual UserCacheServiceV8
+// Mock implementation - in a real scenario, this would use the actual UserCacheService
 // For now, we'll simulate the operations
 
 async function mockSyncUsers() {

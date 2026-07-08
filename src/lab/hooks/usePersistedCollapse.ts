@@ -6,7 +6,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import type { FlowType } from '@/mfa/services/specVersionServiceV8';
+import type { FlowType } from '@/mfa/services/specVersionService';
 import { loadSettings, saveSettings } from '@/lab/services/flowSettingsServiceV8U';
 
 /**

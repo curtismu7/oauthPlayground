@@ -1,7 +1,7 @@
-# MFAFeatureFlagsAdminV8.tsx - Implementation Plan
+# MFAFeatureFlagsAdmin.tsx - Implementation Plan
 
 **Created:** 2026-01-29  
-**File:** `src/v8/pages/MFAFeatureFlagsAdminV8.tsx`  
+**File:** `src/v8/pages/MFAFeatureFlagsAdmin.tsx`  
 **Related Analysis:** `mfa-feature-flags-admin-analysis.md`  
 **Estimated Total Time:** 4-6 hours
 
@@ -33,7 +33,7 @@ Must be completed before Week 7 SMS pilot rollout.
 
 **Code Changes:**
 ```typescript
-// File: src/v8/pages/MFAFeatureFlagsAdminV8.tsx
+// File: src/v8/pages/MFAFeatureFlagsAdmin.tsx
 
 // 1. Add imports (after line 15)
 import {
@@ -48,7 +48,7 @@ import {
 // 2. Update toggleFlag function (replace lines 30-34)
 const toggleFlag = (flag: MFAFeatureFlag) => {
   const deviceType = flag.replace('mfa_unified_', '').toUpperCase();
-  const current = MFAFeatureFlagsV8.getFlagState(flag);
+  const current = MFAFeatureFlags.getFlagState(flag);
   
   if (current.enabled) {
     disableUnifiedFlowForDevice(deviceType);
@@ -96,7 +96,7 @@ const resetAll = () => {
 
 **Code Changes:**
 ```typescript
-// File: src/v8/pages/MFAFeatureFlagsAdminV8.tsx
+// File: src/v8/pages/MFAFeatureFlagsAdmin.tsx
 // Replace lines 135-176 with:
 
 <div
@@ -207,15 +207,15 @@ const resetAll = () => {
 
 **Code Changes:**
 ```typescript
-// File: src/v8/pages/MFAFeatureFlagsAdminV8.tsx
+// File: src/v8/pages/MFAFeatureFlagsAdmin.tsx
 
 // Add useCallback import (line 9)
 import React, { useCallback, useEffect, useState } from 'react';
 
 // Replace lines 21-28 with:
 const refreshFlags = useCallback(() => {
-  setFlags(MFAFeatureFlagsV8.getAllFlags());
-  setSummary(MFAFeatureFlagsV8.getFlagsSummary());
+  setFlags(MFAFeatureFlags.getAllFlags());
+  setSummary(MFAFeatureFlags.getFlagsSummary());
 }, []);
 
 useEffect(() => {
@@ -243,7 +243,7 @@ useEffect(() => {
 
 **Code Changes:**
 ```typescript
-// File: src/v8/pages/MFAFeatureFlagsAdminV8.tsx
+// File: src/v8/pages/MFAFeatureFlagsAdmin.tsx
 // Add after line 312 (after Feature Flags Grid, before Actions section):
 
 {/* Bulk Operations */}
@@ -402,7 +402,7 @@ Should be completed before full rollout (Week 8).
 
 **Code Changes:**
 ```typescript
-// File: src/v8/pages/MFAFeatureFlagsAdminV8.tsx
+// File: src/v8/pages/MFAFeatureFlagsAdmin.tsx
 
 // Add imports (line 9)
 import { useNavigate } from 'react-router-dom';
@@ -482,7 +482,7 @@ const navigate = useNavigate();
 
 **Code Changes:**
 ```typescript
-// File: src/v8/pages/MFAFeatureFlagsAdminV8.tsx
+// File: src/v8/pages/MFAFeatureFlagsAdmin.tsx
 
 // Add state for update indicator (after line 19)
 const [isUpdating, setIsUpdating] = useState(false);
@@ -490,8 +490,8 @@ const [isUpdating, setIsUpdating] = useState(false);
 // Update refreshFlags to show indicator (replace existing refreshFlags)
 const refreshFlags = useCallback(() => {
   setIsUpdating(true);
-  setFlags(MFAFeatureFlagsV8.getAllFlags());
-  setSummary(MFAFeatureFlagsV8.getFlagsSummary());
+  setFlags(MFAFeatureFlags.getAllFlags());
+  setSummary(MFAFeatureFlags.getFlagsSummary());
   setTimeout(() => setIsUpdating(false), 300);
 }, []);
 
@@ -609,7 +609,7 @@ Can be implemented after successful rollout.
 npm run test
 
 # Add new tests for helper integration
-# File: src/v8/pages/__tests__/MFAFeatureFlagsAdminV8.test.tsx
+# File: src/v8/pages/__tests__/MFAFeatureFlagsAdmin.test.tsx
 ```
 
 ### Manual Testing Scenarios

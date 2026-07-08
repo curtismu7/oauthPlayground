@@ -1,6 +1,6 @@
 # Comprehensive Credentials Service V8 — Simplified Version
 
-This file contains the **greatly simplified** `ComprehensiveCredentialsServiceV8` React component you can use as a starting point in Cursor to refactor and replace the older, heavier `comprehensiveCredentialsService.tsx`.
+This file contains the **greatly simplified** `ComprehensiveCredentialsService` React component you can use as a starting point in Cursor to refactor and replace the older, heavier `comprehensiveCredentialsService.tsx`.
 
 - Uses a compact **summary bar** + **expandable drawer**
 - Keeps **advanced capabilities** (OIDC discovery, JWKS, client auth, etc.)
@@ -9,12 +9,12 @@ This file contains the **greatly simplified** `ComprehensiveCredentialsServiceV8
 
 You can paste this file into your project as:
 
-`src/services/comprehensiveCredentialsServiceV8.tsx`
+`src/services/comprehensiveCredentialsService.tsx`
 
 ---
 
 ```tsx
-// src/services/comprehensiveCredentialsServiceV8.tsx
+// src/services/comprehensiveCredentialsService.tsx
 // Simplified Comprehensive Credentials Service V8
 //
 // Goals:
@@ -259,7 +259,7 @@ const TinyTooltip = styled.div`
 
 // ---------- Main component ----------
 
-const ComprehensiveCredentialsServiceV8: React.FC<ComprehensiveCredentialsProps> = ({
+const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> = ({
   credentials,
   onCredentialsChange,
   onSaveCredentials,
@@ -756,5 +756,5 @@ const ComprehensiveCredentialsServiceV8: React.FC<ComprehensiveCredentialsProps>
   );
 };
 
-export default ComprehensiveCredentialsServiceV8;
+export default ComprehensiveCredentialsService;
 ```

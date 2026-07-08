@@ -17,7 +17,7 @@
 
 ## Overview
 
-This document defines the UI contract for the MFA Configuration Page (`MFAConfigurationPageV8.tsx`). This contract ensures consistent behavior, state management, and user experience across all configuration operations.
+This document defines the UI contract for the MFA Configuration Page (`MFAConfigurationPage.tsx`). This contract ensures consistent behavior, state management, and user experience across all configuration operations.
 
 ---
 
@@ -50,12 +50,12 @@ This document defines the UI contract for the MFA Configuration Page (`MFAConfig
 - Padding bottom adjusts based on API display visibility: `paddingBottom: isApiDisplayVisible ? '450px' : '24px'`
 
 **Navigation:**
-- Must include `MFANavigationV8` with `currentPage="settings"` and `showBackToMain={true}`
+- Must include `MFANavigation` with `currentPage="settings"` and `showBackToMain={true}`
 - Back button shown if `returnPath` exists in location state
 - Back button text: "Back to {flowLabel}" (e.g., "Back to SMS Device Registration")
 
 **API Display:**
-- Must include `SuperSimpleApiDisplayV8` with `flowFilter="mfa"`
+- Must include `SuperSimpleApiDisplay` with `flowFilter="mfa"`
 - API display visibility affects page padding
 
 ---
@@ -77,7 +77,7 @@ This document defines the UI contract for the MFA Configuration Page (`MFAConfig
    - Background: `#10b981` (green) when `hasChanges === true`, `#9ca3af` (gray) when disabled
    - Disabled when: `!hasChanges || isSaving`
    - Text: "Saving..." when `isSaving`, "Save Changes" otherwise
-   - Saves local configuration to `localStorage` via `MFAConfigurationServiceV8.saveConfiguration()`
+   - Saves local configuration to `localStorage` via `MFAConfigurationService.saveConfiguration()`
 
 2. **Refresh Worker Token**
    - Icon: `FiRefreshCw`
@@ -184,8 +184,8 @@ This document defines the UI contract for the MFA Configuration Page (`MFAConfig
 
 **State Management:**
 - Changes tracked via `hasChanges` state
-- Saved via `handleSave()` → `MFAConfigurationServiceV8.saveConfiguration()`
-- Loaded on mount via `MFAConfigurationServiceV8.loadConfiguration()`
+- Saved via `handleSave()` → `MFAConfigurationService.saveConfiguration()`
+- Loaded on mount via `MFAConfigurationService.loadConfiguration()`
 
 ---
 
@@ -221,7 +221,7 @@ This document defines the UI contract for the MFA Configuration Page (`MFAConfig
 - Padding: `12px`
 - Icon: `FiInfo` (16px, color: #3b82f6)
 - Title: "About Device Authentication Policies" (14px, fontWeight: 600, color: #1e40af)
-- Content: Includes `MFAInfoButtonV8` with `contentKey="device.authentication.policy"`
+- Content: Includes `MFAInfoButton` with `contentKey="device.authentication.policy"`
 - Link: "View Device Authentication Policy Data Model →" (opens PingOne API docs)
 
 **Policy Settings (shown when policy selected):**
@@ -237,7 +237,7 @@ This document defines the UI contract for the MFA Configuration Page (`MFAConfig
    - Border: `1px solid #e5e7eb`
    - Border radius: `8px`
    - Padding: `16px`
-   - Title: "OTP Failure Cooldown" with `MFAInfoButtonV8` (`contentKey="otp.failure.coolDown.duration"`)
+   - Title: "OTP Failure Cooldown" with `MFAInfoButton` (`contentKey="otp.failure.coolDown.duration"`)
    - Fields:
      - **Cooldown Duration** (Number, 0-30)
      - **Time Unit** (Select: MINUTES | SECONDS)
@@ -247,7 +247,7 @@ This document defines the UI contract for the MFA Configuration Page (`MFAConfig
    - Border: `1px solid #e5e7eb`
    - Border radius: `8px`
    - Padding: `16px`
-   - Title: "Method Selection" with `MFAInfoButtonV8` (`contentKey="policy.authentication.deviceSelection"`)
+   - Title: "Method Selection" with `MFAInfoButton` (`contentKey="policy.authentication.deviceSelection"`)
    - Dropdown options:
      - `DEFAULT_TO_FIRST`: "User selected default"
      - `PROMPT_TO_SELECT_DEVICE`: "Prompt user to select"
@@ -271,7 +271,7 @@ This document defines the UI contract for the MFA Configuration Page (`MFAConfig
 - Disabled when: `!hasPolicyChanges || isSavingPolicy`
 - Background: `#10b981` (green) when enabled, `#9ca3af` (gray) when disabled
 - Text: "Saving..." when `isSavingPolicy`, "Save Policy Settings" otherwise
-- Calls `handleSavePolicy()` → `MFAServiceV8.updateDeviceAuthenticationPolicy()`
+- Calls `handleSavePolicy()` → `MFAService.updateDeviceAuthenticationPolicy()`
 - Must pass `credentials.region` to update function
 
 **State Management:**
@@ -299,7 +299,7 @@ This document defines the UI contract for the MFA Configuration Page (`MFAConfig
 - Padding: `12px`
 - Icon: `FiInfo` (16px, color: #3b82f6)
 - Title: "About PingOne MFA Settings" (14px, fontWeight: 600, color: #1e40af)
-- Content: Includes `MFAInfoButtonV8` with `contentKey="mfa.settings"`
+- Content: Includes `MFAInfoButton` with `contentKey="mfa.settings"`
 
 **Subsections (in order):**
 
@@ -327,7 +327,7 @@ This document defines the UI contract for the MFA Configuration Page (`MFAConfig
 - Disabled when: `!hasPingOneSettingsChanges || isSavingPingOneSettings`
 - Background: `#10b981` (green) when enabled, `#9ca3af` (gray) when disabled
 - Text: "Saving..." when `isSavingPingOneSettings`, "Save PingOne Settings" otherwise
-- Calls `handleSavePingOneSettings()` → `MFAServiceV8.updateMFASettings()`
+- Calls `handleSavePingOneSettings()` → `MFAService.updateMFASettings()`
 
 **Reset Button:**
 
@@ -523,11 +523,11 @@ This document defines the UI contract for the MFA Configuration Page (`MFAConfig
 ### Configuration State
 
 **Contract:**
-- Loaded on mount: `MFAConfigurationServiceV8.loadConfiguration()`
+- Loaded on mount: `MFAConfigurationService.loadConfiguration()`
 - Stored in: `localStorage` (key: `mfa-config-v8`)
 - State variable: `config` (type: `MFAConfiguration`)
 - Change tracking: `hasChanges` (boolean)
-- Save handler: `handleSave()` → `MFAConfigurationServiceV8.saveConfiguration()`
+- Save handler: `handleSave()` → `MFAConfigurationService.saveConfiguration()`
 
 ### PingOne Settings State
 
@@ -536,7 +536,7 @@ This document defines the UI contract for the MFA Configuration Page (`MFAConfig
 - State variable: `pingOneSettings` (type: `MFASettings | null`)
 - Change tracking: `hasPingOneSettingsChanges` (boolean)
 - Loading state: `isLoadingPingOneSettings` (boolean)
-- Save handler: `handleSavePingOneSettings()` → `MFAServiceV8.updateMFASettings()`
+- Save handler: `handleSavePingOneSettings()` → `MFAService.updateMFASettings()`
 
 ### Device Authentication Policy State
 
@@ -549,12 +549,12 @@ This document defines the UI contract for the MFA Configuration Page (`MFAConfig
   - `isLoadingPolicies` (boolean) - Loading policy list
   - `isLoadingPolicy` (boolean) - Loading selected policy details
   - `isSavingPolicy` (boolean) - Saving policy changes
-- Save handler: `handleSavePolicy()` → `MFAServiceV8.updateDeviceAuthenticationPolicy()`
+- Save handler: `handleSavePolicy()` → `MFAService.updateDeviceAuthenticationPolicy()`
 
 ### Environment State
 
 **Contract:**
-- Loaded from: `workerTokenServiceV8.loadCredentials()`
+- Loaded from: `workerTokenService.loadCredentials()`
 - State variable: `environmentId` (string)
 - Used to conditionally show PingOne sections
 
@@ -563,8 +563,8 @@ This document defines the UI contract for the MFA Configuration Page (`MFAConfig
 ## Error Handling Contract
 
 **Contract:**
-- All errors must be displayed via `toastV8.error()`
-- Success messages via `toastV8.success()`
+- All errors must be displayed via `toast.error()`
+- Success messages via `toast.success()`
 - Loading states must disable relevant buttons
 - API errors must not crash the page
 - Missing worker token must not show errors (silently skip loading)
@@ -604,5 +604,5 @@ This document defines the UI contract for the MFA Configuration Page (`MFAConfig
 - **Region Parameter:** `updateDeviceAuthenticationPolicy()` MUST receive `credentials.region` parameter
 - **Change Tracking:** All sections must track changes independently (`hasChanges`, `hasPolicyChanges`, `hasPingOneSettingsChanges`)
 - **API Display:** Page padding must adjust based on API display visibility
-- **DOM Nesting:** `MFAInfoButtonV8` must NOT be nested inside `<p>` tags (use `<div>` instead)
+- **DOM Nesting:** `MFAInfoButton` must NOT be nested inside `<p>` tags (use `<div>` instead)
 

@@ -35,8 +35,8 @@ const MANIFEST_PATH = join(LOCKED_DIR, 'manifest.json');
 // FIDO2 feature files to lock
 const FIDO2_FILES = [
 	// Flow files
-	'src/mfa/flows/types/FIDO2FlowV8.tsx',
-	'src/mfa/flows/types/FIDO2ConfigurationPageV8.tsx',
+	'src/mfa/flows/types/FIDO2Flow.tsx',
+	'src/mfa/flows/types/FIDO2ConfigurationPage.tsx',
 	// Controller
 	'src/mfa/flows/controllers/FIDO2FlowController.ts',
 ];
@@ -46,36 +46,36 @@ const CRITICAL_DEPS = [
 	// Core FIDO2 service
 	'src/services/fido2Service.ts',
 	// MFA Services
-	'src/mfa/services/mfaServiceV8.ts',
-	'src/mfa/services/mfaAuthenticationServiceV8.ts',
-	'src/mfa/services/mfaConfigurationServiceV8.ts',
-	'src/mfa/services/webAuthnAuthenticationServiceV8.ts',
-	'src/mfa/services/mfaEducationServiceV8.ts',
+	'src/mfa/services/mfaService.ts',
+	'src/mfa/services/mfaAuthenticationService.ts',
+	'src/mfa/services/mfaConfigurationService.ts',
+	'src/mfa/services/webAuthnAuthenticationService.ts',
+	'src/mfa/services/mfaEducationService.ts',
 	// Credentials and Worker Token
-	'src/mfa/services/credentialsServiceV8.ts',
-	'src/mfa/services/workerTokenServiceV8.ts',
-	'src/mfa/services/workerTokenStatusServiceV8.ts',
-	'src/mfa/services/environmentIdServiceV8.ts',
+	'src/mfa/services/credentialsService.ts',
+	'src/mfa/services/workerTokenService.ts',
+	'src/mfa/services/workerTokenStatusService.ts',
+	'src/mfa/services/environmentIdService.ts',
 	// API Display
-	'src/mfa/services/apiDisplayServiceV8.ts',
+	'src/mfa/services/apiDisplayService.ts',
 	// Shared flow components
-	'src/mfa/flows/shared/MFAFlowBaseV8.tsx',
+	'src/mfa/flows/shared/MFAFlowBase.tsx',
 	'src/mfa/flows/shared/MFATypes.ts',
-	'src/mfa/flows/shared/mfaSuccessPageServiceV8.tsx',
+	'src/mfa/flows/shared/mfaSuccessPageService.tsx',
 	// Components
-	'src/mfa/components/FIDODeviceExistsModalV8.tsx',
-	'src/mfa/components/MFAInfoButtonV8.tsx',
-	'src/mfa/components/MFANavigationV8.tsx',
-	'src/mfa/components/SuperSimpleApiDisplayV8.tsx',
-	'src/mfa/components/WorkerTokenGaugeV8.tsx',
-	'src/mfa/components/WorkerTokenModalV8.tsx',
+	'src/mfa/components/FIDODeviceExistsModal.tsx',
+	'src/mfa/components/MFAInfoButton.tsx',
+	'src/mfa/components/MFANavigation.tsx',
+	'src/mfa/components/SuperSimpleApiDisplay.tsx',
+	'src/mfa/components/WorkerTokenGauge.tsx',
+	'src/mfa/components/WorkerTokenModal.tsx',
 	'src/mfa/components/MFADeviceSelector.tsx',
 	// Utils
-	'src/mfa/utils/toastNotificationsV8.ts',
-	'src/mfa/utils/mfaFlowCleanupV8.ts',
-	'src/mfa/utils/workerTokenModalHelperV8.ts',
+	'src/mfa/utils/toastNotifications.ts',
+	'src/mfa/utils/mfaFlowCleanup.ts',
+	'src/mfa/utils/workerTokenModalHelper.ts',
 	// Hooks
-	'src/mfa/hooks/useStepNavigationV8.ts',
+	'src/mfa/hooks/useStepNavigation.ts',
 	// Factories
 	'src/mfa/flows/factories/MFAFlowControllerFactory.ts',
 ];

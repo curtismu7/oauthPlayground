@@ -6,7 +6,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { type SpecVersion, SpecVersionServiceV8 } from '@/mfa/services/specVersionServiceV8';
+import { type SpecVersion, SpecVersionService } from '@/mfa/services/specVersionService';
 import type { UnifiedFlowCredentials } from '../unifiedFlowIntegrationV8U';
 import { UnifiedFlowIntegrationV8U } from '../unifiedFlowIntegrationV8U';
 
@@ -45,11 +45,11 @@ describe('UnifiedFlowIntegrationV8U - Integration Tests', () => {
 			expect(oidcFlows).toContain('device-code');
 		});
 
-		it('should match SpecVersionServiceV8 available flows', () => {
+		it('should match SpecVersionService available flows', () => {
 			const specVersions: SpecVersion[] = ['oauth2.0', 'oauth2.1', 'oidc'];
 			specVersions.forEach((specVersion) => {
 				const unifiedFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
-				const specServiceFlows = SpecVersionServiceV8.getAvailableFlows(specVersion);
+				const specServiceFlows = SpecVersionService.getAvailableFlows(specVersion);
 				expect(unifiedFlows).toEqual(specServiceFlows);
 			});
 		});

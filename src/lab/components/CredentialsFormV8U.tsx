@@ -30,48 +30,48 @@ import { JWTConfigV8 } from '@/components/JWTConfigV8';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import type { ResponseMode } from '@/services/responseModeService';
 import { modernMessaging } from '@/platform/ModernMessagingService';
-import { RedirectUriService as RedirectUriServiceV8 } from '@/platform/RedirectUriService';
-import type { DiscoveredApp } from '@/mfa/components/AppPickerV8';
-import { ClientTypeRadioV8 } from '@/mfa/components/ClientTypeRadioV8';
-import { type DisplayMode, DisplayModeDropdownV8 } from '@/mfa/components/DisplayModeDropdownV8';
-import { IssuerURLInputV8 } from '@/mfa/components/IssuerURLInputV8';
-import { MaxAgeInputV8 } from '@/mfa/components/MaxAgeInputV8';
+import { RedirectUriService as RedirectUriService } from '@/platform/RedirectUriService';
+import type { DiscoveredApp } from '@/mfa/components/AppPicker';
+import { ClientTypeRadio } from '@/mfa/components/ClientTypeRadio';
+import { type DisplayMode, DisplayModeDropdown } from '@/mfa/components/DisplayModeDropdown';
+import { IssuerURLInput } from '@/mfa/components/IssuerURLInput';
+import { MaxAgeInput } from '@/mfa/components/MaxAgeInput';
 import {
-	OidcDiscoveryModalV8,
+	OidcDiscoveryModal,
 	type OidcDiscoveryResult,
-} from '@/mfa/components/OidcDiscoveryModalV8';
-import { PKCEEnforcementDropdownV8 } from '@/mfa/components/PKCEEnforcementDropdownV8';
-import { PKCEInputV8, type PKCEMode } from '@/mfa/components/PKCEInputV8';
+} from '@/mfa/components/OidcDiscoveryModal';
+import { PKCEEnforcementDropdown } from '@/mfa/components/PKCEEnforcementDropdown';
+import { PKCEInput, type PKCEMode } from '@/mfa/components/PKCEInput';
 import {
 	type RefreshTokenType,
-	RefreshTokenTypeDropdownV8,
-} from '@/mfa/components/RefreshTokenTypeDropdownV8';
-import { ResponseModeDropdownV8 } from '@/mfa/components/ResponseModeDropdownV8';
-import { ResponseTypeDropdownV8 } from '@/mfa/components/ResponseTypeDropdownV8';
-import { TokenEndpointAuthMethodDropdownV8 } from '@/mfa/components/TokenEndpointAuthMethodDropdownV8';
-import { TooltipV8 } from '@/mfa/components/TooltipV8';
-import { UserSearchDropdownV8 as _UserSearchDropdownV8 } from '@/mfa/components/UserSearchDropdownV8';
-import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/mfa/components/WorkerTokenVsClientCredentialsEducationModalV8';
-import { useWorkerTokenConfigV8 } from '@/mfa/hooks/useSilentApiConfigV8';
-import { AppDiscoveryServiceV8 } from '@/mfa/services/appDiscoveryServiceV8';
-import { ConfigCheckerServiceV8 } from '@/mfa/services/configCheckerServiceV8';
-import { CredentialsServiceV8 } from '@/mfa/services/credentialsServiceV8';
-import { EnvironmentIdServiceV8 } from '@/mfa/services/environmentIdServiceV8';
-import { FlowOptionsServiceV8 } from '@/mfa/services/flowOptionsServiceV8';
-import { MFAConfigurationServiceV8 } from '@/mfa/services/mfaConfigurationServiceV8';
-import { OidcDiscoveryServiceV8 } from '@/mfa/services/oidcDiscoveryServiceV8';
-import { ResponseTypeServiceV8 } from '@/mfa/services/responseTypeServiceV8';
-import { SharedCredentialsServiceV8 } from '@/mfa/services/sharedCredentialsServiceV8';
+	RefreshTokenTypeDropdown,
+} from '@/mfa/components/RefreshTokenTypeDropdown';
+import { ResponseModeDropdown } from '@/mfa/components/ResponseModeDropdown';
+import { ResponseTypeDropdown } from '@/mfa/components/ResponseTypeDropdown';
+import { TokenEndpointAuthMethodDropdown } from '@/mfa/components/TokenEndpointAuthMethodDropdown';
+import { Tooltip } from '@/mfa/components/Tooltip';
+import { UserSearchDropdown as _UserSearchDropdownV8 } from '@/mfa/components/UserSearchDropdown';
+import { WorkerTokenVsClientCredentialsEducationModal } from '@/mfa/components/WorkerTokenVsClientCredentialsEducationModal';
+import { useWorkerTokenConfig } from '@/mfa/hooks/useSilentApiConfig';
+import { AppDiscoveryService } from '@/mfa/services/appDiscoveryService';
+import { ConfigCheckerService } from '@/mfa/services/configCheckerService';
+import { CredentialsService } from '@/mfa/services/credentialsService';
+import { EnvironmentIdService } from '@/mfa/services/environmentIdService';
+import { FlowOptionsService } from '@/mfa/services/flowOptionsService';
+import { MFAConfigurationService } from '@/mfa/services/mfaConfigurationService';
+import { OidcDiscoveryService } from '@/mfa/services/oidcDiscoveryService';
+import { ResponseTypeService } from '@/mfa/services/responseTypeService';
+import { SharedCredentialsService } from '@/mfa/services/sharedCredentialsService';
 import {
 	type FlowType,
 	type SpecVersion,
-	SpecVersionServiceV8,
-} from '@/mfa/services/specVersionServiceV8';
-import { TokenEndpointAuthMethodServiceV8 } from '@/mfa/services/tokenEndpointAuthMethodServiceV8';
-import { TooltipContentServiceV8 } from '@/mfa/services/tooltipContentServiceV8';
-import { UnifiedFlowOptionsServiceV8 } from '@/mfa/services/unifiedFlowOptionsServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/mfa/services/workerTokenStatusServiceV8';
-import { analytics } from '@/mfa/utils/analyticsV8';
+	SpecVersionService,
+} from '@/mfa/services/specVersionService';
+import { TokenEndpointAuthMethodService } from '@/mfa/services/tokenEndpointAuthMethodService';
+import { TooltipContentService } from '@/mfa/services/tooltipContentService';
+import { UnifiedFlowOptionsService } from '@/mfa/services/unifiedFlowOptionsService';
+import { WorkerTokenStatusService } from '@/mfa/services/workerTokenStatusService';
+import { analytics } from '@/mfa/utils/analytics';
 import { logger } from '../../utils/logger';
 import { AppDiscoveryModalV8U } from './AppDiscoveryModalV8U';
 
@@ -345,7 +345,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	const previousScopesRef = useRef<string | undefined>(credentials.scopes);
 
 	// Get config - use a default if not found to avoid breaking hooks
-	const config = CredentialsServiceV8.getFlowConfig(flowKey) || {
+	const config = CredentialsService.getFlowConfig(flowKey) || {
 		flowType: 'oauth' as const,
 		includeClientSecret: true,
 		includeScopes: true,
@@ -378,7 +378,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 	// Get available flows for current spec version
 	const availableFlows = useMemo(
-		() => SpecVersionServiceV8.getAvailableFlows(specVersion),
+		() => SpecVersionService.getAvailableFlows(specVersion),
 		[specVersion]
 	);
 
@@ -519,11 +519,11 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	const [hasDiscoveredApps, setHasDiscoveredApps] = useState(false);
 	const [highlightEmptyFields, setHighlightEmptyFields] = useState(false);
 	const [tokenStatus, setTokenStatus] = useState(() =>
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
+		WorkerTokenStatusService.checkWorkerTokenStatusSync()
 	);
 
 	// Worker Token Settings - Use centralized hook for consistency
-	const { silentApiRetrieval, showTokenAtEnd } = useWorkerTokenConfigV8();
+	const { silentApiRetrieval, showTokenAtEnd } = useWorkerTokenConfig();
 
 	// Open global worker token modal (WorkerTokenModalV9 in App.tsx)
 	const openGlobalWorkerTokenModal = useCallback((source: string) => {
@@ -533,7 +533,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	// Refresh token status and show message when token is updated (e.g. from global modal)
 	useEffect(() => {
 		const handleTokenUpdated = () => {
-			setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+			setTokenStatus(WorkerTokenStatusService.checkWorkerTokenStatus());
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'Worker token generated and saved!',
@@ -627,13 +627,13 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 			// Save environment ID globally when changed
 			if (field === 'environmentId' && typeof value === 'string' && value.trim()) {
-				EnvironmentIdServiceV8.saveEnvironmentId(value);
+				EnvironmentIdService.saveEnvironmentId(value);
 			}
 
 			// Save credentials directly to storage using V8U flowKey
 			try {
 				const credsForSave = updated as unknown as Parameters<
-					typeof CredentialsServiceV8.saveCredentials
+					typeof CredentialsService.saveCredentials
 				>[1];
 				// #region agent log
 				analytics.log({
@@ -652,15 +652,15 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					},
 				});
 				// #endregion
-				CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+				CredentialsService.saveCredentials(flowKey, credsForSave);
 
 				// Save shared credentials (environmentId, clientId, clientSecret, etc.) to shared storage (async with disk)
-				const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(updated);
+				const sharedCreds = SharedCredentialsService.extractSharedCredentials(updated);
 				if (sharedCreds.environmentId || sharedCreds.clientId) {
 					// Use sync version for immediate browser storage, async disk save happens in background
-					SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
+					SharedCredentialsService.saveSharedCredentialsSync(sharedCreds);
 					// Also save to disk asynchronously (non-blocking)
-					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((_err) => {
+					SharedCredentialsService.saveSharedCredentials(sharedCreds).catch((_err) => {
 						logger.warn('CredentialsFormV8U', `Background disk save failed (non-critical):`);
 					});
 				}
@@ -684,7 +684,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 	// Load environment ID from global storage on mount (only once)
 	useEffect(() => {
-		const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+		const storedEnvId = EnvironmentIdService.getEnvironmentId();
 		if (storedEnvId && !credentials.environmentId) {
 			const updated = { ...credentials, environmentId: storedEnvId };
 			onChange(updated);
@@ -1011,7 +1011,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	// Listen for environment ID updates
 	useEffect(() => {
 		const handleEnvIdUpdate = () => {
-			const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+			const storedEnvId = EnvironmentIdService.getEnvironmentId();
 			if (storedEnvId) {
 				onChange((prev: typeof credentials) => {
 					if (prev.environmentId !== storedEnvId) {
@@ -1055,7 +1055,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	// Check token status and listen for updates
 	useEffect(() => {
 		const checkStatus = () => {
-			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+			const status = WorkerTokenStatusService.checkWorkerTokenStatusSync();
 			logger.info(`${MODULE_TAG} Token status updated`, status);
 			logger.info(`${MODULE_TAG} Raw token status check:`, {
 				isValid: status.isValid,
@@ -1183,7 +1183,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					return;
 				}
 
-				const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
+				const appConfig = await ConfigCheckerService.fetchAppConfig(
 					credentials.environmentId,
 					credentials.clientId,
 					workerToken
@@ -1249,18 +1249,18 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	const effectiveFlowKey =
 		usePKCE && effectiveFlowType === 'oauth-authz' ? 'pkce-v8u' : `${effectiveFlowType}-v8u`;
 
-	// Get unified flow options - use base flow key (without -v8u suffix) for FlowOptionsServiceV8
+	// Get unified flow options - use base flow key (without -v8u suffix) for FlowOptionsService
 	const flowOptionsKey =
 		usePKCE && effectiveFlowType === 'oauth-authz' ? 'pkce-v8' : `${effectiveFlowType}-v8`;
 	const flowOptions = useMemo(
-		() => FlowOptionsServiceV8.getOptionsForFlow(flowOptionsKey),
+		() => FlowOptionsService.getOptionsForFlow(flowOptionsKey),
 		[flowOptionsKey]
 	);
 
 	// Get all auth methods with enabled/disabled status
 	const allAuthMethodsWithStatus = useMemo(
 		() =>
-			TokenEndpointAuthMethodServiceV8.getAllAuthMethodsWithStatus(
+			TokenEndpointAuthMethodService.getAllAuthMethodsWithStatus(
 				effectiveFlowType,
 				specVersion,
 				usePKCE
@@ -1268,12 +1268,12 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		[effectiveFlowType, specVersion, usePKCE]
 	);
 	const validResponseTypes = useMemo(
-		() => ResponseTypeServiceV8.getResponseTypes(effectiveFlowType, specVersion),
+		() => ResponseTypeService.getResponseTypes(effectiveFlowType, specVersion),
 		[effectiveFlowType, specVersion]
 	);
 	const defaultAuthMethod = useMemo(
 		() =>
-			TokenEndpointAuthMethodServiceV8.getDefaultAuthMethod(
+			TokenEndpointAuthMethodService.getDefaultAuthMethod(
 				effectiveFlowType,
 				specVersion,
 				usePKCE
@@ -1281,16 +1281,16 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		[effectiveFlowType, specVersion, usePKCE]
 	);
 	const defaultResponseType = useMemo(
-		() => ResponseTypeServiceV8.getDefaultResponseType(effectiveFlowType, specVersion),
+		() => ResponseTypeService.getDefaultResponseType(effectiveFlowType, specVersion),
 		[effectiveFlowType, specVersion]
 	);
 	const checkboxAvailability = useMemo(
-		() => UnifiedFlowOptionsServiceV8.getCheckboxAvailability(specVersion, effectiveFlowType),
+		() => UnifiedFlowOptionsService.getCheckboxAvailability(specVersion, effectiveFlowType),
 		[specVersion, effectiveFlowType]
 	);
 	// Compliance warnings computed but not currently displayed in UI
 	// const complianceWarnings = useMemo(
-	// 	() => UnifiedFlowOptionsServiceV8.getComplianceWarnings(specVersion, effectiveFlowType),
+	// 	() => UnifiedFlowOptionsService.getComplianceWarnings(specVersion, effectiveFlowType),
 	// 	[specVersion, effectiveFlowType]
 	// );
 
@@ -1324,9 +1324,9 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		const redirectFlowKey = getRedirectFlowKey();
 
 		// Get the correct redirect URI for this flow
-		const correctRedirectUri = RedirectUriServiceV8.getRedirectUriForFlow(redirectFlowKey);
+		const correctRedirectUri = RedirectUriService.getRedirectUriForFlow(redirectFlowKey);
 		const correctPostLogoutUri =
-			RedirectUriServiceV8.getPostLogoutRedirectUriForFlow(redirectFlowKey);
+			RedirectUriService.getPostLogoutRedirectUriForFlow(redirectFlowKey);
 
 		const flowKeyChanged = lastRedirectFlowKeyRef.current !== redirectFlowKey;
 		const redirectUriEmpty = !credentials.redirectUri?.trim();
@@ -1413,14 +1413,14 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			// Save credentials directly to storage using V8U flowKey
 			try {
 				const credsForSave = updated as unknown as Parameters<
-					typeof CredentialsServiceV8.saveCredentials
+					typeof CredentialsService.saveCredentials
 				>[1];
-				CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+				CredentialsService.saveCredentials(flowKey, credsForSave);
 
 				// Save shared credentials (environmentId, clientId, clientSecret, etc.) to shared storage
-				const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(updated);
+				const sharedCreds = SharedCredentialsService.extractSharedCredentials(updated);
 				if (sharedCreds.environmentId || sharedCreds.clientId) {
-					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
+					SharedCredentialsService.saveSharedCredentials(sharedCreds);
 				}
 
 				logger.info(`${MODULE_TAG} Credentials saved after setting defaults`, {
@@ -1486,9 +1486,9 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 			// Add flow-specific context
 			if (isRecommended) {
-				description += ` ✅ <strong>Recommended for ${SpecVersionServiceV8.getFlowLabel(flowType)}</strong>.`;
+				description += ` ✅ <strong>Recommended for ${SpecVersionService.getFlowLabel(flowType)}</strong>.`;
 			} else {
-				description += ` ⚠️ <strong>Not typically used with ${SpecVersionServiceV8.getFlowLabel(flowType)}</strong>. Consider <strong>${getAppTypeLabel(recommendedAppType)}</strong> instead.`;
+				description += ` ⚠️ <strong>Not typically used with ${SpecVersionService.getFlowLabel(flowType)}</strong>. Consider <strong>${getAppTypeLabel(recommendedAppType)}</strong> instead.`;
 			}
 
 			// Add alternatives based on flow type
@@ -1576,7 +1576,7 @@ Client Type: Confidential (server-side, can securely store credentials)
 
 Why it matters: Backend services communicate server-to-server without user context. They can securely store credentials on the server, making Client Credentials Flow the most efficient option.`;
 			default:
-				return TooltipContentServiceV8.APPLICATION_TYPE.content;
+				return TooltipContentService.APPLICATION_TYPE.content;
 		}
 	}, []);
 
@@ -1591,13 +1591,13 @@ Why it matters: Backend services communicate server-to-server without user conte
 			let appWithSecret = app;
 			if (credentials.environmentId) {
 				try {
-					const workerToken = await AppDiscoveryServiceV8.getStoredWorkerToken();
+					const workerToken = await AppDiscoveryService.getStoredWorkerToken();
 					if (workerToken) {
 						logger.info(
 							`${MODULE_TAG} Fetching application secret from PingOne API...`,
 							'Logger info'
 						);
-						const fetchedApp = await AppDiscoveryServiceV8.fetchApplicationWithSecret(
+						const fetchedApp = await AppDiscoveryService.fetchApplicationWithSecret(
 							credentials.environmentId,
 							app.id,
 							workerToken
@@ -1793,7 +1793,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 				},
 			});
 			// #endregion
-			// Apply additional fields if available (from AppDiscoveryServiceV8.getAppConfig)
+			// Apply additional fields if available (from AppDiscoveryService.getAppConfig)
 			// Type assertion for updated to include pkceEnforcement
 			const updatedWithPKCE = updated as typeof updated & {
 				pkceEnforcement?: 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED';
@@ -1853,7 +1853,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 			// This ensures redirectUri and clientAuthMethod are included
 			try {
 				const credsForSave = updated as unknown as Parameters<
-					typeof CredentialsServiceV8.saveCredentials
+					typeof CredentialsService.saveCredentials
 				>[1];
 				// #region agent log
 				analytics.log({
@@ -1871,15 +1871,15 @@ Why it matters: Backend services communicate server-to-server without user conte
 					},
 				});
 				// #endregion
-				CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+				CredentialsService.saveCredentials(flowKey, credsForSave);
 
 				// Save shared credentials (environmentId, clientId, clientSecret, etc.) to shared storage (async with disk)
-				const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(updated);
+				const sharedCreds = SharedCredentialsService.extractSharedCredentials(updated);
 				if (sharedCreds.environmentId || sharedCreds.clientId) {
 					// Use sync version for immediate browser storage, async disk save happens in background
-					SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
+					SharedCredentialsService.saveSharedCredentialsSync(sharedCreds);
 					// Also save to disk asynchronously (non-blocking)
-					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((_err) => {
+					SharedCredentialsService.saveSharedCredentials(sharedCreds).catch((_err) => {
 						logger.warn('CredentialsFormV8U', `Background disk save failed (non-critical):`);
 					});
 				}
@@ -1943,7 +1943,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 				input: inputToUse,
 				fromCredentials: !discoveryInput.trim() && !!credentials.environmentId,
 			});
-			const result = await OidcDiscoveryServiceV8.discoverFromInput(inputToUse);
+			const result = await OidcDiscoveryService.discoverFromInput(inputToUse);
 
 			if (result.success && result.data) {
 				logger.info(`${MODULE_TAG} Discovery successful`, result.data);
@@ -2060,7 +2060,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 								<div className="section-content">
 									{/* Client Type - Educational Component */}
 									<div className="form-group" style={{ marginBottom: '16px' }}>
-										<ClientTypeRadioV8
+										<ClientTypeRadio
 											value={clientType}
 											onChange={(type) => {
 												logger.info(`${MODULE_TAG} Client type changed to ${type}`, 'Logger info');
@@ -2079,8 +2079,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 									<div className="form-group">
 										<label htmlFor="application-type">
 											Application Type
-											<TooltipV8
-												title={`${TooltipContentServiceV8.APPLICATION_TYPE.title} - ${getAppTypeLabel(appType)}`}
+											<Tooltip
+												title={`${TooltipContentService.APPLICATION_TYPE.title} - ${getAppTypeLabel(appType)}`}
 												content={getAppTypeTooltipContent(appType)}
 											/>
 										</label>
@@ -2217,7 +2217,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 																tokenStatus.status === 'expired'
 															? '#fef3c7'
 															: '#fee2e2',
-												border: `1px solid ${WorkerTokenStatusServiceV8.getStatusColor(tokenStatus.status)}`,
+												border: `1px solid ${WorkerTokenStatusService.getStatusColor(tokenStatus.status)}`,
 												borderRadius: '6px',
 												fontSize: '13px',
 												color:
@@ -2237,7 +2237,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											}}
 										>
 											<span style={{ fontSize: '16px', flexShrink: 0 }}>
-												{WorkerTokenStatusServiceV8.getStatusIcon(tokenStatus.status)}
+												{WorkerTokenStatusService.getStatusIcon(tokenStatus.status)}
 											</span>
 											<span style={{ flex: 1 }}>{tokenStatus.message}</span>
 										</div>
@@ -2313,9 +2313,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 														const newValue = e.target.checked;
 														setSilentApiRetrieval(newValue);
 														// Update config service immediately (no cache)
-														const config = MFAConfigurationServiceV8.loadConfiguration();
+														const config = MFAConfigurationService.loadConfiguration();
 														config.workerToken.silentApiRetrieval = newValue;
-														MFAConfigurationServiceV8.saveConfiguration(config);
+														MFAConfigurationService.saveConfiguration(config);
 														// Dispatch event to notify other components
 														window.dispatchEvent(
 															new CustomEvent('mfaConfigurationUpdated', {
@@ -2331,7 +2331,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 														// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 														if (newValue) {
 															const currentStatus =
-																WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+																WorkerTokenStatusService.checkWorkerTokenStatus();
 															if (!currentStatus.isValid) {
 																logger.info(
 																	'[CREDENTIALS-FORM-V8U] Silent API retrieval enabled, opening global worker token modal...'
@@ -2384,9 +2384,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 														const newValue = e.target.checked;
 														setShowTokenAtEnd(newValue);
 														// Update config service immediately (no cache)
-														const config = MFAConfigurationServiceV8.loadConfiguration();
+														const config = MFAConfigurationService.loadConfiguration();
 														config.workerToken.showTokenAtEnd = newValue;
-														MFAConfigurationServiceV8.saveConfiguration(config);
+														MFAConfigurationService.saveConfiguration(config);
 														// Dispatch event to notify other components
 														window.dispatchEvent(
 															new CustomEvent('mfaConfigurationUpdated', {
@@ -2544,7 +2544,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 												border: '1px solid #fcd34d',
 											}}
 										>
-											<PKCEEnforcementDropdownV8
+											<PKCEEnforcementDropdown
 												value={pkceEnforcement}
 												onChange={(newEnforcement) => {
 													setPkceEnforcement(newEnforcement);
@@ -3273,7 +3273,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 								{/* Token Endpoint Authentication Method - Moved from Advanced */}
 								{showClientAuthMethod && allAuthMethodsWithStatus.length > 0 && (
 									<div className="form-group">
-										<TokenEndpointAuthMethodDropdownV8
+										<TokenEndpointAuthMethodDropdown
 											value={
 												(credentials.clientAuthMethod || defaultAuthMethod) as
 													| 'none'
@@ -3382,7 +3382,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 								{/* Response Type - Moved from Advanced */}
 								{validResponseTypes.length > 0 && (
 									<div className="form-group">
-										<ResponseTypeDropdownV8
+										<ResponseTypeDropdown
 											value={credentials.responseType || defaultResponseType}
 											onChange={(type) => handleChange('responseType', type)}
 											flowType={
@@ -3412,7 +3412,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											boxSizing: 'border-box',
 										}}
 									>
-										{SpecVersionServiceV8.getFlowLabel(effectiveFlowType)}
+										{SpecVersionService.getFlowLabel(effectiveFlowType)}
 									</div>
 									<small>Based on selected flow type</small>
 								</div>
@@ -3422,15 +3422,15 @@ Why it matters: Backend services communicate server-to-server without user conte
 									<div className="form-group">
 										<label htmlFor="redirect-uris">
 											Redirect URIs <span className="required">*</span>
-											<TooltipV8
-												title={TooltipContentServiceV8.REDIRECT_URI.title}
-												content={TooltipContentServiceV8.REDIRECT_URI.content}
+											<Tooltip
+												title={TooltipContentService.REDIRECT_URI.title}
+												content={TooltipContentService.REDIRECT_URI.content}
 											/>
 										</label>
 										<input
 											id="redirect-uris"
 											type="text"
-											placeholder={RedirectUriServiceV8.getRedirectUriPlaceholder(
+											placeholder={RedirectUriService.getRedirectUriPlaceholder(
 												getRedirectFlowKey()
 											)}
 											value={credentials.redirectUri || ''}
@@ -3469,7 +3469,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 								{/* Response Mode Dropdown */}
 								{checkboxAvailability.showRedirectless && (
 									<div className="form-group" style={{ marginBottom: '16px' }}>
-										<ResponseModeDropdownV8
+										<ResponseModeDropdown
 											value={responseMode}
 											onChange={(mode) => {
 												logger.info(
@@ -3513,15 +3513,15 @@ Why it matters: Backend services communicate server-to-server without user conte
 										<label htmlFor="sign-off-urls">
 											Sign Off URLs (Post-Logout Redirect URIs){' '}
 											<span className="optional">(optional)</span>
-											<TooltipV8
-												title={TooltipContentServiceV8.POST_LOGOUT_REDIRECT_URI.title}
-												content={TooltipContentServiceV8.POST_LOGOUT_REDIRECT_URI.content}
+											<Tooltip
+												title={TooltipContentService.POST_LOGOUT_REDIRECT_URI.title}
+												content={TooltipContentService.POST_LOGOUT_REDIRECT_URI.content}
 											/>
 										</label>
 										<input
 											id="sign-off-urls"
 											type="text"
-											placeholder={RedirectUriServiceV8.getPostLogoutRedirectUriPlaceholder(
+											placeholder={RedirectUriService.getPostLogoutRedirectUriPlaceholder(
 												getRedirectFlowKey()
 											)}
 											value={credentials.postLogoutRedirectUri || ''}
@@ -3554,9 +3554,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 												<span>
 													Scopes <span className="required">*</span>
 												</span>
-												<TooltipV8
-													title={TooltipContentServiceV8.SCOPES.title}
-													content={TooltipContentServiceV8.SCOPES.content}
+												<Tooltip
+													title={TooltipContentService.SCOPES.title}
+													content={TooltipContentService.SCOPES.content}
 												/>
 											</span>
 											<button
@@ -4124,7 +4124,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 																			{scope}
 																		</button>
 																		{getTooltipContent() && (
-																			<TooltipV8
+																			<Tooltip
 																				title={scope}
 																				content={getTooltipContent()}
 																				position="top"
@@ -4335,7 +4335,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 																		{scope}
 																	</button>
 																	{(isOpenId || isOfflineAccess) && getTooltipContent() && (
-																		<TooltipV8
+																		<Tooltip
 																			title="Token Requirements"
 																			content={getTooltipContent()}
 																			position="top"
@@ -4603,18 +4603,18 @@ Why it matters: Backend services communicate server-to-server without user conte
 														// SINGLE SAVE: Save to storage once with all changes
 														try {
 															const credsForSave = updatedCredentials as unknown as Parameters<
-																typeof CredentialsServiceV8.saveCredentials
+																typeof CredentialsService.saveCredentials
 															>[1];
-															CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+															CredentialsService.saveCredentials(flowKey, credsForSave);
 
 															// Save shared credentials (non-blocking)
 															const sharedCreds =
-																SharedCredentialsServiceV8.extractSharedCredentials(
+																SharedCredentialsService.extractSharedCredentials(
 																	updatedCredentials
 																);
 															if (sharedCreds.environmentId || sharedCreds.clientId) {
-																SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
-																SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch(
+																SharedCredentialsService.saveSharedCredentialsSync(sharedCreds);
+																SharedCredentialsService.saveSharedCredentials(sharedCreds).catch(
 																	(_err) => {
 																		logger.warn(
 																			'CredentialsFormV8U',
@@ -4710,7 +4710,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 										{/* Refresh Token Type Dropdown - Only show when refresh tokens are enabled */}
 										{enableRefreshToken && (
 											<div style={{ marginTop: '16px' }}>
-												<RefreshTokenTypeDropdownV8
+												<RefreshTokenTypeDropdown
 													value={refreshTokenType}
 													onChange={(type) => {
 														setRefreshTokenType(type);
@@ -4788,7 +4788,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 									{/* PKCE - Educational Component - Only for flows that support PKCE */}
 									{supportsPKCE && (
 										<div className="form-group" style={{ marginBottom: '16px' }}>
-											<PKCEInputV8
+											<PKCEInput
 												value={pkceEnforcement as PKCEMode}
 												onChange={(mode) => {
 													logger.info(`${MODULE_TAG} PKCE mode changed to ${mode}`, 'Logger info');
@@ -4822,7 +4822,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 									{/* Response Mode - Only for flows that support it */}
 									{flowOptions.requiresRedirectUri && (
 										<div className="form-group" style={{ marginBottom: '16px' }}>
-											<ResponseModeDropdownV8
+											<ResponseModeDropdown
 												value={responseMode}
 												onChange={(mode) => {
 													logger.info(
@@ -5016,7 +5016,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 									{/* Issuer URL */}
 									<div className="form-group">
-										<IssuerURLInputV8
+										<IssuerURLInput
 											value={credentials.issuerUrl || ''}
 											onChange={(url) => handleChange('issuerUrl', url)}
 											placeholder="https://auth.example.com"
@@ -5089,7 +5089,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 									{/* Max Age Input */}
 									{flowOptions.requiresRedirectUri && (
 										<div className="form-group" style={{ marginBottom: '16px' }}>
-											<MaxAgeInputV8
+											<MaxAgeInput
 												value={maxAge}
 												onChange={(value) => {
 													logger.info(`${MODULE_TAG} Max age changed to ${value}`, 'Logger info');
@@ -5120,7 +5120,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 									{/* Display Mode Dropdown */}
 									{flowOptions.requiresRedirectUri && (
 										<div className="form-group" style={{ marginBottom: '16px' }}>
-											<DisplayModeDropdownV8
+											<DisplayModeDropdown
 												value={display}
 												onChange={(value) => {
 													logger.info(
@@ -5229,7 +5229,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 					</form>
 
 					{/* Modals - Outside form to avoid nested form warnings */}
-					<OidcDiscoveryModalV8
+					<OidcDiscoveryModal
 						isOpen={showDiscoveryModal}
 						result={discoveryResult}
 						onClose={() => setShowDiscoveryModal(false)}
@@ -6473,7 +6473,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 					</DraggableModal>
 
 					{/* Worker Token vs Client Credentials Education Modal (for Scopes) */}
-					<WorkerTokenVsClientCredentialsEducationModalV8
+					<WorkerTokenVsClientCredentialsEducationModal
 						isOpen={showScopesEducationModal}
 						onClose={() => setShowScopesEducationModal(false)}
 						context={providedFlowType === 'client-credentials' ? 'client-credentials' : 'general'}

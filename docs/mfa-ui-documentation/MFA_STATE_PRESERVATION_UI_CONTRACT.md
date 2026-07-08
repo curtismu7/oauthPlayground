@@ -56,7 +56,7 @@ The following `sessionStorage` keys are used for state preservation:
 
 #### `user_login_return_to_mfa`
 - **Type:** String (plain text, not JSON)
-- **Stored By:** `UserLoginModalV8` component
+- **Stored By:** `UserLoginModal` component
 - **Value:** Full path including query parameters (e.g., `/v8/mfa/register/email/device?step=1`)
 - **When:** Before redirecting to PingOne authorization endpoint
 - **Cleaned Up:** By `CallbackHandlerV8U` after redirect
@@ -71,8 +71,8 @@ sessionStorage.setItem('user_login_return_to_mfa', '/v8/mfa/register/email/devic
 - **Stored By:** `CallbackHandlerV8U` component
 - **Value:** `'true'`
 - **When:** After OAuth callback is processed, before redirecting back to MFA flow
-- **Purpose:** Signals to `MFAFlowBaseV8` that state restoration should occur
-- **Cleaned Up:** By `MFAFlowBaseV8` after state restoration
+- **Purpose:** Signals to `MFAFlowBase` that state restoration should occur
+- **Cleaned Up:** By `MFAFlowBase` after state restoration
 
 **Example:**
 ```typescript
@@ -83,9 +83,9 @@ sessionStorage.setItem('mfa_oauth_callback_return', 'true');
 
 ## Flow Sequence
 
-### 1. Pre-Authentication (UserLoginModalV8)
+### 1. Pre-Authentication (UserLoginModal)
 
-**Location:** `src/v8/components/UserLoginModalV8.tsx`
+**Location:** `src/v8/components/UserLoginModal.tsx`
 
 **When:** User clicks "Start Authentication" button and the current path starts with `/v8/mfa`
 
@@ -146,9 +146,9 @@ if (returnToMfaFlow) {
 
 ---
 
-### 3. State Restoration (MFAFlowBaseV8)
+### 3. State Restoration (MFAFlowBase)
 
-**Location:** `src/v8/flows/shared/MFAFlowBaseV8.tsx`
+**Location:** `src/v8/flows/shared/MFAFlowBase.tsx`
 
 **When:** Component detects `mfa_oauth_callback_return` marker and user token is present
 
@@ -190,11 +190,11 @@ When OAuth authentication succeeds in user flows, the application stores a place
 
 ### Implementation Details
 
-**Location:** `src/v8/services/mfaServiceV8.ts`
+**Location:** `src/v8/services/mfaService.ts`
 
 #### Token Retrieval Logic
 
-The `MFAServiceV8.getToken()` method handles token selection:
+The `MFAService.getToken()` method handles token selection:
 
 ```typescript
 static async getToken(credentials?: { tokenType?: 'worker' | 'user'; userToken?: string }): Promise<string> {
@@ -206,14 +206,14 @@ static async getToken(credentials?: { tokenType?: 'worker' | 'user'; userToken?:
       // For user flows with 'oauth_completed' placeholder, use worker token
       // The placeholder indicates successful user authentication, but device
       // registration requires a worker token with proper API permissions
-      return await MFAServiceV8.getWorkerToken();
+      return await MFAService.getWorkerToken();
     }
     // If a real user token is provided, use it
     return userToken;
   }
   
   // Default to worker token
-  return await MFAServiceV8.getWorkerToken();
+  return await MFAService.getWorkerToken();
 }
 ```
 
@@ -225,7 +225,7 @@ Scope validation is skipped when `userToken === 'oauth_completed'`:
 // Validate user token has required scope for device registration
 // Skip validation if userToken is 'oauth_completed' placeholder (we'll use worker token instead)
 if (paramsWithToken.tokenType === 'user' && paramsWithToken.userToken && paramsWithToken.userToken !== 'oauth_completed') {
-  const tokenScopes = MFAServiceV8.getTokenScopes(paramsWithToken.userToken);
+  const tokenScopes = MFAService.getTokenScopes(paramsWithToken.userToken);
   if (!tokenScopes.includes('p1:create:device')) {
     throw new Error('User token is missing required scope...');
   }
@@ -248,7 +248,7 @@ if (paramsWithToken.tokenType === 'user' && paramsWithToken.userToken && paramsW
    - Stored in `credentials.userToken` after successful OAuth authentication
    - Indicates successful user authentication without storing the actual token
    - Accepted by validation logic (`!!credentials.userToken?.trim()` returns `true`)
-   - Triggers fallback to worker token in `MFAServiceV8.getToken()`
+   - Triggers fallback to worker token in `MFAService.getToken()`
 
 3. **Benefits**:
    - Avoids misleading "missing scope" errors
@@ -265,7 +265,7 @@ This behavior applies to all MFA OTP flows that use user authentication:
 - ✅ TOTP User Registration Flow (if OAuth is implemented)
 - ✅ FIDO2 User Registration Flow (if OAuth is implemented)
 
-All flows use the shared `MFAServiceV8.getToken()` method, so they automatically benefit from this behavior.
+All flows use the shared `MFAService.getToken()` method, so they automatically benefit from this behavior.
 
 ---
 
@@ -483,9 +483,9 @@ All OTP flows (SMS, Email, WhatsApp) follow this same modal structure:
 ### References
 
 - `useDraggableModal` hook: `src/v8/hooks/useDraggableModal.ts`
-- SMS Device Registration Modal: `src/v8/flows/types/SMSFlowV8.tsx` (renderStep2Register)
-- Email Device Registration Modal: `src/v8/flows/types/EmailFlowV8.tsx` (renderStep2Register)
-- WhatsApp Device Registration Modal: `src/v8/flows/types/WhatsAppFlowV8.tsx` (renderStep2Register)
+- SMS Device Registration Modal: `src/v8/flows/types/SMSFlow.tsx` (renderStep2Register)
+- Email Device Registration Modal: `src/v8/flows/types/EmailFlow.tsx` (renderStep2Register)
+- WhatsApp Device Registration Modal: `src/v8/flows/types/WhatsAppFlow.tsx` (renderStep2Register)
 
 ## Related Documentation
 
@@ -499,9 +499,9 @@ All OTP flows (SMS, Email, WhatsApp) follow this same modal structure:
 ## Implementation Files
 
 **Components:**
-- `src/v8/components/UserLoginModalV8.tsx` - Stores return path before redirect
+- `src/v8/components/UserLoginModal.tsx` - Stores return path before redirect
 - `src/v8u/components/CallbackHandlerV8U.tsx` - Processes OAuth callback and redirects
-- `src/v8/flows/shared/MFAFlowBaseV8.tsx` - Detects marker and restores state
+- `src/v8/flows/shared/MFAFlowBase.tsx` - Detects marker and restores state
 
 **Routes:**
 - `src/App.tsx` - Defines `/user-mfa-login-callback` route

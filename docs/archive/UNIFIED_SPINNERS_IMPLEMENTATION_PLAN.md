@@ -14,7 +14,7 @@ This document outlines a comprehensive plan to add consistent spinners to the un
 
 ### **Secondary Components**
 1. **UnifiedNavigationV8U.tsx** - Navigation and flow controls
-2. **TokenDisplayServiceV8.tsx** - Token operations
+2. **TokenDisplayService.tsx** - Token operations
 3. **Various modal components** - Educational modals
 
 ## 🔍 **Current State Analysis**

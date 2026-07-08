@@ -12,14 +12,14 @@ import { usePageStepper } from '../../contexts/FloatingStepperContext';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowUIService } from '../../services/flowUIService';
 import { FlowCredentialService } from '../../platform/core/FlowCredentialService';
-import { EnvironmentIdServiceV8 } from '../../platform/environmentIdServiceV9';
+import { EnvironmentIdService } from '../../platform/environmentIdServiceV9';
 import { COLORS } from '../../platform/ColorStandards';
 import { CredentialStorageService } from '../../platform/CredentialStorageService';
 import { FlowRestartButton } from '../../platform/FlowRestartButton';
 import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 import { MockBanner } from '../mock-ui/MockBanner';
-import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
-import WorkerTokenStatusDisplayV8 from '../../mfa/components/WorkerTokenStatusDisplayV8';
+import type { DiscoveredApp } from '../../mfa/components/AppPicker';
+import WorkerTokenStatusDisplay from '../../mfa/components/WorkerTokenStatusDisplay';
 import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
 
 /**
@@ -244,7 +244,7 @@ const RARFlowV9: React.FC = () => {
 	// V9 Credential management
 	const [credentials, _setCredentials] = useState(() => FlowCredentialService.load());
 	const [environmentId, setEnvironmentId] = useState(() =>
-		EnvironmentIdServiceV8.getEnvironmentId()
+		EnvironmentIdService.getEnvironmentId()
 	);
 
 	// Worker token state
@@ -1007,7 +1007,7 @@ const RARFlowV9: React.FC = () => {
 					{/* Worker Token Status Content */}
 					{!isWorkerTokenStatusCollapsed && (
 						<div style={{ padding: '20px' }}>
-							<WorkerTokenStatusDisplayV8
+							<WorkerTokenStatusDisplay
 								appName="RAR Flow V9"
 								compact={false}
 								showRefreshButton={true}

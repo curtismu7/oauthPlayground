@@ -28,8 +28,8 @@ This document provides implementation details, code snippets, and restoration gu
 - `src/v8u/components/UnifiedFlowSteps.tsx` - Flow steps renderer component
 
 **Services:**
-- `src/v8/services/specVersionServiceV8.ts` - Spec version management
-- `src/v8/services/specUrlServiceV8.ts` - Spec URL management
+- `src/v8/services/specVersionService.ts` - Spec version management
+- `src/v8/services/specUrlService.ts` - Spec URL management
 - `src/v8/services/unifiedFlowIntegrationServiceV8U.ts` - Unified flow integration
 - `src/v8/services/unifiedFlowDocumentationServiceV8U.ts` - Documentation generation
 
@@ -324,7 +324,7 @@ const renderEducationalContent = (specVersion: SpecVersion, flowType: FlowType) 
 
 **Correct Implementation:**
 ```typescript
-// In specUrlServiceV8.ts
+// In specUrlService.ts
 export const SPEC_URLS = {
   OAUTH2_RFC6749: 'https://datatracker.ietf.org/doc/html/rfc6749',
   // ... other URLs
@@ -484,8 +484,8 @@ const getAvailableAuthzVariations = (specVersion: SpecVersion): UnifiedVariation
 - `src/v8u/flows/UnifiedOAuthFlowV8U.tsx` - Main Unified Flow component
 - `src/v8u/components/SpecVersionSelector.tsx` - Spec version selector
 - `src/v8u/components/UnifiedFlowSteps.tsx` - Flow steps renderer
-- `src/v8/services/specVersionServiceV8.ts` - Spec version service
-- `src/v8/services/specUrlServiceV8.ts` - Spec URL service
+- `src/v8/services/specVersionService.ts` - Spec version service
+- `src/v8/services/specUrlService.ts` - Spec URL service
 - `src/v8/services/unifiedFlowDocumentationServiceV8U.ts` - Documentation service
 
 ---

@@ -17,7 +17,7 @@ This document provides a comprehensive view of all MFA pages in the V8 applicati
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           MFA HUB (Entry Point)                              │
-│                         /v8/mfa-hub (MFAAuthenticationMainPageV8)              │
+│                         /v8/mfa-hub (MFAAuthenticationMainPage)              │
 │                                                                               │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
 │  │ • Control Panel (Environment ID, Region, Device Auth Policy)        │   │
@@ -167,8 +167,8 @@ This document provides a comprehensive view of all MFA pages in the V8 applicati
 
 #### MFA Hub (Authentication Main Page)
 - **Route:** `/v8/mfa-hub`
-- **File:** `src/v8/flows/MFAAuthenticationMainPageV8.tsx`
-- **Component:** `MFAAuthenticationMainPageV8`
+- **File:** `src/v8/flows/MFAAuthenticationMainPage.tsx`
+- **Component:** `MFAAuthenticationMainPage`
 - **Purpose:** Unified MFA Authentication Main Page - Central hub for MFA authentication and management
 - **Key Features:**
   - Control Panel (Environment ID, Region, Device Auth Policy)
@@ -185,7 +185,7 @@ This document provides a comprehensive view of all MFA pages in the V8 applicati
   - MFA Reporting
   - MFA Settings
 
-**Note:** `MFAHubV8.tsx` exists but is **not currently used** by the `/v8/mfa-hub` route. The route renders `MFAAuthenticationMainPageV8` instead.
+**Note:** `MFAHub.tsx` exists but is **not currently used** by the `/v8/mfa-hub` route. The route renders `MFAAuthenticationMainPage` instead.
 
 ---
 
@@ -200,8 +200,8 @@ Each device type has up to three pages:
 
 **Configuration Page**
 - **Route:** `/v8/mfa/register/sms`
-- **File:** `src/v8/flows/types/SMSOTPConfigurationPageV8.tsx`
-- **Component:** `SMSOTPConfigurationPageV8`
+- **File:** `src/v8/flows/types/SMSOTPConfigurationPage.tsx`
+- **Component:** `SMSOTPConfigurationPage`
 - **Purpose:** Configure SMS device registration settings
 - **Uses:** `MFAConfigurationStepV8V2` component
 - **Key Sections:**
@@ -215,8 +215,8 @@ Each device type has up to three pages:
 
 **Device Flow**
 - **Route:** `/v8/mfa/register/sms/device`
-- **File:** `src/v8/flows/types/SMSFlowV8.tsx`
-- **Component:** `SMSFlowV8`
+- **File:** `src/v8/flows/types/SMSFlow.tsx`
+- **Component:** `SMSFlow`
 - **Purpose:** SMS device registration flow
 - **Steps:**
   1. Configuration
@@ -226,58 +226,58 @@ Each device type has up to three pages:
 
 **Documentation**
 - **Route:** `/v8/mfa/register/sms/docs`
-- **File:** `src/v8/pages/SMSRegistrationDocsPageV8.tsx`
-- **Component:** `SMSRegistrationDocsPageV8`
+- **File:** `src/v8/pages/SMSRegistrationDocsPage.tsx`
+- **Component:** `SMSRegistrationDocsPage`
 - **Purpose:** API documentation for SMS registration
 
 #### Email Device Registration
 
 **Configuration Page**
 - **Route:** `/v8/mfa/register/email`
-- **File:** `src/v8/flows/types/EmailOTPConfigurationPageV8.tsx`
-- **Component:** `EmailOTPConfigurationPageV8`
+- **File:** `src/v8/flows/types/EmailOTPConfigurationPage.tsx`
+- **Component:** `EmailOTPConfigurationPage`
 - **Uses:** `MFAConfigurationStepV8V2` component
 
 **Device Flow**
 - **Route:** `/v8/mfa/register/email/device`
-- **File:** `src/v8/flows/types/EmailFlowV8.tsx`
-- **Component:** `EmailFlowV8`
+- **File:** `src/v8/flows/types/EmailFlow.tsx`
+- **Component:** `EmailFlow`
 
 **Documentation**
 - **Route:** `/v8/mfa/register/email/docs`
-- **File:** `src/v8/pages/EmailRegistrationDocsPageV8.tsx`
-- **Component:** `EmailRegistrationDocsPageV8`
+- **File:** `src/v8/pages/EmailRegistrationDocsPage.tsx`
+- **Component:** `EmailRegistrationDocsPage`
 
 #### WhatsApp Device Registration
 
 **Configuration Page**
 - **Route:** `/v8/mfa/register/whatsapp`
-- **File:** `src/v8/flows/types/WhatsAppOTPConfigurationPageV8.tsx`
-- **Component:** `WhatsAppOTPConfigurationPageV8`
+- **File:** `src/v8/flows/types/WhatsAppOTPConfigurationPage.tsx`
+- **Component:** `WhatsAppOTPConfigurationPage`
 - **Uses:** `MFAConfigurationStepV8V2` component
 
 **Device Flow**
 - **Route:** `/v8/mfa/register/whatsapp/device`
-- **File:** `src/v8/flows/types/WhatsAppFlowV8.tsx`
-- **Component:** `WhatsAppFlowV8`
+- **File:** `src/v8/flows/types/WhatsAppFlow.tsx`
+- **Component:** `WhatsAppFlow`
 
 **Documentation**
 - **Route:** `/v8/mfa/register/whatsapp/docs`
-- **File:** `src/v8/pages/WhatsAppRegistrationDocsPageV8.tsx`
-- **Component:** `WhatsAppRegistrationDocsPageV8`
+- **File:** `src/v8/pages/WhatsAppRegistrationDocsPage.tsx`
+- **Component:** `WhatsAppRegistrationDocsPage`
 
 #### TOTP Device Registration
 
 **Configuration Page**
 - **Route:** `/v8/mfa/register/totp`
-- **File:** `src/v8/flows/types/TOTPConfigurationPageV8.tsx`
-- **Component:** `TOTPConfigurationPageV8`
+- **File:** `src/v8/flows/types/TOTPConfigurationPage.tsx`
+- **Component:** `TOTPConfigurationPage`
 - **Uses:** `MFAConfigurationStepV8V2` component
 
 **Device Flow**
 - **Route:** `/v8/mfa/register/totp/device`
-- **File:** `src/v8/flows/types/TOTPFlowV8.tsx`
-- **Component:** `TOTPFlowV8`
+- **File:** `src/v8/flows/types/TOTPFlow.tsx`
+- **Component:** `TOTPFlow`
 - **Steps:**
   1. Configuration
   2. QR Code Display
@@ -288,13 +288,13 @@ Each device type has up to three pages:
 
 **Configuration Page**
 - **Route:** `/v8/mfa/register/fido2`
-- **File:** `src/v8/flows/types/FIDO2ConfigurationPageV8.tsx`
-- **Component:** `FIDO2ConfigurationPageV8`
+- **File:** `src/v8/flows/types/FIDO2ConfigurationPage.tsx`
+- **Component:** `FIDO2ConfigurationPage`
 
 **Device Flow**
 - **Route:** `/v8/mfa/register/fido2/device`
-- **File:** `src/v8/flows/types/FIDO2FlowV8.tsx`
-- **Component:** `FIDO2FlowV8`
+- **File:** `src/v8/flows/types/FIDO2Flow.tsx`
+- **Component:** `FIDO2Flow`
 - **Steps:**
   1. Configuration
   2. WebAuthn Registration
@@ -302,26 +302,26 @@ Each device type has up to three pages:
 
 **Documentation**
 - **Route:** `/v8/mfa/register/fido2/docs`
-- **File:** `src/v8/pages/FIDO2RegistrationDocsPageV8.tsx`
-- **Component:** `FIDO2RegistrationDocsPageV8`
+- **File:** `src/v8/pages/FIDO2RegistrationDocsPage.tsx`
+- **Component:** `FIDO2RegistrationDocsPage`
 
 #### Mobile Device Registration
 
 **Configuration Page**
 - **Route:** `/v8/mfa/register/mobile`
-- **File:** `src/v8/flows/types/MobileOTPConfigurationPageV8.tsx`
-- **Component:** `MobileOTPConfigurationPageV8`
+- **File:** `src/v8/flows/types/MobileOTPConfigurationPage.tsx`
+- **Component:** `MobileOTPConfigurationPage`
 - **Uses:** `MFAConfigurationStepV8V2` component
 
 **Device Flow**
 - **Route:** `/v8/mfa/register/mobile/device`
-- **File:** `src/v8/flows/types/MobileFlowV8.tsx`
-- **Component:** `MobileFlowV8`
+- **File:** `src/v8/flows/types/MobileFlow.tsx`
+- **Component:** `MobileFlow`
 
 **Documentation**
 - **Route:** `/v8/mfa/register/mobile/docs`
-- **File:** `src/v8/pages/MobileRegistrationDocsPageV8.tsx`
-- **Component:** `MobileRegistrationDocsPageV8`
+- **File:** `src/v8/pages/MobileRegistrationDocsPage.tsx`
+- **Component:** `MobileRegistrationDocsPage`
 
 ---
 
@@ -329,8 +329,8 @@ Each device type has up to three pages:
 
 #### Device Management
 - **Route:** `/v8/mfa-device-management`
-- **File:** `src/v8/flows/MFADeviceManagementFlowV8.tsx`
-- **Component:** `MFADeviceManagementFlowV8`
+- **File:** `src/v8/flows/MFADeviceManagementFlow.tsx`
+- **Component:** `MFADeviceManagementFlow`
 - **Purpose:** Manage user MFA devices
 - **Features:**
   - View all devices
@@ -341,8 +341,8 @@ Each device type has up to three pages:
 
 #### Device Ordering
 - **Route:** `/v8/mfa-device-ordering`
-- **File:** `src/v8/flows/MFADeviceOrderingFlowV8.tsx`
-- **Component:** `MFADeviceOrderingFlowV8`
+- **File:** `src/v8/flows/MFADeviceOrderingFlow.tsx`
+- **Component:** `MFADeviceOrderingFlow`
 - **Purpose:** Order and prioritize MFA devices
 
 ---
@@ -351,8 +351,8 @@ Each device type has up to three pages:
 
 #### MFA Reporting
 - **Route:** `/v8/mfa-reporting`
-- **File:** `src/v8/flows/MFAReportingFlowV8.tsx`
-- **Component:** `MFAReportingFlowV8`
+- **File:** `src/v8/flows/MFAReportingFlow.tsx`
+- **Component:** `MFAReportingFlow`
 - **Purpose:** View MFA usage reports and analytics
 - **Features:**
   - User authentication reports
@@ -367,8 +367,8 @@ Each device type has up to three pages:
 
 #### MFA Configuration Page
 - **Route:** `/v8/mfa-config`
-- **File:** `src/v8/flows/MFAConfigurationPageV8.tsx`
-- **Component:** `MFAConfigurationPageV8`
+- **File:** `src/v8/flows/MFAConfigurationPage.tsx`
+- **Component:** `MFAConfigurationPage`
 - **Purpose:** Configure MFA policies and settings
 - **Sections (in order):**
   1. Worker Token Settings (ALWAYS FIRST)
@@ -393,14 +393,14 @@ Each device type has up to three pages:
 
 #### Device Authentication Details
 - **Route:** `/v8/mfa/device-authentication-details`
-- **File:** `src/v8/pages/DeviceAuthenticationDetailsV8.tsx`
-- **Component:** `DeviceAuthenticationDetailsV8`
+- **File:** `src/v8/pages/DeviceAuthenticationDetails.tsx`
+- **Component:** `DeviceAuthenticationDetails`
 - **Purpose:** Display detailed device authentication information
 
 #### MFA Device Create Demo
 - **Route:** `/v8/mfa/create-device`
-- **File:** `src/v8/pages/MFADeviceCreateDemoV8.tsx`
-- **Component:** `MFADeviceCreateDemoV8`
+- **File:** `src/v8/pages/MFADeviceCreateDemo.tsx`
+- **Component:** `MFADeviceCreateDemo`
 - **Purpose:** Demo page for creating MFA devices
 
 ---
@@ -408,7 +408,7 @@ Each device type has up to three pages:
 ## Shared Components
 
 ### MFAConfigurationStepV8V2
-- **File:** `src/v8/flows/shared/MFAConfigurationStepV8-V2.tsx`
+- **File:** `src/v8/flows/shared/MFAConfigurationStep-V2.tsx`
 - **Purpose:** Shared configuration step component used across all device registration flows
 - **Used By:**
   - SMS Configuration Page
@@ -425,8 +425,8 @@ Each device type has up to three pages:
   - Device Authentication Policy selector
   - Username input
 
-### MFAFlowBaseV8
-- **File:** `src/v8/flows/shared/MFAFlowBaseV8.tsx`
+### MFAFlowBase
+- **File:** `src/v8/flows/shared/MFAFlowBase.tsx`
 - **Purpose:** Base component for MFA flows with common functionality
 - **Used By:** All device registration flows
 
@@ -494,14 +494,14 @@ MFA Hub
 
 ### Worker Token Management
 ```
-MFAAuthenticationMainPageV8
-  ├─ WorkerTokenStatusDisplayV8 (displays status)
+MFAAuthenticationMainPage
+  ├─ WorkerTokenStatusDisplay (displays status)
   ├─ Get Worker Token Button (triggers modal)
-  └─ WorkerTokenModalV8 (lazy loaded)
+  └─ WorkerTokenModal (lazy loaded)
 
 MFAConfigurationStepV8V2
   ├─ Collapsible Worker Token Section
-  │   ├─ WorkerTokenStatusDisplayV8
+  │   ├─ WorkerTokenStatusDisplay
   │   ├─ Silent API Retrieval checkbox
   │   └─ Show Token at End checkbox
   └─ Collapsible User Token Section
@@ -512,9 +512,9 @@ MFAConfigurationStepV8V2
 
 ### Configuration Flow
 ```
-{DeviceType}OTPConfigurationPageV8
-  ├─ MFANavigationV8
-  ├─ SuperSimpleApiDisplayV8
+{DeviceType}OTPConfigurationPage
+  ├─ MFANavigation
+  ├─ SuperSimpleApiDisplay
   ├─ MFAConfigurationStepV8V2
   │   ├─ Worker Token Section
   │   ├─ User Token Section
@@ -552,7 +552,7 @@ MFAConfigurationStepV8V2
 ### 4. Token Management
 - Worker tokens managed at Hub level and in configuration pages
 - User tokens managed in configuration pages only
-- Token status displayed via `WorkerTokenStatusDisplayV8` component
+- Token status displayed via `WorkerTokenStatusDisplay` component
 
 ---
 
@@ -561,37 +561,37 @@ MFAConfigurationStepV8V2
 ```
 src/v8/
 ├── flows/
-│   ├── MFAAuthenticationMainPageV8.tsx    (Hub)
-│   ├── MFAConfigurationPageV8.tsx        (Settings)
-│   ├── MFADeviceManagementFlowV8.tsx     (Management)
-│   ├── MFAReportingFlowV8.tsx            (Reporting)
+│   ├── MFAAuthenticationMainPage.tsx    (Hub)
+│   ├── MFAConfigurationPage.tsx        (Settings)
+│   ├── MFADeviceManagementFlow.tsx     (Management)
+│   ├── MFAReportingFlow.tsx            (Reporting)
 │   ├── types/
-│   │   ├── SMSFlowV8.tsx                 (Device flows)
-│   │   ├── EmailFlowV8.tsx
-│   │   ├── WhatsAppFlowV8.tsx
-│   │   ├── TOTPFlowV8.tsx
-│   │   ├── FIDO2FlowV8.tsx
-│   │   ├── MobileFlowV8.tsx
-│   │   ├── SMSOTPConfigurationPageV8.tsx     (Config pages)
-│   │   ├── EmailOTPConfigurationPageV8.tsx
-│   │   ├── WhatsAppOTPConfigurationPageV8.tsx
-│   │   ├── TOTPConfigurationPageV8.tsx
-│   │   ├── FIDO2ConfigurationPageV8.tsx
-│   │   └── MobileOTPConfigurationPageV8.tsx
+│   │   ├── SMSFlow.tsx                 (Device flows)
+│   │   ├── EmailFlow.tsx
+│   │   ├── WhatsAppFlow.tsx
+│   │   ├── TOTPFlow.tsx
+│   │   ├── FIDO2Flow.tsx
+│   │   ├── MobileFlow.tsx
+│   │   ├── SMSOTPConfigurationPage.tsx     (Config pages)
+│   │   ├── EmailOTPConfigurationPage.tsx
+│   │   ├── WhatsAppOTPConfigurationPage.tsx
+│   │   ├── TOTPConfigurationPage.tsx
+│   │   ├── FIDO2ConfigurationPage.tsx
+│   │   └── MobileOTPConfigurationPage.tsx
 │   └── shared/
-│       ├── MFAConfigurationStepV8-V2.tsx   (Shared config component)
-│       └── MFAFlowBaseV8.tsx               (Base flow component)
+│       ├── MFAConfigurationStep-V2.tsx   (Shared config component)
+│       └── MFAFlowBase.tsx               (Base flow component)
 ├── components/
-│   ├── WorkerTokenStatusDisplayV8.tsx
-│   ├── WorkerTokenModalV8.tsx
-│   ├── UserLoginModalV8.tsx
-│   └── MFANavigationV8.tsx
+│   ├── WorkerTokenStatusDisplay.tsx
+│   ├── WorkerTokenModal.tsx
+│   ├── UserLoginModal.tsx
+│   └── MFANavigation.tsx
 └── pages/
-    ├── SMSRegistrationDocsPageV8.tsx       (Documentation pages)
-    ├── EmailRegistrationDocsPageV8.tsx
-    ├── WhatsAppRegistrationDocsPageV8.tsx
-    ├── FIDO2RegistrationDocsPageV8.tsx
-    ├── MobileRegistrationDocsPageV8.tsx
+    ├── SMSRegistrationDocsPage.tsx       (Documentation pages)
+    ├── EmailRegistrationDocsPage.tsx
+    ├── WhatsAppRegistrationDocsPage.tsx
+    ├── FIDO2RegistrationDocsPage.tsx
+    ├── MobileRegistrationDocsPage.tsx
     └── MFAAuthenticationSuccessPage.tsx
 ```
 

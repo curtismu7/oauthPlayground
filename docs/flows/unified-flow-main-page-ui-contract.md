@@ -83,7 +83,7 @@ This document defines the UI contract for the Unified OAuth/OIDC Flow main page.
 - Must track selected spec version in state
 - Must update flow availability based on selected spec version
 - Must update educational content based on selected spec version
-- Must persist selection in `localStorage` via `CredentialsServiceV8`
+- Must persist selection in `localStorage` via `CredentialsService`
 
 #### Locked State Behavior
 

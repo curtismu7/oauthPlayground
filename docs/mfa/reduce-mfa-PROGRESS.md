@@ -26,7 +26,7 @@
 ## ✅ Phase 0: Pre-work (COMPLETE)
 
 ### Feature Flag System
-- ✅ Created `src/v8/services/mfaFeatureFlagsV8.ts`
+- ✅ Created `src/v8/services/mfaFeatureFlags.ts`
 - ✅ Implemented localStorage-based flag system
 - ✅ Added percentage-based rollout (0%, 10%, 50%, 100%)
 - ✅ Deterministic user bucketing for A/B testing
@@ -34,7 +34,7 @@
 - ✅ Instant rollback capability
 
 **Files Created:**
-- `src/v8/services/mfaFeatureFlagsV8.ts` (230 lines)
+- `src/v8/services/mfaFeatureFlags.ts` (230 lines)
 
 **Testing:**
 ```javascript
@@ -49,10 +49,10 @@ window.mfaFlags.resetAllFlags();                       // Reset all
 
 ## 🚧 Phase 1: Foundation Services (Week 1-2) - IN PROGRESS
 
-### ✅ Week 1: MFATokenManagerV8 Service (COMPLETE)
+### ✅ Week 1: MFATokenManager Service (COMPLETE)
 
 **Completed Tasks:**
-- ✅ Created `MFATokenManagerV8.ts` service (242 lines)
+- ✅ Created `MFATokenManager.ts` service (242 lines)
 - ✅ Implemented centralized token status checking
 - ✅ Added token refresh logic
 - ✅ Implemented subscription-based updates
@@ -61,20 +61,20 @@ window.mfaFlags.resetAllFlags();                       // Reset all
 - ✅ Tested service independently
 
 **Files Created:**
-- `src/v8/services/mfaTokenManagerV8.ts` (242 lines)
-- `src/v8/services/__tests__/mfaTokenManagerV8.test.ts` (362 lines)
+- `src/v8/services/mfaTokenManager.ts` (242 lines)
+- `src/v8/services/__tests__/mfaTokenManager.test.ts` (362 lines)
 
 **Key Features:**
 - **Singleton pattern** - One instance across all MFA flows
 - **Subscription-based updates** - Reactive state management
 - **Auto-refresh** - Configurable interval (default: 30s)
-- **Wraps existing service** - Uses `WorkerTokenStatusServiceV8` (no breaking changes)
+- **Wraps existing service** - Uses `WorkerTokenStatusService` (no breaking changes)
 - **Error handling** - Graceful degradation on failures
 - **Configuration** - Customizable refresh interval and auto-refresh toggle
 
 **API:**
 ```typescript
-const manager = MFATokenManagerV8.getInstance();
+const manager = MFATokenManager.getInstance();
 
 // Subscribe to updates
 const unsubscribe = manager.subscribe((state) => {
@@ -97,38 +97,38 @@ manager.updateConfig({ refreshInterval: 10000 });
 - ✅ Token state management (5 tests)
 - ✅ Subscription management (5 tests)
 - ✅ Auto-refresh (4 tests)
-- ✅ Integration with WorkerTokenStatusServiceV8 (2 tests)
+- ✅ Integration with WorkerTokenStatusService (2 tests)
 - ✅ Configuration management (4 tests)
 
 **Total: 20 comprehensive test cases**
 
-### ✅ Week 2: MFACredentialManagerV8 Service (COMPLETE)
+### ✅ Week 2: MFACredentialManager Service (COMPLETE)
 
 **Completed Tasks:**
-- ✅ Created `MFACredentialManagerV8.ts` service (470 lines)
+- ✅ Created `MFACredentialManager.ts` service (470 lines)
 - ✅ Implemented centralized credential loading/saving
 - ✅ Added environment ID management
-- ✅ Integrated with existing `CredentialsServiceV8`
+- ✅ Integrated with existing `CredentialsService`
 - ✅ Wrote comprehensive unit tests (436 lines, 33 test cases)
 - ✅ Created React Context wrapper (`MFACredentialContext.tsx`)
 - ✅ Tested service independently
 
 **Files Created:**
-- `src/v8/services/mfaCredentialManagerV8.ts` (470 lines)
-- `src/v8/services/__tests__/mfaCredentialManagerV8.test.ts` (436 lines)
+- `src/v8/services/mfaCredentialManager.ts` (470 lines)
+- `src/v8/services/__tests__/mfaCredentialManager.test.ts` (436 lines)
 - `src/v8/contexts/MFACredentialContext.tsx` (200 lines)
 
 **Key Features:**
 - **Singleton pattern** - One instance across all MFA flows
 - **Subscription-based updates** - Reactive state management
-- **Wraps existing service** - Uses `CredentialsServiceV8` (no breaking changes)
+- **Wraps existing service** - Uses `CredentialsService` (no breaking changes)
 - **MFA-specific validation** - Device-type specific field validation
-- **Environment ID integration** - Syncs with `EnvironmentIdServiceV8`
+- **Environment ID integration** - Syncs with `EnvironmentIdService`
 - **React Context** - Easy integration with React components
 
 **API:**
 ```typescript
-const manager = MFACredentialManagerV8.getInstance();
+const manager = MFACredentialManager.getInstance();
 
 // Load credentials
 const creds = manager.loadCredentials('mfa-flow-v8');
@@ -165,7 +165,7 @@ const { credentials, saveCredentials, validateCredentials } = useCredentialManag
 - ✅ Credential comparison (3 tests)
 - ✅ Import/Export (4 tests)
 - ✅ Credential summary (2 tests)
-- ✅ Integration with CredentialsServiceV8 (3 tests)
+- ✅ Integration with CredentialsService (3 tests)
 
 **Total: 33 comprehensive test cases**
 
@@ -263,11 +263,11 @@ const { credentials, saveCredentials, validateCredentials } = useCredentialManag
 ## ⏳ Phase 3: Unified Component (Week 4-5) - NOT STARTED
 
 ### Week 4: Core Component Development
-- [ ] Create `UnifiedMFARegistrationFlowV8.tsx`
+- [ ] Create `UnifiedMFARegistrationFlow.tsx`
 - [ ] Implement basic component structure
 - [ ] Add device type prop handling
-- [ ] Integrate with MFATokenManagerV8
-- [ ] Integrate with MFACredentialManagerV8
+- [ ] Integrate with MFATokenManager
+- [ ] Integrate with MFACredentialManager
 - [ ] Implement SMS flow as proof of concept
 - [ ] Write component tests
 
@@ -336,9 +336,9 @@ const { credentials, saveCredentials, validateCredentials } = useCredentialManag
 
 ### Test Coverage
 - **Target:** 90%+ coverage for new services
-- **MFATokenManagerV8:** ✅ 100% coverage (20 test cases)
-- **MFACredentialManagerV8:** ⏳ Not started
-- **UnifiedMFARegistrationFlowV8:** ⏳ Not started
+- **MFATokenManager:** ✅ 100% coverage (20 test cases)
+- **MFACredentialManager:** ⏳ Not started
+- **UnifiedMFARegistrationFlow:** ⏳ Not started
 
 ### Performance
 - **Target:** < 2s P95 latency for all flows
@@ -350,10 +350,10 @@ const { credentials, saveCredentials, validateCredentials } = useCredentialManag
 ## 🎯 Next Steps
 
 ### Immediate (Week 4-5):
-1. **Create UnifiedMFARegistrationFlowV8 component**
+1. **Create UnifiedMFARegistrationFlow component**
    - Build unified component that uses deviceFlowConfigs
    - Implement device type prop handling
-   - Integrate with MFATokenManagerV8 and MFACredentialManagerV8
+   - Integrate with MFATokenManager and MFACredentialManager
    - Add dynamic form rendering based on device config
    - Implement SMS flow as proof of concept
 
@@ -394,16 +394,16 @@ const { credentials, saveCredentials, validateCredentials } = useCredentialManag
 
 - **Main Plan:** `reduce-mfa.md`
 - **Implementation Details:** `reduce-mfa-IMPLEMENTATION-DETAILS.md`
-- **Feature Flags:** `src/v8/services/mfaFeatureFlagsV8.ts`
-- **Token Manager:** `src/v8/services/mfaTokenManagerV8.ts`
-- **Credential Manager:** `src/v8/services/mfaCredentialManagerV8.ts`
+- **Feature Flags:** `src/v8/services/mfaFeatureFlags.ts`
+- **Token Manager:** `src/v8/services/mfaTokenManager.ts`
+- **Credential Manager:** `src/v8/services/mfaCredentialManager.ts`
 - **Device Configs:** `src/v8/config/deviceFlowConfigs.ts`
 - **Config Types:** `src/v8/config/deviceFlowConfigTypes.ts`
-- **Tests:** `src/v8/services/__tests__/mfaTokenManagerV8.test.ts`
-- **Tests:** `src/v8/services/__tests__/mfaCredentialManagerV8.test.ts`
+- **Tests:** `src/v8/services/__tests__/mfaTokenManager.test.ts`
+- **Tests:** `src/v8/services/__tests__/mfaCredentialManager.test.ts`
 
 ---
 
 **Last Updated:** 2026-01-29
 **Version:** 9.0.9
-**Next Milestone:** Week 4-5 - UnifiedMFARegistrationFlowV8 Component
+**Next Milestone:** Week 4-5 - UnifiedMFARegistrationFlow Component

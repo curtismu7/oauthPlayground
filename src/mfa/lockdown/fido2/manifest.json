@@ -5,32 +5,32 @@
 	"updated": "2026-01-24T00:30:57.062Z",
 	"files": [
 		{
-			"path": "src/mfa/flows/types/FIDO2FlowV8.tsx",
+			"path": "src/mfa/flows/types/FIDO2Flow.tsx",
 			"hash": "88587b67761ca60e8a73847cdffe72be4b8185b5539c7d6e86d0f61ae8c488aa",
 			"description": "Main FIDO2 registration flow component - handles device registration, WebAuthn API calls, and activation"
 		},
 		{
-			"path": "src/mfa/flows/types/FIDO2ConfigurationPageV8.tsx",
+			"path": "src/mfa/flows/types/FIDO2ConfigurationPage.tsx",
 			"hash": "3d8d3d47d0faa94c067a742d106131c1630299fa9f9c06d7f8a8e390f2281356",
 			"description": "FIDO2 configuration page - policy selection and FIDO2 settings"
 		},
 		{
-			"path": "src/mfa/flows/MFAAuthenticationMainPageV8.tsx",
+			"path": "src/mfa/flows/MFAAuthenticationMainPage.tsx",
 			"hash": "5ef6d75c1537711e6780c65d14647e4a9c9b79e3e6ba7b2ab6f858e64d8b9850",
 			"description": "FIDO2 authentication page - device selection, WebAuthn authentication, and assertion check"
 		},
 		{
-			"path": "src/mfa/components/FIDODeviceExistsModalV8.tsx",
+			"path": "src/mfa/components/FIDODeviceExistsModal.tsx",
 			"hash": "97a974ce8168f11937a1f1d0e6206f19b8c3edb60c7e7d81c95bad1da48b816e",
 			"description": "Modal for when user already has a FIDO2 device (only one allowed per user)"
 		},
 		{
-			"path": "src/mfa/services/mfaServiceV8.ts",
+			"path": "src/mfa/services/mfaService.ts",
 			"hash": "8527b086c6f91ee672e1c53139d7b20946e757721ba9e186c3f0719228ddbb05",
 			"description": "FIDO2 device registration and activation service methods (registerFIDO2Device, activateFIDO2Device)"
 		},
 		{
-			"path": "src/mfa/services/mfaAuthenticationServiceV8.ts",
+			"path": "src/mfa/services/mfaAuthenticationService.ts",
 			"hash": "158a06a637254943074e4dfb5e4c5f93abedc9a3b3277c2f715b9ba646c4f755",
 			"description": "FIDO2 authentication service - assertion check (checkFIDO2Assertion) and device authentication initialization"
 		},
@@ -40,7 +40,7 @@
 			"description": "FIDO2 flow controller - handles FIDO2-specific flow logic and device filtering"
 		},
 		{
-			"path": "src/mfa/services/mfaConfigurationServiceV8.ts",
+			"path": "src/mfa/services/mfaConfigurationService.ts",
 			"hash": "5e9d5bda21c5d6cd32bafee1e0131345465e6c661369563e104d9bd294d0af95",
 			"description": "FIDO2 configuration storage - stores FIDO2 settings (attestation, authenticatorAttachment, etc.)"
 		},

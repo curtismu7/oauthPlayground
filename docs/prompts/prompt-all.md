@@ -270,7 +270,7 @@ git revert [hash]
   - **SQLite** (backend): via a dedicated API (e.g. `/api/settings/<key>` or existing backup/settings APIs) so data is server-side and restorable across devices/sessions where the backend is the same.
 - **Scope:** Applies to **config**, **UI preferences** (e.g. sidebar width, last selected file, theme), **credentials and flow state** that the user has entered or chosen and should persist.
 - **Pattern:** Prefer the existing pattern: a small service that reads/writes IndexedDB and syncs with a backend API that uses `settingsDB` (SQLite) or the backup API. On load: read from IndexedDB first (optional: then sync from API). On save: write to API (SQLite) and to IndexedDB.
-- **Examples in this repo:** `customDomainService` (custom domain), `unifiedWorkerTokenBackupServiceV8` (worker token + SQLite backup), `settingsDB` + `/api/settings/*` for key-value settings.
+- **Examples in this repo:** `customDomainService` (custom domain), `unifiedWorkerTokenBackupService` (worker token + SQLite backup), `settingsDB` + `/api/settings/*` for key-value settings.
 - **Do not:** Persist only in `localStorage` for data that must be reliable and restorable; use the dual IndexedDB + SQLite pattern. Use `localStorage` only for non-critical or legacy-compat keys where dual storage is not yet implemented.
 - **When adding or changing persisted data:** Follow prompt-all (inventory, change packet, changelog) and document the storage keys/API in the relevant `docs/updates-to-apps/` doc.
 

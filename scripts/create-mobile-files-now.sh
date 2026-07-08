@@ -1,14 +1,14 @@
 #!/bin/bash
-# Script to create MobileFlowV8.tsx and MobileOTPConfigurationPageV8.tsx from SMS versions
+# Script to create MobileFlow.tsx and MobileOTPConfigurationPage.tsx from SMS versions
 # Run: bash create-mobile-files-now.sh
 
 set -e
 
 SRC_DIR="src/mfa/flows/types"
-SMS_FLOW="$SRC_DIR/SMSFlowV8.tsx"
-SMS_CONFIG="$SRC_DIR/SMSOTPConfigurationPageV8.tsx"
-MOBILE_FLOW="$SRC_DIR/MobileFlowV8.tsx"
-MOBILE_CONFIG="$SRC_DIR/MobileOTPConfigurationPageV8.tsx"
+SMS_FLOW="$SRC_DIR/SMSFlow.tsx"
+SMS_CONFIG="$SRC_DIR/SMSOTPConfigurationPage.tsx"
+MOBILE_FLOW="$SRC_DIR/MobileFlow.tsx"
+MOBILE_CONFIG="$SRC_DIR/MobileOTPConfigurationPage.tsx"
 
 echo "Creating Mobile flow files from SMS versions..."
 
@@ -23,13 +23,13 @@ if [ ! -f "$SMS_CONFIG" ]; then
     exit 1
 fi
 
-# Create MobileFlowV8.tsx using Node.js for better string replacement
+# Create MobileFlow.tsx using Node.js for better string replacement
 echo "Creating $MOBILE_FLOW..."
 node -e "
 const fs = require('fs');
 let content = fs.readFileSync('$SMS_FLOW', 'utf8');
 content = content
-  .replace(/SMSFlowV8/g, 'MobileFlowV8')
+  .replace(/SMSFlow/g, 'MobileFlow')
   .replace(/SMS-FLOW-V8/g, 'MOBILE-FLOW-V8')
   .replace(/deviceType=\"SMS\"/g, 'deviceType=\"MOBILE\"')
   .replace(/deviceType: 'SMS'/g, \"deviceType: 'MOBILE'\")
@@ -42,13 +42,13 @@ fs.writeFileSync('$MOBILE_FLOW', content, 'utf8');
 console.log('✓ Created $MOBILE_FLOW');
 "
 
-# Create MobileOTPConfigurationPageV8.tsx
+# Create MobileOTPConfigurationPage.tsx
 echo "Creating $MOBILE_CONFIG..."
 node -e "
 const fs = require('fs');
 let content = fs.readFileSync('$SMS_CONFIG', 'utf8');
 content = content
-  .replace(/SMSOTPConfigurationPageV8/g, 'MobileOTPConfigurationPageV8')
+  .replace(/SMSOTPConfigurationPage/g, 'MobileOTPConfigurationPage')
   .replace(/SMS-OTP-CONFIG-V8/g, 'MOBILE-OTP-CONFIG-V8')
   .replace(/deviceType: 'SMS'/g, \"deviceType: 'MOBILE'\")
   .replace(/deviceType=\"SMS\"/g, 'deviceType=\"MOBILE\"')
@@ -73,6 +73,6 @@ echo "  - $MOBILE_FLOW"
 echo "  - $MOBILE_CONFIG"
 echo ""
 echo "Please verify the exports match what App.tsx expects:"
-echo "  - export const MobileFlowV8"
-echo "  - export const MobileOTPConfigurationPageV8"
+echo "  - export const MobileFlow"
+echo "  - export const MobileOTPConfigurationPage"
 

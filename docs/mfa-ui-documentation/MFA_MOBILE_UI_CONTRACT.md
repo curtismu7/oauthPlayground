@@ -37,7 +37,7 @@ This document defines the UI contract for Mobile device registration and authent
 
 ### 1. Mobile Configuration Page
 
-**Component:** `MobileOTPConfigurationPageV8.tsx`  
+**Component:** `MobileOTPConfigurationPage.tsx`  
 **Route:** `/v8/mfa/register/mobile`
 
 #### Required UI Elements
@@ -67,7 +67,7 @@ This document defines the UI contract for Mobile device registration and authent
 
 #### State Management
 
-- Configuration must be saved to `localStorage` via `CredentialsServiceV8`
+- Configuration must be saved to `localStorage` via `CredentialsService`
 - Configuration must be loaded on page mount
 - Changes must be persisted immediately
 
@@ -83,7 +83,7 @@ This document defines the UI contract for Mobile device registration and authent
 
 ### 2. Mobile Registration Flow
 
-**Component:** `MobileFlowV8.tsx`  
+**Component:** `MobileFlow.tsx`  
 **Route:** `/v8/mfa/register/mobile/device`
 
 **Note:** Mobile uses the SMS flow controller (`SMSFlowController`) and follows SMS patterns. See [MFA SMS UI Contract](./MFA_SMS_UI_CONTRACT.md) for detailed flow contracts.
@@ -137,7 +137,7 @@ This document defines the UI contract for Mobile device registration and authent
 
 ### 3. Mobile Authentication Flow
 
-**Component:** `MFAAuthenticationMainPageV8.tsx`  
+**Component:** `MFAAuthenticationMainPage.tsx`  
 **Route:** `/v8/mfa/auth`
 
 #### Device Selection
@@ -165,7 +165,7 @@ This document defines the UI contract for Mobile device registration and authent
 ### Error Types
 
 1. **LIMIT_EXCEEDED**
-   - Must display `MFACooldownModalV8` with cooldown duration
+   - Must display `MFACooldownModal` with cooldown duration
    - Must show toast notification
    - Must prevent further attempts during cooldown
 

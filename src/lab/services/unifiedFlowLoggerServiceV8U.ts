@@ -13,7 +13,7 @@
  * - Error tracking
  */
 
-import type { FlowType, SpecVersion } from '@/mfa/services/specVersionServiceV8';
+import type { FlowType, SpecVersion } from '@/mfa/services/specVersionService';
 import { logger as baseLogger } from '../../utils/logger';
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 

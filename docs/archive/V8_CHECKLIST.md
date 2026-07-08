@@ -10,8 +10,8 @@
 - [x] Separated from V7 code
 
 ### Smart Credentials System
-- [x] `CredentialsFormV8` component created
-- [x] `CredentialsServiceV8` service created
+- [x] `CredentialsForm` component created
+- [x] `CredentialsService` service created
 - [x] Flow-aware field visibility implemented
 - [x] Smart defaults configured for 7 flows
 - [x] App discovery integration designed
@@ -36,8 +36,8 @@
 ### Testing
 - [x] Authorization Code Flow compiles
 - [x] Implicit Flow compiles
-- [x] CredentialsFormV8 compiles
-- [x] CredentialsServiceV8 compiles
+- [x] CredentialsForm compiles
+- [x] CredentialsService compiles
 - [x] All imports resolve correctly
 
 ---
@@ -45,8 +45,8 @@
 ## ⏳ In Progress
 
 ### Client Credentials Flow V8
-- [ ] Create `ClientCredentialsFlowV8.tsx`
-- [ ] Create `clientCredentialsIntegrationServiceV8.ts`
+- [ ] Create `ClientCredentialsFlow.tsx`
+- [ ] Create `clientCredentialsIntegrationService.ts`
 - [ ] Add to `src/App.tsx` routes
 - [ ] Test with smart credentials system
 - [ ] Document usage
@@ -71,15 +71,15 @@
 - [ ] DiscoveryModal component
 
 ### Services (if needed)
-- [ ] EducationServiceV8
-- [ ] ScopeEducationServiceV8
-- [ ] ConfigCheckerServiceV8 (enhance)
-- [ ] DiscoveryServiceV8 (enhance)
+- [ ] EducationService
+- [ ] ScopeEducationService
+- [ ] ConfigCheckerService (enhance)
+- [ ] DiscoveryService (enhance)
 
 ### Testing
-- [ ] Unit tests for CredentialsFormV8
-- [ ] Unit tests for CredentialsServiceV8
-- [ ] Unit tests for useStepNavigationV8
+- [ ] Unit tests for CredentialsForm
+- [ ] Unit tests for CredentialsService
+- [ ] Unit tests for useStepNavigation
 - [ ] Integration tests for flows
 - [ ] Manual testing with real app config
 - [ ] Manual testing with app discovery
@@ -141,7 +141,7 @@
 
 ```typescript
 /**
- * @file FlowNameFlowV8.tsx
+ * @file FlowNameFlow.tsx
  * @module v8/flows
  * @description Flow description
  * @version 8.0.0
@@ -149,14 +149,14 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
-import StepNavigationV8 from '@/v8/components/StepNavigationV8';
-import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
-import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
-import CredentialsFormV8 from '@/v8/components/CredentialsFormV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
-import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
+import { useStepNavigation } from '@/v8/hooks/useStepNavigation';
+import StepNavigation from '@/v8/components/StepNavigation';
+import StepActionButtons from '@/v8/components/StepActionButtons';
+import StepValidationFeedback from '@/v8/components/StepValidationFeedback';
+import CredentialsForm from '@/v8/components/CredentialsForm';
+import { CredentialsService } from '@/v8/services/credentialsService';
+import { ValidationService } from '@/v8/services/validationService';
+import { FlowResetService } from '@/v8/services/flowResetService';
 
 const MODULE_TAG = '[🔐 FLOW-NAME-V8]';
 
@@ -168,27 +168,27 @@ interface Credentials {
   scopes?: string;
 }
 
-export const FlowNameFlowV8: React.FC = () => {
+export const FlowNameFlow: React.FC = () => {
   console.log(`${MODULE_TAG} Initializing flow`);
 
-  const nav = useStepNavigationV8(3, {
+  const nav = useStepNavigation(3, {
     onStepChange: (step) => console.log(`${MODULE_TAG} Step changed to`, { step })
   });
 
   const [credentials, setCredentials] = useState<Credentials>(() => {
-    return CredentialsServiceV8.getSmartDefaults('flow-name-v8');
+    return CredentialsService.getSmartDefaults('flow-name-v8');
   });
 
   useEffect(() => {
-    const result = ValidationServiceV8.validateCredentials(credentials, 'oauth');
+    const result = ValidationService.validateCredentials(credentials, 'oauth');
     nav.setValidationErrors(result.errors.map(e => e.message));
     nav.setValidationWarnings(result.warnings.map(w => w.message));
-    CredentialsServiceV8.saveCredentials('flow-name-v8', credentials);
+    CredentialsService.saveCredentials('flow-name-v8', credentials);
   }, [credentials, nav]);
 
   const renderStep0 = () => (
     <div className="step-content">
-      <CredentialsFormV8
+      <CredentialsForm
         flowKey="flow-name-v8"
         credentials={credentials}
         onChange={setCredentials}
@@ -233,7 +233,7 @@ export const FlowNameFlowV8: React.FC = () => {
       </div>
 
       <div className="flow-container">
-        <StepNavigationV8
+        <StepNavigation
           currentStep={nav.currentStep}
           totalSteps={3}
           stepLabels={['Configure', 'Action', 'Results']}
@@ -244,12 +244,12 @@ export const FlowNameFlowV8: React.FC = () => {
           {renderStepContent()}
         </div>
 
-        <StepValidationFeedbackV8
+        <StepValidationFeedback
           errors={nav.validationErrors}
           warnings={nav.validationWarnings}
         />
 
-        <StepActionButtonsV8
+        <StepActionButtons
           currentStep={nav.currentStep}
           totalSteps={3}
           isNextDisabled={!nav.canGoNext}
@@ -259,7 +259,7 @@ export const FlowNameFlowV8: React.FC = () => {
           onFinal={() => {
             console.log(`${MODULE_TAG} Starting new flow`);
             nav.reset();
-            setCredentials(CredentialsServiceV8.getSmartDefaults('flow-name-v8'));
+            setCredentials(CredentialsService.getSmartDefaults('flow-name-v8'));
           }}
         />
 
@@ -268,7 +268,7 @@ export const FlowNameFlowV8: React.FC = () => {
           className="btn btn-reset"
           onClick={() => {
             console.log(`${MODULE_TAG} Resetting flow`);
-            FlowResetServiceV8.resetFlow('flow-name-v8');
+            FlowResetService.resetFlow('flow-name-v8');
             nav.reset();
           }}
           title="Reset flow and clear all data"
@@ -280,7 +280,7 @@ export const FlowNameFlowV8: React.FC = () => {
   );
 };
 
-export default FlowNameFlowV8;
+export default FlowNameFlow;
 ```
 
 ---

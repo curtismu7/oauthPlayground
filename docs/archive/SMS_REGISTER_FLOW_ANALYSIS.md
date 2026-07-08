@@ -28,7 +28,7 @@ Before device registration, users must select the **Registration Flow Type** on 
 - **'oauth_completed' Placeholder Behavior:**
   - After successful OAuth authentication, `credentials.userToken` is set to the literal string `'oauth_completed'` (not the actual access token)
   - This placeholder indicates successful authentication without storing the actual token
-  - When `tokenType === 'user'` and `userToken === 'oauth_completed'`, `MFAServiceV8.getToken()` automatically falls back to using the worker token for device registration API calls
+  - When `tokenType === 'user'` and `userToken === 'oauth_completed'`, `MFAService.getToken()` automatically falls back to using the worker token for device registration API calls
   - This ensures proper API permissions (`p1:create:device` scope) while maintaining user flow semantics
   - Scope validation is skipped when the placeholder is detected (since worker token is used instead)
 
@@ -324,7 +324,7 @@ Authorization: Bearer {workerToken or userToken}
 
 ### Step 0: Configuration Page
 
-**Location:** `src/v8/flows/types/SMSFlowV8.tsx` (lines 303-715)
+**Location:** `src/v8/flows/types/SMSFlow.tsx` (lines 303-715)
 
 **Flow Selection UI:**
 1. User selects **Admin Flow** or **User Flow** via radio buttons
@@ -341,14 +341,14 @@ Authorization: Bearer {workerToken or userToken}
 
 **Code Reference:**
 ```typescript
-// From SMSFlowV8.tsx:1143
+// From SMSFlow.tsx:1143
 const deviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED' = 
   registrationFlowType === 'admin' ? adminDeviceStatus : 'ACTIVATION_REQUIRED';
 ```
 
 ### Token Type Determination
 
-**Location:** `src/v8/flows/types/SMSFlowV8.tsx` (lines 1071-1075)
+**Location:** `src/v8/flows/types/SMSFlow.tsx` (lines 1071-1075)
 
 ```typescript
 const effectiveTokenType = registrationFlowType === 'admin' ? 'worker' 
@@ -357,8 +357,8 @@ const effectiveTokenType = registrationFlowType === 'admin' ? 'worker'
 ```
 
 **Token Retrieval:**
-- **Worker Token:** `src/v8/services/mfaServiceV8.ts:269-338` - Calls `getWorkerToken()`
-- **User Token:** `src/v8/services/mfaServiceV8.ts:248-263` - Uses `credentials.userToken` (from Authorization Code Flow)
+- **Worker Token:** `src/v8/services/mfaService.ts:269-338` - Calls `getWorkerToken()`
+- **User Token:** `src/v8/services/mfaService.ts:248-263` - Uses `credentials.userToken` (from Authorization Code Flow)
 
 **Token Usage in API Calls:**
 - All PingOne API calls use: `Authorization: Bearer {accessToken}`
@@ -372,23 +372,23 @@ const effectiveTokenType = registrationFlowType === 'admin' ? 'worker'
 
 #### For ACTIVE Status (Admin Flow Only):
 
-1. **Flow Selection** (Step 0 - `SMSFlowV8.tsx:303-715`)
+1. **Flow Selection** (Step 0 - `SMSFlow.tsx:303-715`)
    - User selects **Admin Flow**
    - User chooses device status: **ACTIVE**
    - System sets `tokenType: 'worker'`
    - System sets `registrationFlowType: 'admin'`
    - System sets `adminDeviceStatus: 'ACTIVE'`
 
-2. **Token Acquisition** (`mfaServiceV8.ts:248-263`)
+2. **Token Acquisition** (`mfaService.ts:248-263`)
    - Admin Flow → Get Worker Token via Client Credentials Grant
    - Token stored in credentials for API calls
 
-3. **Validation** (`SMSFlowV8.tsx:1058-1118`)
+3. **Validation** (`SMSFlow.tsx:1058-1118`)
    - Validate environmentId, username, deviceAuthenticationPolicyId
    - Validate phone number format
    - Check token validity (worker token for Admin Flow)
 
-4. **User Lookup** (`mfaServiceV8.ts:346-427`)
+4. **User Lookup** (`mfaService.ts:346-427`)
    - Call `lookupUserByUsername()`
    - Backend: `POST /api/pingone/mfa/lookup-user`
    - PingOne: `GET /v1/environments/{envId}/users?filter=username eq "{username}"`
@@ -399,7 +399,7 @@ const effectiveTokenType = registrationFlowType === 'admin' ? 'worker'
    - Include phone, nickname, policy
    - Include `tokenType: 'worker'` and `userToken: undefined`
 
-6. **Register Device** (`mfaServiceV8.ts:434-736`)
+6. **Register Device** (`mfaService.ts:434-736`)
    - Get token: `getToken()` returns worker token
    - Backend: `POST /api/pingone/mfa/register-device`
    - **Request includes:** `workerToken: {workerToken}`, `tokenType: 'worker'`
@@ -407,7 +407,7 @@ const effectiveTokenType = registrationFlowType === 'admin' ? 'worker'
    - **Authorization Header:** `Bearer {workerToken}`
    - Payload includes `status: "ACTIVE"`
 
-7. **Process Response** (`SMSFlowV8.tsx:1215-1340`)
+7. **Process Response** (`SMSFlow.tsx:1215-1340`)
    - Check if `status === 'ACTIVE'` and no `deviceActivateUri`
    - Show success screen immediately
    - No OTP required
@@ -474,16 +474,16 @@ const effectiveTokenType = registrationFlowType === 'admin' ? 'worker'
 
 **Common Steps (Both Admin and User Flow):**
 
-7. **Process Response** (`SMSFlowV8.tsx:1276-1305`)
+7. **Process Response** (`SMSFlow.tsx:1276-1305`)
    - Check if `status === 'ACTIVATION_REQUIRED'` and `deviceActivateUri` exists
    - PingOne automatically sends OTP to phone (no manual API call needed)
    - Navigate to Step 4 (Validation screen)
    - Store `deviceActivateUri` in state
 
-8. **User Enters OTP** (`SMSFlowV8.tsx:2709-2750`)
+8. **User Enters OTP** (`SMSFlow.tsx:2709-2750`)
    - User enters OTP code received via SMS
 
-9. **Activate Device** (`mfaServiceV8.ts:1528-1600`)
+9. **Activate Device** (`mfaService.ts:1528-1600`)
    - Backend: `POST /api/pingone/mfa/activate-device`
    - PingOne: `POST {deviceActivateUri}` with `Content-Type: application/vnd.pingidentity.device.activate+json`
    - **Authorization Header:** `Bearer {token}` (same token type as registration: worker token for Admin Flow, user token for User Flow)
@@ -498,7 +498,7 @@ const effectiveTokenType = registrationFlowType === 'admin' ? 'worker'
 ## Key Code Locations
 
 ### Frontend
-- **SMS Flow Component:** `src/v8/flows/types/SMSFlowV8.tsx`
+- **SMS Flow Component:** `src/v8/flows/types/SMSFlow.tsx`
   - Registration handler: `handleRegisterDevice()` (line 1058)
   - Status decision logic: Lines 1215-1370
   - OTP validation: Lines 2709-2750
@@ -507,7 +507,7 @@ const effectiveTokenType = registrationFlowType === 'admin' ? 'worker'
   - Registration params: `getDeviceRegistrationParams()` (line 80)
 
 ### Service Layer
-- **MFA Service:** `src/v8/services/mfaServiceV8.ts`
+- **MFA Service:** `src/v8/services/mfaService.ts`
   - User lookup: `lookupUserByUsername()` (line 346)
   - Device registration: `registerDevice()` (line 434)
   - Device activation: `activateDevice()` (line 1528)
@@ -525,7 +525,7 @@ const effectiveTokenType = registrationFlowType === 'admin' ? 'worker'
 The code uses the following logic to determine the device state:
 
 ```typescript
-// From SMSFlowV8.tsx:1227-1240
+// From SMSFlow.tsx:1227-1240
 const requestedActivationRequired = deviceStatus === 'ACTIVATION_REQUIRED';
 const requestedActive = deviceStatus === 'ACTIVE';
 const apiConfirmedActive = actualDeviceStatus === 'ACTIVE' && !hasDeviceActivateUri;

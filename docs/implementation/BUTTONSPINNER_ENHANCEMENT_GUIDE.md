@@ -77,7 +77,7 @@ node scripts/find-async-buttons.js
 
 # Output shows files that need enhancement
 📊 Found 48 files that need ButtonSpinner:
-📄 src/v8/components/UserAuthenticationSuccessPageV8.tsx
+📄 src/v8/components/UserAuthenticationSuccessPage.tsx
    - Has async onClick: ✅
    - Has ButtonSpinner: ❌
 ```
@@ -92,8 +92,8 @@ node scripts/find-async-buttons.js
 
 **Target Files:**
 - `src/v8u/pages/*` - All V8U pages
-- `src/v8/components/UserAuthenticationSuccessPageV8.tsx`
-- `src/v8/components/WorkerTokenModalV8.tsx`
+- `src/v8/components/UserAuthenticationSuccessPage.tsx`
+- `src/v8/components/WorkerTokenModal.tsx`
 
 **Approach:**
 1. Add `AsyncButtonWrapper` import
@@ -277,7 +277,7 @@ node scripts/find-async-buttons.js
 grep -r "ButtonSpinner" src --include="*.tsx" --include="*.ts" | wc -l
 
 # Verify specific file
-grep -r "onClick.*async" src/v8/components/UserAuthenticationSuccessPageV8.tsx
+grep -r "onClick.*async" src/v8/components/UserAuthenticationSuccessPage.tsx
 ```
 
 ### **Post-Implementation Checks**

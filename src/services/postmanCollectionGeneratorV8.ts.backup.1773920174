@@ -5,7 +5,7 @@
  * @version 9.0.0
  */
 
-import type { FlowType } from '@/v8/services/specVersionServiceV8';
+import type { FlowType } from '@/v8/services/specVersionService';
 import type { ApiCall as TrackedApiCall } from './apiCallTrackerService';
 import {
 	COLLECTION_VERSION,

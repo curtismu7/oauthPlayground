@@ -48,7 +48,7 @@ Based on `# NEW V8 FUNCTIONALITY GAP ANALYSIS.md`, focusing on Authorization Cod
 - Token display works but needs V8 pattern enhancements
 
 **Actions:**
-- [ ] Create `TokenDisplayV8` component with:
+- [ ] Create `TokenDisplay` component with:
   - Copy button for each token
   - Decode in-place (collapsible JSON view)
   - Syntax-highlighted JSON
@@ -59,9 +59,9 @@ Based on `# NEW V8 FUNCTIONALITY GAP ANALYSIS.md`, focusing on Authorization Cod
 - [ ] Add module-tagged logging: `[🧪 TOKEN-DISPLAY-V8]`
 
 **Files to Create/Modify:**
-- `src/components/v8/TokenDisplayV8.tsx` (new)
-- `src/services/tokenDisplayServiceV8.ts` (new)
-- Update `OAuthAuthorizationCodeFlowV8.tsx` to use new component
+- `src/components/v8/TokenDisplay.tsx` (new)
+- `src/services/tokenDisplayService.ts` (new)
+- Update `OAuthAuthorizationCodeFlow.tsx` to use new component
 
 ---
 
@@ -83,7 +83,7 @@ Based on `# NEW V8 FUNCTIONALITY GAP ANALYSIS.md`, focusing on Authorization Cod
 
 **Files to Create/Modify:**
 - `src/components/v8/ScopeEducationTooltip.tsx` (new)
-- Update `ComprehensiveCredentialsServiceV8.tsx` to integrate
+- Update `ComprehensiveCredentialsService.tsx` to integrate
 
 ---
 
@@ -95,7 +95,7 @@ Based on `# NEW V8 FUNCTIONALITY GAP ANALYSIS.md`, focusing on Authorization Cod
 - Not integrated into V8 flow UI
 
 **Actions:**
-- [ ] Create `ConfigCheckerModalV8` component
+- [ ] Create `ConfigCheckerModal` component
 - [ ] Show comparison table:
   - Client ID ✓/✗
   - Redirect URIs ✓/✗
@@ -106,9 +106,9 @@ Based on `# NEW V8 FUNCTIONALITY GAP ANALYSIS.md`, focusing on Authorization Cod
 - [ ] Add logging: `[🔍 CONFIG-CHECKER-V8]`
 
 **Files to Create/Modify:**
-- `src/components/v8/ConfigCheckerModalV8.tsx` (new)
-- `src/services/configCheckerServiceV8.ts` (new)
-- Update `OAuthAuthorizationCodeFlowV8.tsx` to add button
+- `src/components/v8/ConfigCheckerModal.tsx` (new)
+- `src/services/configCheckerService.ts` (new)
+- Update `OAuthAuthorizationCodeFlow.tsx` to add button
 
 ---
 
@@ -122,14 +122,14 @@ Based on `# NEW V8 FUNCTIONALITY GAP ANALYSIS.md`, focusing on Authorization Cod
 - Not following V8 pop-up pattern
 
 **Actions:**
-- [ ] Create `DiscoveryModalV8` component
+- [ ] Create `DiscoveryModal` component
 - [ ] Show discovered endpoints with explanations
 - [ ] Add "What is OIDC Discovery?" education
 - [ ] Add logging: `[📡 DISCOVERY-V8]`
 
 **Files to Create/Modify:**
-- `src/components/v8/DiscoveryModalV8.tsx` (new)
-- Update `ComprehensiveCredentialsServiceV8.tsx`
+- `src/components/v8/DiscoveryModal.tsx` (new)
+- Update `ComprehensiveCredentialsService.tsx`
 
 ---
 
@@ -137,7 +137,7 @@ Based on `# NEW V8 FUNCTIONALITY GAP ANALYSIS.md`, focusing on Authorization Cod
 **Goal:** Simplified credential UI with pop-ups
 
 **Current State:**
-- `ComprehensiveCredentialsServiceV8` exists
+- `ComprehensiveCredentialsService` exists
 - UI is complex, not fully V8-styled
 
 **Actions:**
@@ -149,7 +149,7 @@ Based on `# NEW V8 FUNCTIONALITY GAP ANALYSIS.md`, focusing on Authorization Cod
 - [ ] Add logging: `[🗝️ CREDENTIAL-MANAGER-V8]`
 
 **Files to Modify:**
-- `src/services/comprehensiveCredentialsServiceV8.tsx`
+- `src/services/comprehensiveCredentialsService.tsx`
 
 ---
 

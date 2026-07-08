@@ -871,7 +871,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/initialize-device-authentication
 
-**File**: `locked/email-v8/dependencies/v8/services/mfaAuthenticationServiceV8.ts`
+**File**: `locked/email-v8/dependencies/v8/services/mfaAuthenticationService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa Initialize-Device-Authentication
 
@@ -887,7 +887,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/initialize-device-authentication
 
-**File**: `locked/email-v8/dependencies/v8/services/mfaAuthenticationServiceV8.ts`
+**File**: `locked/email-v8/dependencies/v8/services/mfaAuthenticationService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa Initialize-Device-Authentication
 
@@ -903,7 +903,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/list-users
 
-**File**: `locked/email-v8/dependencies/v8/services/mfaServiceV8.ts`
+**File**: `locked/email-v8/dependencies/v8/services/mfaService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa List-Users
 
@@ -919,7 +919,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/device-authentication-policies
 
-**File**: `locked/email-v8/dependencies/v8/services/mfaServiceV8.ts`
+**File**: `locked/email-v8/dependencies/v8/services/mfaService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa Device-Authentication-Policies
 
@@ -951,7 +951,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/oidc-discovery
 
-**File**: `locked/unified-flow-v8u/dependencies/v8/services/oidcDiscoveryServiceV8.ts`
+**File**: `locked/unified-flow-v8u/dependencies/v8/services/oidcDiscoveryService.ts`
 
 **Description**: API endpoint for  Api Pingone Oidc-Discovery
 
@@ -983,7 +983,7 @@ Authorization: Bearer <access_token>
 
 ### /api/credentials/load?directory=${encodeURIComponent(directory)}&filename=${encodeURIComponent(filename)}
 
-**File**: `locked/device-code-v8/dependencies/v8/services/credentialsServiceV8.ts`
+**File**: `locked/device-code-v8/dependencies/v8/services/credentialsService.ts`
 
 **Description**: API endpoint for  Api Credentials Load?Directory=${Encodeuricomponent(Directory)}&Filename=${Encodeuricomponent(Filename)}
 
@@ -999,7 +999,7 @@ Authorization: Bearer <access_token>
 
 ### /api/credentials/save
 
-**File**: `locked/device-code-v8/dependencies/v8/services/credentialsServiceV8.ts`
+**File**: `locked/device-code-v8/dependencies/v8/services/credentialsService.ts`
 
 **Description**: API endpoint for  Api Credentials Save
 
@@ -1095,7 +1095,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/initialize-device-authentication
 
-**File**: `locked/fido2-v8/dependencies/v8/services/mfaAuthenticationServiceV8.ts`
+**File**: `locked/fido2-v8/dependencies/v8/services/mfaAuthenticationService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa Initialize-Device-Authentication
 
@@ -1111,7 +1111,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/initialize-device-authentication
 
-**File**: `locked/fido2-v8/dependencies/v8/services/mfaAuthenticationServiceV8.ts`
+**File**: `locked/fido2-v8/dependencies/v8/services/mfaAuthenticationService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa Initialize-Device-Authentication
 
@@ -1127,7 +1127,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/list-users
 
-**File**: `locked/fido2-v8/dependencies/v8/services/mfaServiceV8.ts`
+**File**: `locked/fido2-v8/dependencies/v8/services/mfaService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa List-Users
 
@@ -1143,7 +1143,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/device-authentication-policies
 
-**File**: `locked/fido2-v8/dependencies/v8/services/mfaServiceV8.ts`
+**File**: `locked/fido2-v8/dependencies/v8/services/mfaService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa Device-Authentication-Policies
 
@@ -1175,7 +1175,7 @@ Authorization: Bearer <access_token>
 
 ### /api/logs
 
-**File**: `locked/mfa-hub-v8/dependencies/v8/services/unifiedLoggerV8.ts`
+**File**: `locked/mfa-hub-v8/dependencies/v8/services/unifiedLogger.ts`
 
 **Description**: API endpoint for  Api Logs
 
@@ -1191,7 +1191,7 @@ Authorization: Bearer <access_token>
 
 ### /api/v1/logs
 
-**File**: `locked/mfa-hub-v8/dependencies/v8/services/unifiedLogShipperV8.ts`
+**File**: `locked/mfa-hub-v8/dependencies/v8/services/unifiedLogShipper.ts`
 
 **Description**: API endpoint for  Api V1 Logs
 
@@ -1239,7 +1239,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/initialize-device-authentication
 
-**File**: `v8/services/mfaAuthenticationServiceV8.ts`
+**File**: `v8/services/mfaAuthenticationService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa Initialize-Device-Authentication
 
@@ -1255,7 +1255,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/initialize-device-authentication
 
-**File**: `v8/services/mfaAuthenticationServiceV8.ts`
+**File**: `v8/services/mfaAuthenticationService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa Initialize-Device-Authentication
 
@@ -1271,7 +1271,7 @@ Authorization: Bearer <access_token>
 
 ### /api/auth/passkey/options/authentication
 
-**File**: `v8/services/passkeyServiceV8.ts`
+**File**: `v8/services/passkeyService.ts`
 
 **Description**: API endpoint for  Api Auth Passkey Options Authentication
 
@@ -1287,7 +1287,7 @@ Authorization: Bearer <access_token>
 
 ### /api/auth/passkey/verify-authentication
 
-**File**: `v8/services/passkeyServiceV8.ts`
+**File**: `v8/services/passkeyService.ts`
 
 **Description**: API endpoint for  Api Auth Passkey Verify-Authentication
 
@@ -1303,7 +1303,7 @@ Authorization: Bearer <access_token>
 
 ### /api/auth/passkey/options/registration
 
-**File**: `v8/services/passkeyServiceV8.ts`
+**File**: `v8/services/passkeyService.ts`
 
 **Description**: API endpoint for  Api Auth Passkey Options Registration
 
@@ -1319,7 +1319,7 @@ Authorization: Bearer <access_token>
 
 ### /api/auth/passkey/verify-registration
 
-**File**: `v8/services/passkeyServiceV8.ts`
+**File**: `v8/services/passkeyService.ts`
 
 **Description**: API endpoint for  Api Auth Passkey Verify-Registration
 
@@ -1351,7 +1351,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/oidc-discovery
 
-**File**: `v8/services/oidcDiscoveryServiceV8.ts`
+**File**: `v8/services/oidcDiscoveryService.ts`
 
 **Description**: API endpoint for  Api Pingone Oidc-Discovery
 
@@ -1367,7 +1367,7 @@ Authorization: Bearer <access_token>
 
 ### /api/users/count/${environmentId}
 
-**File**: `v8/services/sqliteStatsServiceV8.ts`
+**File**: `v8/services/sqliteStatsService.ts`
 
 **Description**: API endpoint for  Api Users Count ${Environmentid}
 
@@ -1383,7 +1383,7 @@ Authorization: Bearer <access_token>
 
 ### /api/users/sync-metadata/${environmentId}
 
-**File**: `v8/services/sqliteStatsServiceV8.ts`
+**File**: `v8/services/sqliteStatsService.ts`
 
 **Description**: API endpoint for  Api Users Sync-Metadata ${Environmentid}
 
@@ -1399,7 +1399,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/list-users
 
-**File**: `v8/services/userServiceV8.ts`
+**File**: `v8/services/userService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa List-Users
 
@@ -1415,7 +1415,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/get-user
 
-**File**: `v8/services/userServiceV8.ts`
+**File**: `v8/services/userService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa Get-User
 
@@ -1431,7 +1431,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/redirectless/authorize
 
-**File**: `v8/services/redirectlessServiceV8.ts`
+**File**: `v8/services/redirectlessService.ts`
 
 **Description**: API endpoint for  Api Pingone Redirectless Authorize
 
@@ -1447,7 +1447,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/flows/check-username-password
 
-**File**: `v8/services/redirectlessServiceV8.ts`
+**File**: `v8/services/redirectlessService.ts`
 
 **Description**: API endpoint for  Api Pingone Flows Check-Username-Password
 
@@ -1463,7 +1463,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/resume
 
-**File**: `v8/services/redirectlessServiceV8.ts`
+**File**: `v8/services/redirectlessService.ts`
 
 **Description**: API endpoint for  Api Pingone Resume
 
@@ -1495,7 +1495,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/device-authentication-policies
 
-**File**: `v8/services/mfaServiceV8.ts`
+**File**: `v8/services/mfaService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa Device-Authentication-Policies
 
@@ -1511,7 +1511,7 @@ Authorization: Bearer <access_token>
 
 ### /api/par
 
-**File**: `v8/flows/PingOnePARFlowV8/hooks/usePAROperations.ts`
+**File**: `v8/flows/PingOnePARFlow/hooks/usePAROperations.ts`
 
 **Description**: API endpoint for  Api Par
 
@@ -1527,7 +1527,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/initialize-device-authentication
 
-**File**: `v8/lockdown/fido2/snapshot/mfaAuthenticationServiceV8.ts`
+**File**: `v8/lockdown/fido2/snapshot/mfaAuthenticationService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa Initialize-Device-Authentication
 
@@ -1543,7 +1543,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/initialize-device-authentication
 
-**File**: `v8/lockdown/fido2/snapshot/mfaAuthenticationServiceV8.ts`
+**File**: `v8/lockdown/fido2/snapshot/mfaAuthenticationService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa Initialize-Device-Authentication
 
@@ -1559,7 +1559,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/lookup-user
 
-**File**: `v8/lockdown/fido2/snapshot/mfaServiceV8.ts`
+**File**: `v8/lockdown/fido2/snapshot/mfaService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa Lookup-User
 
@@ -1575,7 +1575,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/list-users
 
-**File**: `v8/lockdown/fido2/snapshot/mfaServiceV8.ts`
+**File**: `v8/lockdown/fido2/snapshot/mfaService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa List-Users
 
@@ -1591,7 +1591,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/set-device-order
 
-**File**: `v8/lockdown/fido2/snapshot/mfaServiceV8.ts`
+**File**: `v8/lockdown/fido2/snapshot/mfaService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa Set-Device-Order
 
@@ -1607,7 +1607,7 @@ Authorization: Bearer <access_token>
 
 ### /api/pingone/mfa/device-authentication-policies
 
-**File**: `v8/lockdown/fido2/snapshot/mfaServiceV8.ts`
+**File**: `v8/lockdown/fido2/snapshot/mfaService.ts`
 
 **Description**: API endpoint for  Api Pingone Mfa Device-Authentication-Policies
 

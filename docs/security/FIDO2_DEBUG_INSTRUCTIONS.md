@@ -29,7 +29,7 @@ After clicking "Authenticate with Passkey", look for these logs in order:
 
 1. `🔘 BUTTON CLICKED: "Authenticate with Passkey" button was clicked!`
 2. `✅ All validations passed, starting WebAuthn authentication...`
-3. `🚀 CALLING WebAuthnAuthenticationServiceV8.authenticateWithWebAuthn()`
+3. `🚀 CALLING WebAuthnAuthenticationService.authenticateWithWebAuthn()`
 4. `🔐 ABOUT TO CALL navigator.credentials.get() - Browser prompt should appear NOW!`
 
 If you see log #4, the WebAuthn call is being made. If the prompt doesn't appear, check:

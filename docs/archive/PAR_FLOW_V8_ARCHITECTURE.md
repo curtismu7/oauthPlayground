@@ -4,7 +4,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     PingOnePARFlowV8.tsx                        │
+│                     PingOnePARFlow.tsx                        │
 │                      (Main Component)                           │
 │                                                                 │
 │  ┌──────────────────┐              ┌──────────────────┐        │
@@ -43,7 +43,7 @@
 ## Component Structure
 
 ```
-PingOnePARFlowV8
+PingOnePARFlow
 ├── Header
 │   ├── VersionBadge
 │   ├── Title
@@ -377,7 +377,7 @@ PingOnePARFlowV7.tsx (2814 lines)
 ### V8 Architecture (New) ✅
 
 ```
-PingOnePARFlowV8/
+PingOnePARFlow/
 │
 ├── types/
 │   └── parFlowTypes.ts
@@ -389,7 +389,7 @@ PingOnePARFlowV8/
 │   ├── usePARFlowState.ts (state)
 │   └── usePAROperations.ts (API)
 │
-└── PingOnePARFlowV8.tsx (component)
+└── PingOnePARFlow.tsx (component)
     ├── Clean separation
     ├── Easy to test
     └── Easy to maintain

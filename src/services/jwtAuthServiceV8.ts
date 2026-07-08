@@ -30,7 +30,7 @@ export interface JWTGenerationResult {
 	header?: Record<string, unknown>;
 }
 
-class JWTAuthServiceV8 {
+class JWTAuthService {
 	/**
 	 * Generate a client secret JWT for authentication
 	 * Uses HMAC-SHA256 (HS256) algorithm
@@ -159,5 +159,5 @@ class JWTAuthServiceV8 {
 	}
 }
 
-export const jwtAuthServiceV8 = new JWTAuthServiceV8();
+export const jwtAuthServiceV8 = new JWTAuthService();
 export default jwtAuthServiceV8;

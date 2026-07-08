@@ -38,7 +38,7 @@ export const VERSION_METADATA = {
   ui: "9.13.0", 
   server: "9.13.0",
   logs: "9.13.0",
-  mfaV8: "9.13.0",
+  mfa: "9.13.0",
   unifiedV8u: "9.13.0",
 } as const;
 ```

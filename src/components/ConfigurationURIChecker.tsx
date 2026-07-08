@@ -9,7 +9,7 @@ import { callbackUriService } from '../services/callbackUriService';
 import { fetchApplications } from '../services/pingOneApplicationService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { logger } from '../utils/logger';
-import { workerTokenServiceV8 } from '../mfa/services/workerTokenServiceV8';
+import { workerTokenService } from '../mfa/services/workerTokenService';
 import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 export interface ConfigurationURICheckerProps {
 	flowType?: string;
@@ -225,7 +225,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 	useEffect(() => {
 		const checkWorkerToken = async () => {
 			try {
-				const token = await workerTokenServiceV8.getToken();
+				const token = await workerTokenService.getToken();
 				if (token) {
 					logger.info(
 						'[Config URI Checker] ✅ Worker token valid from global service',

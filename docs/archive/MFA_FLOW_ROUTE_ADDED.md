@@ -5,13 +5,13 @@
 ### 1. Added Import to App.tsx ✅
 
 ```typescript
-import { MFAFlowV8 } from './v8/flows/MFAFlowV8';
+import { MFAFlow } from './v8/flows/MFAFlow';
 ```
 
 ### 2. Added Route to App.tsx ✅
 
 ```typescript
-<Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
+<Route path="/flows/mfa-v8" element={<MFAFlow />} />
 ```
 
 **Location**: Added after the oauth-authorization-code-v8 route
@@ -111,8 +111,8 @@ grep -n "mfa-v8" src/App.tsx
 
 Expected output:
 ```
-[line number]: import { MFAFlowV8 } from './v8/flows/MFAFlowV8';
-[line number]: <Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
+[line number]: import { MFAFlow } from './v8/flows/MFAFlow';
+[line number]: <Route path="/flows/mfa-v8" element={<MFAFlow />} />
 ```
 
 ---

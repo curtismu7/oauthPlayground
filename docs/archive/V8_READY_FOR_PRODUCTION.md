@@ -60,24 +60,24 @@ The V8 OAuth/OIDC flow implementation is now production-ready with professional 
 ```
 V8 Implementation
 ├── Flows (2 complete)
-│   ├── OAuthAuthorizationCodeFlowV8
-│   └── ImplicitFlowV8
+│   ├── OAuthAuthorizationCodeFlow
+│   └── ImplicitFlow
 │
 ├── Components (Reusable)
-│   ├── CredentialsFormV8 (smart, flow-aware)
-│   ├── StepNavigationV8
-│   ├── StepActionButtonsV8
-│   ├── StepValidationFeedbackV8
-│   └── StepProgressBarV8
+│   ├── CredentialsForm (smart, flow-aware)
+│   ├── StepNavigation
+│   ├── StepActionButtons
+│   ├── StepValidationFeedback
+│   └── StepProgressBar
 │
 ├── Services (Professional)
-│   ├── credentialsServiceV8 (ICredentialsService)
-│   ├── oauthIntegrationServiceV8 (IOAuthIntegrationService)
-│   ├── implicitFlowIntegrationServiceV8 (IImplicitFlowIntegrationService)
-│   ├── validationServiceV8 (IValidationService)
-│   ├── storageServiceV8 (IStorageService)
-│   ├── errorHandlerV8 (IErrorHandlerService)
-│   ├── flowResetServiceV8 (IFlowResetService)
+│   ├── credentialsService (ICredentialsService)
+│   ├── oauthIntegrationService (IOAuthIntegrationService)
+│   ├── implicitFlowIntegrationService (IImplicitFlowIntegrationService)
+│   ├── validationService (IValidationService)
+│   ├── storageService (IStorageService)
+│   ├── errorHandler (IErrorHandlerService)
+│   ├── flowResetService (IFlowResetService)
 │   └── (more services as needed)
 │
 ├── Configuration
@@ -127,7 +127,7 @@ V8 Implementation
 - Log history available
 
 ### 5. Reusable Components
-- CredentialsFormV8 works for all flows
+- CredentialsForm works for all flows
 - Shared step components
 - Consistent styling
 - Accessible (ARIA labels)

@@ -132,7 +132,7 @@ export interface V8AdvancedData {
 	[key: string]: unknown;
 }
 
-// StorageServiceV8 Compatibility Interfaces
+// StorageService Compatibility Interfaces
 export interface StorageData<T = unknown> {
 	version: number;
 	data: T;
@@ -152,7 +152,7 @@ export interface ExportData {
 	data: Record<string, StorageData>;
 }
 
-// CredentialsServiceV8 Compatibility Interfaces
+// CredentialsService Compatibility Interfaces
 export interface V8Credentials {
 	environmentId: string;
 	clientId: string;
@@ -1525,10 +1525,10 @@ export class UnifiedTokenStorageService {
 	}
 
 	// ===== STORAGE SERVICE V8 COMPATIBILITY METHODS =====
-	// These methods provide backward compatibility with StorageServiceV8
+	// These methods provide backward compatibility with StorageService
 
 	/**
-	 * Save data with versioning (StorageServiceV8 compatibility)
+	 * Save data with versioning (StorageService compatibility)
 	 */
 	async saveV8Versioned<T>(key: string, data: T, version: number, flowKey?: string): Promise<void> {
 		try {
@@ -1562,7 +1562,7 @@ export class UnifiedTokenStorageService {
 	}
 
 	/**
-	 * Load data with migration support (StorageServiceV8 compatibility)
+	 * Load data with migration support (StorageService compatibility)
 	 */
 	async loadV8Versioned<T>(key: string, migrations?: Migration[]): Promise<T | null> {
 		try {
@@ -1668,7 +1668,7 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Clear all V8 data
 	 */
-	async clearAllV8(): Promise<void> {
+	async clearAll(): Promise<void> {
 		try {
 			await this.deleteTokens({
 				type: 'v8_storage',
@@ -1697,7 +1697,7 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Export all V8 data
 	 */
-	async exportAllV8(): Promise<string> {
+	async exportAll(): Promise<string> {
 		try {
 			const result = await this.getTokens({
 				type: 'v8_storage',
@@ -1737,7 +1737,7 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Import V8 data
 	 */
-	async importAllV8(jsonData: string, overwrite = false): Promise<void> {
+	async importAll(jsonData: string, overwrite = false): Promise<void> {
 		try {
 			const exportData: ExportData = JSON.parse(jsonData);
 
@@ -1832,7 +1832,7 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Clean up expired V8 data
 	 */
-	async cleanupExpiredV8(maxAge: number): Promise<number> {
+	async cleanupExpired(maxAge: number): Promise<number> {
 		try {
 			const tokens = await this.getTokens({
 				type: 'v8_storage',
@@ -1860,10 +1860,10 @@ export class UnifiedTokenStorageService {
 	}
 
 	// ===== CREDENTIALS SERVICE V8 COMPATIBILITY METHODS =====
-	// These methods provide backward compatibility with CredentialsServiceV8
+	// These methods provide backward compatibility with CredentialsService
 
 	/**
-	 * Load V8 credentials with backup fallback (CredentialsServiceV8 compatibility)
+	 * Load V8 credentials with backup fallback (CredentialsService compatibility)
 	 */
 	async loadV8CredentialsWithBackup(flowKey: string): Promise<V8Credentials | null> {
 		// Try unified storage first
@@ -1893,7 +1893,7 @@ export class UnifiedTokenStorageService {
 	}
 
 	/**
-	 * Clear V8 credentials (CredentialsServiceV8 compatibility)
+	 * Clear V8 credentials (CredentialsService compatibility)
 	 */
 	async clearV8Credentials(flowKey: string): Promise<void> {
 		try {
@@ -1908,7 +1908,7 @@ export class UnifiedTokenStorageService {
 	}
 
 	/**
-	 * Check if V8 credentials exist (CredentialsServiceV8 compatibility)
+	 * Check if V8 credentials exist (CredentialsService compatibility)
 	 */
 	async hasV8Credentials(flowKey: string): Promise<boolean> {
 		try {
@@ -1921,7 +1921,7 @@ export class UnifiedTokenStorageService {
 	}
 
 	/**
-	 * Get V8 credentials summary (CredentialsServiceV8 compatibility)
+	 * Get V8 credentials summary (CredentialsService compatibility)
 	 */
 	async getV8CredentialsSummary(flowKey: string): Promise<string> {
 		try {
@@ -1968,7 +1968,7 @@ export class UnifiedTokenStorageService {
 	}
 
 	/**
-	 * Sanitize V8 credentials for logging (CredentialsServiceV8 compatibility)
+	 * Sanitize V8 credentials for logging (CredentialsService compatibility)
 	 */
 	sanitizeV8CredentialsForLogging(credentials: V8Credentials): Record<string, unknown> {
 		if (!credentials) {
@@ -1995,7 +1995,7 @@ export class UnifiedTokenStorageService {
 	}
 
 	/**
-	 * Compare V8 credentials for changes (CredentialsServiceV8 compatibility)
+	 * Compare V8 credentials for changes (CredentialsService compatibility)
 	 */
 	hasV8CredentialsChanged(
 		oldCreds: V8Credentials,

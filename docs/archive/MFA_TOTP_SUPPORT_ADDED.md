@@ -128,7 +128,7 @@ interface MFAState {
 - We use: `+[country].[number]` format
 
 ## Files Modified
-- `src/v8/flows/MFAFlowV8.tsx` - Added TOTP support, validation, and QR code display
+- `src/v8/flows/MFAFlow.tsx` - Added TOTP support, validation, and QR code display
 
 ## Next Steps
 - Test with real TOTP devices

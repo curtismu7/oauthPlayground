@@ -17,7 +17,7 @@ const [environmentId, setEnvironmentId] = useState('');
 
 // Single source — missed other storage locations
 const [environmentId, setEnvironmentId] = useState(
-  () => EnvironmentIdServiceV8.getEnvironmentId() || ''
+  () => EnvironmentIdService.getEnvironmentId() || ''
 );
 
 // Multi-source inline (20+ lines) — duplicated logic per page
@@ -69,8 +69,8 @@ const [environmentId, setEnvironmentId] = useState(() => readBestEnvironmentId()
 
 ### `src/pages/PasskeyManager.tsx`
 
-- **Before:** `useState(() => EnvironmentIdServiceV8.getEnvironmentId() || '')`
-  (read only from `EnvironmentIdServiceV8`, missed worker token and others)
+- **Before:** `useState(() => EnvironmentIdService.getEnvironmentId() || '')`
+  (read only from `EnvironmentIdService`, missed worker token and others)
 - **After:** `useState(() => readBestEnvironmentId())`
 - **Import added:** `import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';`
 
@@ -86,21 +86,21 @@ const [environmentId, setEnvironmentId] = useState(() => readBestEnvironmentId()
 - **After:** `useState(() => readBestEnvironmentId())`
 - **Import added:** `import { readBestEnvironmentId } from '../../hooks/useAutoEnvironmentId';`
 
-### `src/v8/pages/DeleteAllDevicesUtilityV8.tsx`
+### `src/v8/pages/DeleteAllDevicesUtility.tsx`
 
-- **Before:** 30-line inline logic checking `locationState`, `StorageServiceV8`,
-  `EnvironmentIdServiceV8`, and the unified worker token
-- **After:** Checks `locationState` and `StorageServiceV8` first (same as before),
+- **Before:** 30-line inline logic checking `locationState`, `StorageService`,
+  `EnvironmentIdService`, and the unified worker token
+- **After:** Checks `locationState` and `StorageService` first (same as before),
   then falls back to `readBestEnvironmentId()` instead of re-implementing the same logic
 - **Import added:** `import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';`
 
-### `src/v8/pages/MFADeviceCreateDemoV8.tsx`
+### `src/v8/pages/MFADeviceCreateDemo.tsx`
 
 - **Before:** `useState('')` — always empty
 - **After:** `useState(() => readBestEnvironmentId())`
 - **Import added:** `import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';`
 
-### `src/v8/flows/EmailMFASignOnFlowV8.tsx`
+### `src/v8/flows/EmailMFASignOnFlow.tsx`
 
 - **Before:** `useState('')` — always empty
 - **After:** `useState(() => readBestEnvironmentId())`

@@ -17,7 +17,7 @@ Uncaught ReferenceError: tokenStatus is not defined
 ```
 
 ### **Missing Elements**
-1. **Missing Import**: `WorkerTokenStatusServiceV8` was being used but not imported
+1. **Missing Import**: `WorkerTokenStatusService` was being used but not imported
 2. **Missing State Variable**: `tokenStatus` state was being referenced but not declared
 3. **Missing State Variable**: `isLoading` state was being set but not declared
 4. **Type Definition**: `TokenStatusInfo` type was needed for proper typing
@@ -29,10 +29,10 @@ Uncaught ReferenceError: tokenStatus is not defined
 ### **1. Added Missing Import**
 ```typescript
 // ❌ Before (missing import)
-// WorkerTokenStatusServiceV8 was used but not imported
+// WorkerTokenStatusService was used but not imported
 
 // ✅ After (proper import)
-import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenStatusService, type TokenStatusInfo } from '@/v8/services/workerTokenStatusService';
 ```
 
 ### **2. Added Missing State Variables**
@@ -76,7 +76,7 @@ const [isLoading, setIsLoading] = useState(false);
 ### **After Fix**
 - ✅ **Component Renders**: CredentialsFormV8U loads successfully
 - ✅ **Unified Flow Works**: Complete functionality restored
-- ✅ **Worker Token Integration**: UnifiedWorkerTokenServiceV8 functions properly
+- ✅ **Worker Token Integration**: UnifiedWorkerTokenService functions properly
 - ✅ **No Runtime Errors**: Clean console output
 
 ---
@@ -108,7 +108,7 @@ const [isLoading, setIsLoading] = useState(false);
 useEffect(() => {
     const checkStatus = async () => {
         try {
-            const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+            const status = await WorkerTokenStatusService.checkWorkerTokenStatus();
             setTokenStatus(status);
             setIsLoading(false);
         } catch (error) {
@@ -135,7 +135,7 @@ useEffect(() => {
 ### **✅ Core Features Working**
 - [x] **Component Rendering**: No more runtime errors
 - [x] **Token Status Checking**: Worker token status properly displayed
-- [x] **Unified Service Integration**: UnifiedWorkerTokenServiceV8 functions correctly
+- [x] **Unified Service Integration**: UnifiedWorkerTokenService functions correctly
 - [x] **State Management**: All state variables properly initialized
 - [x] **Error Handling**: Graceful error handling for token status checks
 
@@ -146,8 +146,8 @@ useEffect(() => {
 - [x] **Status Updates**: Real-time token status updates
 
 ### **✅ Service Integration**
-- [x] **WorkerTokenStatusServiceV8**: Properly imported and used
-- [x] **UnifiedWorkerTokenServiceV8**: Renders and functions
+- [x] **WorkerTokenStatusService**: Properly imported and used
+- [x] **UnifiedWorkerTokenService**: Renders and functions
 - [x] **Event Handling**: Token update events work correctly
 - [x] **Settings Management**: Worker token settings preserved
 
@@ -177,13 +177,13 @@ useEffect(() => {
 ### **Unified Flow Integration**
 The fix ensures proper integration with:
 - **UnifiedOAuthFlowV8U.tsx**: Main unified flow component
-- **UnifiedWorkerTokenServiceV8**: Worker token UI component
-- **WorkerTokenStatusServiceV8**: Token status checking service
+- **UnifiedWorkerTokenService**: Worker token UI component
+- **WorkerTokenStatusService**: Token status checking service
 
 ### **Service Dependencies**
-- ✅ **WorkerTokenStatusServiceV8**: Status checking
-- ✅ **UnifiedWorkerTokenServiceV8**: UI component
-- ✅ **workerTokenServiceV8**: Token operations
+- ✅ **WorkerTokenStatusService**: Status checking
+- ✅ **UnifiedWorkerTokenService**: UI component
+- ✅ **workerTokenService**: Token operations
 
 ---
 

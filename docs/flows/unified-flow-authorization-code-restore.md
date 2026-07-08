@@ -567,11 +567,11 @@ User Refresh → ❌ Lost (not persisted) → Must Regenerate
 ### Services
 
 - **Flow Integration**: `src/v8u/services/unifiedFlowIntegrationV8U.ts`
-- **OAuth Integration**: `src/v8/services/oauthIntegrationServiceV8.ts`
+- **OAuth Integration**: `src/v8/services/oauthIntegrationService.ts`
 - **PKCE Service**: `src/services/pkceService.tsx`
-- **Credentials Service**: `src/v8/services/credentialsServiceV8.ts`
-- **Token Display**: `src/v8/services/tokenDisplayServiceV8.ts`
-- **Token Operations**: `src/v8/services/tokenOperationsServiceV8.ts`
+- **Credentials Service**: `src/v8/services/credentialsService.ts`
+- **Token Display**: `src/v8/services/tokenDisplayService.ts`
+- **Token Operations**: `src/v8/services/tokenOperationsService.ts`
 
 ### Storage Keys
 

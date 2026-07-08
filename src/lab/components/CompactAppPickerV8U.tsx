@@ -9,9 +9,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { modernMessaging } from '@/platform/ModernMessagingService';
-import type { DiscoveredApp } from '@/mfa/components/AppPickerV8';
-import { AppDiscoveryServiceV8 } from '@/mfa/services/appDiscoveryServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/mfa/services/workerTokenStatusServiceV8';
+import type { DiscoveredApp } from '@/mfa/components/AppPicker';
+import { AppDiscoveryService } from '@/mfa/services/appDiscoveryService';
+import { WorkerTokenStatusService } from '@/mfa/services/workerTokenStatusService';
 import { FiSearch } from '../../icons';
 
 import { logger } from '../../utils/logger';
@@ -46,7 +46,7 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 	// Check token status
 	useEffect(() => {
 		const checkStatus = async () => {
-			const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const status = await WorkerTokenStatusService.checkWorkerTokenStatus();
 			setTokenStatus(status);
 		};
 
@@ -132,7 +132,7 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 			}
 
 			// Discover applications using the worker token
-			const discovered = await AppDiscoveryServiceV8.discoverApplications(
+			const discovered = await AppDiscoveryService.discoverApplications(
 				environmentId,
 				workerToken
 			);

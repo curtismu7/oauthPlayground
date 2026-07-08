@@ -47,13 +47,13 @@ The Config Checker feature allows users to:
 
 ---
 
-## 💻 ConfigCheckerServiceV8 API
+## 💻 ConfigCheckerService API
 
 ### compareConfigs(userConfig, pingOneConfig)
 **Compare user configuration with PingOne settings**
 
 ```typescript
-const comparison = ConfigCheckerServiceV8.compareConfigs(
+const comparison = ConfigCheckerService.compareConfigs(
   {
     clientId: 'my-client-id',
     redirectUri: 'http://localhost:3000/callback',
@@ -84,7 +84,7 @@ const comparison = ConfigCheckerServiceV8.compareConfigs(
 **Generate actionable fix suggestions**
 
 ```typescript
-const suggestions = ConfigCheckerServiceV8.generateFixSuggestions(comparison);
+const suggestions = ConfigCheckerService.generateFixSuggestions(comparison);
 
 // Result:
 [
@@ -112,7 +112,7 @@ const suggestions = ConfigCheckerServiceV8.generateFixSuggestions(comparison);
 **Get application summary for display**
 
 ```typescript
-const summary = ConfigCheckerServiceV8.getApplicationSummary(pingOneConfig);
+const summary = ConfigCheckerService.getApplicationSummary(pingOneConfig);
 
 // Result:
 {
@@ -136,7 +136,7 @@ const summary = ConfigCheckerServiceV8.getApplicationSummary(pingOneConfig);
 **Format configuration for display in UI**
 
 ```typescript
-const formatted = ConfigCheckerServiceV8.formatConfigForDisplay(config);
+const formatted = ConfigCheckerService.formatConfigForDisplay(config);
 
 // Result:
 // Application: My Application
@@ -169,7 +169,7 @@ const formatted = ConfigCheckerServiceV8.formatConfigForDisplay(config);
 **Validate PingOne configuration**
 
 ```typescript
-const validation = ConfigCheckerServiceV8.validateConfiguration(config);
+const validation = ConfigCheckerService.validateConfiguration(config);
 
 // Result:
 {
@@ -313,7 +313,7 @@ const validation = ConfigCheckerServiceV8.validateConfiguration(config);
 ## 🚀 Integration Checklist
 
 - [ ] Add "Check Configuration" button to Step 0
-- [ ] Import ConfigCheckerServiceV8
+- [ ] Import ConfigCheckerService
 - [ ] Implement configuration fetch
 - [ ] Create configuration popup modal
 - [ ] Display application summary

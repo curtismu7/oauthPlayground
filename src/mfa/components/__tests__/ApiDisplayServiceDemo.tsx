@@ -14,8 +14,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
-import { SuperSimpleApiDisplayV8 } from '@/mfa/components/SuperSimpleApiDisplayV8';
-import { apiDisplayServiceV8 } from '@/mfa/services/apiDisplayServiceV8';
+import { SuperSimpleApiDisplay } from '@/mfa/components/SuperSimpleApiDisplay';
+import { apiDisplayService } from '@/mfa/services/apiDisplayService';
 
 const MODULE_TAG = '[🎨 API-DISPLAY-DEMO]';
 
@@ -23,14 +23,14 @@ const MODULE_TAG = '[🎨 API-DISPLAY-DEMO]';
  * Control Panel Component - Shows how to control the API display
  */
 const ControlPanel: React.FC = () => {
-	const [isVisible, setIsVisible] = useState(apiDisplayServiceV8.isVisible());
+	const [isVisible, setIsVisible] = useState(apiDisplayService.isVisible());
 	const [updateCount, setUpdateCount] = useState(0);
 
 	useEffect(() => {
 		logger.info(`${MODULE_TAG} ControlPanel mounted`, 'Logger info');
 
 		// Subscribe to visibility changes
-		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
+		const unsubscribe = apiDisplayService.subscribe((visible) => {
 			logger.info(`${MODULE_TAG} ControlPanel received update:`, visible);
 			setIsVisible(visible);
 			setUpdateCount((prev) => prev + 1);
@@ -78,7 +78,7 @@ const ControlPanel: React.FC = () => {
 					type="button"
 					onClick={() => {
 						logger.info(`${MODULE_TAG} Show button clicked`, 'Logger info');
-						apiDisplayServiceV8.show();
+						apiDisplayService.show();
 					}}
 					style={{
 						padding: '8px 16px',
@@ -98,7 +98,7 @@ const ControlPanel: React.FC = () => {
 					type="button"
 					onClick={() => {
 						logger.info(`${MODULE_TAG} Hide button clicked`, 'Logger info');
-						apiDisplayServiceV8.hide();
+						apiDisplayService.hide();
 					}}
 					style={{
 						padding: '8px 16px',
@@ -118,7 +118,7 @@ const ControlPanel: React.FC = () => {
 					type="button"
 					onClick={() => {
 						logger.info(`${MODULE_TAG} Toggle button clicked`, 'Logger info');
-						apiDisplayServiceV8.toggle();
+						apiDisplayService.toggle();
 					}}
 					style={{
 						padding: '8px 16px',
@@ -142,13 +142,13 @@ const ControlPanel: React.FC = () => {
  * Status Monitor Component - Shows how multiple components can subscribe
  */
 const StatusMonitor: React.FC<{ id: number }> = ({ id }) => {
-	const [isVisible, setIsVisible] = useState(apiDisplayServiceV8.isVisible());
+	const [isVisible, setIsVisible] = useState(apiDisplayService.isVisible());
 	const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
 	useEffect(() => {
 		logger.info(`${MODULE_TAG} StatusMonitor #${id} mounted`, 'Logger info');
 
-		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
+		const unsubscribe = apiDisplayService.subscribe((visible) => {
 			logger.info(`${MODULE_TAG} StatusMonitor #${id} received update:`, visible);
 			setIsVisible(visible);
 			setLastUpdate(new Date());
@@ -478,19 +478,19 @@ export const ApiDisplayServiceDemo: React.FC = () => {
 						fontFamily: 'monospace',
 					}}
 				>
-					{`import { apiDisplayServiceV8 } from '@/mfa/services/apiDisplayServiceV8';
+					{`import { apiDisplayService } from '@/mfa/services/apiDisplayService';
 
 import { logger } from '../../../utils/logger';
 // Show/hide the API display
-apiDisplayServiceV8.show();
-apiDisplayServiceV8.hide();
-apiDisplayServiceV8.toggle();
+apiDisplayService.show();
+apiDisplayService.hide();
+apiDisplayService.toggle();
 
 // Check current state
-const isVisible = apiDisplayServiceV8.isVisible();
+const isVisible = apiDisplayService.isVisible();
 
 // Subscribe to changes
-const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
+const unsubscribe = apiDisplayService.subscribe((visible) => {
   logger.info('Visibility changed:', visible);
 });
 
@@ -500,7 +500,7 @@ return () => unsubscribe();`}
 			</div>
 
 			{/* The actual API Display component */}
-			<SuperSimpleApiDisplayV8 />
+			<SuperSimpleApiDisplay />
 		</div>
 	);
 };

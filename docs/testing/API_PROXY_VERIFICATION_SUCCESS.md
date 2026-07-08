@@ -6,7 +6,7 @@
 
 #### **1. Backend HTTPS Server (Port 3002)**
 ```json
-{"status":"ok","timestamp":"2026-02-16T10:02:21.581Z","version":"9.11.76","versions":{"app":"9.11.76","mfaV8":"9.11.76","unifiedV8u":"9.11.76"}}
+{"status":"ok","timestamp":"2026-02-16T10:02:21.581Z","version":"9.11.76","versions":{"app":"9.11.76","mfa":"9.11.76","unifiedV8u":"9.11.76"}}
 ```
 **Status**: ✅ Working perfectly
 
@@ -21,7 +21,7 @@
 
 #### **3. API Proxy Through Vite**
 ```json
-{"status":"ok","timestamp":"2026-02-16T10:02:21.694Z","version":"9.11.76","versions":{"app":"9.11.76","mfaV8":"9.11.76","unifiedV8u":"9.11.76"}}
+{"status":"ok","timestamp":"2026-02-16T10:02:21.694Z","version":"9.11.76","versions":{"app":"9.11.76","mfa":"9.11.76","unifiedV8u":"9.11.76"}}
 ```
 **Status**: ✅ **Proxy working correctly!**
 

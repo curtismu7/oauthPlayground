@@ -1,12 +1,12 @@
-# WorkerTokenStatusServiceV8 Import Regression - SWE-15 Fix Complete
+# WorkerTokenStatusService Import Regression - SWE-15 Fix Complete
 
 ## ✅ DELIVERABLES COMPLETE
 
 ### **Root Cause (Why it happened)**
-The `CredentialsFormV8U.tsx` component was using `WorkerTokenStatusServiceV8` in multiple locations but the import statement was missing from the imports section. This caused a `ReferenceError: WorkerTokenStatusServiceV8 is not defined` when the component tried to mount and initialize the token status state.
+The `CredentialsFormV8U.tsx` component was using `WorkerTokenStatusService` in multiple locations but the import statement was missing from the imports section. This caused a `ReferenceError: WorkerTokenStatusService is not defined` when the component tried to mount and initialize the token status state.
 
 ### **Fix Summary (What changed)**
-- **Added missing import**: `import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';` at line 55 in `src/v8u/components/CredentialsFormV8U.tsx`
+- **Added missing import**: `import { WorkerTokenStatusService } from '@/v8/services/workerTokenStatusService';` at line 55 in `src/v8u/components/CredentialsFormV8U.tsx`
 - **Location**: Added alongside other worker token related imports for consistency
 - **Impact**: Minimal, single-line change that fixes the ReferenceError
 
@@ -27,20 +27,20 @@ npm run build
 # Result: ✓ All tests PASSED
 
 # 4. Import verification
-grep -q "import.*WorkerTokenStatusServiceV8.*from.*@/v8/services/workerTokenStatusServiceV8" src/v8u/components/CredentialsFormV8U.tsx
+grep -q "import.*WorkerTokenStatusService.*from.*@/v8/services/workerTokenStatusService" src/v8u/components/CredentialsFormV8U.tsx
 # Result: ✓ Import found
 
 # 5. Service file verification
-[ -f "src/v8/services/workerTokenStatusServiceV8.ts" ]
+[ -f "src/v8/services/workerTokenStatusService.ts" ]
 # Result: ✓ Service file exists
 ```
 
 #### **Pass/Fail Summary**
-- ✅ **Import Check**: WorkerTokenStatusServiceV8 import found in CredentialsFormV8U.tsx
+- ✅ **Import Check**: WorkerTokenStatusService import found in CredentialsFormV8U.tsx
 - ✅ **Service File**: Service file exists and exports correctly
 - ✅ **Build Test**: npm run build succeeds without errors
 - ✅ **Regression Test**: Custom regression test passes
-- ✅ **Error Check**: No "WorkerTokenStatusServiceV8 is not defined" errors found
+- ✅ **Error Check**: No "WorkerTokenStatusService is not defined" errors found
 
 ### **Files Changed + Why**
 - **src/v8u/components/CredentialsFormV8U.tsx**: Added missing import (line 55)
@@ -87,7 +87,7 @@ Added new "ISSUE HOTSPOT" section in `project/inventory/UNIFIED_MFA_INVENTORY.md
 
 ## 🚀 Current Status
 
-**WorkerTokenStatusServiceV8 import regression is COMPLETELY RESOLVED!**
+**WorkerTokenStatusService import regression is COMPLETELY RESOLVED!**
 
 The fix:
 - ✅ Eliminates the ReferenceError that was crashing CredentialsFormV8U
@@ -101,7 +101,7 @@ The fix:
 # Run the regression test
 ./test-worker-token-import-regression.sh
 
-# Should output: "🎉 All WorkerTokenStatusServiceV8 import tests PASSED!"
+# Should output: "🎉 All WorkerTokenStatusService import tests PASSED!"
 ```
 
 ---

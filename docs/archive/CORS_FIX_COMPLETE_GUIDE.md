@@ -7,7 +7,7 @@
    - `POST /api/pingone/userinfo` - Proxies UserInfo requests
 
 2. **Frontend Services Updated**:
-   - `src/v8/services/oidcDiscoveryServiceV8.ts` - Now uses backend proxy
+   - `src/v8/services/oidcDiscoveryService.ts` - Now uses backend proxy
    - `src/v8u/components/UnifiedFlowSteps.tsx` - Now uses backend proxy for UserInfo
 
 ## 🔧 How to Apply the Fix
@@ -211,7 +211,7 @@ Then:
 - `server.js` - Lines ~4600-4720 (new endpoints)
 
 **Frontend**:
-- `src/v8/services/oidcDiscoveryServiceV8.ts` - Updated to use proxy
+- `src/v8/services/oidcDiscoveryService.ts` - Updated to use proxy
 - `src/v8u/components/UnifiedFlowSteps.tsx` - Updated to use proxy
 
 **Documentation**:

@@ -8,7 +8,7 @@ This roadmap outlines the implementation of the unified credentials form that in
 
 ### 1.1 Create Spec Version Service
 
-**File**: `src/v8/services/specVersionServiceV8.ts`
+**File**: `src/v8/services/specVersionService.ts`
 
 ```typescript
 export type SpecVersion = 'oauth2.0' | 'oauth2.1' | 'oidc';
@@ -23,7 +23,7 @@ export interface ComplianceRules {
   supportedFlows: FlowType[];
 }
 
-export class SpecVersionServiceV8 {
+export class SpecVersionService {
   static getAvailableFlows(specVersion: SpecVersion): FlowType[]
   static isFlowAvailable(specVersion: SpecVersion, flowType: FlowType): boolean
   static getComplianceRules(specVersion: SpecVersion): ComplianceRules
@@ -40,10 +40,10 @@ export class SpecVersionServiceV8 {
 
 ### 1.2 Extend Flow Options Service
 
-**File**: `src/v8/services/unifiedFlowOptionsServiceV8.ts`
+**File**: `src/v8/services/unifiedFlowOptionsService.ts`
 
 ```typescript
-export class UnifiedFlowOptionsServiceV8 {
+export class UnifiedFlowOptionsService {
   static getOptionsForFlow(specVersion: SpecVersion, flowType: FlowType): FlowOptions
   static getFieldVisibility(specVersion: SpecVersion, flowType: FlowType): FieldVisibility
   static getCheckboxAvailability(specVersion: SpecVersion, flowType: FlowType): CheckboxAvailability
@@ -59,7 +59,7 @@ export class UnifiedFlowOptionsServiceV8 {
 
 ### 1.3 Update Credentials Form Component
 
-**File**: `src/v8/components/CredentialsFormV8.tsx`
+**File**: `src/v8/components/CredentialsForm.tsx`
 
 **Changes**:
 - Add spec version radio buttons at top
@@ -96,7 +96,7 @@ const [specVersion, setSpecVersion] = useState<SpecVersion>('oauth2.0');
 
 ```typescript
 const [flowType, setFlowType] = useState<FlowType>('oauth-authz');
-const availableFlows = SpecVersionServiceV8.getAvailableFlows(specVersion);
+const availableFlows = SpecVersionService.getAvailableFlows(specVersion);
 
 // Render dropdown with available flows only
 <select value={flowType} onChange={(e) => setFlowType(e.target.value as FlowType)}>
@@ -109,7 +109,7 @@ const availableFlows = SpecVersionServiceV8.getAvailableFlows(specVersion);
 ### 2.3 Implement Smart Field Visibility
 
 ```typescript
-const fieldVisibility = UnifiedFlowOptionsServiceV8.getFieldVisibility(specVersion, flowType);
+const fieldVisibility = UnifiedFlowOptionsService.getFieldVisibility(specVersion, flowType);
 
 // Conditionally render fields
 {fieldVisibility.showClientSecret && <ClientSecretField />}
@@ -121,7 +121,7 @@ const fieldVisibility = UnifiedFlowOptionsServiceV8.getFieldVisibility(specVersi
 ### 2.4 Implement Smart Checkbox Availability
 
 ```typescript
-const checkboxAvailability = UnifiedFlowOptionsServiceV8.getCheckboxAvailability(specVersion, flowType);
+const checkboxAvailability = UnifiedFlowOptionsService.getCheckboxAvailability(specVersion, flowType);
 
 // Conditionally render checkboxes
 {checkboxAvailability.showPKCE && <PKCECheckbox disabled={checkboxAvailability.pkceRequired} />}
@@ -197,7 +197,7 @@ if (specVersion === 'oidc') {
 
 **Implementation**:
 ```typescript
-const warnings = SpecVersionServiceV8.getComplianceWarnings(specVersion, flowType);
+const warnings = SpecVersionService.getComplianceWarnings(specVersion, flowType);
 warnings.forEach(warning => {
   showWarningToast(warning);
 });
@@ -213,9 +213,9 @@ warnings.forEach(warning => {
 ### 4.1 Unit Tests
 
 **Test Files**:
-- `src/v8/services/__tests__/specVersionServiceV8.test.ts`
-- `src/v8/services/__tests__/unifiedFlowOptionsServiceV8.test.ts`
-- `src/v8/components/__tests__/CredentialsFormV8.test.tsx`
+- `src/v8/services/__tests__/specVersionService.test.ts`
+- `src/v8/services/__tests__/unifiedFlowOptionsService.test.ts`
+- `src/v8/components/__tests__/CredentialsForm.test.tsx`
 
 **Test Coverage**:
 - Spec version availability
@@ -260,7 +260,7 @@ warnings.forEach(warning => {
 ### Spec Version Service Implementation
 
 ```typescript
-// src/v8/services/specVersionServiceV8.ts
+// src/v8/services/specVersionService.ts
 
 const SPEC_CONFIGS: Record<SpecVersion, SpecConfig> = {
   'oauth2.0': {
@@ -301,7 +301,7 @@ const SPEC_CONFIGS: Record<SpecVersion, SpecConfig> = {
   }
 };
 
-export class SpecVersionServiceV8 {
+export class SpecVersionService {
   static getAvailableFlows(specVersion: SpecVersion): FlowType[] {
     return SPEC_CONFIGS[specVersion].supportedFlows;
   }
@@ -348,12 +348,12 @@ export class SpecVersionServiceV8 {
 ### Unified Flow Options Service Implementation
 
 ```typescript
-// src/v8/services/unifiedFlowOptionsServiceV8.ts
+// src/v8/services/unifiedFlowOptionsService.ts
 
-export class UnifiedFlowOptionsServiceV8 {
+export class UnifiedFlowOptionsService {
   static getOptionsForFlow(specVersion: SpecVersion, flowType: FlowType): FlowOptions {
     // Get base flow options
-    const baseOptions = FlowOptionsServiceV8.getOptionsForFlow(flowType);
+    const baseOptions = FlowOptionsService.getOptionsForFlow(flowType);
 
     // Apply spec-specific modifications
     if (specVersion === 'oauth2.1') {
@@ -387,7 +387,7 @@ export class UnifiedFlowOptionsServiceV8 {
     };
 
     // Apply flow-specific visibility
-    const flowOptions = FlowOptionsServiceV8.getOptionsForFlow(flowType);
+    const flowOptions = FlowOptionsService.getOptionsForFlow(flowType);
     visibility.showClientSecret = !flowOptions.requiresClientSecret === false;
     visibility.showRedirectUri = flowOptions.requiresRedirectUri;
     visibility.showResponseType = flowOptions.responseTypes.length > 0;
@@ -410,7 +410,7 @@ export class UnifiedFlowOptionsServiceV8 {
       showRedirectUriPatterns: false,
     };
 
-    const flowOptions = FlowOptionsServiceV8.getOptionsForFlow(flowType);
+    const flowOptions = FlowOptionsService.getOptionsForFlow(flowType);
 
     // PKCE checkbox
     if (flowType === 'oauth-authz' || flowType === 'hybrid') {

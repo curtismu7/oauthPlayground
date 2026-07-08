@@ -3,8 +3,8 @@
 echo "🔧 Running comprehensive lint fix for Unified MFA and Unified OAuth..."
 
 # Fix Unified MFA Registration Flow
-echo "📝 Fixing UnifiedMFARegistrationFlowV8.tsx..."
-npx eslint src/mfa/flows/unified/UnifiedMFARegistrationFlowV8.tsx --fix --quiet
+echo "📝 Fixing UnifiedMFARegistrationFlow.tsx..."
+npx eslint src/mfa/flows/unified/UnifiedMFARegistrationFlow.tsx --fix --quiet
 
 # Fix Unified Device Selection Step
 echo "📝 Fixing UnifiedDeviceSelectionStep.tsx..."

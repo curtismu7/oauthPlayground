@@ -21,11 +21,11 @@ This guide provides step-by-step instructions for implementing the Quick Wins fr
 ```typescript
 // Typical pattern in MFA files
 try {
-  const result = await MFAServiceV8.registerDevice(params);
-  toastV8.success('Device registered successfully!');
+  const result = await MFAService.registerDevice(params);
+  toast.success('Device registered successfully!');
 } catch (error) {
   console.error(`${MODULE_TAG} Registration failed`, error);
-  toastV8.error(error instanceof Error ? error.message : 'Registration failed');
+  toast.error(error instanceof Error ? error.message : 'Registration failed');
   setError(error instanceof Error ? error.message : 'Unknown error');
 }
 ```
@@ -37,8 +37,8 @@ try {
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 
 try {
-  const result = await MFAServiceV8.registerDevice(params);
-  toastV8.success('Device registered successfully!');
+  const result = await MFAService.registerDevice(params);
+  toast.success('Device registered successfully!');
 } catch (error) {
   const parsedError = UnifiedFlowErrorHandler.handleError(error, {
     flowType: 'mfa' as any,  // Type assertion needed (FlowType doesn't include 'mfa')
@@ -59,14 +59,14 @@ try {
 ### Files to Update (32 files)
 
 **MFA Flow Files:**
-1. `src/v8/flows/types/SMSFlowV8.tsx`
-2. `src/v8/flows/types/EmailFlowV8.tsx`
-3. `src/v8/flows/types/TOTPFlowV8.tsx`
-4. `src/v8/flows/types/FIDO2FlowV8.tsx`
-5. `src/v8/flows/types/WhatsAppFlowV8.tsx`
-6. `src/v8/flows/types/MobileFlowV8.tsx`
-7. `src/v8/flows/MFAAuthenticationMainPageV8.tsx`
-8. `src/v8/flows/MFAHubV8.tsx`
+1. `src/v8/flows/types/SMSFlow.tsx`
+2. `src/v8/flows/types/EmailFlow.tsx`
+3. `src/v8/flows/types/TOTPFlow.tsx`
+4. `src/v8/flows/types/FIDO2Flow.tsx`
+5. `src/v8/flows/types/WhatsAppFlow.tsx`
+6. `src/v8/flows/types/MobileFlow.tsx`
+7. `src/v8/flows/MFAAuthenticationMainPage.tsx`
+8. `src/v8/flows/MFAHub.tsx`
 9. ... (24 more configuration/OTP pages)
 
 ### Implementation Steps
@@ -83,7 +83,7 @@ try {
    // Before
    } catch (error) {
      console.error(`${MODULE_TAG} ...`, error);
-     toastV8.error(error.message);
+     toast.error(error.message);
      setError(error.message);
    }
    
@@ -176,9 +176,9 @@ UnifiedFlowLoggerService.error('API call failed', { operation: 'registerDevice' 
 
 ### Files Updated
 
-- ✅ SMSFlowV8.tsx - Updated key console.log and console.error calls
-- ✅ EmailFlowV8.tsx - Updated console.warn call for unknown device status
-- ✅ WhatsAppFlowV8.tsx - Pattern established (ready for full implementation)
+- ✅ SMSFlow.tsx - Updated key console.log and console.error calls
+- ✅ EmailFlow.tsx - Updated console.warn call for unknown device status
+- ✅ WhatsAppFlow.tsx - Pattern established (ready for full implementation)
 - ✅ Other MFA flows - Pattern established (ready for full implementation)
 
 ### Benefits
@@ -300,7 +300,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
 
 3. **Update MFA Flow:**
    ```typescript
-   // In MFAAuthenticationMainPageV8.tsx
+   // In MFAAuthenticationMainPage.tsx
    import { PageHeader } from '@/v8/components/shared/PageHeader';
    
    <PageHeader
@@ -314,9 +314,9 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
 
 ### Files Updated
 
-- ✅ **PageHeaderV8.tsx** - Already existed as shared component with comprehensive features
-- ✅ **MFAAuthenticationMainPageV8.tsx** - Updated to use PageHeaderV8 instead of inline styles
-- ✅ **UnifiedOAuthFlowV8U.tsx** - Already using PageHeaderV8 component
+- ✅ **PageHeader.tsx** - Already existed as shared component with comprehensive features
+- ✅ **MFAAuthenticationMainPage.tsx** - Updated to use PageHeader instead of inline styles
+- ✅ **UnifiedOAuthFlowV8U.tsx** - Already using PageHeader component
 
 ### Implementation Details
 
@@ -341,7 +341,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
 
 **After (MFA Authentication Page):**
 ```typescript
-<PageHeaderV8
+<PageHeader
   title="🔐 MFA Authentication"
   subtitle="Unified authentication flow for all MFA device types"
   gradient={PageHeaderGradients.mfaAuth}
@@ -367,14 +367,14 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
 **Toast messages use inconsistent formats:**
 ```typescript
 // MFA flows
-toastV8.success('Authentication successful!');
-toastV8.error('Failed to register device');
-toastV8.warning('Please select a specific device');
+toast.success('Authentication successful!');
+toast.error('Failed to register device');
+toast.warning('Please select a specific device');
 
 // Unified flows  
-toastV8.success('Credentials saved successfully');
-toastV8.error('Failed to save credentials');
-toastV8.info('Already on the last step');
+toast.success('Credentials saved successfully');
+toast.error('Failed to save credentials');
+toast.info('Already on the last step');
 ```
 
 ### Target State
@@ -382,23 +382,23 @@ toastV8.info('Already on the last step');
 **Use standardized "Message: X | Detail: Y" format:**
 ```typescript
 // Formatted methods
-toastV8.formattedSuccess('Device registered', 'SMS device is now active');
-toastV8.formattedError('Registration failed', 'Device limit exceeded');
-toastV8.formattedWarning('Policy required', 'Device authentication policy must be selected');
+toast.formattedSuccess('Device registered', 'SMS device is now active');
+toast.formattedError('Registration failed', 'Device limit exceeded');
+toast.formattedWarning('Policy required', 'Device authentication policy must be selected');
 
 // Domain-specific methods
-toastV8.mfaDeviceRegistered('SMS', 'ACTIVE');
-toastV8.mfaAuthenticationSuccess('SMS', 'john.doe@example.com');
-toastV8.unifiedFlowSuccess('Credentials saved', 'OAuth configuration stored successfully');
+toast.mfaDeviceRegistered('SMS', 'ACTIVE');
+toast.mfaAuthenticationSuccess('SMS', 'john.doe@example.com');
+toast.unifiedFlowSuccess('Credentials saved', 'OAuth configuration stored successfully');
 ```
 
 ### Implementation Steps
 
-1. **Extend toastNotificationsV8.ts with formatted methods:**
+1. **Extend toastNotifications.ts with formatted methods:**
    ```typescript
    static formattedSuccess(message: string, detail?: string): void {
      const formattedMessage = detail ? `Message: ${message} | Detail: ${detail}` : `Message: ${message}`;
-     ToastNotificationsV8.success(formattedMessage);
+     ToastNotifications.success(formattedMessage);
    }
    ```
 
@@ -407,19 +407,19 @@ toastV8.unifiedFlowSuccess('Credentials saved', 'OAuth configuration stored succ
    static mfaDeviceRegistered(deviceType: string, status?: string): void {
      const message = `${deviceType} device registered successfully`;
      const detail = status ? `Device status: ${status}` : 'Device is ready to use';
-     ToastNotificationsV8.formattedSuccess(message, detail);
+     ToastNotifications.formattedSuccess(message, detail);
    }
    ```
 
 3. **Update existing toast calls in key flows:**
-   - SMSFlowV8.tsx - Authentication success and OTP sent messages
+   - SMSFlow.tsx - Authentication success and OTP sent messages
    - UnifiedOAuthFlowV8U.tsx - Credentials save/error messages
    - Other MFA flows - Device registration and operation messages
 
 ### Files Updated
 
-- ✅ **toastNotificationsV8.ts** - Added formatted message methods and domain-specific helpers
-- ✅ **SMSFlowV8.tsx** - Updated authentication success and OTP sent messages
+- ✅ **toastNotifications.ts** - Added formatted message methods and domain-specific helpers
+- ✅ **SMSFlow.tsx** - Updated authentication success and OTP sent messages
 - ✅ **UnifiedOAuthFlowV8U.tsx** - Updated credentials save/error messages
 - ✅ **Other flows** - Pattern established for full implementation
 
@@ -427,26 +427,26 @@ toastV8.unifiedFlowSuccess('Credentials saved', 'OAuth configuration stored succ
 
 **Before (SMS Flow):**
 ```typescript
-toastV8.success('Authentication successful!');
-toastV8.success('OTP sent to your device. Proceed to validate the code.');
+toast.success('Authentication successful!');
+toast.success('OTP sent to your device. Proceed to validate the code.');
 ```
 
 **After (SMS Flow):**
 ```typescript
-toastV8.mfaAuthenticationSuccess('SMS', credentials.username);
-toastV8.formattedInfo('OTP sent', 'One-time password has been sent to your SMS device');
+toast.mfaAuthenticationSuccess('SMS', credentials.username);
+toast.formattedInfo('OTP sent', 'One-time password has been sent to your SMS device');
 ```
 
 **Before (Unified Flow):**
 ```typescript
-toastV8.success('Credentials saved successfully');
-toastV8.error('Failed to save credentials');
+toast.success('Credentials saved successfully');
+toast.error('Failed to save credentials');
 ```
 
 **After (Unified Flow):**
 ```typescript
-toastV8.unifiedFlowSuccess('Credentials saved', 'OAuth configuration stored successfully');
-toastV8.unifiedFlowError('Credentials save', 'Failed to store OAuth configuration');
+toast.unifiedFlowSuccess('Credentials saved', 'OAuth configuration stored successfully');
+toast.unifiedFlowError('Credentials save', 'Failed to store OAuth configuration');
 ```
 
 ### Benefits
@@ -461,19 +461,19 @@ toastV8.unifiedFlowError('Credentials save', 'Failed to store OAuth configuratio
 ### New Methods Available
 
 **Formatted Methods:**
-- `toastV8.formattedSuccess(message, detail?)`
-- `toastV8.formattedError(message, detail?)`
-- `toastV8.formattedWarning(message, detail?)`
-- `toastV8.formattedInfo(message, detail?)`
+- `toast.formattedSuccess(message, detail?)`
+- `toast.formattedError(message, detail?)`
+- `toast.formattedWarning(message, detail?)`
+- `toast.formattedInfo(message, detail?)`
 
 **MFA-Specific Methods:**
-- `toastV8.mfaDeviceRegistered(deviceType, status?)`
-- `toastV8.mfaAuthenticationSuccess(deviceType, username?)`
-- `toastV8.mfaOperationError(operation, reason)`
+- `toast.mfaDeviceRegistered(deviceType, status?)`
+- `toast.mfaAuthenticationSuccess(deviceType, username?)`
+- `toast.mfaOperationError(operation, reason)`
 
 **Unified Flow Methods:**
-- `toastV8.unifiedFlowSuccess(operation, detail?)`
-- `toastV8.unifiedFlowError(operation, reason)`
+- `toast.unifiedFlowSuccess(operation, detail?)`
+- `toast.unifiedFlowError(operation, reason)`
 
 ---
 
@@ -518,7 +518,7 @@ loadingManager.stopLoading();
 
 ### Implementation Steps
 
-1. **Create loadingStateManagerV8.ts with unified hooks:**
+1. **Create loadingStateManager.ts with unified hooks:**
    ```typescript
    export const useLoadingStateManager = (options: LoadingManagerOptions = {}) => {
      const [loadingState, setLoadingState] = useState<LoadingState>({
@@ -558,14 +558,14 @@ loadingManager.stopLoading();
    ```
 
 3. **Update key flows to use unified loading:**
-   - SMSFlowV8.tsx - Authentication operations
+   - SMSFlow.tsx - Authentication operations
    - UnifiedOAuthFlowV8U.tsx - Credentials operations
    - Other MFA flows - Device operations
 
 ### Files Updated
 
-- ✅ **loadingStateManagerV8.ts** - Created comprehensive loading state management system
-- ✅ **SMSFlowV8.tsx** - Added loading manager import (pattern established for full implementation)
+- ✅ **loadingStateManager.ts** - Created comprehensive loading state management system
+- ✅ **SMSFlow.tsx** - Added loading manager import (pattern established for full implementation)
 - ✅ **Build verification** - Project builds successfully with new loading system
 
 ### Implementation Details
@@ -685,15 +685,15 @@ try {
 ```typescript
 // MFA flows - manual error formatting
 nav.setValidationErrors([`Device registration failed: ${errorMessage}`]);
-toastV8.error(`Registration failed: ${errorMessage}`);
+toast.error(`Registration failed: ${errorMessage}`);
 
 // Mixed error handling
 if (isDeviceLimitError) {
   nav.setValidationErrors([`Device registration failed: ${errorMessage}`]);
-  toastV8.error('Device limit exceeded. Please delete an existing device first.');
+  toast.error('Device limit exceeded. Please delete an existing device first.');
 } else {
   nav.setValidationErrors([`Failed to register device: ${errorMessage}`]);
-  toastV8.error(`Registration failed: ${errorMessage}`);
+  toast.error(`Registration failed: ${errorMessage}`);
 }
 ```
 
@@ -702,18 +702,18 @@ if (isDeviceLimitError) {
 **Use centralized validation error patterns:**
 ```typescript
 // Unified validation service
-const formattedError = ValidationServiceV8.formatMFAError(error, {
+const formattedError = ValidationService.formatMFAError(error, {
   operation: 'register',
   deviceType: 'EMAIL',
 });
 
 nav.setValidationErrors([formattedError.userFriendlyMessage]);
-toastV8.mfaOperationError('registration', formattedError.userFriendlyMessage);
+toast.mfaOperationError('registration', formattedError.userFriendlyMessage);
 ```
 
 ### Implementation Steps
 
-1. **Extend ValidationServiceV8.ts with MFA-specific validation:**
+1. **Extend ValidationService.ts with MFA-specific validation:**
    ```typescript
    static validateMFADeviceRegistration(params, deviceType): ValidationResult {
      // Device-specific validation rules
@@ -734,14 +734,14 @@ toastV8.mfaOperationError('registration', formattedError.userFriendlyMessage);
    ```
 
 3. **Update key flows to use unified validation:**
-   - EmailFlowV8.tsx - Device registration error handling
-   - SMSFlowV8.tsx - Authentication validation
+   - EmailFlow.tsx - Device registration error handling
+   - SMSFlow.tsx - Authentication validation
    - Other MFA flows - Consistent error patterns
 
 ### Files Updated
 
-- ✅ **validationServiceV8.ts** - Extended with MFA-specific validation methods and error formatting
-- ✅ **EmailFlowV8.tsx** - Updated to use ValidationServiceV8 for error formatting
+- ✅ **validationService.ts** - Extended with MFA-specific validation methods and error formatting
+- ✅ **EmailFlow.tsx** - Updated to use ValidationService for error formatting
 - ✅ **Build verification** - Project builds successfully with new validation patterns
 
 ### Implementation Details
@@ -829,22 +829,22 @@ static validateEmail(email: string): boolean {
 ```typescript
 if (isDeviceLimitError) {
   nav.setValidationErrors([`Device registration failed: ${errorMessage}`]);
-  toastV8.error('Device limit exceeded. Please delete an existing device first.');
+  toast.error('Device limit exceeded. Please delete an existing device first.');
 } else {
   nav.setValidationErrors([`Failed to register device: ${errorMessage}`]);
-  toastV8.error(`Registration failed: ${errorMessage}`);
+  toast.error(`Registration failed: ${errorMessage}`);
 }
 ```
 
 **After (Unified Validation Service):**
 ```typescript
-const formattedError = ValidationServiceV8.formatMFAError(error, {
+const formattedError = ValidationService.formatMFAError(error, {
   operation: 'register',
   deviceType: 'EMAIL',
 });
 
 nav.setValidationErrors([formattedError.userFriendlyMessage]);
-toastV8.mfaOperationError('registration', formattedError.userFriendlyMessage);
+toast.mfaOperationError('registration', formattedError.userFriendlyMessage);
 ```
 
 ### Smart Error Detection
@@ -871,20 +871,20 @@ Each category provides:
 **Files to update (in priority order):**
 
 1. **Main authentication page** (most visible):
-   - `src/v8/flows/MFAAuthenticationMainPageV8.tsx`
+   - `src/v8/flows/MFAAuthenticationMainPage.tsx`
 
 2. **Device-specific flows** (user-facing):
-   - `src/v8/flows/types/SMSFlowV8.tsx`
-   - `src/v8/flows/types/EmailFlowV8.tsx`
-   - `src/v8/flows/types/FIDO2FlowV8.tsx`
-   - `src/v8/flows/types/TOTPFlowV8.tsx`
+   - `src/v8/flows/types/SMSFlow.tsx`
+   - `src/v8/flows/types/EmailFlow.tsx`
+   - `src/v8/flows/types/FIDO2Flow.tsx`
+   - `src/v8/flows/types/TOTPFlow.tsx`
 
 3. **Configuration pages** (less critical):
-   - `src/v8/flows/types/*ConfigurationPageV8.tsx`
+   - `src/v8/flows/types/*ConfigurationPage.tsx`
 
 4. **Hub and management** (administrative):
-   - `src/v8/flows/MFAHubV8.tsx`
-   - `src/v8/flows/MFADeviceManagementFlowV8.tsx`
+   - `src/v8/flows/MFAHub.tsx`
+   - `src/v8/flows/MFADeviceManagementFlow.tsx`
 
 ### Step 2: Logger Service
 
@@ -946,10 +946,10 @@ Before committing:
 ### Before (Current State)
 
 ```typescript
-// src/v8/flows/types/SMSFlowV8.tsx (excerpt)
+// src/v8/flows/types/SMSFlow.tsx (excerpt)
 
 try {
-  const result = await MFAServiceV8.registerDevice({
+  const result = await MFAService.registerDevice({
     environmentId: credentials.environmentId,
     username: credentials.username,
     type: 'SMS',
@@ -962,13 +962,13 @@ try {
     status: result.status,
   });
   
-  toastV8.success('SMS device registered successfully!');
+  toast.success('SMS device registered successfully!');
   setMfaState((prev) => ({ ...prev, deviceId: result.deviceId }));
   nav.markStepComplete();
   
 } catch (error) {
   console.error(`${MODULE_TAG} SMS device registration failed`, error);
-  toastV8.error(error instanceof Error ? error.message : 'Failed to register device');
+  toast.error(error instanceof Error ? error.message : 'Failed to register device');
   setPhoneError(error instanceof Error ? error.message : 'Registration failed');
 }
 ```
@@ -976,12 +976,12 @@ try {
 ### After (With Quick Wins)
 
 ```typescript
-// src/v8/flows/types/SMSFlowV8.tsx (updated)
+// src/v8/flows/types/SMSFlow.tsx (updated)
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 try {
-  const result = await MFAServiceV8.registerDevice({
+  const result = await MFAService.registerDevice({
     environmentId: credentials.environmentId,
     username: credentials.username,
     type: 'SMS',
@@ -997,7 +997,7 @@ try {
     username: credentials.username,
   });
   
-  toastV8.success('SMS device registered successfully!');
+  toast.success('SMS device registered successfully!');
   setMfaState((prev) => ({ ...prev, deviceId: result.deviceId }));
   nav.markStepComplete();
   
@@ -1026,7 +1026,7 @@ try {
 
 ### Extend FlowType to include 'mfa'
 
-**File:** `src/v8/services/specVersionServiceV8.ts`
+**File:** `src/v8/services/specVersionService.ts`
 
 ```typescript
 // Current

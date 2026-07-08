@@ -89,7 +89,7 @@ const strength = assessSecurityStrength.clientSecret(secret);
 - **Validation**: Ensures required fields are present
 - **Preview**: Real-time JWT generation and display
 
-### Authentication Dropdown (`/src/v8/components/TokenEndpointAuthMethodDropdownV8.tsx`)
+### Authentication Dropdown (`/src/v8/components/TokenEndpointAuthMethodDropdown.tsx`)
 
 - **Method Selection**: Dropdown with all available methods
 - **Educational Panel**: Comprehensive method descriptions

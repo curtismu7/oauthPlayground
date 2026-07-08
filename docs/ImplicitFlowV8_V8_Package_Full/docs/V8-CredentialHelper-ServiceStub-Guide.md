@@ -27,7 +27,7 @@
 ## 2. Suggested Types
 
 ```ts
-// types/credentialStoreV8.ts
+// types/credentialStore.ts
 
 export interface V8AppConfig {
   appId: string;           // internal ID for the tool
@@ -59,7 +59,7 @@ export interface V8CredentialStoreState {
 ## 3. Core Service API (Non-React)
 
 ```ts
-// services/credentialStoreV8.ts
+// services/credentialStore.ts
 
 const STORAGE_KEY = "p1-v8-credential-store";
 
@@ -140,7 +140,7 @@ export function getValidWorkerToken(envId: string, now = Date.now()): V8WorkerTo
 ## 4. React Hook Wrapper
 
 ```ts
-// hooks/useCredentialStoreV8.ts
+// hooks/useCredentialStore.ts
 
 import { useEffect, useState } from "react";
 import {
@@ -152,10 +152,10 @@ import {
   getActiveAppConfig,
   saveWorkerToken,
   getValidWorkerToken,
-} from "../services/credentialStoreV8";
-import type { V8AppConfig, V8WorkerToken, V8CredentialStoreState } from "../types/credentialStoreV8";
+} from "../services/credentialStore";
+import type { V8AppConfig, V8WorkerToken, V8CredentialStoreState } from "../types/credentialStore";
 
-export function useCredentialStoreV8() {
+export function useCredentialStore() {
   const [state, setState] = useState<V8CredentialStoreState>(() => loadStateFromStorage());
 
   useEffect(() => {
@@ -204,12 +204,12 @@ export function useCredentialStoreV8() {
 
 Prompt guidelines:
 
-- Use the `credentialStoreV8` service as the **single source of truth** for apps and worker tokens.
+- Use the `credentialStore` service as the **single source of truth** for apps and worker tokens.
 - Do **not** create large credential-management sections on any flow page.
 - Access credentials only via:
   - the app picker,
   - the “Manage Apps” popup,
-  - shared hooks (`useCredentialStoreV8`).
+  - shared hooks (`useCredentialStore`).
 - When a worker token is needed:
   - always call `getValidWorkerToken(envId)` first.
   - only call the PingOne worker-token API if no valid token exists or it is expired.

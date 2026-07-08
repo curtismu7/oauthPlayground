@@ -61,7 +61,7 @@ FILES = [
     'src/pages/PingOneIdentityMetrics.tsx',
     'src/pages/flows/SAMLServiceProviderFlowV1.tsx',
     'src/pages/CompactAppPickerDemo.tsx',
-    'src/pages/DpopAuthorizationCodeFlowV8.tsx',
+    'src/pages/DpopAuthorizationCodeFlow.tsx',
     'src/pages/ComprehensiveOAuthEducation.tsx',
     'src/pages/PingProductComparison.tsx',
     'src/pages/flows/DPoPFlow.tsx',

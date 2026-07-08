@@ -8,7 +8,7 @@ The analytics system has been completely refactored to follow professional best 
 
 1. **Fire-and-Forget**: Analytics never blocks the main thread
 2. **Completely Silent**: No console errors, no availability checks
-3. **Centralized**: Single source of truth (`analyticsV8.ts`)
+3. **Centralized**: Single source of truth (`analytics.ts`)
 4. **Easy to Disable**: Simple flag to turn off analytics
 5. **No-CORS Mode**: Uses `mode: 'no-cors'` to prevent CORS errors from appearing in console
 
@@ -17,7 +17,7 @@ The analytics system has been completely refactored to follow professional best 
 ### Basic Usage
 
 ```typescript
-import { analytics } from '@/v8/utils/analyticsV8';
+import { analytics } from '@/v8/utils/analytics';
 
 // Log an event
 analytics.log({
@@ -49,13 +49,13 @@ if (analytics.isEnabled()) {
 
 ### Before (Problematic)
 - ❌ Availability checks with HEAD requests (caused console errors)
-- ❌ Multiple utilities (`analyticsServerCheckV8.ts`, `analyticsLoggerV8.ts`)
+- ❌ Multiple utilities (`analyticsServerCheck.ts`, `analyticsLogger.ts`)
 - ❌ Scattered implementation across codebase
 - ❌ Console spam with `ERR_CONNECTION_REFUSED`
 
 ### After (Professional)
 - ✅ No availability checks - just try and fail silently
-- ✅ Single utility (`analyticsV8.ts`)
+- ✅ Single utility (`analytics.ts`)
 - ✅ Centralized, consistent API
 - ✅ Zero console errors (uses `no-cors` mode)
 
@@ -72,29 +72,29 @@ if (analytics.isEnabled()) {
 
 All existing analytics calls have been migrated from:
 ```typescript
-import('@/v8/utils/analyticsServerCheckV8').then(({ safeAnalyticsFetch }) => {
+import('@/v8/utils/analyticsServerCheck').then(({ safeAnalyticsFetch }) => {
   safeAnalyticsFetch({ ... });
 });
 ```
 
 To:
 ```typescript
-import('@/v8/utils/analyticsV8').then(({ analytics }) => {
+import('@/v8/utils/analytics').then(({ analytics }) => {
   analytics.log({ ... });
 });
 ```
 
 ## Files Updated
 
-- ✅ `src/v8/utils/analyticsV8.ts` - New professional implementation
-- ✅ `src/v8/services/specUrlServiceV8.ts` - Migrated to new API
+- ✅ `src/v8/utils/analytics.ts` - New professional implementation
+- ✅ `src/v8/services/specUrlService.ts` - Migrated to new API
 - ✅ `src/v8u/flows/UnifiedOAuthFlowV8U.tsx` - Migrated to new API
 - ✅ `src/v8u/components/UnifiedFlowDocumentationPageV8U.tsx` - Migrated to new API
 
 ## Remaining Work
 
-The following files still use the old `analyticsServerCheckV8`:
-- `src/v8/services/workerTokenServiceV8.ts`
+The following files still use the old `analyticsServerCheck`:
+- `src/v8/services/workerTokenService.ts`
 - `src/utils/pingOneFetch.ts`
 - Locked feature directories (can be updated when unlocked)
 

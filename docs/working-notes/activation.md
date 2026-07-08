@@ -85,7 +85,7 @@ When the user chooses **“Use user token”**:
    - Redirect URI
    - Scopes (including the needed PingOne MFA & user scopes)
    - Response type (e.g., `token`, `id_token token`, or auth code + PKCE, depending on your existing authz flows)
-   - Any other fields required by your existing `ImplicitV8` / `AuthZV8` flows.
+   - Any other fields required by your existing `Implicit` / `AuthZ` flows.
 
 2. Use your existing OAuth/OIDC flow implementation to:
    - Launch the browser/iframe flow, or re-use your built-in OAuth playground behavior.

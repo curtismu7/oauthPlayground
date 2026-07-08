@@ -16,7 +16,7 @@ import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { modernMessaging } from '../platform/ModernMessagingService';
 import { logger } from '../utils/logger';
-import { WorkerTokenSectionV8 } from '../mfa/components/WorkerTokenSectionV8';
+import { WorkerTokenSection } from '../mfa/components/WorkerTokenSection';
 
 const styles = {
 	container: {
@@ -1088,7 +1088,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						tools, and API integration capabilities.
 					</p>
 
-					<WorkerTokenSectionV8 compact />
+					<WorkerTokenSection compact />
 				</div>
 			</div>
 		);
@@ -1108,7 +1108,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			<div style={styles.container}>
 				<FlowHeader flowId="environments" />
 				{/* Worker Token Section - at top so user can get/refresh token before using the page */}
-				<WorkerTokenSectionV8 compact />
+				<WorkerTokenSection compact />
 				<div style={styles.educationalSection}>
 					<div style={styles.educationalContent}>
 						<div style={styles.educationalCard}>

@@ -42,7 +42,7 @@ Each MFA device type has three documentation files:
 ### MFA Hub Collapsible Sections
 
 #### ✅ MFA Features Section
-- **Location**: `src/v8/flows/MFAHubV8.tsx`
+- **Location**: `src/v8/flows/MFAHub.tsx`
 - **Purpose**: Main navigation to MFA features
 - **Features**:
   - Device Registration
@@ -52,7 +52,7 @@ Each MFA device type has three documentation files:
 - **Toggle**: 48px blue chevron icon with gradient background
 
 #### ✅ About PingOne MFA Section
-- **Location**: `src/v8/flows/MFAHubV8.tsx`
+- **Location**: `src/v8/flows/MFAHub.tsx`
 - **Purpose**: Educational information about MFA capabilities
 - **Features**:
   - Security overview
@@ -64,7 +64,7 @@ Each MFA device type has three documentation files:
 ### MFA Documentation Page Collapsible Sections
 
 #### ✅ API Documentation Sections
-- **Location**: `src/v8/components/MFADocumentationPageV8.tsx`
+- **Location**: `src/v8/components/MFADocumentationPage.tsx`
 - **Purpose**: Detailed API call documentation
 - **Features**:
   - MFA Flow API calls

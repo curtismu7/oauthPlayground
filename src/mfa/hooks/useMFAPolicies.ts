@@ -4,7 +4,7 @@
  * @description Custom hook for managing MFA device authentication policies
  * @version 3.0.0
  *
- * Extracted from MFAAuthenticationMainPageV8.tsx as part of V3 refactoring.
+ * Extracted from MFAAuthenticationMainPage.tsx as part of V3 refactoring.
  * Centralizes all policy-related logic including:
  * - Loading device authentication policies
  * - Policy selection and auto-selection
@@ -15,7 +15,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DeviceAuthenticationPolicy } from '@/mfa/flows/shared/MFATypes';
-import { MFAServiceV8 } from '@/mfa/services/mfaServiceV8';
+import { MFAService } from '@/mfa/services/mfaService';
 
 import { logger } from '../../utils/logger';
 export interface UseMFAPoliciesConfig {
@@ -95,7 +95,7 @@ export const useMFAPolicies = (config: UseMFAPoliciesConfig = {}): UseMFAPolicie
 		setError(null);
 
 		try {
-			const loadedPolicies = await MFAServiceV8.listDeviceAuthenticationPolicies(envId);
+			const loadedPolicies = await MFAService.listDeviceAuthenticationPolicies(envId);
 			lastFetchedEnvIdRef.current = envId;
 			setPolicies(loadedPolicies);
 

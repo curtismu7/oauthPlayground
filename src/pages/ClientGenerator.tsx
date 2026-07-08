@@ -43,7 +43,7 @@ import { FiKey } from '../icons';
 import { FlowHeader } from '../services/flowHeaderService';
 import TokenDisplayService from '../services/tokenDisplayService';
 import { logger } from '../utils/logger';
-import { workerTokenServiceV8 } from '../mfa/services/workerTokenServiceV8';
+import { workerTokenService } from '../mfa/services/workerTokenService';
 
 const Container = styled.div`
 	max-width: 1200px;
@@ -341,7 +341,7 @@ const ClientGenerator: React.FC = () => {
 		const loadAndGetToken = async () => {
 			try {
 				// Try to load saved worker credentials from global service
-				const saved = await workerTokenServiceV8.loadCredentials();
+				const saved = await workerTokenService.loadCredentials();
 				if (saved) {
 					const authMethod = saved.tokenEndpointAuthMethod || 'client_secret_post';
 					const credentials = {
@@ -357,7 +357,7 @@ const ClientGenerator: React.FC = () => {
 					setWorkerCredentials(credentials);
 
 					// Check if we have a valid token already
-					const existingToken = await workerTokenServiceV8.getToken();
+					const existingToken = await workerTokenService.getToken();
 					if (existingToken) {
 						logger.info('[App Generator] Using existing worker token from service', 'Logger info');
 						setWorkerToken(existingToken);
@@ -397,7 +397,7 @@ const ClientGenerator: React.FC = () => {
 			// Credentials are now managed by unified service
 			logger.info('[App Generator] Worker credentials managed by unified service', 'Logger info');
 			// Save credentials to global service
-			await workerTokenServiceV8.saveCredentials({
+			await workerTokenService.saveCredentials({
 				environmentId: workerCredentials.environmentId,
 				clientId: workerCredentials.clientId,
 				clientSecret: workerCredentials.clientSecret,

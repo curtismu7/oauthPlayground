@@ -109,11 +109,11 @@ export interface MFAFlowProps {
 	mfaState: MFAState;
 	setMfaState: (state: MFAState | ((prev: MFAState) => MFAState)) => void;
 	tokenStatus: ReturnType<
-		typeof import('@/mfa/services/workerTokenStatusServiceV8').WorkerTokenStatusServiceV8.checkWorkerTokenStatus
+		typeof import('@/mfa/services/workerTokenStatusService').WorkerTokenStatusService.checkWorkerTokenStatus
 	>;
 	isLoading: boolean;
 	setIsLoading: (loading: boolean) => void;
-	nav: import('@/mfa/hooks/useStepNavigationV8').UseStepNavigationV8Return;
+	nav: import('@/mfa/hooks/useStepNavigation').UseStepNavigationV8Return;
 	showDeviceLimitModal: boolean;
 	setShowDeviceLimitModal: (show: boolean) => void;
 }

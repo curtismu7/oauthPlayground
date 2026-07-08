@@ -1,5 +1,5 @@
 // src/platform/AppDiscoveryService.ts
-// V9 wrapper around AppDiscoveryServiceV8 for worker-token-based PingOne app listing.
+// V9 wrapper around AppDiscoveryService for worker-token-based PingOne app listing.
 //
 // What this gives every V9 flow:
 //   1. discoverApplications() — fetch all apps in the environment using worker token
@@ -19,9 +19,9 @@
 
 import {
 	type AppConfig,
-	AppDiscoveryServiceV8,
+	AppDiscoveryService,
 	type DiscoveredApplication,
-} from '../mfa/services/appDiscoveryServiceV8';
+} from '../mfa/services/appDiscoveryService';
 import type { FlowCredentials } from './CredentialStorageService';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -95,7 +95,7 @@ export const AppDiscoveryService = {
 		}
 
 		try {
-			const rawApps = await AppDiscoveryServiceV8.discoverApplications(environmentId, workerToken);
+			const rawApps = await AppDiscoveryService.discoverApplications(environmentId, workerToken);
 
 			const apps: DiscoveredApp[] = rawApps.map((app) => ({
 				clientId: app.id,
@@ -142,8 +142,8 @@ export const AppDiscoveryService = {
 	applyAppConfig(app: DiscoveredApp): Partial<FlowCredentials> {
 		const raw = app._raw;
 
-		// Use AppDiscoveryServiceV8.getAppConfig for the canonical mapping
-		const config: AppConfig = AppDiscoveryServiceV8.getAppConfig(raw);
+		// Use AppDiscoveryService.getAppConfig for the canonical mapping
+		const config: AppConfig = AppDiscoveryService.getAppConfig(raw);
 
 		return {
 			clientId: app.clientId,

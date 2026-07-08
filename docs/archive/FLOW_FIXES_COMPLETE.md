@@ -83,7 +83,7 @@
 ```typescript
 // BEFORE
 nav.markStepComplete();
-toastV8.success('Authorization code extracted automatically!');
+toast.success('Authorization code extracted automatically!');
 ```
 
 ```typescript
@@ -91,7 +91,7 @@ toastV8.success('Authorization code extracted automatically!');
 // DON'T auto-mark step complete - let user see the callback first
 // User can click "Next Step" when ready
 // nav.markStepComplete(); // REMOVED - user should manually proceed
-toastV8.success('Authorization code extracted automatically! Click "Next Step" when ready.');
+toast.success('Authorization code extracted automatically! Click "Next Step" when ready.');
 ```
 
 #### Change 3: Continue Button on Step 2 (Line ~2460)
@@ -105,7 +105,7 @@ toastV8.success('Authorization code extracted automatically! Click "Next Step" w
     onClick={() => {
       console.log(`${MODULE_TAG} User clicked Continue - marking step complete`);
       nav.markStepComplete();
-      toastV8.success('Ready to exchange authorization code for tokens!');
+      toast.success('Ready to exchange authorization code for tokens!');
     }}
     style={{ marginTop: '16px', background: '#22c55e' }}
   >

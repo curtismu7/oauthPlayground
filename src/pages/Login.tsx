@@ -40,8 +40,8 @@ import { FiAlertCircle, FiCheckCircle } from '../icons';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import { logger } from '../utils/logger';
-import { EnvironmentIdServiceV8 } from '../mfa/services/environmentIdServiceV8';
-import { SharedCredentialsServiceV8 } from '../mfa/services/sharedCredentialsServiceV8';
+import { EnvironmentIdService } from '../mfa/services/environmentIdService';
+import { SharedCredentialsService } from '../mfa/services/sharedCredentialsService';
 
 // Define specific types for HMAC and signing algorithms
 type HMACAlgorithm = 'HS256' | 'HS384' | 'HS512';
@@ -352,11 +352,11 @@ const Login = () => {
 
 			try {
 				// Load from V8 shared credentials service (dual storage: browser first, then disk)
-				const sharedCreds = await SharedCredentialsServiceV8.loadSharedCredentials();
+				const sharedCreds = await SharedCredentialsService.loadSharedCredentials();
 				logger.info(' [Login] V8 SharedCredentialsService result:', sharedCreds);
 
 				// Also check environment ID service (global storage)
-				const envId = EnvironmentIdServiceV8.getEnvironmentId();
+				const envId = EnvironmentIdService.getEnvironmentId();
 				const finalEnvId = sharedCreds.environmentId || envId || '';
 
 				if (sharedCreds.clientId && finalEnvId) {
@@ -382,8 +382,8 @@ const Login = () => {
 
 			// Fallback: Try sync version
 			try {
-				const sharedCredsSync = SharedCredentialsServiceV8.loadSharedCredentialsSync();
-				const envId = EnvironmentIdServiceV8.getEnvironmentId();
+				const sharedCredsSync = SharedCredentialsService.loadSharedCredentialsSync();
+				const envId = EnvironmentIdService.getEnvironmentId();
 				const finalEnvId = sharedCredsSync.environmentId || envId || '';
 
 				if (sharedCredsSync.clientId && finalEnvId) {
@@ -435,8 +435,8 @@ const Login = () => {
 	useEffect(() => {
 		// This effect is now handled by the main loadExistingCredentials effect above
 		// Keeping this as a backup check for any edge cases
-		const sharedCreds = SharedCredentialsServiceV8.loadSharedCredentialsSync();
-		const envId = EnvironmentIdServiceV8.getEnvironmentId();
+		const sharedCreds = SharedCredentialsService.loadSharedCredentialsSync();
+		const envId = EnvironmentIdService.getEnvironmentId();
 		const finalEnvId = sharedCreds.environmentId || envId || '';
 
 		if (sharedCreds.clientId && finalEnvId && !credentials.clientId) {
@@ -536,7 +536,7 @@ const Login = () => {
 
 		try {
 			// Save to V8 shared credentials service (dual storage: browser first, then disk fallback)
-			await SharedCredentialsServiceV8.saveSharedCredentials({
+			await SharedCredentialsService.saveSharedCredentials({
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
@@ -549,7 +549,7 @@ const Login = () => {
 
 			// Also save environment ID to global storage
 			if (credentials.environmentId) {
-				EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
+				EnvironmentIdService.saveEnvironmentId(credentials.environmentId);
 			}
 
 			logger.info(' [Login] Saved credentials to V8 SharedCredentialsService', 'Logger info');
@@ -601,7 +601,7 @@ const Login = () => {
 
 			// Save current form credentials to V8 shared storage before login
 			// This ensures the OAuth redirect uses the correct credentials
-			await SharedCredentialsServiceV8.saveSharedCredentials({
+			await SharedCredentialsService.saveSharedCredentials({
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
@@ -614,7 +614,7 @@ const Login = () => {
 
 			// Also save environment ID to global storage
 			if (credentials.environmentId) {
-				EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
+				EnvironmentIdService.saveEnvironmentId(credentials.environmentId);
 			}
 
 			logger.info(' [Login] Credentials saved to V8 storage before login', 'Logger info');

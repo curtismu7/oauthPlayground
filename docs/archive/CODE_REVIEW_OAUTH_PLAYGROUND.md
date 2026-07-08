@@ -74,7 +74,7 @@ Multiple `useEffect` hooks managing flow type and spec version can create race c
 
 ### 2.1 Spec Version Service Design ✅ **EXCELLENT**
 
-**Location:** `src/v8/services/specVersionServiceV8.ts`
+**Location:** `src/v8/services/specVersionService.ts`
 
 **Strengths:**
 - Clean separation of concerns
@@ -141,7 +141,7 @@ The URL sync logic is complex with multiple refs to prevent loops:
 
 ### 3.1 Device Authorization Flow ✅ **EXCELLENT**
 
-**Location:** `src/v8/services/deviceCodeIntegrationServiceV8.ts`
+**Location:** `src/v8/services/deviceCodeIntegrationService.ts`
 
 **Strengths:**
 - Correct implementation of RFC 8628 (Device Authorization Flow)
@@ -163,7 +163,7 @@ The URL sync logic is complex with multiple refs to prevent loops:
 
 ### 3.2 Client Credentials Flow ✅ **GOOD**
 
-**Location:** `src/v8/services/clientCredentialsIntegrationServiceV8.ts`
+**Location:** `src/v8/services/clientCredentialsIntegrationService.ts`
 
 **Strengths:**
 - Correct implementation of RFC 6749 Section 4.4
@@ -180,7 +180,7 @@ The URL sync logic is complex with multiple refs to prevent loops:
 
 ### 3.3 Authorization Code Flow ✅ **EXCELLENT**
 
-**Location:** `src/v8/services/oauthIntegrationServiceV8.ts`
+**Location:** `src/v8/services/oauthIntegrationService.ts`
 
 **Strengths:**
 - Correct PKCE implementation (RFC 7636)
@@ -232,7 +232,7 @@ The URL sync logic is complex with multiple refs to prevent loops:
 
 ### 4.2 API Call Tracking ✅ **GOOD**
 
-**Location:** `src/v8/components/SuperSimpleApiDisplayV8.tsx`
+**Location:** `src/v8/components/SuperSimpleApiDisplay.tsx`
 
 **Strengths:**
 - Sensitive data (client_secret, code, code_verifier) is redacted
@@ -320,7 +320,7 @@ The URL sync logic is complex with multiple refs to prevent loops:
 - No tests for spec version switching
 
 **Recommendation:**
-- Add unit tests for `SpecVersionServiceV8`
+- Add unit tests for `SpecVersionService`
 - Add unit tests for flow type selection logic
 - Add integration tests for flow type + spec version combinations
 

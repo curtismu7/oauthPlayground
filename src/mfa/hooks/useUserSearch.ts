@@ -10,8 +10,8 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import { SQLiteStatsServiceV8 } from '@/mfa/services/sqliteStatsServiceV8';
-import type { User } from '@/mfa/services/userServiceV8';
+import { SQLiteStatsService } from '@/mfa/services/sqliteStatsService';
+import type { User } from '@/mfa/services/userService';
 
 import { logger } from '../../utils/logger';
 
@@ -62,8 +62,8 @@ export interface UseUserSearchReturn {
  *   tokenValid: true,
  * });
  *
- * // Use in SearchableDropdownV8
- * <SearchableDropdownV8
+ * // Use in SearchableDropdown
+ * <SearchableDropdown
  *   value={username}
  *   options={users.map(u => ({ value: u.username, label: u.username }))}
  *   onChange={setUsername}
@@ -89,8 +89,8 @@ export function useUserSearch(options: UseUserSearchOptions): UseUserSearchRetur
 		}
 
 		try {
-			// Use SQLiteStatsServiceV8 to get user count from SQLite database
-			const userStats = await SQLiteStatsServiceV8.getUserCount(environmentId);
+			// Use SQLiteStatsService to get user count from SQLite database
+			const userStats = await SQLiteStatsService.getUserCount(environmentId);
 			setUsersFetched(userStats.success && userStats.totalUsers > 0);
 
 			if (userStats.success) {
@@ -117,8 +117,8 @@ export function useUserSearch(options: UseUserSearchOptions): UseUserSearchRetur
 			setIsLoading(true);
 			try {
 				// Fetch to populate cache, but don't load into memory
-				const { UserServiceV8 } = await import('@/mfa/services/userServiceV8');
-				await UserServiceV8.fetchAllUsers(environmentId, {
+				const { UserService } = await import('@/mfa/services/userService');
+				await UserService.fetchAllUsers(environmentId, {
 					maxPages,
 					useCache: useCache && !forceRefresh,
 				});

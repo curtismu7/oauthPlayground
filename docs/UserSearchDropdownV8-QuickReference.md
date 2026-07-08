@@ -1,12 +1,12 @@
-# UserSearchDropdownV8 - Quick Reference Guide
+# UserSearchDropdown - Quick Reference Guide
 
 ## 🚀 Quick Start
 
 ### Basic Usage
 ```tsx
-import { UserSearchDropdownV8 } from '../../../v8/components/UserSearchDropdownV8';
+import { UserSearchDropdown } from '../../../v8/components/UserSearchDropdown';
 
-<UserSearchDropdownV8
+<UserSearchDropdown
   environmentId={environmentId}
   value={username}
   onChange={setUsername}
@@ -38,7 +38,7 @@ interface ComponentProps {
 
 const MyComponent = ({ environmentId }) => {
   return (
-    <UserSearchDropdownV8
+    <UserSearchDropdown
       environmentId={environmentId}
       // ... other props
     />
@@ -48,18 +48,18 @@ const MyComponent = ({ environmentId }) => {
 
 ### Method 2: From Service
 ```tsx
-import { EnvironmentIdServiceV8 } from '../../../v8/services/environmentIdServiceV8';
+import { EnvironmentIdService } from '../../../v8/services/environmentIdService';
 
 const MyComponent = () => {
   const [environmentId, setEnvironmentId] = useState('');
 
   useEffect(() => {
-    const envId = EnvironmentIdServiceV8.getEnvironmentId();
+    const envId = EnvironmentIdService.getEnvironmentId();
     setEnvironmentId(envId || '');
   }, []);
 
   return (
-    <UserSearchDropdownV8
+    <UserSearchDropdown
       environmentId={environmentId}
       // ... other props
     />
@@ -71,7 +71,7 @@ const MyComponent = () => {
 ```tsx
 const MyComponent = ({ controller }) => {
   return (
-    <UserSearchDropdownV8
+    <UserSearchDropdown
       environmentId={controller.credentials.environmentId}
       // ... other props
     />
@@ -92,7 +92,7 @@ const LoginForm = ({ environmentId }) => {
 
   return (
     <form>
-      <UserSearchDropdownV8
+      <UserSearchDropdown
         environmentId={environmentId}
         value={formData.username}
         onChange={(username) => {
@@ -123,14 +123,14 @@ const UserManagementPage = () => {
   const [environmentId, setEnvironmentId] = useState('');
 
   useEffect(() => {
-    const envId = EnvironmentIdServiceV8.getEnvironmentId();
+    const envId = EnvironmentIdService.getEnvironmentId();
     setEnvironmentId(envId || '');
   }, []);
 
   return (
     <div>
       <h2>User Management</h2>
-      <UserSearchDropdownV8
+      <UserSearchDropdown
         environmentId={environmentId}
         value={searchTerm}
         onChange={setSearchTerm}
@@ -154,7 +154,7 @@ const PasswordResetForm = ({ environmentId }) => {
 
   return (
     <div>
-      <UserSearchDropdownV8
+      <UserSearchDropdown
         environmentId={environmentId}
         value={identifier}
         onChange={(username) => {
@@ -185,7 +185,7 @@ const PasswordResetForm = ({ environmentId }) => {
 
 ### Worker Token Required
 ```tsx
-<UserSearchDropdownV8
+<UserSearchDropdown
   environmentId={environmentId}
   // ... other props
   onGetToken={() => {
@@ -206,7 +206,7 @@ const PasswordResetForm = ({ environmentId }) => {
 
 ### Environment ID Missing
 ```tsx
-<UserSearchDropdownV8
+<UserSearchDropdown
   environmentId={environmentId || 'default-env'}
   // ... other props
 />
@@ -217,12 +217,12 @@ const PasswordResetForm = ({ environmentId }) => {
 ### Basic Component Test
 ```tsx
 import { render, screen, fireEvent } from '@testing-library/react';
-import { UserSearchDropdownV8 } from '../../../v8/components/UserSearchDropdownV8';
+import { UserSearchDropdown } from '../../../v8/components/UserSearchDropdown';
 
-describe('UserSearchDropdownV8', () => {
+describe('UserSearchDropdown', () => {
   test('renders with placeholder', () => {
     render(
-      <UserSearchDropdownV8
+      <UserSearchDropdown
         environmentId="test-env"
         value=""
         onChange={jest.fn()}
@@ -236,7 +236,7 @@ describe('UserSearchDropdownV8', () => {
   test('calls onChange when user is selected', () => {
     const mockOnChange = jest.fn();
     render(
-      <UserSearchDropdownV8
+      <UserSearchDropdown
         environmentId="test-env"
         value=""
         onChange={mockOnChange}
@@ -260,20 +260,20 @@ describe('UserSearchDropdownV8', () => {
 ### Integration Test with Environment ID
 ```tsx
 test('integrates with environment service', async () => {
-  jest.mock('../../../v8/services/environmentIdServiceV8');
-  const { getEnvironmentId } = require('../../../v8/services/environmentIdServiceV8');
+  jest.mock('../../../v8/services/environmentIdService');
+  const { getEnvironmentId } = require('../../../v8/services/environmentIdService');
   getEnvironmentId.mockReturnValue('test-env-id');
 
   const TestComponent = () => {
     const [envId, setEnvId] = useState('');
     
     useEffect(() => {
-      const id = EnvironmentIdServiceV8.getEnvironmentId();
+      const id = EnvironmentIdService.getEnvironmentId();
       setEnvId(id || '');
     }, []);
 
     return (
-      <UserSearchDropdownV8
+      <UserSearchDropdown
         environmentId={envId}
         value=""
         onChange={jest.fn()}
@@ -298,7 +298,7 @@ test('integrates with environment service', async () => {
 **Solution**: Ensure worker token is configured and valid
 ```tsx
 // Check worker token status
-import { checkWorkerTokenStatusSync } from '../../../v8/services/workerTokenStatusServiceV8';
+import { checkWorkerTokenStatusSync } from '../../../v8/services/workerTokenStatusService';
 
 const status = checkWorkerTokenStatusSync();
 if (!status.isValid) {
@@ -310,7 +310,7 @@ if (!status.isValid) {
 **Solution**: Verify environment ID is properly loaded
 ```tsx
 useEffect(() => {
-  const envId = EnvironmentIdServiceV8.getEnvironmentId();
+  const envId = EnvironmentIdService.getEnvironmentId();
   console.log('Environment ID:', envId); // Debug log
   setEnvironmentId(envId || '');
 }, []);
@@ -320,11 +320,11 @@ useEffect(() => {
 **Solution**: Check API connectivity and permissions
 ```tsx
 // Verify MFA service is working
-import { MFAServiceV8 } from '../../../v8/services/mfaServiceV8';
+import { MFAService } from '../../../v8/services/mfaService';
 
 const testConnection = async () => {
   try {
-    const result = await MFAServiceV8.listUsers(environmentId, '', 10, 0);
+    const result = await MFAService.listUsers(environmentId, '', 10, 0);
     console.log('Users loaded:', result.users.length);
   } catch (error) {
     console.error('Failed to load users:', error);
@@ -344,7 +344,7 @@ const testConnection = async () => {
 ### ❌ Don'ts
 - Don't hardcode environment IDs
 - Don't ignore onGetToken callback
-- Don't use manual username inputs alongside UserSearchDropdownV8
+- Don't use manual username inputs alongside UserSearchDropdown
 - Don't forget to update form validation logic
 - Don't assume worker token is always available
 
@@ -369,7 +369,7 @@ const testConnection = async () => {
 
 ### After
 ```tsx
-<UserSearchDropdownV8
+<UserSearchDropdown
   environmentId={environmentId}
   value={username}
   onChange={setUsername}
@@ -380,7 +380,7 @@ const testConnection = async () => {
 
 ## 📞 Support
 
-For issues or questions about UserSearchDropdownV8:
+For issues or questions about UserSearchDropdown:
 1. Check this reference guide
 2. Review the implementation documentation
 3. Test with the provided examples

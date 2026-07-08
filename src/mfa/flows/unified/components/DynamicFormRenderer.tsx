@@ -25,8 +25,8 @@
  */
 
 import React, { useEffect } from 'react';
-import { CountryCodePickerV8 } from '@/mfa/components/CountryCodePickerV8';
-import { EmailInputV8 } from '@/mfa/components/EmailInputV8';
+import { CountryCodePicker } from '@/mfa/components/CountryCodePicker';
+import { EmailInput } from '@/mfa/components/EmailInput';
 import type { DeviceFlowConfig } from '@/mfa/config/deviceFlowConfigTypes';
 
 import { logger } from '../../../../utils/logger';
@@ -172,7 +172,7 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 						<div style={{ display: 'flex', gap: '0', alignItems: 'flex-start' }}>
 							{/* Country Code Dropdown */}
 							<div style={{ flexShrink: 0 }}>
-								<CountryCodePickerV8
+								<CountryCodePicker
 									value={countryCodeValue}
 									onChange={(val) => onChange('countryCode', val)}
 									disabled={disabled}
@@ -221,7 +221,7 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 			case 'email':
 				return (
 					<div key={fieldName} className="form-field email-field">
-						<EmailInputV8
+						<EmailInput
 							value={value}
 							onChange={(val) => onChange(fieldName, val)}
 							onBlur={handleBlur}

@@ -9,9 +9,9 @@
 
 ### Week 1, Day 1: Foundation Services (3/4 Complete)
 
-#### 1. educationServiceV8.ts ✅ COMPLETE
-**File:** `src/v8/services/educationServiceV8.ts`  
-**Tests:** `src/v8/services/__tests__/educationServiceV8.test.ts`  
+#### 1. educationService.ts ✅ COMPLETE
+**File:** `src/v8/services/educationService.ts`  
+**Tests:** `src/v8/services/__tests__/educationService.test.ts`  
 **Status:** ✅ Created, needs test completion
 
 **Features:**
@@ -24,18 +24,18 @@
 
 **API:**
 ```typescript
-EducationServiceV8.getTooltip('credential.clientId')
-EducationServiceV8.getExplanation('offline_access')
-EducationServiceV8.getAvailablePresets('oidc')
-EducationServiceV8.getQuickStartPreset('pingone-oidc')
-EducationServiceV8.getContextualHelp('authorization_code', 'step_0')
+EducationService.getTooltip('credential.clientId')
+EducationService.getExplanation('offline_access')
+EducationService.getAvailablePresets('oidc')
+EducationService.getQuickStartPreset('pingone-oidc')
+EducationService.getContextualHelp('authorization_code', 'step_0')
 ```
 
 ---
 
-#### 2. validationServiceV8.ts ✅ COMPLETE
-**File:** `src/v8/services/validationServiceV8.ts`  
-**Tests:** `src/v8/services/__tests__/validationServiceV8.test.ts`  
+#### 2. validationService.ts ✅ COMPLETE
+**File:** `src/v8/services/validationService.ts`  
+**Tests:** `src/v8/services/__tests__/validationService.test.ts`  
 **Status:** ✅ Created, all 58 tests passing
 
 **Features:**
@@ -53,17 +53,17 @@ EducationServiceV8.getContextualHelp('authorization_code', 'step_0')
 
 **API:**
 ```typescript
-ValidationServiceV8.validateCredentials(credentials, 'oidc')
-ValidationServiceV8.validateOIDCScopes('openid profile email')
-ValidationServiceV8.validateUrl('http://localhost:3000', 'redirect')
-ValidationServiceV8.validateUUID(environmentId, 'Environment ID')
-ValidationServiceV8.validateAuthorizationUrlParams(params)
-ValidationServiceV8.validateCallbackParams(params, expectedState)
-ValidationServiceV8.validateTokenResponse(tokens, 'oidc')
-ValidationServiceV8.getRequiredFields('oidc')
-ValidationServiceV8.isEmpty(value)
-ValidationServiceV8.formatErrors(errors)
-ValidationServiceV8.formatWarnings(warnings)
+ValidationService.validateCredentials(credentials, 'oidc')
+ValidationService.validateOIDCScopes('openid profile email')
+ValidationService.validateUrl('http://localhost:3000', 'redirect')
+ValidationService.validateUUID(environmentId, 'Environment ID')
+ValidationService.validateAuthorizationUrlParams(params)
+ValidationService.validateCallbackParams(params, expectedState)
+ValidationService.validateTokenResponse(tokens, 'oidc')
+ValidationService.getRequiredFields('oidc')
+ValidationService.isEmpty(value)
+ValidationService.formatErrors(errors)
+ValidationService.formatWarnings(warnings)
 ```
 
 **Test Coverage:**
@@ -99,9 +99,9 @@ ValidationServiceV8.formatWarnings(warnings)
 
 ---
 
-#### 3. errorHandlerV8.ts ✅ COMPLETE
-**File:** `src/v8/services/errorHandlerV8.ts`  
-**Tests:** `src/v8/services/__tests__/errorHandlerV8.test.ts`  
+#### 3. errorHandler.ts ✅ COMPLETE
+**File:** `src/v8/services/errorHandler.ts`  
+**Tests:** `src/v8/services/__tests__/errorHandler.test.ts`  
 **Status:** ✅ Created, all 44 tests passing
 
 **Features:**
@@ -117,20 +117,20 @@ ValidationServiceV8.formatWarnings(warnings)
 
 **API:**
 ```typescript
-ErrorHandlerV8.handleError(error, context)
-ErrorHandlerV8.getUserMessage(error)
-ErrorHandlerV8.getTechnicalMessage(error)
-ErrorHandlerV8.getRecoverySuggestions(error)
-ErrorHandlerV8.categorizeError(error)
-ErrorHandlerV8.isRecoverable(error)
-ErrorHandlerV8.getSeverity(error)
-ErrorHandlerV8.getType(error)
-ErrorHandlerV8.getCode(error)
-ErrorHandlerV8.formatError(error, includeRecovery)
-ErrorHandlerV8.fromOAuthError(errorResponse)
-ErrorHandlerV8.handleCallbackError(params, context)
-ErrorHandlerV8.handleNetworkError(error, context)
-ErrorHandlerV8.handleValidationErrors(errors, context)
+ErrorHandler.handleError(error, context)
+ErrorHandler.getUserMessage(error)
+ErrorHandler.getTechnicalMessage(error)
+ErrorHandler.getRecoverySuggestions(error)
+ErrorHandler.categorizeError(error)
+ErrorHandler.isRecoverable(error)
+ErrorHandler.getSeverity(error)
+ErrorHandler.getType(error)
+ErrorHandler.getCode(error)
+ErrorHandler.formatError(error, includeRecovery)
+ErrorHandler.fromOAuthError(errorResponse)
+ErrorHandler.handleCallbackError(params, context)
+ErrorHandler.handleNetworkError(error, context)
+ErrorHandler.handleValidationErrors(errors, context)
 ```
 
 **Test Coverage:**
@@ -174,7 +174,7 @@ ErrorHandlerV8.handleValidationErrors(errors, context)
 
 ### Week 1, Day 1 (Remaining)
 
-#### 4. storageServiceV8.ts 📝 NEXT
+#### 4. storageService.ts 📝 NEXT
 **Purpose:** Versioned storage with migrations
 
 **Must include:**
@@ -187,18 +187,18 @@ ErrorHandlerV8.handleValidationErrors(errors, context)
 
 **API:**
 ```typescript
-StorageServiceV8.save(key, data, version)
-StorageServiceV8.load(key, migrations)
-StorageServiceV8.clear(key)
-StorageServiceV8.clearAll()
-StorageServiceV8.exportAll()
-StorageServiceV8.importAll(data)
-StorageServiceV8.getSize()
+StorageService.save(key, data, version)
+StorageService.load(key, migrations)
+StorageService.clear(key)
+StorageService.clearAll()
+StorageService.exportAll()
+StorageService.importAll(data)
+StorageService.getSize()
 ```
 
 ---
 
-#### 4. storageServiceV8.ts 📝 NEXT
+#### 4. storageService.ts 📝 NEXT
 **Purpose:** Versioned storage with migrations
 
 **Must include:**
@@ -211,27 +211,27 @@ StorageServiceV8.getSize()
 
 **API:**
 ```typescript
-StorageServiceV8.save(key, data, version)
-StorageServiceV8.load(key, migrations)
-StorageServiceV8.clear(key)
-StorageServiceV8.clearAll()
-StorageServiceV8.exportAll()
-StorageServiceV8.importAll(data)
-StorageServiceV8.getSize()
+StorageService.save(key, data, version)
+StorageService.load(key, migrations)
+StorageService.clear(key)
+StorageService.clearAll()
+StorageService.exportAll()
+StorageService.importAll(data)
+StorageService.getSize()
 ```
 
 ---
 
 ### Week 1, Day 2
 
-Complete remaining foundation services (errorHandlerV8, storageServiceV8)
+Complete remaining foundation services (errorHandler, storageService)
 
 ---
 
 ### Week 1, Day 3: Step Navigation System ⭐ CRITICAL
 
 #### Components to Create:
-1. **StepNavigationV8.tsx** - Main step navigation
+1. **StepNavigation.tsx** - Main step navigation
 2. **StepProgressBar.tsx** - Progress visualization
 3. **StepActionButtons.tsx** - Previous/Next buttons with validation
 4. **StepValidationFeedback.tsx** - Error messages
@@ -249,7 +249,7 @@ Complete remaining foundation services (errorHandlerV8, storageServiceV8)
 
 ### Week 1, Day 5: Integration & Testing
 
-- Update OAuthAuthorizationCodeFlowV8
+- Update OAuthAuthorizationCodeFlow
 - Add step navigation
 - Test complete flow
 - Test accessibility
@@ -259,23 +259,23 @@ Complete remaining foundation services (errorHandlerV8, storageServiceV8)
 ## 📊 Statistics
 
 ### Files Created: 6
-- ✅ educationServiceV8.ts (service)
-- ✅ educationServiceV8.test.ts (tests)
-- ✅ validationServiceV8.ts (service)
-- ✅ validationServiceV8.test.ts (tests)
-- ✅ errorHandlerV8.ts (service)
-- ✅ errorHandlerV8.test.ts (tests)
+- ✅ educationService.ts (service)
+- ✅ educationService.test.ts (tests)
+- ✅ validationService.ts (service)
+- ✅ validationService.test.ts (tests)
+- ✅ errorHandler.ts (service)
+- ✅ errorHandler.test.ts (tests)
 
 ### Lines of Code: ~2,800
-- educationServiceV8.ts: ~650 lines
-- validationServiceV8.ts: ~750 lines
-- errorHandlerV8.ts: ~600 lines
+- educationService.ts: ~650 lines
+- validationService.ts: ~750 lines
+- errorHandler.ts: ~600 lines
 - Tests: ~800 lines
 
 ### Test Coverage: 102 tests passing ✅
-- educationServiceV8: Tests need completion
-- validationServiceV8: ✅ 58/58 passing
-- errorHandlerV8: ✅ 44/44 passing
+- educationService: Tests need completion
+- validationService: ✅ 58/58 passing
+- errorHandler: ✅ 44/44 passing
 
 ### Module Tags Defined: 3
 - `[📚 EDUCATION-V8]` - Education service
@@ -367,12 +367,12 @@ This content is used by:
 ## 🚀 Next Command
 
 ```
-"Let's create errorHandlerV8.ts"
+"Let's create errorHandler.ts"
 ```
 
 Or continue with:
 ```
-"Let's create storageServiceV8.ts"
+"Let's create storageService.ts"
 ```
 
 Then move to Day 3:

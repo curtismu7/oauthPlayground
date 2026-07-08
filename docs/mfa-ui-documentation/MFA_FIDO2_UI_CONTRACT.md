@@ -34,7 +34,7 @@ This document defines the UI contract for FIDO2 (WebAuthn) device registration a
 
 ### 1. FIDO2 Configuration Page
 
-**Component:** `FIDO2ConfigurationPageV8.tsx`  
+**Component:** `FIDO2ConfigurationPage.tsx`  
 **Route:** `/v8/mfa/configure/fido2`
 
 #### Required UI Elements
@@ -64,7 +64,7 @@ This document defines the UI contract for FIDO2 (WebAuthn) device registration a
 
 #### State Management
 
-- Configuration must be saved to `localStorage` via `MFAConfigurationServiceV8`
+- Configuration must be saved to `localStorage` via `MFAConfigurationService`
 - Configuration must be loaded on page mount
 - Changes must be persisted immediately
 
@@ -79,7 +79,7 @@ This document defines the UI contract for FIDO2 (WebAuthn) device registration a
 
 ### 2. FIDO2 Registration Flow
 
-**Component:** `FIDO2FlowV8.tsx`  
+**Component:** `FIDO2Flow.tsx`  
 **Route:** `/v8/mfa/register/fido2`
 
 #### Step 0: Configuration
@@ -94,14 +94,14 @@ This document defines the UI contract for FIDO2 (WebAuthn) device registration a
 
 **State:**
 - Credentials stored in `credentials` state
-- Token status checked via `WorkerTokenStatusServiceV8`
-- Policies loaded from `MFAServiceV8.listDeviceAuthenticationPolicies()`
+- Token status checked via `WorkerTokenStatusService`
+- Policies loaded from `MFAService.listDeviceAuthenticationPolicies()`
 
 #### Step 1: Device Selection
 
 **Contract:**
 - Must check for existing FIDO2 devices before allowing registration
-- Must show `FIDODeviceExistsModalV8` if FIDO2 device exists
+- Must show `FIDODeviceExistsModal` if FIDO2 device exists
 - Must allow user to go back to device selection or hub
 - Must show "Register FIDO2 Device" button if no existing device
 
@@ -124,14 +124,14 @@ if (existingDevices.length > 0 && existingDevices.some(d => d.deviceType === 'FI
 - Must auto-advance to Step 3 after successful registration
 
 **WebAuthn Flow Contract:**
-1. Call `MFAServiceV8.registerFIDO2Device()` to create device in PingOne
+1. Call `MFAService.registerFIDO2Device()` to create device in PingOne
 2. Receive `publicKeyCredentialCreationOptions` (JSON string)
 3. Parse JSON string to object
 4. Convert byte arrays (`challenge`, `user.id`, `excludeCredentials[].id`) to `Uint8Array`
 5. Call `navigator.credentials.create({ publicKey: options })`
 6. Extract `PublicKeyCredential` response
 7. Convert response to base64url format
-8. Call `MFAServiceV8.activateFIDO2Device()` with attestation
+8. Call `MFAService.activateFIDO2Device()` with attestation
 9. Handle success/error and update UI
 
 **Progress Indicator Contract:**
@@ -172,7 +172,7 @@ if (existingDevices.length > 0 && existingDevices.some(d => d.deviceType === 'FI
 
 ### 3. FIDO2 Authentication Flow
 
-**Component:** `MFAAuthenticationMainPageV8.tsx`  
+**Component:** `MFAAuthenticationMainPage.tsx`  
 **Route:** `/v8/mfa/authenticate`
 
 #### Device Selection
@@ -199,13 +199,13 @@ if (existingDevices.length > 0 && existingDevices.some(d => d.deviceType === 'FI
 - Must show error messages if authentication fails
 
 **WebAuthn Flow Contract:**
-1. Call `MfaAuthenticationServiceV8.initializeDeviceAuthentication()` to start authentication
+1. Call `MfaAuthenticationService.initializeDeviceAuthentication()` to start authentication
 2. Receive `publicKeyCredentialRequestOptions` from PingOne
 3. Parse and convert byte arrays to `Uint8Array`
 4. Call `navigator.credentials.get({ publicKey: options })`
 5. Extract `PublicKeyCredential` response
 6. Convert response to base64url format
-7. Call `MfaAuthenticationServiceV8.checkFIDO2Assertion()` with assertion
+7. Call `MfaAuthenticationService.checkFIDO2Assertion()` with assertion
 8. Handle success/error and update UI
 
 **Progress Indicator Contract:**
@@ -225,7 +225,7 @@ if (existingDevices.length > 0 && existingDevices.some(d => d.deviceType === 'FI
 
 #### FIDO Device Exists Modal
 
-**Component:** `FIDODeviceExistsModalV8.tsx`
+**Component:** `FIDODeviceExistsModal.tsx`
 
 **Contract:**
 - Must be shown when user attempts to register FIDO2 device but one already exists
@@ -306,8 +306,8 @@ return 'An error occurred. Please try again.';
 ### Configuration State
 
 **Storage:**
-- Must use `MFAConfigurationServiceV8.saveConfiguration()`
-- Must use `MFAConfigurationServiceV8.loadConfiguration()`
+- Must use `MFAConfigurationService.saveConfiguration()`
+- Must use `MFAConfigurationService.loadConfiguration()`
 - Must persist to `localStorage` with key `v8:mfa_configuration`
 
 **Structure:**
@@ -329,8 +329,8 @@ return 'An error occurred. Please try again.';
 ### Flow State
 
 **Storage:**
-- Must use `CredentialsServiceV8.saveCredentials()` for credentials
-- Must use `useStepNavigationV8` hook for step navigation
+- Must use `CredentialsService.saveCredentials()` for credentials
+- Must use `useStepNavigation` hook for step navigation
 - Must preserve state during navigation
 
 **Structure:**
@@ -352,7 +352,7 @@ return 'An error occurred. Please try again.';
 
 ### Device Registration
 
-**Service:** `MFAServiceV8.registerFIDO2Device()`
+**Service:** `MFAService.registerFIDO2Device()`
 
 **Request Contract:**
 - Must include `environmentId`
@@ -369,7 +369,7 @@ return 'An error occurred. Please try again.';
 
 ### Device Activation
 
-**Service:** `MFAServiceV8.activateFIDO2Device()`
+**Service:** `MFAService.activateFIDO2Device()`
 
 **Request Contract:**
 - Must include `deviceId`
@@ -384,7 +384,7 @@ return 'An error occurred. Please try again.';
 
 ### Device Authentication
 
-**Service:** `MfaAuthenticationServiceV8.initializeDeviceAuthentication()`
+**Service:** `MfaAuthenticationService.initializeDeviceAuthentication()`
 
 **Request Contract:**
 - Must include `environmentId`
@@ -401,7 +401,7 @@ return 'An error occurred. Please try again.';
 
 ### Assertion Check
 
-**Service:** `MfaAuthenticationServiceV8.checkFIDO2Assertion()`
+**Service:** `MfaAuthenticationService.checkFIDO2Assertion()`
 
 **Request Contract:**
 - Must include `deviceAuthId`
@@ -456,10 +456,10 @@ return 'An error occurred. Please try again.';
 **Purpose:** Protect FIDO2 UI contracts and behavior from accidental modification or regression.
 
 **Locked Contract Files:**
-- `src/v8/flows/types/FIDO2FlowV8.tsx` - Registration flow contract implementation
-- `src/v8/flows/types/FIDO2ConfigurationPageV8.tsx` - Configuration page contract
-- `src/v8/flows/MFAAuthenticationMainPageV8.tsx` - Authentication flow contract
-- `src/v8/components/FIDODeviceExistsModalV8.tsx` - Error modal contract
+- `src/v8/flows/types/FIDO2Flow.tsx` - Registration flow contract implementation
+- `src/v8/flows/types/FIDO2ConfigurationPage.tsx` - Configuration page contract
+- `src/v8/flows/MFAAuthenticationMainPage.tsx` - Authentication flow contract
+- `src/v8/components/FIDODeviceExistsModal.tsx` - Error modal contract
 
 **Contract Verification:**
 The lockdown system ensures UI contracts are maintained:
@@ -489,7 +489,7 @@ If FIDO2 UI contracts break:
 
 ### Success Page UI Contract
 
-**Component:** `MFASuccessPageV8` / `UnifiedMFASuccessPageV8`  
+**Component:** `MFASuccessPage` / `UnifiedMFASuccessPage`  
 **Location:** Step 3 of FIDO2 registration flow
 
 #### Required UI Elements
@@ -521,7 +521,7 @@ If FIDO2 UI contracts break:
    - **MUST** use `500px` bottom padding when API display is visible
    - **MUST** use `24px` bottom padding when API display is hidden
    - **MUST** ensure `minHeight: '100vh'` for scrollability
-   - **MUST** subscribe to `apiDisplayServiceV8` for real-time visibility updates
+   - **MUST** subscribe to `apiDisplayService` for real-time visibility updates
      - `deviceStatus`
      - `username`
      - `deviceName`
@@ -540,7 +540,7 @@ If FIDO2 UI contracts break:
 #### Documentation Page Contract
 
 **Route:** `/v8/mfa/register/fido2/docs`  
-**Component:** `FIDO2RegistrationDocsPageV8`
+**Component:** `FIDO2RegistrationDocsPage`
 
 **MUST:**
 - Display all FIDO2 API calls in correct order

@@ -9,22 +9,22 @@ No installation needed - the flow is already integrated into the application.
 ### Usage
 
 ```typescript
-import PingOnePARFlowV8 from './v8/flows/PingOnePARFlowV8';
+import PingOnePARFlow from './v8/flows/PingOnePARFlow';
 
 // In your router
-<Route path="/par-flow-v8" element={<PingOnePARFlowV8 />} />
+<Route path="/par-flow-v8" element={<PingOnePARFlow />} />
 ```
 
 ### Architecture Overview
 
 ```
-PingOnePARFlowV8/
+PingOnePARFlow/
 ├── types/parFlowTypes.ts           # TypeScript interfaces
 ├── constants/parFlowConstants.ts   # Constants and metadata
 ├── hooks/
 │   ├── usePARFlowState.ts         # State management
 │   └── usePAROperations.ts        # API operations
-├── PingOnePARFlowV8.tsx           # Main component
+├── PingOnePARFlow.tsx           # Main component
 ├── index.ts                       # Exports
 ├── README.md                      # Full documentation
 └── QUICKSTART.md                  # This file

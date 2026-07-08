@@ -10,7 +10,7 @@
  */
 
 import React, { useState } from 'react';
-import type { FlowType, SpecVersion } from '@/mfa/services/specVersionServiceV8';
+import type { FlowType, SpecVersion } from '@/mfa/services/specVersionService';
 import { FiDownload, FiFileText } from '../../icons';
 import { logger } from '../../utils/logger';
 import {

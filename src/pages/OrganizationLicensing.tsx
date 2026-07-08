@@ -21,7 +21,7 @@ import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { getOAuthTokens } from '../utils/tokenStorage';
-import WorkerTokenStatusDisplayV8 from '../mfa/components/WorkerTokenStatusDisplayV8';
+import WorkerTokenStatusDisplay from '../mfa/components/WorkerTokenStatusDisplay';
 
 type CredentialsState = {
 	environmentId: string;
@@ -527,7 +527,7 @@ const OrganizationLicensingV2: React.FC = () => {
 								capabilities.
 							</p>
 						</div>
-						<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />{' '}
+						<WorkerTokenStatusDisplay mode="detailed" showRefresh={true} />{' '}
 						<div style={{ marginTop: '1rem' }}>
 							<button
 								type="button"

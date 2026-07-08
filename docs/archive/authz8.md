@@ -1,6 +1,6 @@
 # Authorization Code Flow V8 Refactor Prompt
 
-This document contains the Cursor-ready AI prompt for simplifying `OAuthAuthorizationCodeFlowV7_2.tsx` into the new **OAuthAuthorizationCodeFlowV8** version. It is designed to reduce UI footprint, move educational content into popups/slideouts, and preserve full functionality of the token display.
+This document contains the Cursor-ready AI prompt for simplifying `OAuthAuthorizationCodeFlowV7_2.tsx` into the new **OAuthAuthorizationCodeFlow** version. It is designed to reduce UI footprint, move educational content into popups/slideouts, and preserve full functionality of the token display.
 
 ---
 
@@ -11,7 +11,7 @@ You are refactoring the following file to make it radically simpler:
 - `src/pages/flows/OAuthAuthorizationCodeFlowV7_2.tsx`
 
 ### Goals
-- Create **OAuthAuthorizationCodeFlowV8.tsx** from a copy of the V7 file.
+- Create **OAuthAuthorizationCodeFlow.tsx** from a copy of the V7 file.
 - **Do NOT change V7**.
 - Dramatically **reduce footprint and complexity**.
 - Move long educational sections into **popups**, **slideouts**, **collapsible** areas.
@@ -21,7 +21,7 @@ You are refactoring the following file to make it radically simpler:
 ---
 
 ## 1. Versioning Requirements
-- Copy `OAuthAuthorizationCodeFlowV7_2.tsx` → `OAuthAuthorizationCodeFlowV8.tsx`.
+- Copy `OAuthAuthorizationCodeFlowV7_2.tsx` → `OAuthAuthorizationCodeFlow.tsx`.
 - Update component names and flow metadata to **V8**.
 - Leave all V7 exports and registry entries untouched.
 
@@ -166,7 +166,7 @@ You MAY:
 
 ## 8. Final State Definition
 When complete:
-- `OAuthAuthorizationCodeFlowV8.tsx` is **dramatically smaller**.
+- `OAuthAuthorizationCodeFlow.tsx` is **dramatically smaller**.
 - Screen real estate is minimal and uncluttered.
 - Credential UI is a **modal**, not a giant inline section.
 - Education is **on-demand**, not forced inline.

@@ -5,7 +5,7 @@
  * @version 9.0.0
  * @since 2026-02-28
  *
- * Migrated from workerTokenStatusServiceV8.ts with enhanced V9 features:
+ * Migrated from workerTokenStatusService.ts with enhanced V9 features:
  * - Uses unifiedWorkerTokenService for consistent storage
  * - Improved error handling and logging
  * - Better TypeScript types

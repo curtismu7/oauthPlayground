@@ -20,7 +20,7 @@
    - 300ms delay
    - No external tooltip library
 
-3. **TooltipV8** (`src/v8/components/TooltipV8.tsx`)
+3. **Tooltip** (`src/v8/components/Tooltip.tsx`)
    - Pure CSS with animations
    - Position-aware (top, bottom, left, right)
    - No external tooltip library
@@ -190,7 +190,7 @@ git commit -m "chore: Remove unused react-joyride dependency (deprecated popper.
 
 - InfoPopover (custom CSS)
 - FieldTooltip (custom CSS)
-- TooltipV8 (custom CSS)
+- Tooltip (custom CSS)
 - LearningTooltip (custom CSS)
 
 **Benefits of your approach:**

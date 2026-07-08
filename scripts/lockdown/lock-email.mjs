@@ -35,25 +35,25 @@ const MANIFEST_PATH = join(LOCKED_DIR, 'manifest.json');
 
 // Email feature files to lock
 const EMAIL_FILES = [
-	'src/mfa/flows/types/EmailFlowV8.tsx',
-	'src/mfa/flows/types/EmailOTPConfigurationPageV8.tsx',
+	'src/mfa/flows/types/EmailFlow.tsx',
+	'src/mfa/flows/types/EmailOTPConfigurationPage.tsx',
 ];
 
 // Critical dependencies to lock
 const CRITICAL_DEPS = [
 	// Services
-	'src/mfa/services/mfaServiceV8.ts',
-	'src/mfa/services/mfaAuthenticationServiceV8.ts',
-	'src/mfa/services/mfaConfigurationServiceV8.ts',
-	'src/mfa/services/credentialsServiceV8.ts',
-	'src/mfa/services/workerTokenServiceV8.ts',
-	'src/mfa/services/workerTokenStatusServiceV8.ts',
-	'src/mfa/services/apiDisplayServiceV8.ts',
+	'src/mfa/services/mfaService.ts',
+	'src/mfa/services/mfaAuthenticationService.ts',
+	'src/mfa/services/mfaConfigurationService.ts',
+	'src/mfa/services/credentialsService.ts',
+	'src/mfa/services/workerTokenService.ts',
+	'src/mfa/services/workerTokenStatusService.ts',
+	'src/mfa/services/apiDisplayService.ts',
 	// Shared flow components
-	'src/mfa/flows/shared/MFAFlowBaseV8.tsx',
+	'src/mfa/flows/shared/MFAFlowBase.tsx',
 	'src/mfa/flows/shared/MFATypes.ts',
-	'src/mfa/flows/shared/MFAConfigurationStepV8.tsx',
-	'src/mfa/flows/shared/mfaSuccessPageServiceV8.tsx',
+	'src/mfa/flows/shared/MFAConfigurationStep.tsx',
+	'src/mfa/flows/shared/mfaSuccessPageService.tsx',
 	'src/mfa/flows/shared/useUnifiedOTPFlow.ts',
 	// Controllers
 	'src/mfa/flows/controllers/MFAFlowController.ts',
@@ -61,14 +61,14 @@ const CRITICAL_DEPS = [
 	// Components
 	'src/mfa/components/MFADeviceSelector.tsx',
 	'src/mfa/components/MFAOTPInput.tsx',
-	'src/mfa/components/MFAInfoButtonV8.tsx',
-	'src/mfa/components/SuperSimpleApiDisplayV8.tsx',
+	'src/mfa/components/MFAInfoButton.tsx',
+	'src/mfa/components/SuperSimpleApiDisplay.tsx',
 	// Hooks
-	'src/mfa/hooks/useStepNavigationV8.ts',
+	'src/mfa/hooks/useStepNavigation.ts',
 	'src/mfa/hooks/useDraggableModal.ts',
 	// Utils
-	'src/mfa/utils/toastNotificationsV8.ts',
-	'src/mfa/utils/mfaFlowCleanupV8.ts',
+	'src/mfa/utils/toastNotifications.ts',
+	'src/mfa/utils/mfaFlowCleanup.ts',
 ];
 
 /**

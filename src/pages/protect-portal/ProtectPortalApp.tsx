@@ -7,7 +7,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { WorkerTokenSectionV8 } from '@/mfa/components/WorkerTokenSectionV8';
+import { WorkerTokenSection } from '@/mfa/components/WorkerTokenSection';
 import { FiLoader } from '../../icons';
 import { logger } from '../../utils/logger';
 import BaseLoginForm from './components/BaseLoginForm';

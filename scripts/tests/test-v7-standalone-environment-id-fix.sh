@@ -6,7 +6,7 @@ echo "=========================================================="
 # Test 1: Check V7 Hybrid Flow Controller fix
 echo "📋 Checking V7 Hybrid Flow Controller..."
 if grep -q "Applied global environment ID fallback" src/hooks/useHybridFlowController.ts && \
-   grep -q "EnvironmentIdServiceV8" src/hooks/useHybridFlowController.ts; then
+   grep -q "EnvironmentIdService" src/hooks/useHybridFlowController.ts; then
     echo "✅ V7 Hybrid Flow Controller has global environment ID fallback"
 else
     echo "❌ V7 Hybrid Flow Controller missing global environment ID fallback!"
@@ -70,7 +70,7 @@ echo "✅ Build successful"
 
 echo ""
 echo "🔍 What these fixes do:"
-echo "- V7 flows now use global EnvironmentIdServiceV8 as fallback"
+echo "- V7 flows now use global EnvironmentIdService as fallback"
 echo "- Standalone pages now use global environment ID as fallback"
 echo "- Prevents 'Environment ID is required' errors when unified_worker_token is empty"
 echo "- Maintains backward compatibility with existing credential loading"

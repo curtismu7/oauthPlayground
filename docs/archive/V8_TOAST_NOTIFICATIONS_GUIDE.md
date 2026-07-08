@@ -2,150 +2,150 @@
 
 ## Overview
 
-V8 uses the V4 toast notification system for consistent user feedback. All V8 code should use the `toastV8` utility for displaying messages to users.
+V8 uses the V4 toast notification system for consistent user feedback. All V8 code should use the `toast` utility for displaying messages to users.
 
 ## Quick Start
 
 ### Basic Usage
 
 ```typescript
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { toast } from '@/v8/utils/toastNotifications';
 
 // Success notification
-toastV8.success('Credentials saved successfully');
+toast.success('Credentials saved successfully');
 
 // Error notification
-toastV8.error('Failed to validate credentials');
+toast.error('Failed to validate credentials');
 
 // Warning notification
-toastV8.warning('Please fill in all required fields');
+toast.warning('Please fill in all required fields');
 
 // Info notification
-toastV8.info('Authorization URL copied to clipboard');
+toast.info('Authorization URL copied to clipboard');
 ```
 
 ## Available Methods
 
 ### General Notifications
 
-#### `toastV8.success(message: string, options?: { duration?: number })`
+#### `toast.success(message: string, options?: { duration?: number })`
 Show a success notification.
 
 ```typescript
-toastV8.success('Configuration saved successfully');
-toastV8.success('Flow completed!', { duration: 8000 }); // 8 second duration
+toast.success('Configuration saved successfully');
+toast.success('Flow completed!', { duration: 8000 }); // 8 second duration
 ```
 
-#### `toastV8.error(message: string, options?: { duration?: number })`
+#### `toast.error(message: string, options?: { duration?: number })`
 Show an error notification.
 
 ```typescript
-toastV8.error('Failed to generate authorization URL');
-toastV8.error('Network error. Please try again.');
+toast.error('Failed to generate authorization URL');
+toast.error('Network error. Please try again.');
 ```
 
-#### `toastV8.warning(message: string, options?: { duration?: number })`
+#### `toast.warning(message: string, options?: { duration?: number })`
 Show a warning notification.
 
 ```typescript
-toastV8.warning('Please fill in all required fields');
-toastV8.warning('This action cannot be undone');
+toast.warning('Please fill in all required fields');
+toast.warning('This action cannot be undone');
 ```
 
-#### `toastV8.info(message: string, options?: { duration?: number })`
+#### `toast.info(message: string, options?: { duration?: number })`
 Show an info notification.
 
 ```typescript
-toastV8.info('Authorization URL copied to clipboard');
-toastV8.info('Processing your request...');
+toast.info('Authorization URL copied to clipboard');
+toast.info('Processing your request...');
 ```
 
 ### Specialized Notifications
 
 #### Copy Operations
 ```typescript
-toastV8.copiedToClipboard('Authorization URL');
+toast.copiedToClipboard('Authorization URL');
 // Shows: "Authorization URL copied to clipboard"
 ```
 
 #### Validation Errors
 ```typescript
-toastV8.validationError(['Client ID', 'Redirect URI']);
+toast.validationError(['Client ID', 'Redirect URI']);
 // Shows: "Please fill in required fields: Client ID, Redirect URI"
 ```
 
 #### Network Errors
 ```typescript
-toastV8.networkError('token exchange');
+toast.networkError('token exchange');
 // Shows: "Network error during token exchange. Please check your connection."
 ```
 
 #### Step Navigation
 ```typescript
-toastV8.stepCompleted(1);
+toast.stepCompleted(1);
 // Shows: "Step 1 completed"
 
-toastV8.flowCompleted();
+toast.flowCompleted();
 // Shows: "🎉 OAuth Flow Complete!" (8 second duration)
 ```
 
 #### Processing/Loading
 ```typescript
-toastV8.processing('Exchanging authorization code for tokens');
+toast.processing('Exchanging authorization code for tokens');
 // Shows: "Exchanging authorization code for tokens..."
 ```
 
 #### Credentials
 ```typescript
-toastV8.credentialsSaved();
+toast.credentialsSaved();
 // Shows: "Credentials saved successfully"
 
-toastV8.credentialsLoaded();
+toast.credentialsLoaded();
 // Shows: "Credentials loaded successfully"
 ```
 
 #### OAuth/OIDC Operations
 ```typescript
-toastV8.pkceGenerated();
+toast.pkceGenerated();
 // Shows: "PKCE parameters generated successfully"
 
-toastV8.authUrlGenerated();
+toast.authUrlGenerated();
 // Shows: "Authorization URL generated successfully"
 
-toastV8.tokenExchangeSuccess();
+toast.tokenExchangeSuccess();
 // Shows: "Tokens exchanged successfully"
 
-toastV8.tokenIntrospectionSuccess();
+toast.tokenIntrospectionSuccess();
 // Shows: "Token introspection completed successfully"
 
-toastV8.userInfoFetched();
+toast.userInfoFetched();
 // Shows: "User information retrieved successfully"
 ```
 
 #### App Discovery
 ```typescript
-toastV8.appDiscoverySuccess();
+toast.appDiscoverySuccess();
 // Shows: "Application discovered successfully"
 
-toastV8.discoveryEndpointLoaded();
+toast.discoveryEndpointLoaded();
 // Shows: "Discovery endpoint loaded successfully"
 
-toastV8.environmentIdExtracted();
+toast.environmentIdExtracted();
 // Shows: "Environment ID extracted from discovery"
 ```
 
 #### Configuration
 ```typescript
-toastV8.configurationChecked();
+toast.configurationChecked();
 // Shows: "Configuration check completed"
 
-toastV8.flowReset();
+toast.flowReset();
 // Shows: "Flow reset. Tokens cleared, credentials preserved."
 ```
 
 #### Scopes
 ```typescript
-toastV8.scopeRequired('openid');
+toast.scopeRequired('openid');
 // Shows: "Added required "openid" scope for compliance"
 ```
 
@@ -154,17 +154,17 @@ toastV8.scopeRequired('openid');
 ### In Services
 
 ```typescript
-// src/v8/services/credentialsServiceV8.ts
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+// src/v8/services/credentialsService.ts
+import { toast } from '@/v8/utils/toastNotifications';
 
-export class CredentialsServiceV8 {
+export class CredentialsService {
   static saveCredentials(flowKey: string, credentials: Credentials): void {
     try {
       // Save logic
       localStorage.setItem(`credentials-${flowKey}`, JSON.stringify(credentials));
-      toastV8.credentialsSaved();
+      toast.credentialsSaved();
     } catch (error) {
-      toastV8.error('Failed to save credentials');
+      toast.error('Failed to save credentials');
     }
   }
 
@@ -172,11 +172,11 @@ export class CredentialsServiceV8 {
     try {
       const data = localStorage.getItem(`credentials-${flowKey}`);
       if (data) {
-        toastV8.credentialsLoaded();
+        toast.credentialsLoaded();
         return JSON.parse(data);
       }
     } catch (error) {
-      toastV8.error('Failed to load credentials');
+      toast.error('Failed to load credentials');
     }
     return getDefaultCredentials();
   }
@@ -186,18 +186,18 @@ export class CredentialsServiceV8 {
 ### In Components
 
 ```typescript
-// src/v8/components/StepActionButtonsV8.tsx
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+// src/v8/components/StepActionButtons.tsx
+import { toast } from '@/v8/utils/toastNotifications';
 
-export const StepActionButtonsV8: React.FC<Props> = ({ onNext, onPrevious }) => {
+export const StepActionButtons: React.FC<Props> = ({ onNext, onPrevious }) => {
   const handleNext = async () => {
     try {
-      toastV8.processing('Validating step');
+      toast.processing('Validating step');
       await validateStep();
-      toastV8.stepCompleted(currentStep);
+      toast.stepCompleted(currentStep);
       onNext();
     } catch (error) {
-      toastV8.error('Validation failed. Please check your input.');
+      toast.error('Validation failed. Please check your input.');
     }
   };
 
@@ -212,15 +212,15 @@ export const StepActionButtonsV8: React.FC<Props> = ({ onNext, onPrevious }) => 
 ### In Hooks
 
 ```typescript
-// src/v8/hooks/useStepNavigationV8.ts
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+// src/v8/hooks/useStepNavigation.ts
+import { toast } from '@/v8/utils/toastNotifications';
 
-export const useStepNavigationV8 = (totalSteps: number) => {
+export const useStepNavigation = (totalSteps: number) => {
   const handleStepChange = (newStep: number) => {
     if (newStep >= totalSteps) {
-      toastV8.flowCompleted();
+      toast.flowCompleted();
     } else {
-      toastV8.stepCompleted(newStep);
+      toast.stepCompleted(newStep);
     }
     setCurrentStep(newStep);
   };
@@ -232,28 +232,28 @@ export const useStepNavigationV8 = (totalSteps: number) => {
 ### In Flows
 
 ```typescript
-// src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+// src/v8/flows/OAuthAuthorizationCodeFlow.tsx
+import { toast } from '@/v8/utils/toastNotifications';
 
 const handleGenerateAuthUrl = async () => {
   try {
-    toastV8.processing('Generating authorization URL');
-    const url = await OAuthIntegrationServiceV8.generateAuthorizationUrl(credentials);
+    toast.processing('Generating authorization URL');
+    const url = await OAuthIntegrationService.generateAuthorizationUrl(credentials);
     setAuthUrl(url);
-    toastV8.authUrlGenerated();
+    toast.authUrlGenerated();
   } catch (error) {
-    toastV8.error('Failed to generate authorization URL');
+    toast.error('Failed to generate authorization URL');
   }
 };
 
 const handleTokenExchange = async () => {
   try {
-    toastV8.processing('Exchanging authorization code for tokens');
-    const tokens = await OAuthIntegrationServiceV8.exchangeCodeForTokens(authCode);
+    toast.processing('Exchanging authorization code for tokens');
+    const tokens = await OAuthIntegrationService.exchangeCodeForTokens(authCode);
     setTokens(tokens);
-    toastV8.tokenExchangeSuccess();
+    toast.tokenExchangeSuccess();
   } catch (error) {
-    toastV8.networkError('token exchange');
+    toast.networkError('token exchange');
   }
 };
 ```
@@ -263,41 +263,41 @@ const handleTokenExchange = async () => {
 ### 1. Use Specific Methods When Available
 ```typescript
 // ✅ GOOD - Use specialized method
-toastV8.credentialsSaved();
+toast.credentialsSaved();
 
 // ❌ AVOID - Generic message
-toastV8.success('Credentials saved successfully');
+toast.success('Credentials saved successfully');
 ```
 
 ### 2. Provide Context in Error Messages
 ```typescript
 // ✅ GOOD - Clear context
-toastV8.error('Failed to validate Client ID: Invalid format');
+toast.error('Failed to validate Client ID: Invalid format');
 
 // ❌ AVOID - Vague error
-toastV8.error('Error');
+toast.error('Error');
 ```
 
 ### 3. Use Processing Notifications for Long Operations
 ```typescript
 // ✅ GOOD - Show user something is happening
-toastV8.processing('Exchanging authorization code for tokens');
+toast.processing('Exchanging authorization code for tokens');
 const tokens = await exchangeCode();
-toastV8.tokenExchangeSuccess();
+toast.tokenExchangeSuccess();
 
 // ❌ AVOID - Silent operation
 const tokens = await exchangeCode();
-toastV8.success('Done');
+toast.success('Done');
 ```
 
 ### 4. Combine with Logging
 ```typescript
 // ✅ GOOD - Log and notify
 console.log('[🔐 OAUTH-AUTHZ-CODE-V8] Authorization URL generated', { url });
-toastV8.authUrlGenerated();
+toast.authUrlGenerated();
 
 // ❌ AVOID - Only notify without logging
-toastV8.authUrlGenerated();
+toast.authUrlGenerated();
 ```
 
 ### 5. Handle Validation Errors Properly
@@ -305,33 +305,33 @@ toastV8.authUrlGenerated();
 // ✅ GOOD - List specific fields
 const errors = validateCredentials(credentials);
 if (errors.length > 0) {
-  toastV8.validationError(errors);
+  toast.validationError(errors);
 }
 
 // ❌ AVOID - Generic validation error
 if (errors.length > 0) {
-  toastV8.error('Validation failed');
+  toast.error('Validation failed');
 }
 ```
 
 ### 6. Use Appropriate Notification Types
 ```typescript
 // ✅ GOOD - Correct notification type
-toastV8.success('Token generated');      // Success
-toastV8.warning('Scope added');          // Warning
-toastV8.error('Invalid credentials');    // Error
-toastV8.info('Copied to clipboard');     // Info
+toast.success('Token generated');      // Success
+toast.warning('Scope added');          // Warning
+toast.error('Invalid credentials');    // Error
+toast.info('Copied to clipboard');     // Info
 
 // ❌ AVOID - Wrong notification type
-toastV8.success('Invalid credentials');  // Should be error
-toastV8.error('Copied to clipboard');    // Should be info
+toast.success('Invalid credentials');  // Should be error
+toast.error('Copied to clipboard');    // Should be info
 ```
 
 ## Integration Checklist
 
 When adding toasts to V8 code:
 
-- [ ] Import `toastV8` from `@/v8/utils/toastNotificationsV8`
+- [ ] Import `toast` from `@/v8/utils/toastNotifications`
 - [ ] Use appropriate notification method for the action
 - [ ] Include context in error messages
 - [ ] Show processing notifications for long operations
@@ -344,7 +344,7 @@ When adding toasts to V8 code:
 ### Toasts Not Showing
 1. Verify `v4ToastManager` is properly initialized in your app
 2. Check that `useNotifications` hook is available
-3. Ensure you're importing from the correct path: `@/v8/utils/toastNotificationsV8`
+3. Ensure you're importing from the correct path: `@/v8/utils/toastNotifications`
 
 ### Toasts Showing Incorrect Message
 1. Check for typos in the message string
@@ -354,7 +354,7 @@ When adding toasts to V8 code:
 ### Toasts Disappearing Too Quickly
 1. Use the `duration` option for important messages:
    ```typescript
-   toastV8.success('Important message', { duration: 8000 });
+   toast.success('Important message', { duration: 8000 });
    ```
 
 ## Related Documentation

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Fix mfaCredentialManagerV8.ts — replace (stored as any).field."""
+"""Fix mfaCredentialManager.ts — replace (stored as any).field."""
 
-path = '/Users/cmuir/P1Import-apps/oauth-playground/src/mfa/services/mfaCredentialManagerV8.ts'
+path = '/Users/cmuir/P1Import-apps/oauth-playground/src/mfa/services/mfaCredentialManager.ts'
 with open(path) as f:
     src = f.read()
 
@@ -49,8 +49,8 @@ src = src.replace(OLD_CAST_BODY, NEW_CAST_BODY)
 assert '(stored as any)' not in src, 'Remaining (stored as any) found'
 
 # saveCredentials: credentials as any
-old_save = '\t\t\tCredentialsServiceV8.saveCredentials(flowKey, credentials as any);\n'
-new_save = '\t\t\tCredentialsServiceV8.saveCredentials(flowKey, credentials as unknown as Parameters<typeof CredentialsServiceV8.saveCredentials>[1]);\n'
+old_save = '\t\t\tCredentialsService.saveCredentials(flowKey, credentials as any);\n'
+new_save = '\t\t\tCredentialsService.saveCredentials(flowKey, credentials as unknown as Parameters<typeof CredentialsService.saveCredentials>[1]);\n'
 assert old_save in src, 'saveCredentials line not found'
 src = src.replace(old_save, new_save)
 assert 'credentials as any' not in src, 'Remaining credentials as any found'

@@ -19,15 +19,15 @@ This document tracks all UI-related changes made during the Phase 1-2 integratio
 1. **UnifiedFlowSteps.tsx** - 6 credential operations integrated
 2. **CredentialsFormV8U.tsx** - 4 credential operations integrated
 3. **UnifiedOAuthFlowV8U.tsx** - 5 credential operations integrated
-4. **MFAAuthenticationMainPageV8.tsx** - 8 credential operations integrated
+4. **MFAAuthenticationMainPage.tsx** - 8 credential operations integrated
 
 ### Phase 2: OIDC Core Services Integration (5 Components)
 
 1. **useAuthActions.ts** - Primary authorization hook
 2. **NewAuthContext.tsx** - Auth context provider
-3. **oauthIntegrationServiceV8.ts** - V8 OAuth service
-4. **hybridFlowIntegrationServiceV8.ts** - V8 Hybrid flow service
-5. **implicitFlowIntegrationServiceV8.ts** - V8 Implicit flow service
+3. **oauthIntegrationService.ts** - V8 OAuth service
+4. **hybridFlowIntegrationService.ts** - V8 Hybrid flow service
+5. **implicitFlowIntegrationService.ts** - V8 Implicit flow service
 
 ---
 
@@ -95,9 +95,9 @@ This document tracks all UI-related changes made during the Phase 1-2 integratio
 
 ---
 
-### 4. MFAAuthenticationMainPageV8.tsx
+### 4. MFAAuthenticationMainPage.tsx
 
-**Location**: `/src/v8/flows/MFAAuthenticationMainPageV8.tsx`
+**Location**: `/src/v8/flows/MFAAuthenticationMainPage.tsx`
 
 **UI Impact**: None (internal credential management)
 
@@ -164,9 +164,9 @@ This document tracks all UI-related changes made during the Phase 1-2 integratio
 
 ---
 
-### 7. oauthIntegrationServiceV8.ts
+### 7. oauthIntegrationService.ts
 
-**Location**: `/src/v8/services/oauthIntegrationServiceV8.ts`
+**Location**: `/src/v8/services/oauthIntegrationService.ts`
 
 **UI Impact**: Enhanced security (invisible to users)
 
@@ -185,9 +185,9 @@ This document tracks all UI-related changes made during the Phase 1-2 integratio
 
 ---
 
-### 8. hybridFlowIntegrationServiceV8.ts
+### 8. hybridFlowIntegrationService.ts
 
-**Location**: `/src/v8/services/hybridFlowIntegrationServiceV8.ts`
+**Location**: `/src/v8/services/hybridFlowIntegrationService.ts`
 
 **UI Impact**: Enhanced security (invisible to users)
 
@@ -206,9 +206,9 @@ This document tracks all UI-related changes made during the Phase 1-2 integratio
 
 ---
 
-### 9. implicitFlowIntegrationServiceV8.ts
+### 9. implicitFlowIntegrationService.ts
 
-**Location**: `/src/v8/services/implicitFlowIntegrationServiceV8.ts`
+**Location**: `/src/v8/services/implicitFlowIntegrationService.ts`
 
 **UI Impact**: Enhanced security (invisible to users)
 
@@ -238,7 +238,7 @@ This document tracks all UI-related changes made during the Phase 1-2 integratio
 - UnifiedFlowSteps.tsx
 - CredentialsFormV8U.tsx
 - UnifiedOAuthFlowV8U.tsx
-- MFAAuthenticationMainPageV8.tsx
+- MFAAuthenticationMainPage.tsx
 
 **Admin UI**: `/admin/feature-flags`
 
@@ -259,9 +259,9 @@ This document tracks all UI-related changes made during the Phase 1-2 integratio
 **Components Affected**:
 - useAuthActions.ts
 - NewAuthContext.tsx
-- oauthIntegrationServiceV8.ts
-- hybridFlowIntegrationServiceV8.ts
-- implicitFlowIntegrationServiceV8.ts
+- oauthIntegrationService.ts
+- hybridFlowIntegrationService.ts
+- implicitFlowIntegrationService.ts
 
 **Admin UI**: `/admin/feature-flags`
 

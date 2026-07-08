@@ -12,8 +12,8 @@
 - **Color:** Orange (#ff9800)
 - **Behavior:** Shows confirmation, clears tokens, returns to Step 0
 
-### 2. FlowResetServiceV8 ✅
-- **File:** `src/v8/services/flowResetServiceV8.ts`
+### 2. FlowResetService ✅
+- **File:** `src/v8/services/flowResetService.ts`
 - **Lines:** ~350
 - **Module tag:** `[🔄 FLOW-RESET-V8]`
 
@@ -28,7 +28,7 @@
 - `getResetMessage()` - Get user-friendly message
 
 ### 3. Comprehensive Tests ✅
-- **File:** `src/v8/services/__tests__/flowResetServiceV8.test.ts`
+- **File:** `src/v8/services/__tests__/flowResetService.test.ts`
 - **Tests:** 15/15 passing
 - **Coverage:** All methods and edge cases
 
@@ -66,13 +66,13 @@
 ## 💻 Implementation Example
 
 ```typescript
-import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
+import { FlowResetService } from '@/v8/services/flowResetService';
 
 const handleResetFlow = () => {
-  const message = FlowResetServiceV8.getResetMessage('authz-code');
+  const message = FlowResetService.getResetMessage('authz-code');
   
   if (confirm(message)) {
-    const result = FlowResetServiceV8.resetFlow('authz-code');
+    const result = FlowResetService.resetFlow('authz-code');
     
     if (result.success) {
       // Reset UI to Step 0
@@ -187,7 +187,7 @@ Example logs:
 ## ✅ Checklist
 
 - [x] Reset button added to demo
-- [x] FlowResetServiceV8 created
+- [x] FlowResetService created
 - [x] All methods implemented
 - [x] 15 tests passing
 - [x] Documentation complete

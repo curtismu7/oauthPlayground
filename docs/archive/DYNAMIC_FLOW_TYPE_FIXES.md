@@ -22,7 +22,7 @@ const selectedFlowType: FlowType = flowType as FlowType;  // Use actual flow typ
 
 **Problem:**
 ```typescript
-const config = CredentialsServiceV8.getFlowConfig(flowKey) || {
+const config = CredentialsService.getFlowConfig(flowKey) || {
   flowType: 'oauth' as const,  // 'oauth' is not a valid FlowType!
   ...
 };
@@ -32,7 +32,7 @@ const flowType = providedFlowType || config?.flowType || 'oauth';  // Invalid fa
 
 **Fix:**
 ```typescript
-const config = CredentialsServiceV8.getFlowConfig(flowKey) || {
+const config = CredentialsService.getFlowConfig(flowKey) || {
   flowType: 'oauth-authz' as const,  // Valid FlowType
   ...
 };
@@ -81,7 +81,7 @@ Mixed spec versions (`'oauth'`, `'oidc'`) with flow types.
 ```typescript
 export interface CredentialsFormV8UProps {
   flowKey: string;
-  flowType?: FlowType;  // Use proper FlowType from SpecVersionServiceV8
+  flowType?: FlowType;  // Use proper FlowType from SpecVersionService
   ...
 }
 ```

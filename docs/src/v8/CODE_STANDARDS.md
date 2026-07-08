@@ -15,20 +15,20 @@ Professional code standards for V8 development. All code must follow these stand
 src/v8/
 ├── components/
 │   ├── __tests__/
-│   │   └── ComponentNameV8.test.tsx
-│   └── ComponentNameV8.tsx
+│   │   └── ComponentName.test.tsx
+│   └── ComponentName.tsx
 ├── services/
 │   ├── __tests__/
-│   │   └── serviceNameV8.test.ts
-│   └── serviceNameV8.ts
+│   │   └── serviceName.test.ts
+│   └── serviceName.ts
 ├── hooks/
 │   ├── __tests__/
-│   │   └── useHookNameV8.test.ts
-│   └── useHookNameV8.ts
+│   │   └── useHookName.test.ts
+│   └── useHookName.ts
 ├── flows/
 │   ├── __tests__/
-│   │   └── FlowNameV8.test.tsx
-│   └── FlowNameV8.tsx
+│   │   └── FlowName.test.tsx
+│   └── FlowName.tsx
 ├── types/
 │   └── typeName.ts
 ├── config/
@@ -38,9 +38,9 @@ src/v8/
 ```
 
 ### File Naming
-- **Components:** `ComponentNameV8.tsx` (PascalCase + V8 suffix)
-- **Services:** `serviceNameV8.ts` (camelCase + V8 suffix)
-- **Hooks:** `useHookNameV8.ts` (camelCase + V8 suffix)
+- **Components:** `ComponentName.tsx` (PascalCase + V8 suffix)
+- **Services:** `serviceName.ts` (camelCase + V8 suffix)
+- **Hooks:** `useHookName.ts` (camelCase + V8 suffix)
 - **Types:** `typeName.ts` (camelCase)
 - **Tests:** `*.test.ts` or `*.test.tsx`
 
@@ -105,7 +105,7 @@ try {
   const result = await someAsyncOperation();
   return result;
 } catch (error) {
-  ErrorHandlerV8.handleError(error, { operation: 'someAsyncOperation' });
+  ErrorHandler.handleError(error, { operation: 'someAsyncOperation' });
   throw new Error(`Failed to complete operation: ${error instanceof Error ? error.message : 'Unknown error'}`);
 }
 ```
@@ -203,7 +203,7 @@ All files must have a header comment:
 
 ```typescript
 /**
- * @file serviceNameV8.ts
+ * @file serviceName.ts
  * @module v8/services
  * @description Brief description of what this service does
  * @version 8.0.0
@@ -212,8 +212,8 @@ All files must have a header comment:
  * Detailed description of functionality, features, and usage.
  *
  * @example
- * import { ServiceNameV8 } from '@/v8/services/serviceNameV8';
- * const result = ServiceNameV8.doSomething();
+ * import { ServiceName } from '@/v8/services/serviceName';
+ * const result = ServiceName.doSomething();
  */
 ```
 
@@ -221,7 +221,7 @@ All files must have a header comment:
 
 ```typescript
 /**
- * @file ComponentNameV8.tsx
+ * @file ComponentName.tsx
  * @module v8/components
  * @description Brief description
  * @version 8.0.0
@@ -232,7 +232,7 @@ All files must have a header comment:
  * - Feature 2
  *
  * @example
- * <ComponentNameV8
+ * <ComponentName
  *   prop1="value"
  *   prop2={value}
  * />
@@ -276,7 +276,7 @@ All services must implement interfaces:
 ```typescript
 import type { ICredentialsService } from '@/v8/types/services';
 
-export class CredentialsServiceV8 implements ICredentialsService {
+export class CredentialsService implements ICredentialsService {
   // implementation
 }
 ```
@@ -289,13 +289,13 @@ export class CredentialsServiceV8 implements ICredentialsService {
 
 ```typescript
 // ✅ Stateless service
-export class UtilityServiceV8 {
+export class UtilityService {
   static formatToken(token: string): string { }
   static validateToken(token: string): boolean { }
 }
 
 // ✅ Stateful service (if needed)
-export class CacheServiceV8 {
+export class CacheService {
   private cache = new Map();
   
   get(key: string) { }
@@ -323,7 +323,7 @@ export interface ComponentNameV8Props {
   onAction?: (data: any) => void;
 }
 
-export const ComponentNameV8: React.FC<ComponentNameV8Props> = ({
+export const ComponentName: React.FC<ComponentNameV8Props> = ({
   requiredProp,
   optionalProp,
   onAction
@@ -337,7 +337,7 @@ export const ComponentNameV8: React.FC<ComponentNameV8Props> = ({
 Use React.memo and useCallback for performance:
 
 ```typescript
-export const ComponentNameV8 = React.memo<ComponentNameV8Props>(({
+export const ComponentName = React.memo<ComponentNameV8Props>(({
   requiredProp,
   onAction
 }) => {
@@ -361,14 +361,14 @@ Tests are colocated in `__tests__/` directories:
 src/v8/
 ├── components/
 │   ├── __tests__/
-│   │   └── ComponentNameV8.test.tsx
-│   └── ComponentNameV8.tsx
+│   │   └── ComponentName.test.tsx
+│   └── ComponentName.tsx
 ```
 
 ### Test Structure
 
 ```typescript
-describe('ComponentNameV8', () => {
+describe('ComponentName', () => {
   describe('rendering', () => {
     it('should render with required props', () => {
       // test
@@ -412,10 +412,10 @@ import React, { useState, useCallback } from 'react';
 import type { FC } from 'react';
 
 // 2. V8 components
-import { ComponentNameV8 } from '@/v8/components/ComponentNameV8';
+import { ComponentName } from '@/v8/components/ComponentName';
 
 // 3. V8 services
-import { ServiceNameV8 } from '@/v8/services/serviceNameV8';
+import { ServiceName } from '@/v8/services/serviceName';
 
 // 4. V8 types
 import type { SomeType } from '@/v8/types/services';
@@ -424,7 +424,7 @@ import type { SomeType } from '@/v8/types/services';
 import { CONSTANTS } from '@/v8/config/constants';
 
 // 6. Styles
-import './ComponentNameV8.css';
+import './ComponentName.css';
 ```
 
 ### Path Aliases
@@ -433,10 +433,10 @@ Always use path aliases:
 
 ```typescript
 // ✅ CORRECT
-import { CredentialsFormV8 } from '@/v8/components/CredentialsFormV8';
+import { CredentialsForm } from '@/v8/components/CredentialsForm';
 
 // ❌ WRONG
-import { CredentialsFormV8 } from '../components/CredentialsFormV8';
+import { CredentialsForm } from '../components/CredentialsForm';
 ```
 
 ---
@@ -459,7 +459,7 @@ function generateToken() { }
 const validateCredentials = () => { };
 
 // Classes: PascalCase
-class CredentialsServiceV8 { }
+class CredentialsService { }
 
 // Interfaces: IPascalCase
 interface ICredentialsService { }
@@ -493,7 +493,7 @@ Use memoization for expensive operations:
 
 ```typescript
 const config = useMemo(
-  () => CredentialsServiceV8.getFlowConfig(flowKey),
+  () => CredentialsService.getFlowConfig(flowKey),
   [flowKey]
 );
 
@@ -510,8 +510,8 @@ const handleChange = useCallback(
 Lazy load components when appropriate:
 
 ```typescript
-const ClientCredentialsFlowV8 = lazy(
-  () => import('@/v8/flows/ClientCredentialsFlowV8')
+const ClientCredentialsFlow = lazy(
+  () => import('@/v8/flows/ClientCredentialsFlow')
 );
 ```
 
@@ -618,7 +618,7 @@ try {
   const result = await operation();
   return result;
 } catch (error) {
-  ErrorHandlerV8.handleError(error, { operation: 'operationName' });
+  ErrorHandler.handleError(error, { operation: 'operationName' });
   throw new Error(`Operation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
 }
 ```
@@ -632,7 +632,7 @@ try {
  * @returns Return value description
  * @throws {Error} Error conditions
  * @example
- * const result = ServiceV8.method(param);
+ * const result = Service.method(param);
  */
 static method(param: string): ReturnType {
   console.log(`${MODULE_TAG} Method called`, { param });
@@ -641,7 +641,7 @@ static method(param: string): ReturnType {
     // implementation
     return result;
   } catch (error) {
-    ErrorHandlerV8.handleError(error, { method: 'method', param });
+    ErrorHandler.handleError(error, { method: 'method', param });
     throw error;
   }
 }
@@ -656,7 +656,7 @@ export interface ComponentNameV8Props {
   onAction?: () => void;
 }
 
-export const ComponentNameV8: React.FC<ComponentNameV8Props> = React.memo(({
+export const ComponentName: React.FC<ComponentNameV8Props> = React.memo(({
   prop1,
   prop2,
   onAction
@@ -672,7 +672,7 @@ export const ComponentNameV8: React.FC<ComponentNameV8Props> = React.memo(({
   );
 });
 
-ComponentNameV8.displayName = 'ComponentNameV8';
+ComponentName.displayName = 'ComponentName';
 ```
 
 ---

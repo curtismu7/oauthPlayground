@@ -12,7 +12,7 @@ We have comprehensive migration documentation but need to validate the approach 
 ## Decision
 Execute a test migration with:
 - **V7**: JWTBearerTokenFlowV7 → V9 services
-- **V8**: WorkerTokenModalV8 → V9 component
+- **V8**: WorkerTokenModal → V9 component
 - **V9**: OAuthAuthorizationCodeFlowV9 → Enhanced V9
 
 ### Test Migration Strategy
@@ -83,7 +83,7 @@ Phase 3: V9 Enhancement & Modern Messaging
 - [ ] Update documentation
 
 ### Phase 2: V8 Component Migration
-**Target**: WorkerTokenModalV8
+**Target**: WorkerTokenModal
 
 #### Current Dependencies
 - Used by: TokenExchangeFlowV7, WorkerTokenFlowV7
@@ -160,7 +160,7 @@ Several services need V9 equivalents:
 
 ## Files Affected
 - `src/pages/flows/JWTBearerTokenFlowV7.tsx` - V7 migration target
-- `src/v8/components/WorkerTokenModalV8.tsx` - V8 migration target
+- `src/v8/components/WorkerTokenModal.tsx` - V8 migration target
 - `src/pages/flows/v9/OAuthAuthorizationCodeFlowV9.tsx` - V9 enhancement target
 - `plan/test-migration-tracking.md` - Progress tracking
 

@@ -15,8 +15,8 @@ import { REGION_TO_TLD } from '../services/regionService';
 import { logger } from '../utils/logger';
 import { secureLog } from '../utils/secureLogging';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
-import { SuperSimpleApiDisplayV8 } from '../mfa/components/SuperSimpleApiDisplayV8';
-import { WorkerTokenSectionV8 } from '../mfa/components/WorkerTokenSectionV8';
+import { SuperSimpleApiDisplay } from '../mfa/components/SuperSimpleApiDisplay';
+import { WorkerTokenSection } from '../mfa/components/WorkerTokenSection';
 import { isPopoutWindow, openWebhookViewerPopout } from '../mfa/utils/webhookViewerPopoutHelper';
 
 const styles = {
@@ -1620,7 +1620,7 @@ const PingOneWebhookViewer: React.FC = () => {
 						</p>
 					</div>
 
-					<WorkerTokenSectionV8
+					<WorkerTokenSection
 						onTokenUpdated={(token) => {
 							setWorkerToken(token);
 							try {
@@ -2360,7 +2360,7 @@ const PingOneWebhookViewer: React.FC = () => {
 						/>
 					)}
 
-					<SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />
+					<SuperSimpleApiDisplay flowFilter="all" reserveSpace={true} />
 					<ApiCallList title="API Calls to PingOne" showLegend={true} />
 				</div>
 			</div>

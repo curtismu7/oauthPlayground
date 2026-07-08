@@ -93,7 +93,7 @@ The generated environment file includes all variables with pre-filled values fro
 
 The SPIFFE/SPIRE Flow uses a **minimal persistence strategy**:
 
-1. **Environment ID**: `localStorage` (via `EnvironmentIdServiceV8`) - persists across sessions
+1. **Environment ID**: `localStorage` (via `EnvironmentIdService`) - persists across sessions
 2. **Workload Configuration**: Component state (NOT persisted) - lost on refresh
 3. **SVID**: Component state (NOT persisted) - lost on refresh (security)
 4. **Tokens**: Navigation state (NOT persisted) - lost on refresh
@@ -115,7 +115,7 @@ The SPIFFE/SPIRE Flow uses a **minimal persistence strategy**:
 
 **Purpose**: Persist PingOne Environment ID across browser sessions.
 
-**Storage Key**: Global environment ID key (via `EnvironmentIdServiceV8`)
+**Storage Key**: Global environment ID key (via `EnvironmentIdService`)
 
 **Stored Data Structure**:
 ```typescript
@@ -293,7 +293,7 @@ The SPIFFE/SPIRE Flow uses a **minimal persistence strategy**:
 
 **Process**:
 1. Environment ID is set in component state
-2. Saved to global storage via `EnvironmentIdServiceV8.saveEnvironmentId()`
+2. Saved to global storage via `EnvironmentIdService.saveEnvironmentId()`
 3. Stored in `localStorage` under global environment ID key
 
 **Save Conditions**:
@@ -305,12 +305,12 @@ The SPIFFE/SPIRE Flow uses a **minimal persistence strategy**:
 **Trigger**: Component mount, flow initialization.
 
 **Process**:
-1. Check global storage via `EnvironmentIdServiceV8.getEnvironmentId()`
+1. Check global storage via `EnvironmentIdService.getEnvironmentId()`
 2. If found, load into component state
 3. If not found, use default or prompt user
 
 **Load Priority**:
-1. **Global Storage** (localStorage via `EnvironmentIdServiceV8`)
+1. **Global Storage** (localStorage via `EnvironmentIdService`)
 2. **Default Value** (if no stored value, use example: `b9817c16-9910-4415-b67e-4ac687da74d9`)
 
 **Default Behavior**:
@@ -335,7 +335,7 @@ The SPIFFE/SPIRE Flow uses a **minimal persistence strategy**:
 
 2. **Environment ID Restoration**:
    - Load environment ID from global storage
-   - Key: Global environment ID key (via `EnvironmentIdServiceV8`)
+   - Key: Global environment ID key (via `EnvironmentIdService`)
    - Populate environment ID field
 
 3. **Step Restoration**:
@@ -464,7 +464,7 @@ navigate('/v8u/spiffe-spire/attest');
 **Clear Process**:
 ```typescript
 // Clear global storage
-EnvironmentIdServiceV8.clearEnvironmentId();
+EnvironmentIdService.clearEnvironmentId();
 
 // Clear component state
 setEnvironmentId('');

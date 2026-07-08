@@ -11,7 +11,7 @@ All FIDO2 device authentication endpoints are correctly using `Content-Type: app
 
 - **Location**: `server.js` line 10996
 - **Content-Type**: `application/vnd.pingidentity.assertion.check+json`
-- **Used by**: `MfaAuthenticationServiceV8.checkFIDO2Assertion()`
+- **Used by**: `MfaAuthenticationService.checkFIDO2Assertion()`
 - **PingOne API Endpoint**: `POST {{authPath}}/{{envID}}/deviceAuthentications/{{deviceAuthID}}`
 - **Request Body**: Matches PingOne API spec exactly
   ```json
@@ -35,7 +35,7 @@ All FIDO2 device authentication endpoints are correctly using `Content-Type: app
 
 - **Location**: `server.js` line 14095
 - **Content-Type**: `application/vnd.pingidentity.assertion.check+json`
-- **Used by**: `PasskeyServiceV8.authenticateUsernameless()` (username-less passkey flow)
+- **Used by**: `PasskeyService.authenticateUsernameless()` (username-less passkey flow)
 - **PingOne API Endpoint**: `POST {{authPath}}/{{envID}}/deviceAuthentications/{{deviceAuthID}}`
 - **Request Body**: Matches PingOne API spec exactly
   ```json
@@ -56,7 +56,7 @@ All FIDO2 device authentication endpoints are correctly using `Content-Type: app
 
 ## Frontend Service
 
-### `MfaAuthenticationServiceV8.checkFIDO2Assertion()` (src/v8/services/mfaAuthenticationServiceV8.ts:1294)
+### `MfaAuthenticationService.checkFIDO2Assertion()` (src/v8/services/mfaAuthenticationService.ts:1294)
 **Status**: ✅ CORRECT
 
 - **Frontend sends**: `Content-Type: application/json` to backend proxy (line 1297)

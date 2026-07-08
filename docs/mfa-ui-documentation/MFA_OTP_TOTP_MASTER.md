@@ -58,7 +58,7 @@ This document provides a comprehensive reference for OTP (SMS/Email/WhatsApp) an
 
 #### Step 0: Configuration and Flow Selection
 
-**Location:** `src/v8/flows/types/SMSFlowV8.tsx`, `EmailFlowV8.tsx`, `WhatsAppFlowV8.tsx`
+**Location:** `src/v8/flows/types/SMSFlow.tsx`, `EmailFlow.tsx`, `WhatsAppFlow.tsx`
 
 **Critical:** Must support both Admin and User flows.
 
@@ -76,7 +76,7 @@ const tokenType = 'user';
 
 #### Step 2: Device Registration
 
-**Location:** `src/v8/flows/types/SMSFlowV8.tsx` → `renderStep2Register()`
+**Location:** `src/v8/flows/types/SMSFlow.tsx` → `renderStep2Register()`
 
 **Critical:** Device name must default to device type, not previous value.
 
@@ -108,14 +108,14 @@ const renderStep2Register = useCallback((props: MFAFlowBaseRenderProps) => {
 
 #### Step 3: OTP Sent
 
-**Location:** `src/v8/flows/types/SMSFlowV8.tsx` → `renderStep3OtpSent()`
+**Location:** `src/v8/flows/types/SMSFlow.tsx` → `renderStep3OtpSent()`
 
 **Critical:** Must handle both `ACTIVE` and `ACTIVATION_REQUIRED` device statuses.
 
 ```typescript
 // For ACTIVE devices: Show success page immediately
 if (mfaState.deviceStatus === 'ACTIVE' && deviceRegisteredActive) {
-  return <MFASuccessPageV8 ... />;
+  return <MFASuccessPage ... />;
 }
 
 // For ACTIVATION_REQUIRED devices: Show OTP input
@@ -133,7 +133,7 @@ if (mfaState.deviceStatus === 'ACTIVATION_REQUIRED') {
 
 #### Step 4: OTP Validation
 
-**Location:** `src/v8/flows/types/SMSFlowV8.tsx` → `createRenderStep4()`
+**Location:** `src/v8/flows/types/SMSFlow.tsx` → `createRenderStep4()`
 
 **Critical:** Must normalize error messages and handle resend correctly.
 
@@ -172,7 +172,7 @@ const validateOTP = async () => {
 const handleResendOTP = async () => {
   if (mfaState.deviceStatus === 'ACTIVATION_REQUIRED' && mfaState.deviceId) {
     // Use resendPairingCode for ACTIVATION_REQUIRED devices
-    await MFAServiceV8.resendPairingCode({
+    await MFAService.resendPairingCode({
       environmentId: credentials.environmentId,
       username: credentials.username,
       deviceId: mfaState.deviceId,
@@ -208,7 +208,7 @@ const handleResendOTP = async () => {
 
 #### Step 0: Configuration and Flow Selection
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx`
 
 **Critical:** Must support both Admin and User flows with device status selection.
 
@@ -226,7 +226,7 @@ const deviceStatus = registrationFlowType === 'admin'
 
 #### Step 2: Device Registration
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx` → `renderStep2Register()`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx` → `renderStep2Register()`
 
 **Critical:** Device name must default to "TOTP", not previous value.
 
@@ -257,14 +257,14 @@ const renderStep2Register = useCallback((props: MFAFlowBaseRenderProps) => {
 
 #### Step 3: QR Code Display
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx` → `renderStep3QrCode()`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx` → `renderStep3QrCode()`
 
 **Critical:** Must handle both `ACTIVE` and `ACTIVATION_REQUIRED` device statuses.
 
 ```typescript
 // For ACTIVE devices: Show success page immediately
 if (mfaState.deviceStatus === 'ACTIVE' && deviceRegisteredActive) {
-  return <MFASuccessPageV8 ... />;
+  return <MFASuccessPage ... />;
 }
 
 // For ACTIVATION_REQUIRED devices: Show QR code and OTP input
@@ -287,13 +287,13 @@ if (mfaState.deviceStatus === 'ACTIVATION_REQUIRED') {
 
 #### Step 4: OTP Validation
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx` → `renderStep4Validate()`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx` → `renderStep4Validate()`
 
 **Critical:** Must use configurable OTP length and normalize error messages.
 
 ```typescript
 // ✅ CORRECT - Use configurable OTP length
-const config = MFAConfigurationServiceV8.loadConfiguration();
+const config = MFAConfigurationService.loadConfiguration();
 const otpCodeLength = config.otpCodeLength; // 6, 7, 8, 9, or 10
 
 // ✅ CORRECT - Normalize error messages
@@ -336,7 +336,7 @@ const validateOTP = async () => {
 
 #### Step 1: Initialize Device Authentication
 
-**Location:** `src/v8/services/mfaAuthenticationServiceV8.ts` → `initializeDeviceAuthentication()`
+**Location:** `src/v8/services/mfaAuthenticationService.ts` → `initializeDeviceAuthentication()`
 
 **Critical:** Must include `region` and `customDomain` in request body.
 
@@ -357,7 +357,7 @@ const requestBody = {
 
 #### Step 2: Send OTP
 
-**Location:** `src/v8/services/mfaServiceV8.ts` → `sendOTP()`
+**Location:** `src/v8/services/mfaService.ts` → `sendOTP()`
 
 **Critical:** Must include `region` and `customDomain` in request body.
 
@@ -377,7 +377,7 @@ const initRequestBody = {
 
 #### Step 3: Validate OTP
 
-**Location:** `src/v8/services/mfaAuthenticationServiceV8.ts` → `validateOTP()`
+**Location:** `src/v8/services/mfaAuthenticationService.ts` → `validateOTP()`
 
 **Critical:** Must normalize error messages and use correct endpoint.
 
@@ -714,7 +714,7 @@ const renderStep2Register = useCallback((props: MFAFlowBaseRenderProps) => {
 }, [nav.currentStep, validDeviceType]);
 ```
 
-**Location:** `src/v8/flows/types/SMSFlowV8.tsx`, `EmailFlowV8.tsx`, `WhatsAppFlowV8.tsx`, `TOTPFlowV8.tsx`
+**Location:** `src/v8/flows/types/SMSFlow.tsx`, `EmailFlow.tsx`, `WhatsAppFlow.tsx`, `TOTPFlow.tsx`
 
 **Fixed:** Device name now always defaults to device type (SMS, EMAIL, WHATSAPP, or TOTP) when entering Step 2.
 
@@ -733,23 +733,23 @@ const renderStep2Register = useCallback((props: MFAFlowBaseRenderProps) => {
 const handleResendOTP = async () => {
   if (mfaState.deviceStatus === 'ACTIVATION_REQUIRED' && mfaState.deviceId) {
     // Use resendPairingCode endpoint for ACTIVATION_REQUIRED devices
-    await MFAServiceV8.resendPairingCode({
+    await MFAService.resendPairingCode({
       environmentId: credentials.environmentId,
       username: credentials.username,
       deviceId: mfaState.deviceId,
       region: credentials.region,
       customDomain: credentials.customDomain,
     });
-    toastV8.success('OTP code resent successfully!');
+    toast.success('OTP code resent successfully!');
   } else {
     // Use sendOTP for ACTIVE devices (device authentication flow)
     await controller.sendOTP(...);
-    toastV8.success('OTP code resent successfully!');
+    toast.success('OTP code resent successfully!');
   }
 };
 ```
 
-**Location:** `src/v8/flows/types/SMSFlowV8.tsx`, `EmailFlowV8.tsx`, `WhatsAppFlowV8.tsx`
+**Location:** `src/v8/flows/types/SMSFlow.tsx`, `EmailFlow.tsx`, `WhatsAppFlow.tsx`
 
 **Fixed:** Resend now uses `resendPairingCode` endpoint for ACTIVATION_REQUIRED devices and `sendOTP` for ACTIVE devices.
 
@@ -788,7 +788,7 @@ const validateOTP = async () => {
         lastValidationError: userFriendlyError,
       });
       nav.setValidationErrors([userFriendlyError]);
-      toastV8.error(userFriendlyError);
+      toast.error(userFriendlyError);
       return false;
     }
   } catch (error) {
@@ -840,7 +840,7 @@ const requestBody = {
 ```typescript
 // ✅ CORRECT - Show success page immediately for ACTIVE devices
 if (mfaState.deviceStatus === 'ACTIVE' && deviceRegisteredActive) {
-  return <MFASuccessPageV8 ... />;
+  return <MFASuccessPage ... />;
 }
 
 // Only show OTP input for ACTIVATION_REQUIRED devices
@@ -854,7 +854,7 @@ if (mfaState.deviceStatus === 'ACTIVATION_REQUIRED') {
 }
 ```
 
-**Location:** `src/v8/flows/types/SMSFlowV8.tsx`, `EmailFlowV8.tsx`, `WhatsAppFlowV8.tsx`, `TOTPFlowV8.tsx`
+**Location:** `src/v8/flows/types/SMSFlow.tsx`, `EmailFlow.tsx`, `WhatsAppFlow.tsx`, `TOTPFlow.tsx`
 
 **Fixed:** ACTIVE devices now show success page immediately, skipping OTP input step.
 
@@ -870,7 +870,7 @@ if (mfaState.deviceStatus === 'ACTIVATION_REQUIRED') {
 **Solution:**
 ```typescript
 // ✅ CORRECT - Use configurable OTP length
-const config = MFAConfigurationServiceV8.loadConfiguration();
+const config = MFAConfigurationService.loadConfiguration();
 const otpCodeLength = config.otpCodeLength; // 6, 7, 8, 9, or 10
 
 <OTPInput 
@@ -881,7 +881,7 @@ const otpCodeLength = config.otpCodeLength; // 6, 7, 8, 9, or 10
 />
 ```
 
-**Location:** `src/v8/flows/types/SMSFlowV8.tsx`, `EmailFlowV8.tsx`, `WhatsAppFlowV8.tsx`, `TOTPFlowV8.tsx`
+**Location:** `src/v8/flows/types/SMSFlow.tsx`, `EmailFlow.tsx`, `WhatsAppFlow.tsx`, `TOTPFlow.tsx`
 
 **Fixed:** OTP length is now configurable (6-10 digits) and used throughout all OTP flows.
 
@@ -912,11 +912,11 @@ const handleRegisterDevice = async () => {
 
 // In renderStep2Register:
 if (mfaState.deviceStatus === 'ACTIVE' && deviceRegisteredActive) {
-  return <MFASuccessPageV8 ... />;
+  return <MFASuccessPage ... />;
 }
 ```
 
-**Location:** `src/v8/flows/types/WhatsAppFlowV8.tsx`
+**Location:** `src/v8/flows/types/WhatsAppFlow.tsx`
 
 **Fixed:** WhatsApp ACTIVE devices now show full success page with documentation button.
 
@@ -941,7 +941,7 @@ const deviceStatus = registrationFlowType === 'admin'
   : 'ACTIVATION_REQUIRED'; // User flows always require activation
 ```
 
-**Location:** `src/v8/flows/types/TOTPFlowV8.tsx`
+**Location:** `src/v8/flows/types/TOTPFlow.tsx`
 
 **Fixed:** TOTP now supports both admin and user flows with device status selection.
 
@@ -952,24 +952,24 @@ const deviceStatus = registrationFlowType === 'admin'
 ### Frontend Files
 
 **Flow Components:**
-- `src/v8/flows/types/SMSFlowV8.tsx` - SMS registration flow
-- `src/v8/flows/types/EmailFlowV8.tsx` - Email registration flow
-- `src/v8/flows/types/WhatsAppFlowV8.tsx` - WhatsApp registration flow
-- `src/v8/flows/types/TOTPFlowV8.tsx` - TOTP registration flow
-- `src/v8/flows/MFAAuthenticationMainPageV8.tsx` - OTP authentication page
+- `src/v8/flows/types/SMSFlow.tsx` - SMS registration flow
+- `src/v8/flows/types/EmailFlow.tsx` - Email registration flow
+- `src/v8/flows/types/WhatsAppFlow.tsx` - WhatsApp registration flow
+- `src/v8/flows/types/TOTPFlow.tsx` - TOTP registration flow
+- `src/v8/flows/MFAAuthenticationMainPage.tsx` - OTP authentication page
 
 **Controllers:**
 - `src/v8/flows/controllers/MFAFlowController.ts` - Base OTP flow controller
 - `src/v8/flows/controllers/TOTPFlowController.ts` - TOTP-specific controller
 
 **Services:**
-- `src/v8/services/mfaServiceV8.ts` - OTP/TOTP device registration, send OTP, resend pairing code
-- `src/v8/services/mfaAuthenticationServiceV8.ts` - OTP authentication and validation
-- `src/v8/services/mfaConfigurationServiceV8.ts` - OTP/TOTP configuration storage
+- `src/v8/services/mfaService.ts` - OTP/TOTP device registration, send OTP, resend pairing code
+- `src/v8/services/mfaAuthenticationService.ts` - OTP authentication and validation
+- `src/v8/services/mfaConfigurationService.ts` - OTP/TOTP configuration storage
 
 **Components:**
 - `src/v8/components/MFAOTPInput.tsx` - Reusable OTP input component
-- `src/v8/components/MFASuccessPageV8.tsx` - Unified success page
+- `src/v8/components/MFASuccessPage.tsx` - Unified success page
 
 ### Backend Files
 
@@ -1077,7 +1077,7 @@ POST {apiBase}/v1/environments/{environmentId}/users/{userId}/devices/{deviceId}
 - **Device Name Default:** Device name always defaults to device type (SMS, EMAIL, WHATSAPP, or TOTP) when entering Step 2.
 - **Resend OTP:** Use `resendPairingCode` for ACTIVATION_REQUIRED devices, `sendOTP` for ACTIVE devices.
 - **Error Messages:** All invalid OTP errors are normalized to "OTP code invalid" for user-friendly display.
-- **OTP Length:** OTP length is configurable (6-10 digits) via `MFAConfigurationServiceV8`.
+- **OTP Length:** OTP length is configurable (6-10 digits) via `MFAConfigurationService`.
 - **ACTIVE Devices:** ACTIVE devices show success page immediately, skipping OTP input step.
 - **Region/Custom Domain:** Always include `region` and `customDomain` in API calls for correct PingOne URL construction.
 - **Admin/User Flows:** All OTP flows support both admin and user flows. TOTP supports device status selection for admin flow.

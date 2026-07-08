@@ -19,7 +19,7 @@ export const VERSION_METADATA = {
 	ui: APP_VERSION,
 	server: APP_VERSION,
 	logs: APP_VERSION,
-	mfaV8: MFA_V8_VERSION,
+	mfa: MFA_V8_VERSION,
 	unifiedV8u: UNIFIED_V8U_VERSION,
 } as const;
 

@@ -32,7 +32,7 @@ import React, { useCallback, useState } from 'react';
 import { modernMessaging } from '@/platform/ModernMessagingService';
 import type { DeviceFlowConfig } from '@/mfa/config/deviceFlowConfigTypes';
 import type { MFAFlowController } from '@/mfa/flows/controllers/MFAFlowController';
-import type { MFAFlowBaseRenderProps } from '@/mfa/flows/shared/MFAFlowBaseV8';
+import type { MFAFlowBaseRenderProps } from '@/mfa/flows/shared/MFAFlowBase';
 import { logger } from '../../../../utils/logger';
 import { type DeviceComponentProps, DeviceComponentRegistry } from './DeviceComponentRegistry';
 import { DynamicFormRenderer } from './DynamicFormRenderer';

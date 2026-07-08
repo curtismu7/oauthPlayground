@@ -17,8 +17,8 @@ Authentication buttons were enabled without requiring username and device authen
 Added `credentials.username` and `credentials.deviceAuthenticationPolicyId` requirements to all authentication buttons.
 
 #### Files Modified
-- `/Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/MFAAuthenticationMainPageV8.tsx`
-- `/Users/cmuir/OIDC-MFA-Playground/src/flows/MFAAuthenticationMainPageV8.tsx`
+- `/Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/MFAAuthenticationMainPage.tsx`
+- `/Users/cmuir/OIDC-MFA-Playground/src/flows/MFAAuthenticationMainPage.tsx`
 
 #### Button Logic Updates
 ```typescript
@@ -49,20 +49,20 @@ disabled={
 ### 2. Async Token Status Handling Fix
 
 #### Problem
-`WorkerTokenStatusServiceV8.checkWorkerTokenStatus()` is async but was being called synchronously, causing Promise objects to be set as token status instead of actual status objects.
+`WorkerTokenStatusService.checkWorkerTokenStatus()` is async but was being called synchronously, causing Promise objects to be set as token status instead of actual status objects.
 
 #### Solution
 Fixed all synchronous calls to properly await the async function.
 
 #### Files Modified
-- `/Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/MFAAuthenticationMainPageV8.tsx`
-- `/Users/cmuir/OIDC-MFA-Playground/src/flows/MFAAuthenticationMainPageV8.tsx`
+- `/Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/MFAAuthenticationMainPage.tsx`
+- `/Users/cmuir/OIDC-MFA-Playground/src/flows/MFAAuthenticationMainPage.tsx`
 
 #### Critical Fixes
 ```typescript
 // BEFORE (Broken)
 const [tokenStatus, setTokenStatus] = useState(() =>
-  WorkerTokenStatusServiceV8.checkWorkerTokenStatus() // Promise!
+  WorkerTokenStatusService.checkWorkerTokenStatus() // Promise!
 );
 
 // AFTER (Fixed)
@@ -75,7 +75,7 @@ const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
 // Added initial loading
 useEffect(() => {
   const loadInitialTokenStatus = async () => {
-    const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+    const status = await WorkerTokenStatusService.checkWorkerTokenStatus();
     setTokenStatus(status);
   };
   loadInitialTokenStatus();
@@ -83,7 +83,7 @@ useEffect(() => {
 
 // Fixed event handlers
 const handleTokenUpdate = async () => {
-  const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+  const status = await WorkerTokenStatusService.checkWorkerTokenStatus();
   setTokenStatus(status);
 };
 ```
@@ -154,8 +154,8 @@ Worker Token Status display was taking up excessive vertical space with a narrow
 Made the display full-width and optimized the grid layout for better horizontal space utilization.
 
 #### Files Modified
-- `/Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/WorkerTokenStatusDisplayV8.tsx`
-- `/Users/cmuir/OIDC-MFA-Playground/src/components/WorkerTokenStatusDisplayV8.tsx`
+- `/Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/WorkerTokenStatusDisplay.tsx`
+- `/Users/cmuir/OIDC-MFA-Playground/src/components/WorkerTokenStatusDisplay.tsx`
 
 #### Changes Made
 ```typescript
@@ -225,12 +225,12 @@ console.log('[DEBUG] authState.isLoading:', authState.isLoading);
 ## Bug Fixes
 
 ### 500 Internal Server Error
-- **Issue**: Syntax errors in MFAAuthenticationMainPageV8.tsx from malformed edits
+- **Issue**: Syntax errors in MFAAuthenticationMainPage.tsx from malformed edits
 - **Fix**: Restored from backup and carefully reapplied changes
 - **Result**: Application now loads without errors
 
 ### Promise Type Errors
-- **Issue**: `WorkerTokenStatusServiceV8.checkWorkerTokenStatus()` returning Promise instead of TokenStatusInfo
+- **Issue**: `WorkerTokenStatusService.checkWorkerTokenStatus()` returning Promise instead of TokenStatusInfo
 - **Fix**: Made all calls properly async/await
 - **Result**: Proper type checking and no runtime errors
 

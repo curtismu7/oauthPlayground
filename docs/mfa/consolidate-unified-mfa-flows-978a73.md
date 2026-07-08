@@ -11,7 +11,7 @@ This plan consolidates the duplicate Unified MFA flows into a single, consistent
 ### Key Findings:
 - **Both routes render the same component** (`UnifiedMFARegistrationFlowV8_Legacy`)
 - **`UnifiedMFAV8_Simple` is just a thin wrapper** that adds minimal styling
-- **Two separate UnifiedMFARegistrationFlowV8 files exist** but only Legacy is used
+- **Two separate UnifiedMFARegistrationFlow files exist** but only Legacy is used
 - **Both sidebars have duplicate menu entries** with different styling
 - **User confusion**: Two URLs that appear to do the same thing
 
@@ -19,7 +19,7 @@ This plan consolidates the duplicate Unified MFA flows into a single, consistent
 - `src/App.tsx` (routing)
 - `src/locked/mfa-hub-v8/feature/UnifiedMFAV8_Simple.tsx` (wrapper)
 - `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` (main component)
-- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx` (unused duplicate)
+- `src/v8/flows/unified/UnifiedMFARegistrationFlow.tsx` (unused duplicate)
 - `src/components/Sidebar.tsx` (main sidebar)
 - `src/components/DragDropSidebar.tsx` (secondary sidebar)
 
@@ -42,7 +42,7 @@ This plan consolidates the duplicate Unified MFA flows into a single, consistent
 
 ### Phase 4: Code Cleanup
 - Delete unused `UnifiedMFAV8_Simple.tsx`
-- Delete unused `UnifiedMFARegistrationFlowV8.tsx` (the duplicate)
+- Delete unused `UnifiedMFARegistrationFlow.tsx` (the duplicate)
 - Verify no other imports reference removed files
 
 ## Expected Outcome

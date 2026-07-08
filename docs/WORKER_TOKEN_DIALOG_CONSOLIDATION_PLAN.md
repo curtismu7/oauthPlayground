@@ -44,7 +44,7 @@ interface WorkerTokenCredentialsProps {
 
 `variant="inline"` renders the old Section (status card + "Get token" button that opens the
 `variant="modal"` form). Reuse existing services unchanged: `unifiedWorkerTokenService`,
-`workerTokenCredentialsService`, `AuthMethodServiceV8`, `MFAConfigurationServiceV8`.
+`workerTokenCredentialsService`, `AuthMethodService`, `MFAConfigurationService`.
 
 ---
 
@@ -63,30 +63,30 @@ interface WorkerTokenCredentialsProps {
       Worker app. If not ready, ship the option disabled with a "coming soon" note rather than a
       broken flow.
 - [ ] Fold in the education modal content as the collapsed `<details>` (retires
-      `WorkerTokenVsClientCredentialsEducationModalV8`).
+      `WorkerTokenVsClientCredentialsEducationModal`).
 - **Done when:** Storybook/standalone render matches the mock for all variant×size×grantType combos;
       unit tests for token-generation handler pass.
 
 ## Phase 2 — Migrate V8 modal call-sites (17)
-Repoint each `WorkerTokenModalV8` import → `WorkerTokenCredentials variant="modal"`:
-`v8/components/AppPickerV8`, `v8/components/WorkerTokenSectionV8`, `v8/flows/EmailMFASignOnFlowV8`,
-`MFAConfigurationPageV8`, `MFADeviceManagementFlowV8`, `MFADeviceOrderingFlowV8`, `MFAReportingFlowV8`,
-`PingOneProtectFlowV8`, `shared/MFAFlowBaseV8`, `types/FIDO2ConfigurationPageV8`,
-`types/MobileOTPConfigurationPageV8`, `v8/pages/DeviceAuthenticationDetailsV8`,
-`MFADeviceCreateDemoV8`, `v8/services/workerTokenUIServiceV8`, `v8u/components/UnifiedFlowSteps`,
+Repoint each `WorkerTokenModal` import → `WorkerTokenCredentials variant="modal"`:
+`v8/components/AppPicker`, `v8/components/WorkerTokenSection`, `v8/flows/EmailMFASignOnFlow`,
+`MFAConfigurationPage`, `MFADeviceManagementFlow`, `MFADeviceOrderingFlow`, `MFAReportingFlow`,
+`PingOneProtectFlow`, `shared/MFAFlowBase`, `types/FIDO2ConfigurationPage`,
+`types/MobileOTPConfigurationPage`, `v8/pages/DeviceAuthenticationDetails`,
+`MFADeviceCreateDemo`, `v8/services/workerTokenUIService`, `v8u/components/UnifiedFlowSteps`,
 `v8u/flows/UnifiedOAuthFlowV8U`, `v8u/pages/TokenMonitoringPage`.
-- [ ] Also fold `WorkerTokenRequestModalV8` (only used by the V8 modal) as an internal sub-step.
-- [ ] Delete `WorkerTokenModalV8.tsx` + `WorkerTokenRequestModalV8.tsx` when last importer flips.
+- [ ] Also fold `WorkerTokenRequestModal` (only used by the V8 modal) as an internal sub-step.
+- [ ] Delete `WorkerTokenModal.tsx` + `WorkerTokenRequestModal.tsx` when last importer flips.
 - **Done when:** build green; the chip/flow smoke paths that open the modal still generate a token.
 
 ## Phase 3 — Migrate V8 section call-sites (11)
-Repoint `WorkerTokenSectionV8` → `WorkerTokenCredentials variant="inline"` (map `compact`→`size`,
+Repoint `WorkerTokenSection` → `WorkerTokenCredentials variant="inline"` (map `compact`→`size`,
 keep `showStatusCard`/`showSettings`/silent/showTokenAtEnd props):
 `pages/Configuration`, `CredentialManagement`, `EnvironmentManagementPageV8`, `PingOneAuditActivities`,
 `PingOneIdentityMetrics`, `PingOneUserProfile`, `PingOneWebhookViewer`, `docs/migration/MigrationGuide`,
-`protect-portal/ProtectPortalApp`, `v8/flows/unified/UnifiedMFARegistrationFlowV8`,
-`v8/pages/DeleteAllDevicesUtilityV8`.
-- [ ] Delete `WorkerTokenSectionV8.tsx` when last importer flips.
+`protect-portal/ProtectPortalApp`, `v8/flows/unified/UnifiedMFARegistrationFlow`,
+`v8/pages/DeleteAllDevicesUtility`.
+- [ ] Delete `WorkerTokenSection.tsx` when last importer flips.
 
 ## Phase 4 — Migrate V9 modal + section (11 + 2)
 - [ ] `WorkerTokenModalV9` (11 sites incl. `commonImportsService`, `comprehensiveCredentialsService`,
@@ -99,10 +99,10 @@ keep `showStatusCard`/`showSettings`/silent/showTokenAtEnd props):
 - [ ] `WorkerTokenModal` (legacy, 1 site: `OrganizationLicensing`) → canonical; delete file.
 - [ ] `AuthorizationCodeConfigModal` (2 sites: `KrogerGroceryStoreMFA`, `HelioMartPasswordReset`) →
       decide: merge into canonical "Authorization Code" branch, or keep separate. If merged, delete.
-- [ ] `WorkerTokenPromptModalV8` (1 site: `MFAFlowBaseV8`) → fold or repoint.
+- [ ] `WorkerTokenPromptModal` (1 site: `MFAFlowBase`) → fold or repoint.
 
 ## Phase 6 — Cleanup
-- [ ] Remove now-unused service helpers / `workerTokenModalHelperV8`, `workerTokenUIServiceV8` if orphaned.
+- [ ] Remove now-unused service helpers / `workerTokenModalHelper`, `workerTokenUIService` if orphaned.
 - [ ] Grep for any remaining `WorkerTokenModalV*` / `WorkerTokenSectionV*` imports → 0.
 - [ ] Update tests referencing deleted components.
 

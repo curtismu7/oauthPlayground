@@ -146,7 +146,7 @@ export const getVersionForType = (type: VersionBadgeType): string => {
 		case 'updated':
 			return VERSION_METADATA.app;
 		case 'v8':
-			return VERSION_METADATA.mfaV8;
+			return VERSION_METADATA.mfa;
 		case 'v8u':
 			return VERSION_METADATA.unifiedV8u;
 		case 'v7':
@@ -317,7 +317,7 @@ export const updateMenuItemsWithVersionBadges = (
 export interface VersionBadgeContext {
 	currentVersions: {
 		app: string;
-		mfaV8: string;
+		mfa: string;
 		unifiedV8u: string;
 	};
 	updateBadge: (itemId: string, config: VersionBadgeConfig) => void;

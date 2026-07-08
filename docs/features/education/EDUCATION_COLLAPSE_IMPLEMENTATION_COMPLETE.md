@@ -23,8 +23,8 @@ The education collapse feature has been successfully implemented and is working 
   - UnifiedOAuthFlowV8U (`/v8u/unified`)
   - ImplicitFlowV7 (`/flows/implicit-v7`)
   - ClientCredentialsFlowV7 (`/flows/client-credentials-v7`)
-  - UnifiedMFARegistrationFlowV8 (`/v8/unified-mfa`)
-  - MFAAuthenticationMainPageV8 (`/v8/mfa-authentication`)
+  - UnifiedMFARegistrationFlow (`/v8/unified-mfa`)
+  - MFAAuthenticationMainPage (`/v8/mfa-authentication`)
 
 ## 📊 Three Modes Behavior
 

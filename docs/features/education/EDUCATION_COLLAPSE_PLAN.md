@@ -75,7 +75,7 @@ These pages should work correctly already:
 - ✅ ImplicitFlowV7.tsx
 - ✅ ClientCredentialsFlowV7_Complete.tsx
 - ✅ UnifiedMFARegistrationFlowV8_Legacy.tsx
-- ✅ MFAAuthenticationMainPageV8.tsx
+- ✅ MFAAuthenticationMainPage.tsx
 
 ## Fix Required
 
@@ -100,8 +100,8 @@ After implementation, test each mode on each page:
 - [ ] UnifiedOAuthFlowV8U (https://localhost:3000/v8u/unified)
 - [ ] ImplicitFlowV7 (https://localhost:3000/flows/implicit-v7)
 - [ ] ClientCredentialsFlowV7 (https://localhost:3000/flows/client-credentials-v7)
-- [ ] UnifiedMFARegistrationFlowV8 (https://localhost:3000/v8/unified-mfa)
-- [ ] MFAAuthenticationMainPageV8 (https://localhost:3000/v8/mfa-authentication)
+- [ ] UnifiedMFARegistrationFlow (https://localhost:3000/v8/unified-mfa)
+- [ ] MFAAuthenticationMainPage (https://localhost:3000/v8/mfa-authentication)
 
 ## Next Steps
 
@@ -124,8 +124,8 @@ These pages use `MasterEducationSection` component and work correctly:
 - ✅ UnifiedOAuthFlowV8U (`/v8u/unified`)
 - ✅ ImplicitFlowV7 (`/flows/implicit-v7`)
 - ✅ ClientCredentialsFlowV7 (`/flows/client-credentials-v7`)
-- ✅ UnifiedMFARegistrationFlowV8 (`/v8/unified-mfa`)
-- ✅ MFAAuthenticationMainPageV8 (`/v8/mfa-authentication`)
+- ✅ UnifiedMFARegistrationFlow (`/v8/unified-mfa`)
+- ✅ MFAAuthenticationMainPage (`/v8/mfa-authentication`)
 
 ### What Doesn't Work ❌
 - ❌ UnifiedFlowSteps component (`/v8u/unified/oauth-authz/0` and all step pages)

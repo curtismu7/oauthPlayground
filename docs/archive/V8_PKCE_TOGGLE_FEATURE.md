@@ -59,7 +59,7 @@ flowKey = 'oauth-authz-v8'
 effectiveFlowKey = 'pkce-v8'  // Dynamically switches
 
 // Form options now use PKCE configuration
-flowOptions = FlowOptionsServiceV8.getOptionsForFlow('pkce-v8')
+flowOptions = FlowOptionsService.getOptionsForFlow('pkce-v8')
 ```
 
 **Field Visibility**:
@@ -96,7 +96,7 @@ const effectiveFlowKey = usePKCE && flowKey.includes('oauth-authz')
 
 // Get options for effective flow
 const flowOptions = useMemo(
-  () => FlowOptionsServiceV8.getOptionsForFlow(effectiveFlowKey),
+  () => FlowOptionsService.getOptionsForFlow(effectiveFlowKey),
   [effectiveFlowKey]
 );
 ```
@@ -111,7 +111,7 @@ const flowOptions = useMemo(
       onChange={(e) => {
         setUsePKCE(e.target.checked);
         if (e.target.checked) {
-          toastV8.info('PKCE enabled - using public client configuration');
+          toast.info('PKCE enabled - using public client configuration');
         }
       }}
     />
@@ -179,7 +179,7 @@ Potential additions:
 ```typescript
 // Test that PKCE toggle is available for Authorization Code Flow
 const form = render(
-  <CredentialsFormV8
+  <CredentialsForm
     flowKey="oauth-authz-v8"
     credentials={credentials}
     onChange={setCredentials}

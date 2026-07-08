@@ -25,13 +25,13 @@ This document provides a complete reference for the UI structure, components, st
 ### SMS Configuration Page
 
 **Location:** `/v8/mfa/register/sms`  
-**Component:** `SMSOTPConfigurationPageV8.tsx`
+**Component:** `SMSOTPConfigurationPage.tsx`
 
 #### Layout Structure
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  MFANavigationV8 (Top Navigation Bar)                   │
+│  MFANavigation (Top Navigation Bar)                   │
 ├─────────────────────────────────────────────────────────┤
 │  SMS Configuration Header (Blue Gradient)               │
 │  - Title: "SMS Device Registration"                    │
@@ -68,7 +68,7 @@ This document provides a complete reference for the UI structure, components, st
 ## SMS Registration Flow
 
 **Location:** `/v8/mfa/register/sms/device`  
-**Component:** `SMSFlowV8.tsx`
+**Component:** `SMSFlow.tsx`
 
 ### Step 0: Configuration
 
@@ -91,13 +91,13 @@ This document provides a complete reference for the UI structure, components, st
 ### Step 2: Device Registration
 
 **UI Elements:**
-- Phone number input with country code picker (`CountryCodePickerV8`)
+- Phone number input with country code picker (`CountryCodePicker`)
 - Device name input (conditional, based on `promptForNicknameOnPairing`)
 - "Register SMS Device" button
 - Loading indicator during registration
 
 **Phone Number Input:**
-- Uses `CountryCodePickerV8` component
+- Uses `CountryCodePicker` component
 - Validates E.164 format
 - Auto-populates from PingOne user profile (if available)
 
@@ -128,7 +128,7 @@ This document provides a complete reference for the UI structure, components, st
 ## SMS Authentication Flow
 
 **Location:** `/v8/mfa/auth`  
-**Component:** `MFAAuthenticationMainPageV8.tsx`
+**Component:** `MFAAuthenticationMainPage.tsx`
 
 ### Device Selection
 
@@ -151,7 +151,7 @@ This document provides a complete reference for the UI structure, components, st
 
 ## Helper Components
 
-### CountryCodePickerV8
+### CountryCodePicker
 
 **Purpose:** Country code selector for phone number input
 

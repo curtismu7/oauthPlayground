@@ -12,8 +12,8 @@ You must:
 
 The two key files are:
 
-- `FIDO2ConfigurationPageV8.tsx`
-- `FIDO2FlowV8.tsx`
+- `FIDO2ConfigurationPage.tsx`
+- `FIDO2Flow.tsx`
 
 Do **not** remove or significantly change other flows. This must be a **surgical, safe fix** that only improves correctness and reliability for FIDO2 registration.
 
@@ -23,7 +23,7 @@ Do **not** remove or significantly change other flows. This must be a **surgical
 
 ### 1. Config page selects policies but the flow never uses them
 
-In `FIDO2ConfigurationPageV8.tsx`, when the user finishes configuration and presses “Proceed to Device Registration”, you do something like:
+In `FIDO2ConfigurationPage.tsx`, when the user finishes configuration and presses “Proceed to Device Registration”, you do something like:
 
 ```ts
 navigate(`/v8/mfa/register/${devicePath}/device`, {
@@ -44,7 +44,7 @@ So the config page correctly sets in `location.state`:
 - `configured`
 - `deviceType`
 
-However, in `FIDO2FlowV8.tsx` (the registration flow), you **only read**:
+However, in `FIDO2Flow.tsx` (the registration flow), you **only read**:
 
 - `configured`
 - `deviceType`
@@ -79,7 +79,7 @@ const [selectedFido2PolicyId, setSelectedFido2PolicyId] = useState<string>('');
 const [selectedDeviceAuthPolicy, setSelectedDeviceAuthPolicy] = useState<DeviceAuthenticationPolicy | null>(null);
 ```
 
-It **does not** write to `CredentialsServiceV8` or any shared `MFACredentials` object.
+It **does not** write to `CredentialsService` or any shared `MFACredentials` object.
 
 The FIDO2 flow, on the other hand, relies heavily on `MFACredentials` / stored credentials for:
 
@@ -94,7 +94,7 @@ Because the config page never updates the shared credentials, the FIDO2 flow end
 
 ## 3. `configured` is only used for UI, not for wiring
 
-In `FIDO2FlowV8.tsx`, `configured` from `location.state` is only used to auto-open the registration form:
+In `FIDO2Flow.tsx`, `configured` from `location.state` is only used to auto-open the registration form:
 
 ```ts
 const isConfigured = (location.state as { configured?: boolean })?.configured === true;
@@ -120,7 +120,7 @@ So the user sees a registration screen, but the backend call is not using the co
 
 ### A. Plumb policies from `location.state` into `MFACredentials`
 
-In `FIDO2FlowV8.tsx`, you must:
+In `FIDO2Flow.tsx`, you must:
 
 1. Extend the `location.state` type to include:
    - `fido2PolicyId?: string`
@@ -128,7 +128,7 @@ In `FIDO2FlowV8.tsx`, you must:
    - `deviceType?: string`
    - `configured?: boolean`
 
-2. On first render, if these values exist, **merge them into the stored credentials** via `CredentialsServiceV8`.
+2. On first render, if these values exist, **merge them into the stored credentials** via `CredentialsService`.
 
 **Example pattern (adjust to the actual codebase):**
 
@@ -145,7 +145,7 @@ const locationState = location.state as {
 useEffect(() => {
   if (!locationState) return;
 
-  const stored = CredentialsServiceV8.getStoredCredentials() || {};
+  const stored = CredentialsService.getStoredCredentials() || {};
   const updated = { ...stored };
 
   if (locationState.deviceAuthPolicyId && !stored.deviceAuthenticationPolicyId) {
@@ -158,7 +158,7 @@ useEffect(() => {
   }
 
   if (JSON.stringify(updated) !== JSON.stringify(stored)) {
-    CredentialsServiceV8.updateStoredCredentials(updated as MFACredentials);
+    CredentialsService.updateStoredCredentials(updated as MFACredentials);
   }
 }, [locationState]);
 ```
@@ -167,7 +167,7 @@ useEffect(() => {
 
 ### B. Ensure the controller uses the FIDO2 policy
 
-Review the FIDO2 controller / service used by `FIDO2FlowV8`. Make sure that:
+Review the FIDO2 controller / service used by `FIDO2Flow`. Make sure that:
 
 - It **accepts** a `fido2PolicyId` in its params (probably as part of `MFACredentials` or as an explicit argument).
 - It **sends** that `fido2PolicyId` to the relevant PingOne FIDO2 registration endpoint in the request body or query string, according to the official PingOne MFA / FIDO2 docs.
@@ -244,4 +244,4 @@ FIDO2 registration is considered **fixed** and acceptable when:
 5. Registration **succeeds** for valid configurations and produces useful, surfaced errors for invalid ones.
 6. All other MFA flows (non-FIDO2) continue to function as before without regressions.
 
-Use this prompt to refactor `FIDO2FlowV8.tsx`, `FIDO2ConfigurationPageV8.tsx`, and any directly related controller/credentials types so that FIDO2 registration is fully wired end-to-end and behaves correctly.
+Use this prompt to refactor `FIDO2Flow.tsx`, `FIDO2ConfigurationPage.tsx`, and any directly related controller/credentials types so that FIDO2 registration is fully wired end-to-end and behaves correctly.

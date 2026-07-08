@@ -25,13 +25,13 @@ This document provides a complete reference for the UI structure, components, st
 ### Email Configuration Page
 
 **Location:** `/v8/mfa/register/email`  
-**Component:** `EmailOTPConfigurationPageV8.tsx`
+**Component:** `EmailOTPConfigurationPage.tsx`
 
 #### Layout Structure
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  MFANavigationV8 (Top Navigation Bar)                   │
+│  MFANavigation (Top Navigation Bar)                   │
 ├─────────────────────────────────────────────────────────┤
 │  Email Configuration Header (Blue Gradient)            │
 │  - Title: "Email Device Registration"                    │
@@ -68,7 +68,7 @@ This document provides a complete reference for the UI structure, components, st
 ## Email Registration Flow
 
 **Location:** `/v8/mfa/register/email/device`  
-**Component:** `EmailFlowV8.tsx`
+**Component:** `EmailFlow.tsx`
 
 ### Step 0: Configuration
 
@@ -128,7 +128,7 @@ This document provides a complete reference for the UI structure, components, st
 ## Email Authentication Flow
 
 **Location:** `/v8/mfa/auth`  
-**Component:** `MFAAuthenticationMainPageV8.tsx`
+**Component:** `MFAAuthenticationMainPage.tsx`
 
 ### Device Selection
 

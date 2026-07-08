@@ -27,9 +27,9 @@ done
 
 # Check MFA components exist
 MFA_COMPONENTS=(
-    "WorkerTokenStatusDisplayV8"
-    "MFAFlowBaseV8" 
-    "UnifiedMFARegistrationFlowV8"
+    "WorkerTokenStatusDisplay"
+    "MFAFlowBase" 
+    "UnifiedMFARegistrationFlow"
 )
 
 for component in "${MFA_COMPONENTS[@]}"; do
@@ -41,9 +41,9 @@ done
 
 # Check MFA services exist
 MFA_SERVICES=(
-    "mfaServiceV8"
+    "mfaService"
     "unifiedWorkerTokenService"
-    "credentialsServiceV8"
+    "credentialsService"
 )
 
 for service in "${MFA_SERVICES[@]}"; do
@@ -57,8 +57,8 @@ done
 echo "🔍 Checking MFA functionality..."
 
 # Check worker token modal exists
-if ! grep -r "WorkerTokenModalV8" src/ | grep -q .; then
-    echo "❌ WorkerTokenModalV8 missing"
+if ! grep -r "WorkerTokenModal" src/ | grep -q .; then
+    echo "❌ WorkerTokenModal missing"
     exit 1
 fi
 

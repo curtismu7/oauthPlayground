@@ -2,88 +2,88 @@
 
 ## Import
 ```typescript
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { toast } from '@/v8/utils/toastNotifications';
 ```
 
 ## Common Methods
 
 | Method | Usage | Example |
 |--------|-------|---------|
-| `success()` | General success | `toastV8.success('Saved successfully')` |
-| `error()` | General error | `toastV8.error('Failed to save')` |
-| `warning()` | General warning | `toastV8.warning('Please fill fields')` |
-| `info()` | General info | `toastV8.info('Copied to clipboard')` |
+| `success()` | General success | `toast.success('Saved successfully')` |
+| `error()` | General error | `toast.error('Failed to save')` |
+| `warning()` | General warning | `toast.warning('Please fill fields')` |
+| `info()` | General info | `toast.info('Copied to clipboard')` |
 
 ## Specialized Methods
 
 ### Copy Operations
 ```typescript
-toastV8.copiedToClipboard('Authorization URL');
+toast.copiedToClipboard('Authorization URL');
 ```
 
 ### Validation
 ```typescript
-toastV8.validationError(['Client ID', 'Redirect URI']);
+toast.validationError(['Client ID', 'Redirect URI']);
 ```
 
 ### Network
 ```typescript
-toastV8.networkError('token exchange');
+toast.networkError('token exchange');
 ```
 
 ### Step Navigation
 ```typescript
-toastV8.stepCompleted(1);
-toastV8.flowCompleted();
+toast.stepCompleted(1);
+toast.flowCompleted();
 ```
 
 ### Processing
 ```typescript
-toastV8.processing('Exchanging authorization code for tokens');
+toast.processing('Exchanging authorization code for tokens');
 ```
 
 ### Credentials
 ```typescript
-toastV8.credentialsSaved();
-toastV8.credentialsLoaded();
+toast.credentialsSaved();
+toast.credentialsLoaded();
 ```
 
 ### OAuth/OIDC
 ```typescript
-toastV8.pkceGenerated();
-toastV8.authUrlGenerated();
-toastV8.tokenExchangeSuccess();
-toastV8.tokenIntrospectionSuccess();
-toastV8.userInfoFetched();
+toast.pkceGenerated();
+toast.authUrlGenerated();
+toast.tokenExchangeSuccess();
+toast.tokenIntrospectionSuccess();
+toast.userInfoFetched();
 ```
 
 ### App Discovery
 ```typescript
-toastV8.appDiscoverySuccess();
-toastV8.discoveryEndpointLoaded();
-toastV8.environmentIdExtracted();
+toast.appDiscoverySuccess();
+toast.discoveryEndpointLoaded();
+toast.environmentIdExtracted();
 ```
 
 ### Configuration
 ```typescript
-toastV8.configurationChecked();
-toastV8.flowReset();
+toast.configurationChecked();
+toast.flowReset();
 ```
 
 ### Scopes
 ```typescript
-toastV8.scopeRequired('openid');
+toast.scopeRequired('openid');
 ```
 
 ## Pattern: Try-Catch with Toasts
 
 ```typescript
 try {
-  toastV8.processing('Performing operation...');
+  toast.processing('Performing operation...');
   const result = await performOperation();
-  toastV8.success('Operation completed successfully');
+  toast.success('Operation completed successfully');
 } catch (error) {
-  toastV8.error('Operation failed: ' + error.message);
+  toast.error('Operation failed: ' + error.message);
 }
 ```
 
@@ -92,27 +92,27 @@ try {
 ```typescript
 const errors = validateInput(data);
 if (errors.length > 0) {
-  toastV8.validationError(errors);
+  toast.validationError(errors);
   return;
 }
-toastV8.success('Validation passed');
+toast.success('Validation passed');
 ```
 
 ## Pattern: Copy to Clipboard
 
 ```typescript
 navigator.clipboard.writeText(text);
-toastV8.copiedToClipboard('Authorization URL');
+toast.copiedToClipboard('Authorization URL');
 ```
 
 ## Duration Options
 
 ```typescript
 // Default duration (auto-dismiss)
-toastV8.success('Quick message');
+toast.success('Quick message');
 
 // Custom duration (milliseconds)
-toastV8.success('Important message', { duration: 8000 });
+toast.success('Important message', { duration: 8000 });
 ```
 
 ## Notification Types

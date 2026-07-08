@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { MFAConfigurationServiceV8 } from '@/mfa/services/mfaConfigurationServiceV8';
+import { MFAConfigurationService } from '@/mfa/services/mfaConfigurationService';
 
 export interface MFAOTPInputProps {
 	value: string;
@@ -24,7 +24,7 @@ export const MFAOTPInput: React.FC<MFAOTPInputProps> = ({
 	maxLength,
 }) => {
 	// Get configured OTP length from MFA configuration service
-	const config = MFAConfigurationServiceV8.loadConfiguration();
+	const config = MFAConfigurationService.loadConfiguration();
 	const configuredLength = maxLength ?? config.otpCodeLength;
 	const defaultPlaceholder = '0'.repeat(configuredLength);
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

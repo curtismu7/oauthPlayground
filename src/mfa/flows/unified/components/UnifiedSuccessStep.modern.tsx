@@ -21,7 +21,7 @@ import { Button } from '@/mfa/components/Button';
 import { PageTransition } from '@/mfa/components/PageTransition';
 import type { DeviceFlowConfig } from '@/mfa/config/deviceFlowConfigTypes';
 import { borderRadius, colors, spacing, typography } from '@/mfa/design/tokens';
-import type { MFAFlowBaseRenderProps } from '@/mfa/flows/shared/MFAFlowBaseV8';
+import type { MFAFlowBaseRenderProps } from '@/mfa/flows/shared/MFAFlowBase';
 import { FiCheck, FiExternalLink, FiPlus } from '../../../../icons';
 
 import { logger } from '../../../../utils/logger';

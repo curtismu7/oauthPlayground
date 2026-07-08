@@ -58,7 +58,7 @@ Extract the "Default" Device Authentication Policy from PingOne and create a new
   - Invalid custom settings
   - PingOne API errors
 
-## Phase 2: Frontend Service (mfaServiceV8.ts)
+## Phase 2: Frontend Service (mfaService.ts)
 
 ### 2.1 Add Service Methods
 
@@ -87,7 +87,7 @@ Extract the "Default" Device Authentication Policy from PingOne and create a new
 - Returns: Created policy object with new ID
 - Purpose: Create OauthPlaygroundPolicy from Default
 
-## Phase 3: UI Integration (MFAConfigurationPageV8.tsx)
+## Phase 3: UI Integration (MFAConfigurationPage.tsx)
 
 ### 3.1 Add New Section: "Device Authentication Policy Management"
 

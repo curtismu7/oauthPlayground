@@ -20,7 +20,7 @@ never inside a hook.
 Built a 3-layer system so users never have to type the environment ID again once
 the worker token is configured:
 1. `useAutoEnvironmentId` hook + `readBestEnvironmentId()` utility
-2. Cascade sync: worker token save and shared environment save both push to `EnvironmentIdServiceV8`
+2. Cascade sync: worker token save and shared environment save both push to `EnvironmentIdService`
 3. All major pages updated to use `readBestEnvironmentId()` as their initial state
 
 ## Additional docs in this folder
@@ -49,9 +49,9 @@ the worker token is configured:
 | `src/pages/PasskeyManager.tsx` | Modified | [pages-envid-update.md](./pages-envid-update.md) |
 | `src/pages/flows/JWTBearerTokenFlowV7.tsx` | Modified | [pages-envid-update.md](./pages-envid-update.md) |
 | `src/pages/flows/RARFlowV7.tsx` | Modified | [pages-envid-update.md](./pages-envid-update.md) |
-| `src/v8/pages/DeleteAllDevicesUtilityV8.tsx` | Modified | [pages-envid-update.md](./pages-envid-update.md) |
-| `src/v8/pages/MFADeviceCreateDemoV8.tsx` | Modified | [pages-envid-update.md](./pages-envid-update.md) |
-| `src/v8/flows/EmailMFASignOnFlowV8.tsx` | Modified | [pages-envid-update.md](./pages-envid-update.md) |
+| `src/v8/pages/DeleteAllDevicesUtility.tsx` | Modified | [pages-envid-update.md](./pages-envid-update.md) |
+| `src/v8/pages/MFADeviceCreateDemo.tsx` | Modified | [pages-envid-update.md](./pages-envid-update.md) |
+| `src/v8/flows/EmailMFASignOnFlow.tsx` | Modified | [pages-envid-update.md](./pages-envid-update.md) |
 
 ## Rollback
 
@@ -66,9 +66,9 @@ git checkout HEAD -- \
   src/pages/PasskeyManager.tsx \
   src/pages/flows/JWTBearerTokenFlowV7.tsx \
   src/pages/flows/RARFlowV7.tsx \
-  src/v8/pages/DeleteAllDevicesUtilityV8.tsx \
-  src/v8/pages/MFADeviceCreateDemoV8.tsx \
-  src/v8/flows/EmailMFASignOnFlowV8.tsx \
+  src/v8/pages/DeleteAllDevicesUtility.tsx \
+  src/v8/pages/MFADeviceCreateDemo.tsx \
+  src/v8/flows/EmailMFASignOnFlow.tsx \
   src/services/unifiedWorkerTokenService.ts \
   src/services/comprehensiveFlowDataService.ts
 

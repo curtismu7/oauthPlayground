@@ -16,7 +16,7 @@ Implemented closeable SuperSimpleAPIDisplay component with centralized service m
 
 ### 1. Created API Display Service V8 ✅
 
-**File:** `src/v8/services/apiDisplayServiceV8.ts`
+**File:** `src/v8/services/apiDisplayService.ts`
 
 **Features:**
 - Centralized visibility state management
@@ -28,39 +28,39 @@ Implemented closeable SuperSimpleAPIDisplay component with centralized service m
 
 ```typescript
 // Usage example
-import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
+import { apiDisplayService } from '@/v8/services/apiDisplayService';
 
 // Show/hide the display
-apiDisplayServiceV8.show();
-apiDisplayServiceV8.hide();
-apiDisplayServiceV8.toggle();
+apiDisplayService.show();
+apiDisplayService.hide();
+apiDisplayService.toggle();
 
 // Get current state
-const isVisible = apiDisplayServiceV8.isVisible();
+const isVisible = apiDisplayService.isVisible();
 
 // Subscribe to changes
-const unsubscribe = apiDisplayServiceV8.subscribe((isVisible) => {
+const unsubscribe = apiDisplayService.subscribe((isVisible) => {
   console.log('Visibility changed:', isVisible);
 });
 ```
 
 ---
 
-### 2. Updated SuperSimpleApiDisplayV8 Component ✅
+### 2. Updated SuperSimpleApiDisplay Component ✅
 
-**File:** `src/v8/components/SuperSimpleApiDisplayV8.tsx`
+**File:** `src/v8/components/SuperSimpleApiDisplay.tsx`
 
 **Changes:**
 1. **Removed global state variables** - Replaced with service-based state management
 2. **Added Close button** - New "✕ Close" button in header next to "Clear" button
-3. **Service integration** - Both component and checkbox now use `apiDisplayServiceV8`
+3. **Service integration** - Both component and checkbox now use `apiDisplayService`
 4. **Subscription-based updates** - Components subscribe to service changes for reactive updates
 
 **UI Changes:**
 - Close button: Grey background (#6b7280) with white text
 - Positioned next to Clear button in header
 - Accessible with proper title attribute
-- Calls `apiDisplayServiceV8.hide()` on click
+- Calls `apiDisplayService.hide()` on click
 
 ```typescript
 // Header with both Clear and Close buttons
@@ -68,7 +68,7 @@ const unsubscribe = apiDisplayServiceV8.subscribe((isVisible) => {
   <button onClick={() => setShowClearConfirm(true)}>
     Clear
   </button>
-  <button onClick={() => apiDisplayServiceV8.hide()}>
+  <button onClick={() => apiDisplayService.hide()}>
     ✕ Close
   </button>
 </div>
@@ -80,15 +80,15 @@ const unsubscribe = apiDisplayServiceV8.subscribe((isVisible) => {
 
 **Changes:**
 - Removed global state management (`globalIsVisible`, `globalSetIsVisible`)
-- Now subscribes to `apiDisplayServiceV8` for state changes
-- Calls `apiDisplayServiceV8.toggle()` on checkbox change
+- Now subscribes to `apiDisplayService` for state changes
+- Calls `apiDisplayService.toggle()` on checkbox change
 - Properly unsubscribes on unmount
 
 ---
 
 ### 4. Created Tests ✅
 
-**File:** `src/v8/services/__tests__/apiDisplayServiceV8.test.ts`
+**File:** `src/v8/services/__tests__/apiDisplayService.test.ts`
 
 **Test Coverage:**
 - ✅ Default visibility state
@@ -135,7 +135,7 @@ const unsubscribe = apiDisplayServiceV8.subscribe((isVisible) => {
 ### Service Architecture
 
 ```typescript
-class ApiDisplayServiceV8 {
+class ApiDisplayService {
   private visible: boolean = true;
   private listeners: Set<VisibilityChangeListener> = new Set();
   
@@ -167,10 +167,10 @@ const [isVisible, setIsVisible] = useState(globalIsVisible);
 **After:**
 ```typescript
 // Service-based state (clean)
-const [isVisible, setIsVisible] = useState(apiDisplayServiceV8.isVisible());
+const [isVisible, setIsVisible] = useState(apiDisplayService.isVisible());
 
 useEffect(() => {
-  const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
+  const unsubscribe = apiDisplayService.subscribe((visible) => {
     setIsVisible(visible);
   });
   return () => unsubscribe();
@@ -182,11 +182,11 @@ useEffect(() => {
 ## Files Modified
 
 ### Created
-- ✅ `src/v8/services/apiDisplayServiceV8.ts` - Service implementation
-- ✅ `src/v8/services/__tests__/apiDisplayServiceV8.test.ts` - Test suite
+- ✅ `src/v8/services/apiDisplayService.ts` - Service implementation
+- ✅ `src/v8/services/__tests__/apiDisplayService.test.ts` - Test suite
 
 ### Modified
-- ✅ `src/v8/components/SuperSimpleApiDisplayV8.tsx` - Added close button and service integration
+- ✅ `src/v8/components/SuperSimpleApiDisplay.tsx` - Added close button and service integration
 
 ---
 
@@ -202,7 +202,7 @@ useEffect(() => {
 
 ### Automated Testing
 ```bash
-npm test src/v8/services/__tests__/apiDisplayServiceV8.test.ts
+npm test src/v8/services/__tests__/apiDisplayService.test.ts
 ```
 
 All tests passing ✅
@@ -248,9 +248,9 @@ The SuperSimpleAPIDisplay is now closeable on all these pages:
 ## V8 Development Rules Compliance ✅
 
 ### Naming Convention
-- ✅ Service: `apiDisplayServiceV8.ts` (V8 suffix)
+- ✅ Service: `apiDisplayService.ts` (V8 suffix)
 - ✅ Module tag: `[🎛️ API-DISPLAY-SERVICE-V8]`
-- ✅ Test file: `apiDisplayServiceV8.test.ts`
+- ✅ Test file: `apiDisplayService.test.ts`
 
 ### Directory Structure
 - ✅ Service in `src/v8/services/`
@@ -287,7 +287,7 @@ The SuperSimpleAPIDisplay is now closeable on all these pages:
 
 ### Deprecations
 - Global state variables (`globalIsVisible`, `globalSetIsVisible`) are now internal to service
-- Components should use `apiDisplayServiceV8` instead of managing state directly
+- Components should use `apiDisplayService` instead of managing state directly
 
 ---
 

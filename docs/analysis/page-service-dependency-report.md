@@ -214,8 +214,8 @@
 
 **Hooks used (no service imports traced):** `usePageScroll`
 
-### `DpopAuthorizationCodeFlowV8.tsx`
-> `src/pages/DpopAuthorizationCodeFlowV8.tsx`
+### `DpopAuthorizationCodeFlow.tsx`
+> `src/pages/DpopAuthorizationCodeFlow.tsx`
 
 **Direct services:** _(none)_
 
@@ -305,8 +305,8 @@
 
 **Direct services:**
   - `collapsibleHeaderService`
-  - `environmentIdServiceV8`
-  - `sharedCredentialsServiceV8`
+  - `environmentIdService`
+  - `sharedCredentialsService`
 
 **Hooks used (no service imports traced):** `useNotifications`, `usePageScroll`
 
@@ -379,7 +379,7 @@
 > `src/pages/PasskeyManager.tsx`
 
 **Direct services:**
-  - `credentialsServiceV8`
+  - `credentialsService`
 
 **Via hooks:**
   - `environmentIdService` (via `useAutoEnvironmentId.ts`)
@@ -489,10 +489,10 @@
 > `src/pages/PostmanCollectionGenerator.tsx`
 
 **Direct services:**
-  - `credentialsServiceV8`
-  - `environmentIdServiceV8`
+  - `credentialsService`
+  - `environmentIdService`
   - `postmanCollectionGeneratorV8`
-  - `specVersionServiceV8`
+  - `specVersionService`
 
 **Hooks used (no service imports traced):** `usePageScroll`
 
@@ -955,7 +955,7 @@
 
 **Direct services:**
   - `cibaServiceV8Enhanced`
-  - `credentialsServiceV8`
+  - `credentialsService`
 
 **Via hooks:**
   - `unifiedWorkerTokenService` (via `useGlobalWorkerToken.ts`)
@@ -2086,7 +2086,7 @@
   - `unifiedWorkerTokenService`
 
 **Via hooks:**
-  - `credentialStoreV8` (via `useCredentialStoreV8.ts`)
+  - `credentialStore` (via `useCredentialStore.ts`)
 
 ### `ImplicitFlowTest.tsx`
 > `src/pages/test/ImplicitFlowTest.tsx`
@@ -2094,7 +2094,7 @@
 **Direct services:** _(none)_
 
 **Via hooks:**
-  - `credentialStoreV8` (via `useCredentialStoreV8.ts`)
+  - `credentialStore` (via `useCredentialStore.ts`)
 
 ### `MFADeviceOrderTest.tsx`
 > `src/pages/test/MFADeviceOrderTest.tsx`
@@ -2107,7 +2107,7 @@
 **Direct services:** _(none)_
 
 **Via hooks:**
-  - `credentialStoreV8` (via `useCredentialStoreV8.ts`)
+  - `credentialStore` (via `useCredentialStore.ts`)
   - `flowCredentialService` (via `useWorkerTokenFlowController.ts`)
   - `scopeValidationService` (via `useWorkerTokenFlowController.ts`)
 
@@ -2117,7 +2117,7 @@
 **Direct services:** _(none)_
 
 **Via hooks:**
-  - `credentialStoreV8` (via `useCredentialStoreV8.ts`)
+  - `credentialStore` (via `useCredentialStore.ts`)
 
 ### `PingOneApiTest.tsx`
 > `src/pages/test/PingOneApiTest.tsx`
@@ -2126,7 +2126,7 @@
   - `unifiedWorkerTokenService`
 
 **Via hooks:**
-  - `credentialStoreV8` (via `useCredentialStoreV8.ts`)
+  - `credentialStore` (via `useCredentialStore.ts`)
 
 ### `TestCallback.tsx`
 > `src/pages/test/TestCallback.tsx`
@@ -2135,193 +2135,193 @@
 
 ## V8 Flows (v8/flows/)
 
-### `CIBAFlowV8.tsx`
-> `src/v8/flows/CIBAFlowV8.tsx`
+### `CIBAFlow.tsx`
+> `src/v8/flows/CIBAFlow.tsx`
 
 **Direct services:**
-  - `cibaServiceV8`
-  - `credentialsServiceV8`
+  - `cibaService`
+  - `credentialsService`
 
 **Via hooks:**
   - `CommonSpinnerService` (via `useProductionSpinner.ts`)
 
-### `CompleteMFAFlowV8.tsx`
-> `src/v8/flows/CompleteMFAFlowV8.tsx`
+### `CompleteMFAFlow.tsx`
+> `src/v8/flows/CompleteMFAFlow.tsx`
 
 **Direct services:**
-  - `environmentIdServiceV8`
-  - `mfaConfigurationServiceV8`
+  - `environmentIdService`
+  - `mfaConfigurationService`
 
 **Via hooks:**
   - `flowCredentialService` (via `useWorkerTokenFlowController.ts`)
   - `scopeValidationService` (via `useWorkerTokenFlowController.ts`)
 
-### `EmailMFASignOnFlowV8.tsx`
-> `src/v8/flows/EmailMFASignOnFlowV8.tsx`
+### `EmailMFASignOnFlow.tsx`
+> `src/v8/flows/EmailMFASignOnFlow.tsx`
 
 **Direct services:**
-  - `credentialsServiceV8`
-  - `emailMfaSignOnFlowServiceV8`
+  - `credentialsService`
+  - `emailMfaSignOnFlowService`
   - `unifiedWorkerTokenService`
-  - `workerTokenServiceV8`
+  - `workerTokenService`
 
 **Via hooks:**
   - `environmentIdService` (via `useAutoEnvironmentId.ts`)
 
-### `ImplicitFlowV8.tsx`
-> `src/v8/flows/ImplicitFlowV8.tsx`
+### `ImplicitFlow.tsx`
+> `src/v8/flows/ImplicitFlow.tsx`
 
 **Direct services:**
-  - `credentialsServiceV8`
-  - `flowResetServiceV8`
-  - `implicitFlowIntegrationServiceV8`
-  - `redirectlessServiceV8`
-  - `validationServiceV8`
+  - `credentialsService`
+  - `flowResetService`
+  - `implicitFlowIntegrationService`
+  - `redirectlessService`
+  - `validationService`
 
-**Hooks used (no service imports traced):** `usePingOneAppConfig`, `useStepNavigationV8`
+**Hooks used (no service imports traced):** `usePingOneAppConfig`, `useStepNavigation`
 
-### `MFAAuthenticationMainPageV8.tsx`
-> `src/v8/flows/MFAAuthenticationMainPageV8.tsx`
+### `MFAAuthenticationMainPage.tsx`
+> `src/v8/flows/MFAAuthenticationMainPage.tsx`
 
 **Direct services:**
-  - `credentialsServiceV8`
+  - `credentialsService`
   - `environmentService`
-  - `mfaAuthenticationServiceV8`
-  - `mfaConfigurationServiceV8`
-  - `mfaRedirectUriServiceV8`
-  - `mfaServiceV8`
+  - `mfaAuthenticationService`
+  - `mfaConfigurationService`
+  - `mfaRedirectUriService`
+  - `mfaService`
   - `pingOneLogoutService`
   - `postmanCollectionGeneratorV8`
   - `returnTargetServiceV8U`
-  - `webAuthnAuthenticationServiceV8`
-  - `workerTokenStatusServiceV8`
+  - `webAuthnAuthenticationService`
+  - `workerTokenStatusService`
 
 **Via hooks:**
   - `CommonSpinnerService` (via `useProductionSpinner.ts`)
 
-### `MFAConfigurationPageV8.tsx`
-> `src/v8/flows/MFAConfigurationPageV8.tsx`
+### `MFAConfigurationPage.tsx`
+> `src/v8/flows/MFAConfigurationPage.tsx`
 
 **Direct services:**
-  - `mfaConfigurationServiceV8`
-  - `mfaServiceV8`
-  - `workerTokenServiceV8`
-  - `workerTokenStatusServiceV8`
+  - `mfaConfigurationService`
+  - `mfaService`
+  - `workerTokenService`
+  - `workerTokenStatusService`
 
 **Hooks used (no service imports traced):** `useApiDisplayPadding`, `usePageScroll`
 
-### `MFADeviceManagementFlowV8.tsx`
-> `src/v8/flows/MFADeviceManagementFlowV8.tsx`
+### `MFADeviceManagementFlow.tsx`
+> `src/v8/flows/MFADeviceManagementFlow.tsx`
 
 **Direct services:**
   - `apiCallTrackerService`
-  - `credentialsServiceV8`
-  - `environmentIdServiceV8`
-  - `mfaConfigurationServiceV8`
+  - `credentialsService`
+  - `environmentIdService`
+  - `mfaConfigurationService`
   - `unifiedWorkerTokenService`
-  - `workerTokenServiceV8`
+  - `workerTokenService`
 
 **Hooks used (no service imports traced):** `useApiDisplayPadding`, `usePageScroll`
 
-### `MFADeviceOrderingFlowV8.tsx`
-> `src/v8/flows/MFADeviceOrderingFlowV8.tsx`
+### `MFADeviceOrderingFlow.tsx`
+> `src/v8/flows/MFADeviceOrderingFlow.tsx`
 
 **Direct services:**
   - `apiCallTrackerService`
-  - `credentialsServiceV8`
-  - `environmentIdServiceV8`
-  - `mfaConfigurationServiceV8`
-  - `mfaServiceV8`
-  - `workerTokenServiceV8`
-  - `workerTokenStatusServiceV8`
+  - `credentialsService`
+  - `environmentIdService`
+  - `mfaConfigurationService`
+  - `mfaService`
+  - `workerTokenService`
+  - `workerTokenStatusService`
 
 **Hooks used (no service imports traced):** `useApiDisplayPadding`, `usePageScroll`
 
-### `MFAFlowV8.tsx`
-> `src/v8/flows/MFAFlowV8.tsx`
+### `MFAFlow.tsx`
+> `src/v8/flows/MFAFlow.tsx`
 
 **Direct services:**
-  - `credentialsServiceV8`
-  - `mfaFeatureFlagsV8`
+  - `credentialsService`
+  - `mfaFeatureFlags`
 
-### `MFAReportingFlowV8.tsx`
-> `src/v8/flows/MFAReportingFlowV8.tsx`
+### `MFAReportingFlow.tsx`
+> `src/v8/flows/MFAReportingFlow.tsx`
 
 **Direct services:**
-  - `credentialsServiceV8`
-  - `environmentIdServiceV8`
-  - `mfaConfigurationServiceV8`
-  - `mfaReportingServiceV8`
-  - `workerTokenServiceV8`
-  - `workerTokenStatusServiceV8`
+  - `credentialsService`
+  - `environmentIdService`
+  - `mfaConfigurationService`
+  - `mfaReportingService`
+  - `workerTokenService`
+  - `workerTokenStatusService`
 
 **Via hooks:**
   - `CommonSpinnerService` (via `useProductionSpinner.ts`)
 
-### `MFASettingsV8.tsx`
-> `src/v8/flows/MFASettingsV8.tsx`
+### `MFASettings.tsx`
+> `src/v8/flows/MFASettings.tsx`
 
 **Direct services:** _(none)_
 
-### `NewMFAFlowV8.tsx`
-> `src/v8/flows/NewMFAFlowV8.tsx`
+### `NewMFAFlow.tsx`
+> `src/v8/flows/NewMFAFlow.tsx`
 
 **Direct services:**
-  - `workerTokenStatusServiceV8`
+  - `workerTokenStatusService`
 
-### `OAuthAuthorizationCodeFlowV8.tsx`
-> `src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx`
+### `OAuthAuthorizationCodeFlow.tsx`
+> `src/v8/flows/OAuthAuthorizationCodeFlow.tsx`
 
 **Direct services:**
-  - `credentialsServiceV8`
-  - `flowResetServiceV8`
-  - `oauthIntegrationServiceV8`
+  - `credentialsService`
+  - `flowResetService`
+  - `oauthIntegrationService`
   - `pkceStorageServiceV8U`
-  - `redirectlessServiceV8`
+  - `redirectlessService`
   - `tokenMonitoringService`
 
 **Via hooks:**
   - `CommonSpinnerService` (via `useProductionSpinner.ts`)
 
-### `OIDCHybridFlowV8.tsx`
-> `src/v8/flows/OIDCHybridFlowV8.tsx`
+### `OIDCHybridFlow.tsx`
+> `src/v8/flows/OIDCHybridFlow.tsx`
 
 **Direct services:**
-  - `hybridFlowIntegrationServiceV8`
+  - `hybridFlowIntegrationService`
 
 **Via hooks:**
   - `CommonSpinnerService` (via `useProductionSpinner.ts`)
 
-### `PingOnePARFlowV8.tsx`
-> `src/v8/flows/PingOnePARFlowV8/PingOnePARFlowV8.tsx`
+### `PingOnePARFlow.tsx`
+> `src/v8/flows/PingOnePARFlow/PingOnePARFlow.tsx`
 
 **Direct services:** _(none)_
 
 **Via hooks:**
   - `CommonSpinnerService` (via `useProductionSpinner.ts`)
 
-### `PingOneProtectFlowV8.tsx`
-> `src/v8/flows/PingOneProtectFlowV8.tsx`
+### `PingOneProtectFlow.tsx`
+> `src/v8/flows/PingOneProtectFlow.tsx`
 
 **Direct services:**
   - `apiCallTrackerService`
-  - `credentialsServiceV8`
-  - `mfaConfigurationServiceV8`
-  - `uiNotificationServiceV8`
-  - `workerTokenStatusServiceV8`
+  - `credentialsService`
+  - `mfaConfigurationService`
+  - `uiNotificationService`
+  - `workerTokenStatusService`
 
-### `ResourcesAPIFlowV8.tsx`
-> `src/v8/flows/ResourcesAPIFlowV8.tsx`
+### `ResourcesAPIFlow.tsx`
+> `src/v8/flows/ResourcesAPIFlow.tsx`
 
 **Direct services:** _(none)_
 
-### `TokenExchangeFlowV8.tsx`
-> `src/v8/flows/TokenExchangeFlowV8.tsx`
+### `TokenExchangeFlow.tsx`
+> `src/v8/flows/TokenExchangeFlow.tsx`
 
 **Direct services:**
   - `globalEnvironmentService`
-  - `tokenExchangeConfigServiceV8`
-  - `tokenExchangeServiceV8`
+  - `tokenExchangeConfigService`
+  - `tokenExchangeService`
 
 **Via hooks:**
   - `CommonSpinnerService` (via `useProductionSpinner.ts`)
@@ -2335,10 +2335,10 @@
 > `src/v8/flows/components/MFAOTPInput.tsx`
 
 **Direct services:**
-  - `mfaConfigurationServiceV8`
+  - `mfaConfigurationService`
 
-### `SMSDeviceSelectionStepV8.tsx`
-> `src/v8/flows/components/SMSDeviceSelectionStepV8.tsx`
+### `SMSDeviceSelectionStep.tsx`
+> `src/v8/flows/components/SMSDeviceSelectionStep.tsx`
 
 **Direct services:** _(none)_
 
@@ -2367,231 +2367,231 @@
 
 **Direct services:** _(none)_
 
-### `APIDocsStepV8.tsx`
-> `src/v8/flows/shared/APIDocsStepV8.tsx`
+### `APIDocsStep.tsx`
+> `src/v8/flows/shared/APIDocsStep.tsx`
 
 **Direct services:** _(none)_
 
-### `MFAConfigurationStepV8-V2.tsx`
-> `src/v8/flows/shared/MFAConfigurationStepV8-V2.tsx`
+### `MFAConfigurationStep-V2.tsx`
+> `src/v8/flows/shared/MFAConfigurationStep-V2.tsx`
 
 **Direct services:**
-  - `mfaRedirectUriServiceV8`
+  - `mfaRedirectUriService`
 
-### `MFAConfigurationStepV8.tsx`
-> `src/v8/flows/shared/MFAConfigurationStepV8.tsx`
-
-**Direct services:**
-  - `credentialsServiceV8`
-  - `workerTokenServiceV8`
-  - `workerTokenStatusServiceV8`
-  - `workerTokenUIServiceV8`
-
-### `MFAFlowBaseV8.tsx`
-> `src/v8/flows/shared/MFAFlowBaseV8.tsx`
+### `MFAConfigurationStep.tsx`
+> `src/v8/flows/shared/MFAConfigurationStep.tsx`
 
 **Direct services:**
-  - `apiDisplayServiceV8`
-  - `credentialsServiceV8`
-  - `mfaConfigurationServiceV8`
-  - `mfaServiceV8`
+  - `credentialsService`
+  - `workerTokenService`
+  - `workerTokenStatusService`
+  - `workerTokenUIService`
+
+### `MFAFlowBase.tsx`
+> `src/v8/flows/shared/MFAFlowBase.tsx`
+
+**Direct services:**
+  - `apiDisplayService`
+  - `credentialsService`
+  - `mfaConfigurationService`
+  - `mfaService`
   - `unifiedFlowErrorHandlerV8U`
-  - `unifiedMFAResumeStepResolverV8`
-  - `workerTokenStatusServiceV8`
+  - `unifiedMFAResumeStepResolver`
+  - `workerTokenStatusService`
 
-**Hooks used (no service imports traced):** `usePageScroll`, `useStepNavigationV8`
+**Hooks used (no service imports traced):** `usePageScroll`, `useStepNavigation`
 
-### `SuccessStepV8.tsx`
-> `src/v8/flows/shared/SuccessStepV8.tsx`
-
-**Direct services:** _(none)_
-
-### `UserLoginStepV8.tsx`
-> `src/v8/flows/shared/UserLoginStepV8.tsx`
+### `SuccessStep.tsx`
+> `src/v8/flows/shared/SuccessStep.tsx`
 
 **Direct services:** _(none)_
 
-### `mfaSuccessPageServiceV8.tsx`
-> `src/v8/flows/shared/mfaSuccessPageServiceV8.tsx`
+### `UserLoginStep.tsx`
+> `src/v8/flows/shared/UserLoginStep.tsx`
+
+**Direct services:** _(none)_
+
+### `mfaSuccessPageService.tsx`
+> `src/v8/flows/shared/mfaSuccessPageService.tsx`
 
 **Direct services:**
-  - `unifiedMFASuccessPageServiceV8`
+  - `unifiedMFASuccessPageService`
 
-### `EmailFlowV8.tsx`
-> `src/v8/flows/types/EmailFlowV8.tsx`
+### `EmailFlow.tsx`
+> `src/v8/flows/types/EmailFlow.tsx`
 
 **Direct services:**
-  - `apiDisplayServiceV8`
-  - `mfaServiceV8`
+  - `apiDisplayService`
+  - `mfaService`
   - `unifiedFlowErrorHandlerV8U`
   - `unifiedFlowLoggerServiceV8U`
-  - `validationServiceV8`
-  - `workerTokenStatusServiceV8`
-  - `workerTokenUIServiceV8`
+  - `validationService`
+  - `workerTokenStatusService`
+  - `workerTokenUIService`
 
-**Hooks used (no service imports traced):** `useDraggableModal`, `useStepNavigationV8`
+**Hooks used (no service imports traced):** `useDraggableModal`, `useStepNavigation`
 
-### `EmailOTPConfigurationPageV8.tsx`
-> `src/v8/flows/types/EmailOTPConfigurationPageV8.tsx`
+### `EmailOTPConfigurationPage.tsx`
+> `src/v8/flows/types/EmailOTPConfigurationPage.tsx`
 
 **Direct services:**
-  - `apiDisplayServiceV8`
-  - `credentialsServiceV8`
-  - `environmentIdServiceV8`
-  - `mfaConfigurationServiceV8`
-  - `mfaRedirectUriServiceV8`
-  - `mfaServiceV8`
-  - `oauthIntegrationServiceV8`
+  - `apiDisplayService`
+  - `credentialsService`
+  - `environmentIdService`
+  - `mfaConfigurationService`
+  - `mfaRedirectUriService`
+  - `mfaService`
+  - `oauthIntegrationService`
   - `unifiedFlowErrorHandlerV8U`
-  - `workerTokenStatusServiceV8`
-  - `workerTokenUIServiceV8`
+  - `workerTokenStatusService`
+  - `workerTokenUIService`
 
-### `FIDO2ConfigurationPageV8.tsx`
-> `src/v8/flows/types/FIDO2ConfigurationPageV8.tsx`
-
-**Direct services:**
-  - `apiDisplayServiceV8`
-  - `credentialsServiceV8`
-  - `environmentIdServiceV8`
-  - `fido2Service`
-  - `mfaConfigurationServiceV8`
-  - `mfaEducationServiceV8`
-  - `mfaServiceV8`
-  - `workerTokenServiceV8`
-  - `workerTokenStatusServiceV8`
-
-### `FIDO2FlowV8.tsx`
-> `src/v8/flows/types/FIDO2FlowV8.tsx`
+### `FIDO2ConfigurationPage.tsx`
+> `src/v8/flows/types/FIDO2ConfigurationPage.tsx`
 
 **Direct services:**
-  - `apiDisplayServiceV8`
-  - `credentialsServiceV8`
+  - `apiDisplayService`
+  - `credentialsService`
+  - `environmentIdService`
   - `fido2Service`
-  - `mfaAuthenticationServiceV8`
-  - `mfaConfigurationServiceV8`
-  - `validationServiceV8`
-  - `webAuthnAuthenticationServiceV8`
-  - `workerTokenServiceV8`
-  - `workerTokenStatusServiceV8`
-  - `workerTokenUIServiceV8`
+  - `mfaConfigurationService`
+  - `mfaEducationService`
+  - `mfaService`
+  - `workerTokenService`
+  - `workerTokenStatusService`
+
+### `FIDO2Flow.tsx`
+> `src/v8/flows/types/FIDO2Flow.tsx`
+
+**Direct services:**
+  - `apiDisplayService`
+  - `credentialsService`
+  - `fido2Service`
+  - `mfaAuthenticationService`
+  - `mfaConfigurationService`
+  - `validationService`
+  - `webAuthnAuthenticationService`
+  - `workerTokenService`
+  - `workerTokenStatusService`
+  - `workerTokenUIService`
 
 **Via hooks:**
   - `CommonSpinnerService` (via `useProductionSpinner.ts`)
 
-### `MobileFlowV8.tsx`
-> `src/v8/flows/types/MobileFlowV8.tsx`
+### `MobileFlow.tsx`
+> `src/v8/flows/types/MobileFlow.tsx`
 
 **Direct services:**
-  - `apiDisplayServiceV8`
-  - `mfaConfigurationServiceV8`
-  - `mfaServiceV8`
-  - `phoneAutoPopulationServiceV8`
-  - `workerTokenStatusServiceV8`
-  - `workerTokenUIServiceV8`
+  - `apiDisplayService`
+  - `mfaConfigurationService`
+  - `mfaService`
+  - `phoneAutoPopulationService`
+  - `workerTokenStatusService`
+  - `workerTokenUIService`
 
-**Hooks used (no service imports traced):** `useDraggableModal`, `useStepNavigationV8`
+**Hooks used (no service imports traced):** `useDraggableModal`, `useStepNavigation`
 
-### `MobileOTPConfigurationPageV8.tsx`
-> `src/v8/flows/types/MobileOTPConfigurationPageV8.tsx`
-
-**Direct services:**
-  - `apiDisplayServiceV8`
-  - `credentialsServiceV8`
-  - `environmentIdServiceV8`
-  - `mfaConfigurationServiceV8`
-  - `mfaRedirectUriServiceV8`
-  - `mfaServiceV8`
-  - `oauthIntegrationServiceV8`
-  - `workerTokenStatusServiceV8`
-  - `workerTokenUIServiceV8`
-
-### `SMSFlowV8.tsx`
-> `src/v8/flows/types/SMSFlowV8.tsx`
+### `MobileOTPConfigurationPage.tsx`
+> `src/v8/flows/types/MobileOTPConfigurationPage.tsx`
 
 **Direct services:**
-  - `apiDisplayServiceV8`
-  - `mfaConfigurationServiceV8`
-  - `mfaServiceV8`
-  - `phoneAutoPopulationServiceV8`
+  - `apiDisplayService`
+  - `credentialsService`
+  - `environmentIdService`
+  - `mfaConfigurationService`
+  - `mfaRedirectUriService`
+  - `mfaService`
+  - `oauthIntegrationService`
+  - `workerTokenStatusService`
+  - `workerTokenUIService`
+
+### `SMSFlow.tsx`
+> `src/v8/flows/types/SMSFlow.tsx`
+
+**Direct services:**
+  - `apiDisplayService`
+  - `mfaConfigurationService`
+  - `mfaService`
+  - `phoneAutoPopulationService`
   - `unifiedFlowErrorHandlerV8U`
-  - `workerTokenStatusServiceV8`
-  - `workerTokenUIServiceV8`
+  - `workerTokenStatusService`
+  - `workerTokenUIService`
 
-**Hooks used (no service imports traced):** `useDraggableModal`, `useStepNavigationV8`
+**Hooks used (no service imports traced):** `useDraggableModal`, `useStepNavigation`
 
-### `SMSOTPConfigurationPageV8.tsx`
-> `src/v8/flows/types/SMSOTPConfigurationPageV8.tsx`
+### `SMSOTPConfigurationPage.tsx`
+> `src/v8/flows/types/SMSOTPConfigurationPage.tsx`
 
 **Direct services:**
-  - `apiDisplayServiceV8`
+  - `apiDisplayService`
   - `comprehensiveTokenUIService`
-  - `credentialsServiceV8`
-  - `environmentIdServiceV8`
-  - `mfaConfigurationServiceV8`
-  - `mfaRedirectUriServiceV8`
-  - `mfaServiceV8`
-  - `oauthIntegrationServiceV8`
+  - `credentialsService`
+  - `environmentIdService`
+  - `mfaConfigurationService`
+  - `mfaRedirectUriService`
+  - `mfaService`
+  - `oauthIntegrationService`
   - `unifiedFlowErrorHandlerV8U`
-  - `workerTokenStatusServiceV8`
+  - `workerTokenStatusService`
 
-### `TOTPConfigurationPageV8.tsx`
-> `src/v8/flows/types/TOTPConfigurationPageV8.tsx`
-
-**Direct services:**
-  - `apiDisplayServiceV8`
-  - `credentialsServiceV8`
-  - `environmentIdServiceV8`
-  - `mfaConfigurationServiceV8`
-  - `mfaRedirectUriServiceV8`
-  - `oauthIntegrationServiceV8`
-
-### `TOTPFlowV8.tsx`
-> `src/v8/flows/types/TOTPFlowV8.tsx`
+### `TOTPConfigurationPage.tsx`
+> `src/v8/flows/types/TOTPConfigurationPage.tsx`
 
 **Direct services:**
-  - `apiDisplayServiceV8`
-  - `mfaConfigurationServiceV8`
-  - `mfaServiceV8`
-  - `tokenDisplayServiceV8`
-  - `workerTokenStatusServiceV8`
+  - `apiDisplayService`
+  - `credentialsService`
+  - `environmentIdService`
+  - `mfaConfigurationService`
+  - `mfaRedirectUriService`
+  - `oauthIntegrationService`
 
-**Hooks used (no service imports traced):** `useDraggableModal`, `useStepNavigationV8`
-
-### `WhatsAppFlowV8.tsx`
-> `src/v8/flows/types/WhatsAppFlowV8.tsx`
+### `TOTPFlow.tsx`
+> `src/v8/flows/types/TOTPFlow.tsx`
 
 **Direct services:**
-  - `credentialsServiceV8`
-  - `mfaServiceV8`
-  - `phoneAutoPopulationServiceV8`
+  - `apiDisplayService`
+  - `mfaConfigurationService`
+  - `mfaService`
+  - `tokenDisplayService`
+  - `workerTokenStatusService`
+
+**Hooks used (no service imports traced):** `useDraggableModal`, `useStepNavigation`
+
+### `WhatsAppFlow.tsx`
+> `src/v8/flows/types/WhatsAppFlow.tsx`
+
+**Direct services:**
+  - `credentialsService`
+  - `mfaService`
+  - `phoneAutoPopulationService`
   - `unifiedFlowErrorHandlerV8U`
-  - `workerTokenStatusServiceV8`
+  - `workerTokenStatusService`
 
-**Hooks used (no service imports traced):** `useDraggableModal`, `useStepNavigationV8`
+**Hooks used (no service imports traced):** `useDraggableModal`, `useStepNavigation`
 
-### `WhatsAppOTPConfigurationPageV8.tsx`
-> `src/v8/flows/types/WhatsAppOTPConfigurationPageV8.tsx`
+### `WhatsAppOTPConfigurationPage.tsx`
+> `src/v8/flows/types/WhatsAppOTPConfigurationPage.tsx`
 
 **Direct services:**
-  - `apiDisplayServiceV8`
-  - `credentialsServiceV8`
-  - `environmentIdServiceV8`
-  - `mfaConfigurationServiceV8`
-  - `mfaRedirectUriServiceV8`
-  - `mfaServiceV8`
-  - `oauthIntegrationServiceV8`
+  - `apiDisplayService`
+  - `credentialsService`
+  - `environmentIdService`
+  - `mfaConfigurationService`
+  - `mfaRedirectUriService`
+  - `mfaService`
+  - `oauthIntegrationService`
   - `unifiedFlowErrorHandlerV8U`
-  - `workerTokenStatusServiceV8`
+  - `workerTokenStatusService`
 
 ### `UnifiedMFARegistrationFlowV8_Legacy.tsx`
 > `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx`
 
 **Direct services:**
-  - `credentialsServiceV8`
+  - `credentialsService`
   - `globalEnvironmentService`
-  - `mfaAuthenticationServiceV8`
-  - `mfaFeatureFlagsV8`
-  - `mfaServiceV8`
+  - `mfaAuthenticationService`
+  - `mfaFeatureFlags`
+  - `mfaService`
 
 **Via hooks:**
   - `unifiedWorkerTokenService` (via `useGlobalWorkerToken.ts`)
@@ -2621,7 +2621,7 @@
 > `src/v8/flows/unified/components/UnifiedConfigurationStep.modern.tsx`
 
 **Direct services:**
-  - `mfaServiceV8`
+  - `mfaService`
 
 **Hooks used (no service imports traced):** `useFormValidation`
 
@@ -2629,14 +2629,14 @@
 > `src/v8/flows/unified/components/UnifiedConfigurationStep.tsx`
 
 **Direct services:**
-  - `workerTokenServiceV8`
-  - `workerTokenUIServiceV8`
+  - `workerTokenService`
+  - `workerTokenUIService`
 
 ### `UnifiedDeviceRegistrationForm.tsx`
 > `src/v8/flows/unified/components/UnifiedDeviceRegistrationForm.tsx`
 
 **Direct services:**
-  - `workerTokenStatusServiceV8`
+  - `workerTokenStatusService`
 
 **Via hooks:**
   - `flowCredentialService` (via `useWorkerTokenFlowController.ts`)
@@ -2646,7 +2646,7 @@
 > `src/v8/flows/unified/components/UnifiedDeviceSelectionModal.tsx`
 
 **Direct services:**
-  - `mfaServiceV8`
+  - `mfaService`
 
 ### `UnifiedDeviceSelectionStep.modern.tsx`
 > `src/v8/flows/unified/components/UnifiedDeviceSelectionStep.modern.tsx`
@@ -2659,12 +2659,12 @@
 
 **Direct services:** _(none)_
 
-### `UnifiedErrorDisplayV8.tsx`
-> `src/v8/flows/unified/components/UnifiedErrorDisplayV8.tsx`
+### `UnifiedErrorDisplay.tsx`
+> `src/v8/flows/unified/components/UnifiedErrorDisplay.tsx`
 
 **Direct services:**
   - `globalEnvironmentService`
-  - `workerTokenStatusServiceV8`
+  - `workerTokenStatusService`
 
 ### `UnifiedOTPActivationTemplate.tsx`
 > `src/v8/flows/unified/components/UnifiedOTPActivationTemplate.tsx`
@@ -2709,7 +2709,7 @@
 > `src/v8u/components/AppDiscoveryModalV8U.tsx`
 
 **Direct services:**
-  - `appDiscoveryServiceV8`
+  - `appDiscoveryService`
 
 **Via hooks:**
   - `unifiedWorkerTokenService` (via `useGlobalWorkerToken.ts`)
@@ -2719,17 +2719,17 @@
 > `src/v8u/components/CallbackHandlerV8U.tsx`
 
 **Direct services:**
-  - `mfaRedirectUriServiceV8`
-  - `pingOneAuthenticationServiceV8`
+  - `mfaRedirectUriService`
+  - `pingOneAuthenticationService`
   - `returnTargetServiceV8U`
 
 ### `CompactAppPickerV8U.tsx`
 > `src/v8u/components/CompactAppPickerV8U.tsx`
 
 **Direct services:**
-  - `appDiscoveryServiceV8`
+  - `appDiscoveryService`
   - `unifiedFlowLoggerServiceV8U`
-  - `workerTokenStatusServiceV8`
+  - `workerTokenStatusService`
 
 **Via hooks:**
   - `unifiedWorkerTokenService` (via `useGlobalWorkerToken.ts`)
@@ -2739,22 +2739,22 @@
 > `src/v8u/components/CredentialsFormV8U.tsx`
 
 **Direct services:**
-  - `appDiscoveryServiceV8`
-  - `configCheckerServiceV8`
-  - `credentialsServiceV8`
-  - `environmentIdServiceV8`
-  - `flowOptionsServiceV8`
-  - `mfaConfigurationServiceV8`
-  - `oidcDiscoveryServiceV8`
-  - `redirectUriServiceV8`
+  - `appDiscoveryService`
+  - `configCheckerService`
+  - `credentialsService`
+  - `environmentIdService`
+  - `flowOptionsService`
+  - `mfaConfigurationService`
+  - `oidcDiscoveryService`
+  - `redirectUriService`
   - `responseModeService`
-  - `responseTypeServiceV8`
-  - `sharedCredentialsServiceV8`
-  - `specVersionServiceV8`
-  - `tokenEndpointAuthMethodServiceV8`
-  - `tooltipContentServiceV8`
-  - `unifiedFlowOptionsServiceV8`
-  - `workerTokenStatusServiceV8`
+  - `responseTypeService`
+  - `sharedCredentialsService`
+  - `specVersionService`
+  - `tokenEndpointAuthMethodService`
+  - `tooltipContentService`
+  - `unifiedFlowOptionsService`
+  - `workerTokenStatusService`
 
 **Via hooks:**
   - `unifiedWorkerTokenService` (via `useGlobalWorkerToken.ts`)
@@ -2764,7 +2764,7 @@
 > `src/v8u/components/ErrorDisplayWithRetry.tsx`
 
 **Direct services:**
-  - `oauthErrorCodesServiceV8`
+  - `oauthErrorCodesService`
 
 ### `FeatureEnableConfirmationModal.tsx`
 > `src/v8u/components/FeatureEnableConfirmationModal.tsx`
@@ -2775,33 +2775,33 @@
 > `src/v8u/components/FlowComparisonTool.tsx`
 
 **Direct services:**
-  - `specVersionServiceV8`
+  - `specVersionService`
 
 ### `FlowGuidanceSystem.tsx`
 > `src/v8u/components/FlowGuidanceSystem.tsx`
 
 **Direct services:**
-  - `specVersionServiceV8`
+  - `specVersionService`
 
 ### `FlowNotAvailableModal.tsx`
 > `src/v8u/components/FlowNotAvailableModal.tsx`
 
 **Direct services:**
-  - `specVersionServiceV8`
+  - `specVersionService`
   - `unifiedFlowLoggerServiceV8U`
 
 ### `FlowTypeSelector.tsx`
 > `src/v8u/components/FlowTypeSelector.tsx`
 
 **Direct services:**
-  - `specVersionServiceV8`
+  - `specVersionService`
   - `unifiedFlowLoggerServiceV8U`
 
 ### `IDTokenValidationModalV8U.tsx`
 > `src/v8u/components/IDTokenValidationModalV8U.tsx`
 
 **Direct services:**
-  - `idTokenValidationServiceV8`
+  - `idTokenValidationService`
 
 ### `LoadingSpinnerModalV8U.tsx`
 > `src/v8u/components/LoadingSpinnerModalV8U.tsx`
@@ -2817,14 +2817,14 @@
 > `src/v8u/components/SecurityScorecard.tsx`
 
 **Direct services:**
-  - `specVersionServiceV8`
+  - `specVersionService`
   - `unifiedFlowLoggerServiceV8U`
 
 ### `SpecVersionSelector.tsx`
 > `src/v8u/components/SpecVersionSelector.tsx`
 
 **Direct services:**
-  - `specVersionServiceV8`
+  - `specVersionService`
   - `unifiedFlowLoggerServiceV8U`
 
 ### `StepActionButtonsV8U.tsx`
@@ -2855,14 +2855,14 @@
 > `src/v8u/components/StepperV8U.tsx`
 
 **Direct services:**
-  - `specVersionServiceV8`
+  - `specVersionService`
   - `unifiedFlowLoggerServiceV8U`
 
 ### `TokenDisplayV8U.tsx`
 > `src/v8u/components/TokenDisplayV8U.tsx`
 
 **Direct services:**
-  - `tokenDisplayServiceV8`
+  - `tokenDisplayService`
 
 ### `TokenMonitoringDashboard.tsx`
 > `src/v8u/components/TokenMonitoringDashboard.tsx`
@@ -2879,7 +2879,7 @@
 > `src/v8u/components/UnifiedDocumentationModalV8U.tsx`
 
 **Direct services:**
-  - `specVersionServiceV8`
+  - `specVersionService`
   - `unifiedFlowLoggerServiceV8U`
 
 ### `UnifiedFlowDocumentationPageV8U.tsx`
@@ -2888,8 +2888,8 @@
 **Direct services:**
   - `apiCallTrackerService`
   - `postmanCollectionGeneratorV8`
-  - `specUrlServiceV8`
-  - `specVersionServiceV8`
+  - `specUrlService`
+  - `specVersionService`
   - `unifiedFlowIntegrationV8U`
 
 ### `UnifiedFlowErrorBoundary.tsx`
@@ -2907,16 +2907,16 @@
 > `src/v8u/components/UnifiedFlowSteps.tsx`
 
 **Direct services:**
-  - `credentialsServiceV8`
+  - `credentialsService`
   - `educationPreferenceService`
   - `enhancedStateManagement`
-  - `oauthIntegrationServiceV8`
-  - `oidcDiscoveryServiceV8`
+  - `oauthIntegrationService`
+  - `oidcDiscoveryService`
   - `pkceService`
   - `pkceStorageServiceV8U`
-  - `specVersionServiceV8`
-  - `tokenDisplayServiceV8`
-  - `tokenOperationsServiceV8`
+  - `specVersionService`
+  - `tokenDisplayService`
+  - `tokenOperationsService`
   - `unifiedFlowIntegrationV8U`
 
 ### `CollapsibleSection.tsx`
@@ -2939,7 +2939,7 @@
 > `src/v8u/components/UnifiedFlowSuccessStepV8U.tsx`
 
 **Direct services:**
-  - `specVersionServiceV8`
+  - `specVersionService`
   - `unifiedFlowIntegrationV8U`
 
 ### `UnifiedNavigationV8U.tsx`
@@ -2948,7 +2948,7 @@
 **Direct services:**
   - `apiCallTrackerService`
   - `pkceStorageServiceV8U`
-  - `specVersionServiceV8`
+  - `specVersionService`
   - `unifiedFlowLoggerServiceV8U`
 
 ### `UserInfoSuccessModalV8U.tsx`
@@ -2993,7 +2993,7 @@
 > `src/v8u/components/steps/BaseUnifiedStep.tsx`
 
 **Direct services:**
-  - `specVersionServiceV8`
+  - `specVersionService`
 
 ### `CallbackStep.tsx`
 > `src/v8u/components/steps/CallbackStep.tsx`
@@ -3070,28 +3070,28 @@
 **Direct services:**
   - `apiCallTrackerService`
   - `enhancedApiCallDisplayService`
-  - `environmentIdServiceV8`
-  - `tokenDisplayServiceV8`
+  - `environmentIdService`
+  - `tokenDisplayService`
 
 ### `UnifiedOAuthFlowV8U.tsx`
 > `src/v8u/flows/UnifiedOAuthFlowV8U.tsx`
 
 **Direct services:**
-  - `configCheckerServiceV8`
+  - `configCheckerService`
   - `credentialReloadServiceV8U`
-  - `credentialsServiceV8`
-  - `environmentIdServiceV8`
+  - `credentialsService`
+  - `environmentIdService`
   - `flowSettingsServiceV8U`
   - `postmanCollectionGeneratorV8`
-  - `sharedCredentialsServiceV8`
-  - `specUrlServiceV8`
-  - `specVersionServiceV8`
-  - `uiNotificationServiceV8`
+  - `sharedCredentialsService`
+  - `specUrlService`
+  - `specVersionService`
+  - `uiNotificationService`
   - `unifiedFlowIntegrationV8U`
   - `unifiedFlowLoggerServiceV8U`
   - `unifiedOAuthCredentialsServiceV8U`
   - `unifiedWorkerTokenService`
-  - `workerTokenStatusServiceV8`
+  - `workerTokenStatusService`
 
 **Hooks used (no service imports traced):** `usePageScroll`
 
@@ -3110,28 +3110,28 @@
 
 **Direct services:**
   - `apiCallTrackerService`
-  - `environmentIdServiceV8`
-  - `tokenDisplayServiceV8`
+  - `environmentIdService`
+  - `tokenDisplayService`
 
 ### `UnifiedOAuthFlowV8U.tsx`
 > `src/v8u/lockdown/unified/snapshot/UnifiedOAuthFlowV8U.tsx`
 
 **Direct services:**
-  - `configCheckerServiceV8`
+  - `configCheckerService`
   - `credentialReloadServiceV8U`
-  - `credentialsServiceV8`
-  - `environmentIdServiceV8`
+  - `credentialsService`
+  - `environmentIdService`
   - `flowSettingsServiceV8U`
   - `postmanCollectionGeneratorV8`
-  - `sharedCredentialsServiceV8`
-  - `specUrlServiceV8`
-  - `specVersionServiceV8`
-  - `uiNotificationServiceV8`
+  - `sharedCredentialsService`
+  - `specUrlService`
+  - `specVersionService`
+  - `uiNotificationService`
   - `unifiedFlowIntegrationV8U`
   - `unifiedFlowLoggerServiceV8U`
   - `unifiedOAuthCredentialsServiceV8U`
   - `unifiedWorkerTokenService`
-  - `workerTokenStatusServiceV8`
+  - `workerTokenStatusService`
 
 **Hooks used (no service imports traced):** `usePageScroll`, `useWorkerTokenConfig`
 
@@ -3141,8 +3141,8 @@
 **Direct services:**
   - `apiCallTrackerService`
   - `postmanCollectionGeneratorV8`
-  - `specUrlServiceV8`
-  - `specVersionServiceV8`
+  - `specUrlService`
+  - `specVersionService`
   - `unifiedFlowIntegrationV8U`
 
 ### `UnifiedFlowErrorBoundary.tsx`
@@ -3160,15 +3160,15 @@
 > `src/v8u/lockdown/unified/snapshot/components/UnifiedFlowSteps.tsx`
 
 **Direct services:**
-  - `credentialsServiceV8`
+  - `credentialsService`
   - `enhancedStateManagement`
-  - `oauthIntegrationServiceV8`
-  - `oidcDiscoveryServiceV8`
+  - `oauthIntegrationService`
+  - `oidcDiscoveryService`
   - `pkceService`
   - `pkceStorageServiceV8U`
-  - `specVersionServiceV8`
-  - `tokenDisplayServiceV8`
-  - `tokenOperationsServiceV8`
+  - `specVersionService`
+  - `tokenDisplayService`
+  - `tokenOperationsService`
   - `unifiedFlowIntegrationV8U`
 
 ### `CollapsibleSection.tsx`
@@ -3191,28 +3191,28 @@
 > `src/v8u/lockdown/unified/snapshot/components/UnifiedFlowSuccessStepV8U.tsx`
 
 **Direct services:**
-  - `specVersionServiceV8`
+  - `specVersionService`
   - `unifiedFlowIntegrationV8U`
 
 ### `UnifiedOAuthFlowV8U.tsx`
 > `src/v8u/lockdown/unified/snapshot/flows/UnifiedOAuthFlowV8U.tsx`
 
 **Direct services:**
-  - `configCheckerServiceV8`
+  - `configCheckerService`
   - `credentialReloadServiceV8U`
-  - `credentialsServiceV8`
-  - `environmentIdServiceV8`
+  - `credentialsService`
+  - `environmentIdService`
   - `flowSettingsServiceV8U`
   - `postmanCollectionGeneratorV8`
-  - `sharedCredentialsServiceV8`
-  - `specUrlServiceV8`
-  - `specVersionServiceV8`
-  - `uiNotificationServiceV8`
+  - `sharedCredentialsService`
+  - `specUrlService`
+  - `specVersionService`
+  - `uiNotificationService`
   - `unifiedFlowIntegrationV8U`
   - `unifiedFlowLoggerServiceV8U`
   - `unifiedOAuthCredentialsServiceV8U`
   - `unifiedWorkerTokenService`
-  - `workerTokenStatusServiceV8`
+  - `workerTokenStatusService`
 
 **Hooks used (no service imports traced):** `usePageScroll`, `useWorkerTokenConfig`
 
@@ -3233,7 +3233,7 @@
 > `src/v8u/pages/FlowComparisonPage.tsx`
 
 **Direct services:**
-  - `specVersionServiceV8`
+  - `specVersionService`
 
 ### `LoginPage.tsx`
 > `src/v8u/pages/LoginPage.tsx`
@@ -3283,9 +3283,9 @@
 > `src/v8u/pages/TokenStatusPageV8U.tsx`
 
 **Direct services:**
-  - `mfaConfigurationServiceV8`
+  - `mfaConfigurationService`
   - `unifiedFlowLoggerServiceV8U`
-  - `workerTokenStatusServiceV8`
+  - `workerTokenStatusService`
 
 ### `UserManagementPage.tsx`
 > `src/v8u/pages/UserManagementPage.tsx`
@@ -3316,43 +3316,43 @@
 |------|---------|-----------|
 | 1 | `collapsibleHeaderService` | 47 |
 | 2 | `flowHeaderService` | 45 |
-| 3 | `credentialsServiceV8` | 30 |
+| 3 | `credentialsService` | 30 |
 | 4 | `flowUIService` | 28 |
-| 5 | `workerTokenStatusServiceV8` | 27 |
+| 5 | `workerTokenStatusService` | 27 |
 | 6 | `unifiedFlowLoggerServiceV8U` | 26 |
 | 7 | `unifiedWorkerTokenService` | 25 |
 | 8 | `pageLayoutService` | 24 |
-| 9 | `specVersionServiceV8` | 22 |
+| 9 | `specVersionService` | 22 |
 | 10 | `unifiedTokenDisplayService` | 21 |
 
 ### Services Used by Only 1 Page (62 total)
 
   - `authorizationRequestService` → `KrogerGroceryStoreMFA_New.tsx`
-  - `cibaServiceV8` → `CIBAFlowV8.tsx`
+  - `cibaService` → `CIBAFlow.tsx`
   - `cibaServiceV8Enhanced` → `CIBAFlowV9.tsx`
   - `clientCredentialsSharedService` → `ClientCredentialsFlowV7_Simple.tsx`
-  - `comprehensiveTokenUIService` → `SMSOTPConfigurationPageV8.tsx`
+  - `comprehensiveTokenUIService` → `SMSOTPConfigurationPage.tsx`
   - `credentialGuardService` → `JWTBearerTokenFlowV7.tsx`
   - `deviceFlowService` → `DeviceFlow.tsx`
   - `discoveryService` → `AutoDiscover.tsx`
   - `dpopService` → `DPoPFlow.tsx`
   - `educationPreferenceService` → `UnifiedFlowSteps.tsx`
-  - `emailMfaSignOnFlowServiceV8` → `EmailMFASignOnFlowV8.tsx`
+  - `emailMfaSignOnFlowService` → `EmailMFASignOnFlow.tsx`
   - `enhancedConfigurationService` → `ConfigurationManagerPage.tsx`
-  - `environmentService` → `MFAAuthenticationMainPageV8.tsx`
+  - `environmentService` → `MFAAuthenticationMainPage.tsx`
   - `environmentServiceV8` → `EnvironmentManagementPageV8.tsx`
   - `flowComponentService` → `OAuth2AuthorizationCodeFlow.tsx`
-  - `flowOptionsServiceV8` → `CredentialsFormV8U.tsx`
+  - `flowOptionsService` → `CredentialsFormV8U.tsx`
   - `flowUIComponentsService` → `KrogerGroceryStoreMFA_New.tsx`
-  - `hybridFlowIntegrationServiceV8` → `OIDCHybridFlowV8.tsx`
+  - `hybridFlowIntegrationService` → `OIDCHybridFlow.tsx`
   - `hybridFlowSharedService` → `OIDCHybridFlowV7.tsx`
-  - `idTokenValidationServiceV8` → `IDTokenValidationModalV8U.tsx`
-  - `implicitFlowIntegrationServiceV8` → `ImplicitFlowV8.tsx`
+  - `idTokenValidationService` → `IDTokenValidationModalV8U.tsx`
+  - `implicitFlowIntegrationService` → `ImplicitFlow.tsx`
   - `interactiveFlowDiagramService` → `InteractiveFlowDiagram.tsx`
   - `jwtAuthServiceV8` → `JWTExamples.tsx`
-  - `mfaEducationServiceV8` → `FIDO2ConfigurationPageV8.tsx`
-  - `mfaReportingServiceV8` → `MFAReportingFlowV8.tsx`
-  - `oauthErrorCodesServiceV8` → `ErrorDisplayWithRetry.tsx`
+  - `mfaEducationService` → `FIDO2ConfigurationPage.tsx`
+  - `mfaReportingService` → `MFAReportingFlow.tsx`
+  - `oauthErrorCodesService` → `ErrorDisplayWithRetry.tsx`
   - `offlineAccessService` → `KrogerGroceryStoreMFA_New.tsx`
   - `oidcComplianceService` → `OIDCCompliantAuthorizationCodeFlow.tsx`
   - `organizationLicensingService` → `OrganizationLicensing.tsx`
@@ -3360,7 +3360,7 @@
   - `parService` → `PARFlow.tsx`
   - `passwordResetService` → `HelioMartPasswordReset.tsx`
   - `pingOneAppCreationService` → `ApplicationGenerator.tsx`
-  - `pingOneAuthenticationServiceV8` → `CallbackHandlerV8U.tsx`
+  - `pingOneAuthenticationService` → `CallbackHandlerV8U.tsx`
   - `pingOneClientServiceV8U` → `AdvancedOAuthFeatures.tsx`
   - `pingOneJWTService` → `JWTExamples.tsx`
   - `pingoneConfigService` → `PingOnePARFlow.tsx`
@@ -3368,21 +3368,21 @@
   - `presetManagerService` → `ApplicationGenerator.tsx`
   - `rarService` → `PingOnePARFlowV7.tsx`
   - `redirectStateManager` → `KrogerGroceryStoreMFA_New.tsx`
-  - `redirectUriServiceV8` → `CredentialsFormV8U.tsx`
+  - `redirectUriService` → `CredentialsFormV8U.tsx`
   - `redirectlessAuthService` → `KrogerGroceryStoreMFA_New.tsx`
-  - `responseTypeServiceV8` → `CredentialsFormV8U.tsx`
+  - `responseTypeService` → `CredentialsFormV8U.tsx`
   - `samlAssertionService` → `SAMLBearerAssertionFlowV7.tsx`
   - `samlService` → `SAMLServiceProviderFlowV1.tsx`
   - `securityService` → `SecurityDashboardPage.tsx`
   - `serviceDiscoveryService` → `ServiceDiscovery.tsx`
-  - `tokenEndpointAuthMethodServiceV8` → `CredentialsFormV8U.tsx`
-  - `tokenExchangeConfigServiceV8` → `TokenExchangeFlowV8.tsx`
-  - `tokenExchangeServiceV8` → `TokenExchangeFlowV8.tsx`
-  - `tooltipContentServiceV8` → `CredentialsFormV8U.tsx`
-  - `unifiedFlowOptionsServiceV8` → `CredentialsFormV8U.tsx`
+  - `tokenEndpointAuthMethodService` → `CredentialsFormV8U.tsx`
+  - `tokenExchangeConfigService` → `TokenExchangeFlow.tsx`
+  - `tokenExchangeService` → `TokenExchangeFlow.tsx`
+  - `tooltipContentService` → `CredentialsFormV8U.tsx`
+  - `unifiedFlowOptionsService` → `CredentialsFormV8U.tsx`
   - `unifiedFlowServiceIntegration` → `UnifiedDeviceSelectionStep.modern.tsx`
-  - `unifiedMFAResumeStepResolverV8` → `MFAFlowBaseV8.tsx`
-  - `unifiedMFASuccessPageServiceV8` → `mfaSuccessPageServiceV8.tsx`
+  - `unifiedMFAResumeStepResolver` → `MFAFlowBase.tsx`
+  - `unifiedMFASuccessPageService` → `mfaSuccessPageService.tsx`
   - `v7CredentialValidationService` → `DeviceAuthorizationFlowV7.tsx`
   - `v7EducationalContentDataService` → `OAuthAuthorizationCodeFlowV7.tsx`
   - `v7FlowTemplateService` → `ExampleV7Flow.tsx`
@@ -3403,7 +3403,7 @@
   - `Callback.tsx` (`src/pages/Callback.tsx`)
   - `CodeEditorDemo.tsx` (`src/pages/CodeEditorDemo.tsx`)
   - `CompactAppPickerDemo.tsx` (`src/pages/CompactAppPickerDemo.tsx`)
-  - `DpopAuthorizationCodeFlowV8.tsx` (`src/pages/DpopAuthorizationCodeFlowV8.tsx`)
+  - `DpopAuthorizationCodeFlow.tsx` (`src/pages/DpopAuthorizationCodeFlow.tsx`)
   - `EnhancedTutorials.tsx` (`src/pages/EnhancedTutorials.tsx`)
   - `Flows.tsx` (`src/pages/Flows.tsx`)
   - `FlowsLazy.tsx` (`src/pages/FlowsLazy.tsx`)
@@ -3548,18 +3548,18 @@
   - `RARExplanationGuide.tsx` (`src/pages/user-guides/RARExplanationGuide.tsx`)
   - `RedirectURIsGuide.tsx` (`src/pages/user-guides/RedirectURIsGuide.tsx`)
   - `SecurityFeaturesGuide.tsx` (`src/pages/user-guides/SecurityFeaturesGuide.tsx`)
-  - `MFASettingsV8.tsx` (`src/v8/flows/MFASettingsV8.tsx`)
-  - `ResourcesAPIFlowV8.tsx` (`src/v8/flows/ResourcesAPIFlowV8.tsx`)
+  - `MFASettings.tsx` (`src/v8/flows/MFASettings.tsx`)
+  - `ResourcesAPIFlow.tsx` (`src/v8/flows/ResourcesAPIFlow.tsx`)
   - `MFADeviceSelector.tsx` (`src/v8/flows/components/MFADeviceSelector.tsx`)
-  - `SMSDeviceSelectionStepV8.tsx` (`src/v8/flows/components/SMSDeviceSelectionStepV8.tsx`)
+  - `SMSDeviceSelectionStep.tsx` (`src/v8/flows/components/SMSDeviceSelectionStep.tsx`)
   - `MFADeviceSelectionInfoModal.tsx` (`src/v8/flows/components/modals/MFADeviceSelectionInfoModal.tsx`)
   - `MFAFIDO2ChallengeModal.tsx` (`src/v8/flows/components/modals/MFAFIDO2ChallengeModal.tsx`)
   - `MFAOTPInputModal.tsx` (`src/v8/flows/components/modals/MFAOTPInputModal.tsx`)
   - `MFAPolicyInfoModal.tsx` (`src/v8/flows/components/modals/MFAPolicyInfoModal.tsx`)
   - `MFAPushConfirmationModal.tsx` (`src/v8/flows/components/modals/MFAPushConfirmationModal.tsx`)
-  - `APIDocsStepV8.tsx` (`src/v8/flows/shared/APIDocsStepV8.tsx`)
-  - `SuccessStepV8.tsx` (`src/v8/flows/shared/SuccessStepV8.tsx`)
-  - `UserLoginStepV8.tsx` (`src/v8/flows/shared/UserLoginStepV8.tsx`)
+  - `APIDocsStep.tsx` (`src/v8/flows/shared/APIDocsStep.tsx`)
+  - `SuccessStep.tsx` (`src/v8/flows/shared/SuccessStep.tsx`)
+  - `UserLoginStep.tsx` (`src/v8/flows/shared/UserLoginStep.tsx`)
   - `APIComparisonModal.tsx` (`src/v8/flows/unified/components/APIComparisonModal.tsx`)
   - `DeviceComponentRegistry.tsx` (`src/v8/flows/unified/components/DeviceComponentRegistry.tsx`)
   - `DynamicFormRenderer.tsx` (`src/v8/flows/unified/components/DynamicFormRenderer.tsx`)

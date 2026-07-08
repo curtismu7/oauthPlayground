@@ -13,23 +13,23 @@ Each device type follows the same pattern with 3 separate pages:
 
 | Device Type | Configuration Page | Device Registration Page | Documentation Page | Total Pages |
 |-------------|-------------------|-------------------------|-------------------|------------|
-| SMS | `SMSOTPConfigurationPageV8.tsx` | `SMSFlowV8.tsx` | `SMSRegistrationDocsPageV8.tsx` | 3 |
-| Email | `EmailOTPConfigurationPageV8.tsx` | `EmailFlowV8.tsx` | `EmailRegistrationDocsPageV8.tsx` | 3 |
-| Mobile | `MobileOTPConfigurationPageV8.tsx` | `MobileFlowV8.tsx` | `MobileRegistrationDocsPageV8.tsx` | 3 |
-| WhatsApp | `WhatsAppOTPConfigurationPageV8.tsx` | `WhatsAppFlowV8.tsx` | `WhatsAppRegistrationDocsPageV8.tsx` | 3 |
-| TOTP | `TOTPConfigurationPageV8.tsx` | `TOTPFlowV8.tsx` | N/A | 2 |
-| FIDO2 | `FIDO2ConfigurationPageV8.tsx` | `FIDO2FlowV8.tsx` | `FIDO2RegistrationDocsPageV8.tsx` | 3 |
+| SMS | `SMSOTPConfigurationPage.tsx` | `SMSFlow.tsx` | `SMSRegistrationDocsPage.tsx` | 3 |
+| Email | `EmailOTPConfigurationPage.tsx` | `EmailFlow.tsx` | `EmailRegistrationDocsPage.tsx` | 3 |
+| Mobile | `MobileOTPConfigurationPage.tsx` | `MobileFlow.tsx` | `MobileRegistrationDocsPage.tsx` | 3 |
+| WhatsApp | `WhatsAppOTPConfigurationPage.tsx` | `WhatsAppFlow.tsx` | `WhatsAppRegistrationDocsPage.tsx` | 3 |
+| TOTP | `TOTPConfigurationPage.tsx` | `TOTPFlow.tsx` | N/A | 2 |
+| FIDO2 | `FIDO2ConfigurationPage.tsx` | `FIDO2Flow.tsx` | `FIDO2RegistrationDocsPage.tsx` | 3 |
 | **TOTAL** | **6 files** | **6 files** | **5 files** | **17 files** |
 
 ### Current Route Structure
 ```typescript
 // 17 separate routes for 6 device types
-/v8/mfa/register/sms → SMSOTPConfigurationPageV8
-/v8/mfa/register/sms/device → SMSFlowV8
-/v8/mfa/register/sms/docs → SMSRegistrationDocsPageV8
-/v8/mfa/register/email → EmailOTPConfigurationPageV8
-/v8/mfa/register/email/device → EmailFlowV8
-/v8/mfa/register/email/docs → EmailRegistrationDocsPageV8
+/v8/mfa/register/sms → SMSOTPConfigurationPage
+/v8/mfa/register/sms/device → SMSFlow
+/v8/mfa/register/sms/docs → SMSRegistrationDocsPage
+/v8/mfa/register/email → EmailOTPConfigurationPage
+/v8/mfa/register/email/device → EmailFlow
+/v8/mfa/register/email/docs → EmailRegistrationDocsPage
 // ... 11 more routes
 ```
 
@@ -39,30 +39,30 @@ Each device type follows the same pattern with 3 separate pages:
 
 ### 1. Worker Token Management (CRITICAL DUPLICATION)
 - **Every page** has its own worker token status checking
-- **Every page** imports `WorkerTokenStatusServiceV8` and `WorkerTokenUIServiceV8`
+- **Every page** imports `WorkerTokenStatusService` and `WorkerTokenUIService`
 - **Every page** has its own token state management logic
 - **Every page** has its own token refresh intervals (30-second polling)
 
 **Impact**: 17 separate token management implementations
 
 ### 2. Credential Management (CRITICAL DUPLICATION)
-- **Every page** loads/saves credentials independently via `CredentialsServiceV8`
-- **Every page** has environment ID management via `EnvironmentIdServiceV8`
+- **Every page** loads/saves credentials independently via `CredentialsService`
+- **Every page** has environment ID management via `EnvironmentIdService`
 - **Every page** has token type management (worker/user)
 - **Every page** has credential validation logic
 
 **Impact**: 17 separate credential management implementations
 
 ### 3. UI Components (MAJOR DUPLICATION)
-- **Every page** includes `WorkerTokenUIServiceV8` component
-- **Every page** includes `SuperSimpleApiDisplayV8` component
-- **Every page** includes `MFAInfoButtonV8` component
+- **Every page** includes `WorkerTokenUIService` component
+- **Every page** includes `SuperSimpleApiDisplay` component
+- **Every page** includes `MFAInfoButton` component
 - **Every page** includes navigation components
 
 **Impact**: 17 separate UI component integrations
 
 ### 4. Step Navigation (MODERATE DUPLICATION)
-- **Every flow** has similar step navigation logic via `useStepNavigationV8`
+- **Every flow** has similar step navigation logic via `useStepNavigation`
 - **Every flow** has similar validation logic
 - **Every flow** has similar error handling via `UnifiedFlowErrorHandler`
 
@@ -70,7 +70,7 @@ Each device type follows the same pattern with 3 separate pages:
 
 ### 5. Success Pages (MODERATE DUPLICATION)
 - **Every flow** builds success data via `buildSuccessPageData`
-- **Every flow** has success page rendering logic via `MFASuccessPageV8`
+- **Every flow** has success page rendering logic via `MFASuccessPage`
 - **Every flow** has "start again" functionality
 
 **Impact**: 17 separate success page implementations
@@ -84,7 +84,7 @@ Each device type follows the same pattern with 3 separate pages:
 ┌─────────────────────────────────────────────────────────────┐
 │                    Unified MFA Flow                          │
 ├─────────────────────────────────────────────────────────────┤
-│  UnifiedMFARegistrationFlowV8.tsx (Single Component)       │
+│  UnifiedMFARegistrationFlow.tsx (Single Component)       │
 │  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
 │  │ Token Manager   │  │ Credential      │  │ Device       │ │
 │  │ Service         │  │ Manager Service │  │ Configs      │ │
@@ -101,12 +101,12 @@ Each device type follows the same pattern with 3 separate pages:
 
 ### Phase 1: Create Unified Services
 
-#### 1.1 MFATokenManagerV8 Service
+#### 1.1 MFATokenManager Service
 ```typescript
-// New file: src/v8/services/mfaTokenManagerV8.ts
-export class MFATokenManagerV8 {
+// New file: src/v8/services/mfaTokenManager.ts
+export class MFATokenManager {
   // Centralized worker token status checking
-  private static instance: MFATokenManagerV8;
+  private static instance: MFATokenManager;
   private tokenState: TokenState;
   private subscribers: Set<TokenUpdateCallback>;
   
@@ -122,12 +122,12 @@ export class MFATokenManagerV8 {
 - ✅ Consistent token refresh behavior across all flows
 - ✅ Reduced memory footprint (single instance)
 
-#### 1.2 MFACredentialManagerV8 Service
+#### 1.2 MFACredentialManager Service
 ```typescript
-// New file: src/v8/services/mfaCredentialManagerV8.ts
-export class MFACredentialManagerV8 {
+// New file: src/v8/services/mfaCredentialManager.ts
+export class MFACredentialManager {
   // Centralized credential loading/saving
-  private static instance: MFACredentialManagerV8;
+  private static instance: MFACredentialManager;
   private credentials: MFACredentials;
   
   // Eliminates 17 separate credential implementations
@@ -197,16 +197,16 @@ export const deviceFlowConfigs = {
 
 ### Phase 3: Create Unified Flow Component
 
-#### 3.1 UnifiedMFARegistrationFlowV8 Component
+#### 3.1 UnifiedMFARegistrationFlow Component
 ```typescript
-// New file: src/v8/components/UnifiedMFARegistrationFlowV8.tsx
-export const UnifiedMFARegistrationFlowV8: React.FC<{
+// New file: src/v8/components/UnifiedMFARegistrationFlow.tsx
+export const UnifiedMFARegistrationFlow: React.FC<{
   deviceType: DeviceType;
 }> = ({ deviceType }) => {
   // Single component handles all device types
   const config = deviceFlowConfigs[deviceType];
-  const tokenManager = MFATokenManagerV8.getInstance();
-  const credentialManager = MFACredentialManagerV8.getInstance();
+  const tokenManager = MFATokenManager.getInstance();
+  const credentialManager = MFACredentialManager.getInstance();
   
   // Unified step navigation
   // Unified success handling
@@ -226,21 +226,21 @@ export const UnifiedMFARegistrationFlowV8: React.FC<{
 #### 4.1 New Route Structure
 ```typescript
 // BEFORE: 17 separate routes
-/v8/mfa/register/sms → SMSOTPConfigurationPageV8
-/v8/mfa/register/sms/device → SMSFlowV8
-/v8/mfa/register/sms/docs → SMSRegistrationDocsPageV8
-/v8/mfa/register/email → EmailOTPConfigurationPageV8
-/v8/mfa/register/email/device → EmailFlowV8
-/v8/mfa/register/email/docs → EmailRegistrationDocsPageV8
+/v8/mfa/register/sms → SMSOTPConfigurationPage
+/v8/mfa/register/sms/device → SMSFlow
+/v8/mfa/register/sms/docs → SMSRegistrationDocsPage
+/v8/mfa/register/email → EmailOTPConfigurationPage
+/v8/mfa/register/email/device → EmailFlow
+/v8/mfa/register/email/docs → EmailRegistrationDocsPage
 // ... 11 more routes
 
 // AFTER: 6 unified routes
-/v8/mfa/register/sms → UnifiedMFARegistrationFlowV8 (deviceType="SMS")
-/v8/mfa/register/email → UnifiedMFARegistrationFlowV8 (deviceType="EMAIL")
-/v8/mfa/register/mobile → UnifiedMFARegistrationFlowV8 (deviceType="MOBILE")
-/v8/mfa/register/whatsapp → UnifiedMFARegistrationFlowV8 (deviceType="WHATSAPP")
-/v8/mfa/register/totp → UnifiedMFARegistrationFlowV8 (deviceType="TOTP")
-/v8/mfa/register/fido2 → UnifiedMFARegistrationFlowV8 (deviceType="FIDO2")
+/v8/mfa/register/sms → UnifiedMFARegistrationFlow (deviceType="SMS")
+/v8/mfa/register/email → UnifiedMFARegistrationFlow (deviceType="EMAIL")
+/v8/mfa/register/mobile → UnifiedMFARegistrationFlow (deviceType="MOBILE")
+/v8/mfa/register/whatsapp → UnifiedMFARegistrationFlow (deviceType="WHATSAPP")
+/v8/mfa/register/totp → UnifiedMFARegistrationFlow (deviceType="TOTP")
+/v8/mfa/register/fido2 → UnifiedMFARegistrationFlow (deviceType="FIDO2")
 ```
 
 **Benefits:**
@@ -256,11 +256,11 @@ export const UnifiedMFARegistrationFlowV8: React.FC<{
 ### Files Eliminated
 | Category | Current Files | New Files | Net Reduction |
 |----------|---------------|-----------|---------------|
-| Configuration Pages | 6 (`*OTPConfigurationPageV8.tsx`) | 0 | -6 |
-| Device Flow Pages | 6 (`*FlowV8.tsx`) | 0 | -6 |
-| Documentation Pages | 5 (`*RegistrationDocsPageV8.tsx`) | 0 | -5 |
-| **Services** | 0 | 2 (`MFATokenManagerV8.ts`, `MFACredentialManagerV8.ts`) | +2 |
-| **Components** | 0 | 1 (`UnifiedMFARegistrationFlowV8.tsx`) | +1 |
+| Configuration Pages | 6 (`*OTPConfigurationPage.tsx`) | 0 | -6 |
+| Device Flow Pages | 6 (`*Flow.tsx`) | 0 | -6 |
+| Documentation Pages | 5 (`*RegistrationDocsPage.tsx`) | 0 | -5 |
+| **Services** | 0 | 2 (`MFATokenManager.ts`, `MFACredentialManager.ts`) | +2 |
+| **Components** | 0 | 1 (`UnifiedMFARegistrationFlow.tsx`) | +1 |
 | **Config** | 0 | 1 (`deviceFlowConfigs.ts`) | +1 |
 | **TOTAL** | **17 files** | **4 files** | **-13 files** |
 
@@ -285,7 +285,7 @@ export const UnifiedMFARegistrationFlowV8: React.FC<{
 
 ### Phase 1: Foundation Services (Week 1-2)
 #### Week 1: Token Manager Service
-- [ ] Create `MFATokenManagerV8.ts` service
+- [ ] Create `MFATokenManager.ts` service
 - [ ] Implement centralized token status checking
 - [ ] Add token refresh logic
 - [ ] Create event broadcasting system
@@ -293,7 +293,7 @@ export const UnifiedMFARegistrationFlowV8: React.FC<{
 - [ ] Test service independently
 
 #### Week 2: Credential Manager Service
-- [ ] Create `MFACredentialManagerV8.ts` service
+- [ ] Create `MFACredentialManager.ts` service
 - [ ] Implement centralized credential loading/saving
 - [ ] Add environment ID management
 - [ ] Create credential validation logic
@@ -314,7 +314,7 @@ export const UnifiedMFARegistrationFlowV8: React.FC<{
 
 ### Phase 3: Unified Component (Week 4-5)
 #### Week 4: Core Component Development
-- [ ] Create `UnifiedMFARegistrationFlowV8.tsx`
+- [ ] Create `UnifiedMFARegistrationFlow.tsx`
 - [ ] Implement basic component structure
 - [ ] Add device type prop handling
 - [ ] Integrate token manager service
@@ -479,9 +479,9 @@ export const UnifiedMFARegistrationFlowV8: React.FC<{
 
 | Week | Phase | Key Deliverables |
 |------|-------|------------------|
-| 1-2 | Foundation Services | MFATokenManagerV8, MFACredentialManagerV8 |
+| 1-2 | Foundation Services | MFATokenManager, MFACredentialManager |
 | 3 | Configuration System | deviceFlowConfigs.ts |
-| 4-5 | Unified Component | UnifiedMFARegistrationFlowV8.tsx |
+| 4-5 | Unified Component | UnifiedMFARegistrationFlow.tsx |
 | 6 | Route Migration | New route structure |
 | 7-8 | Migration & Testing | Gradual rollout, testing |
 | 9 | Cleanup | Remove old code, documentation |
@@ -496,4 +496,4 @@ This consolidation plan will reduce the MFA registration system from **17 separa
 
 The phased approach with feature flags and gradual migration ensures minimal risk while delivering significant benefits in code maintainability, system performance, and user experience.
 
-**Next Step**: Begin Phase 1 by creating the `MFATokenManagerV8` service.
+**Next Step**: Begin Phase 1 by creating the `MFATokenManager` service.

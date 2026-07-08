@@ -5,7 +5,7 @@ Ensure that authorization calls can handle both Client Secret JWT and Private Ke
 
 ## ✅ Changes Made
 
-### 1. **OAuth Integration Service V8** (`src/v8/services/oauthIntegrationServiceV8.ts`)
+### 1. **OAuth Integration Service V8** (`src/v8/services/oauthIntegrationService.ts`)
 - **Updated Interface**: Added `clientAuthMethod` and `privateKey` fields to `OAuthCredentials`
 - **Enhanced Authentication Logic**: 
   - Added JWT assertion generation for `client_secret_jwt` (HS256) and `private_key_jwt` (RS256)
@@ -13,7 +13,7 @@ Ensure that authorization calls can handle both Client Secret JWT and Private Ke
   - Maintained backward compatibility with existing methods
 - **Import Fix**: Updated import path for `clientAuthentication` utility
 
-### 2. **Hybrid Flow Integration Service V8** (`src/v8/services/hybridFlowIntegrationServiceV8.ts`)
+### 2. **Hybrid Flow Integration Service V8** (`src/v8/services/hybridFlowIntegrationService.ts`)
 - **Updated Interface**: Added `clientAuthMethod` and `privateKey` fields to `HybridFlowCredentials`
 - **JWT Authentication Support**: Added complete JWT assertion handling for hybrid flows
 - **Import Fix**: Updated import path for `clientAuthentication` utility
@@ -27,7 +27,7 @@ Ensure that authorization calls can handle both Client Secret JWT and Private Ke
 - **Import Fix**: Updated import path for `clientAuthentication` utility
 - **Existing JWT Support**: Already had JWT authentication working (no changes needed)
 
-### 5. **Client Credentials Service V8** (`src/v8/services/clientCredentialsIntegrationServiceV8.ts`)
+### 5. **Client Credentials Service V8** (`src/v8/services/clientCredentialsIntegrationService.ts`)
 - **Import Fix**: Updated import path for `clientAuthentication` utility
 - **Existing JWT Support**: Already had JWT authentication working (no changes needed)
 

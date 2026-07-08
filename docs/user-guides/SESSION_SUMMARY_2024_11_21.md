@@ -30,8 +30,8 @@
 - Simple, jargon-free explanations
 
 **Files:**
-- `src/v8/services/tokenOperationsServiceV8.ts` - Rules engine (NEW)
-- `src/v8/components/TokenOperationsEducationModalV8.tsx` - Educational modal (NEW)
+- `src/v8/services/tokenOperationsService.ts` - Rules engine (NEW)
+- `src/v8/components/TokenOperationsEducationModal.tsx` - Educational modal (NEW)
 - `src/v8u/components/UnifiedFlowSteps.tsx` - Integration
 
 ### 3. Redirectless Mode Support ✅
@@ -45,7 +45,7 @@
 - Sync with credentials storage
 
 **Files:**
-- `src/v8/services/unifiedFlowOptionsServiceV8.ts` - Added checkbox availability
+- `src/v8/services/unifiedFlowOptionsService.ts` - Added checkbox availability
 - `src/v8u/components/CredentialsFormV8U.tsx` - Added checkbox UI and state
 
 ---
@@ -140,10 +140,10 @@
 ## Files Created
 
 ### Services
-- `src/v8/services/tokenOperationsServiceV8.ts` - Token operations rules engine
+- `src/v8/services/tokenOperationsService.ts` - Token operations rules engine
 
 ### Components
-- `src/v8/components/TokenOperationsEducationModalV8.tsx` - Educational modal
+- `src/v8/components/TokenOperationsEducationModal.tsx` - Educational modal
 
 ### Documentation
 - `DEVICE_CODE_INTROSPECTION_FIX.md` - Introspection fix details
@@ -157,7 +157,7 @@
 ## Files Modified
 
 ### Services
-- `src/v8/services/unifiedFlowOptionsServiceV8.ts` - Added redirectless checkbox
+- `src/v8/services/unifiedFlowOptionsService.ts` - Added redirectless checkbox
 
 ### Components
 - `src/v8u/components/CredentialsFormV8U.tsx` - Added redirectless checkbox UI

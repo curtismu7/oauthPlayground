@@ -3,19 +3,19 @@
 echo "🧪 MFA Flow Environment ID Fix Test"
 echo "=================================="
 
-# Test 1: Check MFAFlowBaseV8 environment ID fallback
-echo "📋 Checking MFAFlowBaseV8 environment ID fallback..."
-if grep -q "Applied global environment ID fallback for MFA flow" src/mfa/flows/shared/MFAFlowBaseV8.tsx && \
-   grep -q "v8:global_environment_id" src/mfa/flows/shared/MFAFlowBaseV8.tsx; then
-    echo "✅ MFAFlowBaseV8 environment ID fallback implemented"
+# Test 1: Check MFAFlowBase environment ID fallback
+echo "📋 Checking MFAFlowBase environment ID fallback..."
+if grep -q "Applied global environment ID fallback for MFA flow" src/mfa/flows/shared/MFAFlowBase.tsx && \
+   grep -q "v8:global_environment_id" src/mfa/flows/shared/MFAFlowBase.tsx; then
+    echo "✅ MFAFlowBase environment ID fallback implemented"
 else
-    echo "❌ MFAFlowBaseV8 environment ID fallback missing!"
+    echo "❌ MFAFlowBase environment ID fallback missing!"
     exit 1
 fi
 
 # Test 2: Check localStorage access pattern
 echo "📋 Checking localStorage access pattern..."
-if grep -q "localStorage.getItem.*v8:global_environment_id" src/mfa/flows/shared/MFAFlowBaseV8.tsx; then
+if grep -q "localStorage.getItem.*v8:global_environment_id" src/mfa/flows/shared/MFAFlowBase.tsx; then
     echo "✅ localStorage access pattern implemented"
 else
     echo "❌ localStorage access pattern missing!"
@@ -24,7 +24,7 @@ fi
 
 # Test 3: Check error handling
 echo "📋 Checking error handling..."
-if grep -q "Failed to access global environment ID for fallback" src/mfa/flows/shared/MFAFlowBaseV8.tsx; then
+if grep -q "Failed to access global environment ID for fallback" src/mfa/flows/shared/MFAFlowBase.tsx; then
     echo "✅ Error handling implemented"
 else
     echo "❌ Error handling missing!"
@@ -33,7 +33,7 @@ fi
 
 # Test 4: Check placement in useState initializer
 echo "📋 Checking placement in useState initializer..."
-if grep -A 10 -B 2 "useState.*MFACredentials" src/mfa/flows/shared/MFAFlowBaseV8.tsx | grep -q "global environment ID fallback"; then
+if grep -A 10 -B 2 "useState.*MFACredentials" src/mfa/flows/shared/MFAFlowBase.tsx | grep -q "global environment ID fallback"; then
     echo "✅ Proper placement in useState initializer"
 else
     echo "⚠️  Placement check passed (fallback logic is correctly positioned)"
@@ -51,7 +51,7 @@ fi
 
 echo ""
 echo "🎉 MFA Flow Environment ID Fix Test Complete!"
-echo "✅ MFAFlowBaseV8 environment ID fallback implemented"
+echo "✅ MFAFlowBase environment ID fallback implemented"
 echo "✅ localStorage access pattern implemented"
 echo "✅ Error handling implemented"
 echo "✅ Proper placement in useState initializer"

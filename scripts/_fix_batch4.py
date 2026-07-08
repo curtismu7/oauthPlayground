@@ -1,5 +1,5 @@
 """Fix batch 4: EnhancedStepFlow, TokenIntrospectionStep, performanceService,
-credentialDebugger, parameterValidation, MFAConfigurationStepV8."""
+credentialDebugger, parameterValidation, MFAConfigurationStep."""
 
 def fix(path, replacements, label=None):
     with open(path) as f:
@@ -118,18 +118,18 @@ fix('src/utils/parameterValidation.ts', [
 ])
 
 
-# ── 6. MFAConfigurationStepV8.tsx ─────────────────────────────────────────────
-print('6. MFAConfigurationStepV8.tsx')
-fix('src/mfa/flows/shared/MFAConfigurationStepV8.tsx', [
-    # Add import for MFAConfigurationServiceV8 (after last import)
-    ("import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';",
-     "import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';\nimport type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';"),
+# ── 6. MFAConfigurationStep.tsx ─────────────────────────────────────────────
+print('6. MFAConfigurationStep.tsx')
+fix('src/mfa/flows/shared/MFAConfigurationStep.tsx', [
+    # Add import for MFAConfigurationService (after last import)
+    ("import type { MFAFlowBaseRenderProps } from './MFAFlowBase';",
+     "import { MFAConfigurationService } from '@/v8/services/mfaConfigurationService';\nimport type { MFAFlowBaseRenderProps } from './MFAFlowBase';"),
     # Replace require() in silentApiRetrieval useState
-    ('\t\tconst { MFAConfigurationServiceV8 } = require(\'@/v8/services/mfaConfigurationServiceV8\');\n\t\t\t\treturn MFAConfigurationServiceV8.loadConfiguration().workerToken.silentApiRetrieval',
-     '\t\t\treturn MFAConfigurationServiceV8.loadConfiguration().workerToken.silentApiRetrieval'),
+    ('\t\tconst { MFAConfigurationService } = require(\'@/v8/services/mfaConfigurationService\');\n\t\t\t\treturn MFAConfigurationService.loadConfiguration().workerToken.silentApiRetrieval',
+     '\t\t\treturn MFAConfigurationService.loadConfiguration().workerToken.silentApiRetrieval'),
     # Replace require() in showTokenAtEnd useState
-    ('\t\tconst { MFAConfigurationServiceV8 } = require(\'@/v8/services/mfaConfigurationServiceV8\');\n\t\t\t\treturn MFAConfigurationServiceV8.loadConfiguration().workerToken.showTokenAtEnd',
-     '\t\t\treturn MFAConfigurationServiceV8.loadConfiguration().workerToken.showTokenAtEnd'),
+    ('\t\tconst { MFAConfigurationService } = require(\'@/v8/services/mfaConfigurationService\');\n\t\t\t\treturn MFAConfigurationService.loadConfiguration().workerToken.showTokenAtEnd',
+     '\t\t\treturn MFAConfigurationService.loadConfiguration().workerToken.showTokenAtEnd'),
     # Unused props: prefix with _
     ('\tshowWorkerTokenModal,\n\tsetShowWorkerTokenModal,',
      '\t_showWorkerTokenModal,\n\tsetShowWorkerTokenModal,'),

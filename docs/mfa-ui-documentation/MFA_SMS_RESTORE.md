@@ -17,23 +17,23 @@
 
 ## Overview
 
-This document provides implementation details, code snippets, and restoration guidance for the SMS MFA flow (`SMSFlowV8.tsx` and `SMSOTPConfigurationPageV8.tsx`).
+This document provides implementation details, code snippets, and restoration guidance for the SMS MFA flow (`SMSFlow.tsx` and `SMSOTPConfigurationPage.tsx`).
 
 ---
 
 ## File Locations
 
 **Components:**
-- `src/v8/flows/types/SMSFlowV8.tsx` - Main SMS flow component
-- `src/v8/flows/types/SMSOTPConfigurationPageV8.tsx` - SMS configuration page
-- `src/v8/pages/SMSRegistrationDocsPageV8.tsx` - SMS documentation page
+- `src/v8/flows/types/SMSFlow.tsx` - Main SMS flow component
+- `src/v8/flows/types/SMSOTPConfigurationPage.tsx` - SMS configuration page
+- `src/v8/pages/SMSRegistrationDocsPage.tsx` - SMS documentation page
 
 **Controllers:**
 - `src/v8/flows/controllers/SMSFlowController.ts` - SMS flow business logic
 
 **Services:**
-- `src/v8/services/mfaServiceV8.ts` - MFA API calls
-- `src/v8/services/mfaAuthenticationServiceV8.ts` - MFA authentication calls
+- `src/v8/services/mfaService.ts` - MFA API calls
+- `src/v8/services/mfaAuthenticationService.ts` - MFA authentication calls
 
 ---
 
@@ -45,7 +45,7 @@ This document provides implementation details, code snippets, and restoration gu
 
 **Correct Implementation:**
 ```typescript
-// In SMSFlowV8.tsx
+// In SMSFlow.tsx
 React.useEffect(() => {
     // Skip device loading during registration flow (when coming from config page)
     if (isConfigured) {
@@ -81,7 +81,7 @@ if (nav.currentStep === 1) {
 
 **Correct Implementation:**
 ```typescript
-// In SMSFlowV8.tsx
+// In SMSFlow.tsx
 const step2DeviceNameResetRef = React.useRef<{ step: number; deviceType: string } | null>(null);
 
 const renderStep2Register = useCallback((props: MFAFlowBaseRenderProps) => {
@@ -120,9 +120,9 @@ const [deviceName, setDeviceName] = useState(credentials.deviceName || 'SMS');
 **Correct Implementation:**
 ```typescript
 import { MFAOTPInput } from '../components/MFAOTPInput';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { MFAConfigurationService } from '@/v8/services/mfaConfigurationService';
 
-const config = MFAConfigurationServiceV8.loadConfiguration();
+const config = MFAConfigurationService.loadConfiguration();
 
 <MFAOTPInput
     length={config.otpCodeLength || 6}
@@ -171,7 +171,7 @@ const normalizeErrorMessage = (error: unknown): string => {
 // For ACTIVE devices: Show success page immediately
 if (mfaState.deviceStatus === 'ACTIVE' && deviceRegisteredActive) {
     return (
-        <MFASuccessPageV8
+        <MFASuccessPage
             deviceType="SMS"
             flowType="registration"
             successData={buildSuccessPageData(/* ... */)}
@@ -230,7 +230,7 @@ if (step2DeviceNameResetRef.current?.step !== nav.currentStep) {
 **Fix:**
 ```typescript
 // Load configuration and use otpCodeLength
-const config = MFAConfigurationServiceV8.loadConfiguration();
+const config = MFAConfigurationService.loadConfiguration();
 <MFAOTPInput length={config.otpCodeLength || 6} ... />
 ```
 
@@ -242,7 +242,7 @@ const config = MFAConfigurationServiceV8.loadConfiguration();
 ```typescript
 // Normalize all error messages
 const userFriendlyError = normalizeErrorMessage(error);
-toastV8.error(userFriendlyError);
+toast.error(userFriendlyError);
 ```
 
 ---

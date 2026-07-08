@@ -254,16 +254,16 @@ interface DeviceOrderingProps {
 const handleBlockDevice = async (deviceId: string) => {
   try {
     setLoading(true);
-    await MFAServiceV8.blockDevice({ deviceId, environmentId, userId });
-    toastV8.success('Device blocked successfully');
+    await MFAService.blockDevice({ deviceId, environmentId, userId });
+    toast.success('Device blocked successfully');
     await loadDevices();
   } catch (error) {
     if (error.status === 403) {
-      toastV8.error('You do not have permission to block devices');
+      toast.error('You do not have permission to block devices');
     } else if (error.status === 404) {
-      toastV8.error('Device not found');
+      toast.error('Device not found');
     } else {
-      toastV8.error('Failed to block device. Please try again.');
+      toast.error('Failed to block device. Please try again.');
     }
   } finally {
     setLoading(false);

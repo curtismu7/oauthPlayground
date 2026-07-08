@@ -14,7 +14,7 @@ Added an educational system that teaches users when they can use token introspec
 
 ## What Was Added
 
-### 1. Token Operations Service (`tokenOperationsServiceV8.ts`)
+### 1. Token Operations Service (`tokenOperationsService.ts`)
 
 A service that determines which token operations are allowed for each flow type:
 
@@ -26,7 +26,7 @@ A service that determines which token operations are allowed for each flow type:
 
 **Example:**
 ```typescript
-const rules = TokenOperationsServiceV8.getOperationRules('oauth-authz', 'openid profile');
+const rules = TokenOperationsService.getOperationRules('oauth-authz', 'openid profile');
 // Returns:
 // {
 //   canIntrospectAccessToken: true,
@@ -37,7 +37,7 @@ const rules = TokenOperationsServiceV8.getOperationRules('oauth-authz', 'openid 
 // }
 ```
 
-### 2. Educational Modal (`TokenOperationsEducationModalV8.tsx`)
+### 2. Educational Modal (`TokenOperationsEducationModal.tsx`)
 
 A beautiful, user-friendly modal that explains:
 - What you can do with your current flow
@@ -185,23 +185,23 @@ User: "Ah, I understand! 😊"
 
 ### Service Layer
 
-**TokenOperationsServiceV8:**
+**TokenOperationsService:**
 ```typescript
 // Check if operation is allowed
-const canIntrospect = TokenOperationsServiceV8.isOperationAllowed(
+const canIntrospect = TokenOperationsService.isOperationAllowed(
   'oauth-authz',
   'openid profile',
   'introspect-access'
 );
 
 // Get detailed rules
-const rules = TokenOperationsServiceV8.getOperationRules(
+const rules = TokenOperationsService.getOperationRules(
   'oauth-authz',
   'openid profile'
 );
 
 // Get educational content
-const content = TokenOperationsServiceV8.getEducationalContent('introspection');
+const content = TokenOperationsService.getEducationalContent('introspection');
 ```
 
 ### Component Integration
@@ -212,7 +212,7 @@ const content = TokenOperationsServiceV8.getEducationalContent('introspection');
 const [showTokenOperationsModal, setShowTokenOperationsModal] = useState(false);
 
 // Validation before introspection
-const canIntrospect = TokenOperationsServiceV8.isOperationAllowed(
+const canIntrospect = TokenOperationsService.isOperationAllowed(
   flowType,
   credentials.scopes,
   'introspect-access'
@@ -220,8 +220,8 @@ const canIntrospect = TokenOperationsServiceV8.isOperationAllowed(
 
 if (!canIntrospect) {
   // Show helpful error message
-  const rules = TokenOperationsServiceV8.getOperationRules(flowType, credentials.scopes);
-  toastV8.error(`Token introspection is not available. ${rules.introspectionReason}`);
+  const rules = TokenOperationsService.getOperationRules(flowType, credentials.scopes);
+  toast.error(`Token introspection is not available. ${rules.introspectionReason}`);
   return;
 }
 
@@ -231,7 +231,7 @@ if (!canIntrospect) {
 </button>
 
 // Modal
-<TokenOperationsEducationModalV8
+<TokenOperationsEducationModal
   isOpen={showTokenOperationsModal}
   onClose={() => setShowTokenOperationsModal(false)}
   flowType={flowType}
@@ -324,8 +324,8 @@ color: '#92400e'  // Dark brown text
 ## Files Modified
 
 ### New Files
-- `src/v8/services/tokenOperationsServiceV8.ts` - Rules engine
-- `src/v8/components/TokenOperationsEducationModalV8.tsx` - Educational modal
+- `src/v8/services/tokenOperationsService.ts` - Rules engine
+- `src/v8/components/TokenOperationsEducationModal.tsx` - Educational modal
 
 ### Modified Files
 - `src/v8u/components/UnifiedFlowSteps.tsx` - Integration and validation

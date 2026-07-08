@@ -6,7 +6,7 @@ This document outlines the comprehensive testing approach for validating the use
 
 ## 🎯 Test Objectives
 
-1. **Functional Testing**: Verify all components work correctly with UserSearchDropdownV8
+1. **Functional Testing**: Verify all components work correctly with UserSearchDropdown
 2. **Integration Testing**: Ensure proper environment ID and worker token integration
 3. **Accessibility Testing**: Validate keyboard navigation and screen reader support
 4. **Visual Testing**: Confirm consistent styling across components
@@ -35,7 +35,7 @@ npx jest --testNamePattern="BaseLoginForm environment ID"
 
 **Expected Results:**
 - Environment ID properly loaded from service
-- UserSearchDropdownV8 receives valid environment ID
+- UserSearchDropdown receives valid environment ID
 - Dropdown can load users when environment ID is available
 
 #### Test 1.2: Form Submission
@@ -95,7 +95,7 @@ npx jest --testNamePattern="UserLookupForm service integration"
 ```
 
 **Expected Results:**
-- UserSearchDropdownV8 integrates with existing user lookup
+- UserSearchDropdown integrates with existing user lookup
 - Selected username triggers user lookup
 - User display updates correctly
 
@@ -143,7 +143,7 @@ npx jest --testNamePattern="UserManagementPage service integration"
 ```
 
 **Expected Results:**
-- Environment ID loaded from EnvironmentIdServiceV8
+- Environment ID loaded from EnvironmentIdService
 - Dropdown integrates with user management
 - Search functionality works correctly
 
@@ -174,9 +174,9 @@ npx eslint src/components/password-reset/shared/UserLookupForm.tsx --format=comp
 npx eslint src/pages/flows/RedirectlessFlowV9_Real.tsx --format=compact
 npx eslint src/v8u/pages/UserManagementPage.tsx --format=compact
 
-# Test 3: UserSearchDropdownV8 Import
-echo "🔧 Testing UserSearchDropdownV8 imports..."
-npx tsc --noEmit --skipLibCheck src/v8/components/UserSearchDropdownV8.tsx
+# Test 3: UserSearchDropdown Import
+echo "🔧 Testing UserSearchDropdown imports..."
+npx tsc --noEmit --skipLibCheck src/v8/components/UserSearchDropdown.tsx
 
 echo "✅ Smoke tests completed"
 ```
@@ -191,22 +191,22 @@ echo "🔗 Running Username Dropdown Integration Tests"
 # Test 1: Environment ID Services
 echo "🌍 Testing environment ID services..."
 node -e "
-const { EnvironmentIdServiceV8 } = require('./src/v8/services/environmentIdServiceV8.ts');
-console.log('Environment ID Service:', typeof EnvironmentIdServiceV8);
+const { EnvironmentIdService } = require('./src/v8/services/environmentIdService.ts');
+console.log('Environment ID Service:', typeof EnvironmentIdService);
 "
 
 # Test 2: Worker Token Status
 echo "🔑 Testing worker token status..."
 node -e "
-const { checkWorkerTokenStatusSync } = require('./src/v8/services/workerTokenStatusServiceV8.ts');
+const { checkWorkerTokenStatusSync } = require('./src/v8/services/workerTokenStatusService.ts');
 console.log('Worker Token Status Service:', typeof checkWorkerTokenStatusSync);
 "
 
 # Test 3: MFA Service Integration
 echo "👥 Testing MFA service integration..."
 node -e "
-const { MFAServiceV8 } = require('./src/v8/services/mfaServiceV8.ts');
-console.log('MFA Service:', typeof MFAServiceV8);
+const { MFAService } = require('./src/v8/services/mfaService.ts');
+console.log('MFA Service:', typeof MFAService);
 "
 
 echo "✅ Integration tests completed"
@@ -327,7 +327,7 @@ npx axe src/components/password-reset/shared/UserLookupForm.tsx
 ### Expected Results
 - **All components compile** without TypeScript errors
 - **ESLint passes** for all updated files
-- **UserSearchDropdownV8 imports** work correctly
+- **UserSearchDropdown imports** work correctly
 - **Environment ID integration** works in all components
 - **Worker token error handling** works correctly
 - **Form submission** works with selected usernames

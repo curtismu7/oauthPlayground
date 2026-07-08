@@ -32,7 +32,7 @@ useEffect(() => {
         authorizationCode: callbackUrl,
         state: state || prev.state
       }));
-      toastV8.info('Authorization code detected automatically from URL');
+      toast.info('Authorization code detected automatically from URL');
     }
   }
 }, [nav.currentStep, flowType, flowState.authorizationCode]);

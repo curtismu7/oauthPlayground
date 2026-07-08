@@ -11,9 +11,9 @@ import { FlowHeader } from '../services/flowHeaderService';
 // Cache bust: 2025-02-17-11:32
 
 import { logger } from '../utils/logger';
-import { ShowTokenConfigCheckboxV8 } from '../mfa/components/ShowTokenConfigCheckboxV8';
-import { SilentApiConfigCheckboxV8 } from '../mfa/components/SilentApiConfigCheckboxV8';
-import { WorkerTokenSectionV8 } from '../mfa/components/WorkerTokenSectionV8';
+import { ShowTokenConfigCheckbox } from '../mfa/components/ShowTokenConfigCheckbox';
+import { SilentApiConfigCheckbox } from '../mfa/components/SilentApiConfigCheckbox';
+import { WorkerTokenSection } from '../mfa/components/WorkerTokenSection';
 
 const styles = {
 	pageContainer: {
@@ -623,7 +623,7 @@ const PingOneIdentityMetrics: React.FC<PingOneIdentityMetricsProps> = ({ embedde
 							<span></span>Authentication & Worker Token
 						</h2>
 
-						<WorkerTokenSectionV8 compact />
+						<WorkerTokenSection compact />
 
 						{/* Configuration Checkboxes */}
 						<div
@@ -634,8 +634,8 @@ const PingOneIdentityMetrics: React.FC<PingOneIdentityMetricsProps> = ({ embedde
 								gap: '0.75rem',
 							}}
 						>
-							<SilentApiConfigCheckboxV8 />
-							<ShowTokenConfigCheckboxV8 />
+							<SilentApiConfigCheckbox />
+							<ShowTokenConfigCheckbox />
 						</div>
 					</div>
 

@@ -14,10 +14,10 @@ Specifically, you must:
 
 Key files involved:
 
-- `EmailOTPConfigurationPageV8.tsx`
-- `EmailFlowV8.tsx`
-- `EmailMFASignOnFlowV8.tsx`
-- `emailMfaSignOnFlowServiceV8.ts`
+- `EmailOTPConfigurationPage.tsx`
+- `EmailFlow.tsx`
+- `EmailMFASignOnFlow.tsx`
+- `emailMfaSignOnFlowService.ts`
 - `EmailFlowController.ts`
 
 You are refactoring behavior and wiring, not changing theming or the fundamental step structure.
@@ -28,7 +28,7 @@ You are refactoring behavior and wiring, not changing theming or the fundamental
 
 ### 1. Email configuration page
 
-On the configuration page (`EmailOTPConfigurationPageV8.tsx`), the flow:
+On the configuration page (`EmailOTPConfigurationPage.tsx`), the flow:
 
 - Loads **Device Authentication Policies** for the selected environment.
 - Allows the user to pick a policy.
@@ -61,7 +61,7 @@ This is basically the same pattern as the pre-fix FIDO2 and SMS config pages: th
 
 ### 2. Email flow uses `location.state` only for policy and skips step 0
 
-In `EmailFlowV8.tsx`:
+In `EmailFlow.tsx`:
 
 - You build `EmailFlowV8WithDeviceSelection`, which grabs `location` and computes:
 
@@ -109,9 +109,9 @@ In `EmailFlowV8WithDeviceSelection` you also have logic that, during a “regist
 
 This mirrors the SMS behavior and is correct *assuming* credentials are already valid.
 
-### 4. Shared credentials come from `MFAFlowBaseV8`
+### 4. Shared credentials come from `MFAFlowBase`
 
-`EmailFlowV8` is built on top of `MFAFlowBaseV8`, which initializes credentials from `CredentialsServiceV8` (e.g. `environmentId`, `username`, `email`, `deviceAuthenticationPolicyId`, `registrationPolicyId`, etc.).
+`EmailFlow` is built on top of `MFAFlowBase`, which initializes credentials from `CredentialsService` (e.g. `environmentId`, `username`, `email`, `deviceAuthenticationPolicyId`, `registrationPolicyId`, etc.).
 
 If the user hasn’t set `environmentId` / `username` / `email` in some earlier flow or base screen, those values will be **empty**, even if they came directly from the Email configuration page.
 
@@ -135,7 +135,7 @@ Downstream controller/service calls for Email MFA (register device, send OTP, va
    This can drop the user into a mid-flow step without environment/user/email being valid.
 
 3. **Sign-on flow may diverge from the registration flow**  
-   The sign-on demo (`EmailMFASignOnFlowV8` + `emailMfaSignOnFlowServiceV8`) may be using its own logic, not fully aligned with the registration flow + controller pattern in `EmailFlowV8`/`EmailFlowController.ts`. That increases the chance of drift and inconsistent behavior.
+   The sign-on demo (`EmailMFASignOnFlow` + `emailMfaSignOnFlowService`) may be using its own logic, not fully aligned with the registration flow + controller pattern in `EmailFlow`/`EmailFlowController.ts`. That increases the chance of drift and inconsistent behavior.
 
 ---
 
@@ -143,9 +143,9 @@ Downstream controller/service calls for Email MFA (register device, send OTP, va
 
 You must bring Email wiring up to the same quality as the FIDO2 and SMS fixes, across both **registration** and **sign-on** flows.
 
-### A. Enhance `EmailOTPConfigurationPageV8` → `EmailFlowV8` handoff
+### A. Enhance `EmailOTPConfigurationPage` → `EmailFlow` handoff
 
-Keep the existing API, but allow `EmailOTPConfigurationPageV8` to optionally pass more information in `location.state` when it is available and valid:
+Keep the existing API, but allow `EmailOTPConfigurationPage` to optionally pass more information in `location.state` when it is available and valid:
 
 - `environmentId`
 - `username`
@@ -169,7 +169,7 @@ navigate('/v8/mfa/register/email/device', {
 
 These should all be **optional** so that existing flows do not break if they are not provided.
 
-### B. Normalize `location.state` into `MFACredentials` in `EmailFlowV8`
+### B. Normalize `location.state` into `MFACredentials` in `EmailFlow`
 
 In `createRenderStep0`, extend `locationState` and merge logic so that we not only update the policy, but also environment/user/email, once, before any skipping.
 
@@ -240,7 +240,7 @@ This prevents “phantom configuration” where we jump ahead with empty environ
 
 ### D. Ensure registration steps and controller use normalized credentials
 
-Review the Email registration logic in `EmailFlowV8` and `EmailFlowController.ts`:
+Review the Email registration logic in `EmailFlow` and `EmailFlowController.ts`:
 
 - Ensure that **all API calls** (device registration, OTP send, OTP validation) are using:
   - `credentials.environmentId`
@@ -255,9 +255,9 @@ Where appropriate, short-circuit with clear validation errors if essentials are 
 
 ### E. Align the sign-on flow with the registration flow
 
-For `EmailMFASignOnFlowV8.tsx` and `emailMfaSignOnFlowServiceV8.ts`:
+For `EmailMFASignOnFlow.tsx` and `emailMfaSignOnFlowService.ts`:
 
-- Ensure they reuse the same core primitives as `EmailFlowV8` and `EmailFlowController.ts` where possible.
+- Ensure they reuse the same core primitives as `EmailFlow` and `EmailFlowController.ts` where possible.
   - For example, if there is a shared method for “register email device + send OTP”, invoke that instead of duplicating logic.
 - Ensure they rely on the **same MFACredentials shape** (environment/user/email/policy), or an explicitly compatible set of fields.
 - Validate that the sign-on flow uses the **device registered in the registration flow**, where that’s the intended scenario (or clearly documents/demo-creates its own device in a deterministic way).
@@ -274,7 +274,7 @@ During implementation:
 2. **Do not break** or weaken:
    - SMS MFA
    - FIDO2 MFA
-   - Other MFA flows using `MFAFlowBaseV8`.
+   - Other MFA flows using `MFAFlowBase`.
 3. Keep `MFACredentials` backward compatible:
    - Any additions (if needed) must be optional and safely defaulted.
 4. Keep TypeScript strict mode compilation clean:
@@ -289,12 +289,12 @@ During implementation:
 
 The Email MFA flows are considered **fixed and acceptable** when:
 
-1. Starting from **EmailOTPConfigurationPageV8**:
+1. Starting from **EmailOTPConfigurationPage**:
    - User selects a **Device Authentication Policy**.
    - If environment/username/email fields are present on the config page, they are correctly passed to the flow.
-   - Clicking “Proceed to registration” transitions into `EmailFlowV8` with `configured === true`.
+   - Clicking “Proceed to registration” transitions into `EmailFlow` with `configured === true`.
 
-2. In **EmailFlowV8**:
+2. In **EmailFlow**:
    - On first render, `location.state` is merged into `MFACredentials` (policy + env + username + email) exactly once.
    - Step 0 is only skipped when `environmentId`, `username`, and `deviceAuthenticationPolicyId` are all valid.
    - If these are missing, the user remains on Step 0 and can fill them in.
@@ -305,20 +305,20 @@ The Email MFA flows are considered **fixed and acceptable** when:
    - OTP verification works for valid codes and shows proper errors for invalid/expired codes.
 
 4. Email MFA sign-on flow:
-   - `EmailMFASignOnFlowV8` and `emailMfaSignOnFlowServiceV8` reuse the core Email MFA primitives (controller/service) where appropriate.
+   - `EmailMFASignOnFlow` and `emailMfaSignOnFlowService` reuse the core Email MFA primitives (controller/service) where appropriate.
    - The sign-on demo is consistent with the registration flow: same expectations about environment, user, and email.
    - The flow can successfully complete: create app/policy/user, register device, perform auth, complete MFA, exchange code for tokens.
 
 5. Regression safety:
    - No other MFA flows regress (FIDO2, SMS, TOTP, etc.).
-   - Shared components and `MFAFlowBaseV8` continue to function correctly.
+   - Shared components and `MFAFlowBase` continue to function correctly.
 
 Use this prompt as the task description for refactoring:
 
-- `EmailOTPConfigurationPageV8.tsx`
-- `EmailFlowV8.tsx`
-- `EmailMFASignOnFlowV8.tsx`
-- `emailMfaSignOnFlowServiceV8.ts`
+- `EmailOTPConfigurationPage.tsx`
+- `EmailFlow.tsx`
+- `EmailMFASignOnFlow.tsx`
+- `emailMfaSignOnFlowService.ts`
 - `EmailFlowController.ts`
 
 so that Email MFA registration and sign-on are fully wired, policy-aware, and aligned with the hardened FIDO2/SMS patterns in V8.

@@ -17,7 +17,7 @@ This document defines the UI contract for worker token management and configurat
 ### **New Storage Architecture**
 
 **Applied To:**
-- ✅ Worker Token Modal (`WorkerTokenModalV8`)
+- ✅ Worker Token Modal (`WorkerTokenModal`)
 - ✅ Token Monitoring Service (`TokenMonitoringService`)
 - ✅ Unified Worker Token Service (`unifiedWorkerTokenServiceV2`)
 - ✅ All MFA flows that use worker tokens
@@ -56,10 +56,10 @@ This document defines the UI contract for worker token management and configurat
 ## Scope
 
 **Applies To:**
-- ✅ Worker Token Modal (`WorkerTokenModalV8`)
-- ✅ MFA Configuration Page (`MFAConfigurationPageV8`)
+- ✅ Worker Token Modal (`WorkerTokenModal`)
+- ✅ MFA Configuration Page (`MFAConfigurationPage`)
 - ✅ All MFA flows that use worker tokens
-- ✅ Worker Token Helper Functions (`workerTokenModalHelperV8`)
+- ✅ Worker Token Helper Functions (`workerTokenModalHelper`)
 - ✅ Token Monitoring Service (`TokenMonitoringService`)
 - ✅ Unified Worker Token Service V2 (`unifiedWorkerTokenServiceV2`)
 
@@ -69,7 +69,7 @@ This document defines the UI contract for worker token management and configurat
 
 ### 1. Worker Token Modal
 
-**Component:** `WorkerTokenModalV8.tsx`  
+**Component:** `WorkerTokenModal.tsx`  
 **Location:** Used across all MFA flows  
 **Storage:** Uses `unifiedWorkerTokenServiceV2` for all operations
 

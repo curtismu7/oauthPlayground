@@ -31,13 +31,13 @@ import { EducationPreferenceService } from '@/services/educationPreferenceServic
 import { type PKCECodes, PKCEService } from '@/services/pkceService';
 import { modernMessaging } from '@/platform/ModernMessagingService';
 import { createModuleLogger } from '@/utils/consoleMigrationHelper';
-import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/mfa/components/WorkerTokenVsClientCredentialsEducationModalV8';
-import { CredentialsServiceV8 } from '@/mfa/services/credentialsServiceV8';
-import type { TokenResponse } from '@/mfa/services/oauthIntegrationServiceV8';
-import { OidcDiscoveryServiceV8 } from '@/mfa/services/oidcDiscoveryServiceV8';
-import { type FlowType, type SpecVersion } from '@/mfa/services/specVersionServiceV8';
-import { TokenDisplayServiceV8 } from '@/mfa/services/tokenDisplayServiceV8';
-import { TokenOperationsServiceV8 } from '@/mfa/services/tokenOperationsServiceV8';
+import { WorkerTokenVsClientCredentialsEducationModal } from '@/mfa/components/WorkerTokenVsClientCredentialsEducationModal';
+import { CredentialsService } from '@/mfa/services/credentialsService';
+import type { TokenResponse } from '@/mfa/services/oauthIntegrationService';
+import { OidcDiscoveryService } from '@/mfa/services/oidcDiscoveryService';
+import { type FlowType, type SpecVersion } from '@/mfa/services/specVersionService';
+import { TokenDisplayService } from '@/mfa/services/tokenDisplayService';
+import { TokenOperationsService } from '@/mfa/services/tokenOperationsService';
 
 // Create module-specific logger
 const _log = createModuleLogger('src/lab/components/UnifiedFlowSteps.tsx');
@@ -800,7 +800,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		const checkTokenStatus = async () => {
 			try {
 				// Import both services to check token from different sources
-				const { checkWorkerTokenStatus } = await import('@/mfa/services/workerTokenStatusServiceV8');
+				const { checkWorkerTokenStatus } = await import('@/mfa/services/workerTokenStatusService');
 				const { unifiedWorkerTokenService } = await import('@/services/unifiedWorkerTokenService');
 
 				// Get detailed status
@@ -1078,7 +1078,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				 * PingOne configuration changes.
 				 */
 				const issuerUrl = `https://auth.pingone.com/${environmentId}`;
-				const discoveryResult = await OidcDiscoveryServiceV8.discover(issuerUrl);
+				const discoveryResult = await OidcDiscoveryService.discover(issuerUrl);
 
 				let userInfoEndpoint: string;
 
@@ -1440,9 +1440,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Save credentials on change (validation removed per user request - was showing false positives)
 	useEffect(() => {
 		const credsForSave = credentials as unknown as Parameters<
-			typeof CredentialsServiceV8.saveCredentials
+			typeof CredentialsService.saveCredentials
 		>[1];
-		CredentialsServiceV8.saveCredentials(`${flowType}-v8u`, credsForSave);
+		CredentialsService.saveCredentials(`${flowType}-v8u`, credsForSave);
 	}, [credentials, flowType]);
 
 	// Validate step 0 (credentials) and mark complete when all required fields are filled
@@ -3358,17 +3358,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																		setIsLoading(true);
 																		setLoadingMessage(' Fixing errors...');
 
-																		const { uiNotificationServiceV8 } = await import(
-																			'@/mfa/services/uiNotificationServiceV8'
+																		const { uiNotificationService } = await import(
+																			'@/mfa/services/uiNotificationService'
 																		);
-																		const { PreFlightValidationServiceV8 } = await import(
-																			'@/mfa/services/preFlightValidationServiceV8'
+																		const { PreFlightValidationService } = await import(
+																			'@/mfa/services/preFlightValidationService'
 																		);
-																		const { workerTokenServiceV8 } = await import(
-																			'@/mfa/services/workerTokenServiceV8'
+																		const { workerTokenService } = await import(
+																			'@/mfa/services/workerTokenService'
 																		);
-																		const { CredentialsServiceV8 } = await import(
-																			'@/mfa/services/credentialsServiceV8'
+																		const { CredentialsService } = await import(
+																			'@/mfa/services/credentialsService'
 																		);
 
 																		const fixableErrors =
@@ -3383,7 +3383,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																		message += `The following can be automatically fixed:\n${fixDescriptions}\n\n`;
 																		message += `Would you like to automatically fix all fixable errors?`;
 
-																		const confirmed = await uiNotificationServiceV8.confirm({
+																		const confirmed = await uiNotificationService.confirm({
 																			title: ' Fix All Errors?',
 																			message: message,
 																			confirmText: 'Yes, Fix All',
@@ -3451,18 +3451,18 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																			}
 
 																			const flowKey = `${specVersion}-${flowType}-v8u`;
-																			CredentialsServiceV8.saveCredentials(
+																			CredentialsService.saveCredentials(
 																				flowKey,
 																				updatedCredentials
 																			);
 
 																			// Also save shared credentials (environmentId, clientId, clientAuthMethod) to backup storage
 																			// This ensures fixes persist across all flows and browser restarts
-																			const { SharedCredentialsServiceV8 } = await import(
-																				'@/mfa/services/sharedCredentialsServiceV8'
+																			const { SharedCredentialsService } = await import(
+																				'@/mfa/services/sharedCredentialsService'
 																			);
 																			const sharedCreds =
-																				SharedCredentialsServiceV8.extractSharedCredentials(
+																				SharedCredentialsService.extractSharedCredentials(
 																					updatedCredentials
 																				);
 																			if (
@@ -3471,11 +3471,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																				sharedCreds.clientAuthMethod
 																			) {
 																				// Use sync version for immediate browser storage
-																				SharedCredentialsServiceV8.saveSharedCredentialsSync(
+																				SharedCredentialsService.saveSharedCredentialsSync(
 																					sharedCreds
 																				);
 																				// Also save to disk asynchronously (non-blocking)
-																				SharedCredentialsServiceV8.saveSharedCredentials(
+																				SharedCredentialsService.saveSharedCredentials(
 																					sharedCreds
 																				).catch(() => {
 																					logger.warn(
@@ -3497,9 +3497,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 																			// Re-run validation
 																			setLoadingMessage(' Re-validating configuration...');
-																			const workerToken = await workerTokenServiceV8.getToken();
+																			const workerToken = await workerTokenService.getToken();
 																			const newValidationResult =
-																				await PreFlightValidationServiceV8.validateBeforeAuthUrl({
+																				await PreFlightValidationService.validateBeforeAuthUrl({
 																					specVersion,
 																					flowType,
 																					credentials: updatedCredentials,
@@ -4437,8 +4437,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						// If userId is not available, try to look it up by username
 						try {
 							// Get worker token for user lookup
-							const { workerTokenServiceV8 } = await import('@/mfa/services/workerTokenServiceV8');
-							const workerToken = await workerTokenServiceV8.getToken();
+							const { workerTokenService } = await import('@/mfa/services/workerTokenService');
+							const workerToken = await workerTokenService.getToken();
 
 							// Look up user by username
 							const lookupResponse = await fetch('/api/pingone/mfa/lookup-user', {
@@ -4673,8 +4673,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			try {
 				// For MUST_CHANGE_PASSWORD during login, we need to use worker token
 				// since we don't have user access token yet
-				const { workerTokenServiceV8 } = await import('@/mfa/services/workerTokenServiceV8');
-				const workerToken = await workerTokenServiceV8.getToken();
+				const { workerTokenService } = await import('@/mfa/services/workerTokenService');
+				const workerToken = await workerTokenService.getToken();
 
 				// Use PUT endpoint to set new password (admin operation with worker token)
 				const response = await fetch('/api/pingone/password/set', {
@@ -5202,19 +5202,19 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				};
 			} | null = null;
 			try {
-				const { PreFlightValidationServiceV8 } = await import(
-					'@/mfa/services/preFlightValidationServiceV8'
+				const { PreFlightValidationService } = await import(
+					'@/mfa/services/preFlightValidationService'
 				);
-				const { workerTokenServiceV8 } = await import('@/mfa/services/workerTokenServiceV8');
+				const { workerTokenService } = await import('@/mfa/services/workerTokenService');
 
 				setPreFlightStatus(' Retrieving worker token...');
-				let workerToken = await workerTokenServiceV8.getToken();
+				let workerToken = await workerTokenService.getToken();
 
 				// If no worker token, respect Silent API Retrieval checkbox: if ON try silent first; if OFF don't
 				if (!workerToken) {
 					try {
 						const { handleShowWorkerTokenModal } = await import(
-							'@/mfa/utils/workerTokenModalHelperV8'
+							'@/mfa/utils/workerTokenModalHelper'
 						);
 						await handleShowWorkerTokenModal(
 							setShowWorkerTokenModal,
@@ -5226,7 +5226,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						);
 						// Try again after silent retrieval attempt
 						await new Promise((resolve) => setTimeout(resolve, 500));
-						workerToken = await workerTokenServiceV8.getToken();
+						workerToken = await workerTokenService.getToken();
 					} catch {
 						logger.warn('UnifiedFlowSteps', `Silent worker token retrieval failed:`);
 						// Continue without worker token - validation will show warnings
@@ -5236,7 +5236,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				setPreFlightStatus('✅ Validating configuration against PingOne...');
 
 				// Add timeout to prevent hanging (30 seconds max)
-				const validationPromise = PreFlightValidationServiceV8.validateBeforeAuthUrl({
+				const validationPromise = PreFlightValidationService.validateBeforeAuthUrl({
 					specVersion,
 					flowType,
 					credentials: currentCredentials, // Use currentCredentials (may be updated by auto-fix)
@@ -5282,8 +5282,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 						// If there are fixable errors, offer to fix them
 						if (fixableErrors.length > 0) {
-							const { uiNotificationServiceV8 } = await import(
-								'@/mfa/services/uiNotificationServiceV8'
+							const { uiNotificationService } = await import(
+								'@/mfa/services/uiNotificationService'
 							);
 
 							// Build fix description message
@@ -5301,7 +5301,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							}
 							message += `Would you like to automatically fix all fixable errors?`;
 
-							const confirmed = await uiNotificationServiceV8.confirm({
+							const confirmed = await uiNotificationService.confirm({
 								title: ' Fix All Errors?',
 								message: message,
 								confirmText: 'Yes, Fix All',
@@ -5357,27 +5357,27 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								}
 
 								// Save updated credentials to flow-specific storage (IndexedDB, localStorage, backend)
-								const { CredentialsServiceV8 } = await import('@/mfa/services/credentialsServiceV8');
+								const { CredentialsService } = await import('@/mfa/services/credentialsService');
 								const flowKey = `${specVersion}-${flowType}-v8u`;
 								// updatedCredentials is compatible with Credentials interface
-								CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
+								CredentialsService.saveCredentials(flowKey, updatedCredentials);
 
 								// Also save shared credentials (environmentId, clientId, clientAuthMethod) to backup storage
 								// This ensures fixes persist across all flows and browser restarts
-								const { SharedCredentialsServiceV8 } = await import(
-									'@/mfa/services/sharedCredentialsServiceV8'
+								const { SharedCredentialsService } = await import(
+									'@/mfa/services/sharedCredentialsService'
 								);
 								const sharedCreds =
-									SharedCredentialsServiceV8.extractSharedCredentials(updatedCredentials);
+									SharedCredentialsService.extractSharedCredentials(updatedCredentials);
 								if (
 									sharedCreds.environmentId ||
 									sharedCreds.clientId ||
 									sharedCreds.clientAuthMethod
 								) {
 									// Use sync version for immediate browser storage
-									SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
+									SharedCredentialsService.saveSharedCredentialsSync(sharedCreds);
 									// Also save to disk asynchronously (non-blocking)
-									SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch(() => {
+									SharedCredentialsService.saveSharedCredentials(sharedCreds).catch(() => {
 										logger.warn('UnifiedFlowSteps', `Background disk save failed (non-critical):`);
 									});
 								}
@@ -5404,7 +5404,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									duration: 3000,
 								});
 								const newValidationResult =
-									await PreFlightValidationServiceV8.validateBeforeAuthUrl({
+									await PreFlightValidationService.validateBeforeAuthUrl({
 										specVersion,
 										flowType,
 										credentials: updatedCredentials,
@@ -5980,10 +5980,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 													// Import worker token modal helper
 													const { handleShowWorkerTokenModal } = await import(
-														'@/mfa/utils/workerTokenModalHelperV8'
+														'@/mfa/utils/workerTokenModalHelper'
 													);
-													const { WorkerTokenStatusServiceV8 } = await import(
-														'@/mfa/services/workerTokenStatusServiceV8'
+													const { WorkerTokenStatusService } = await import(
+														'@/mfa/services/workerTokenStatusService'
 													);
 
 													// User clicked "Get Worker Token" — show modal (respect Silent checkbox only for automatic fetches)
@@ -5998,7 +5998,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 													// Wait a moment for token to be saved, then check if token is now available
 													await new Promise((resolve) => setTimeout(resolve, 500));
-													const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+													const tokenStatus = WorkerTokenStatusService.checkWorkerTokenStatus();
 													if (tokenStatus.isValid) {
 														modernMessaging.showFooterMessage({
 															type: 'info',
@@ -6008,16 +6008,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 														// Re-run pre-flight validation
 														setLoadingMessage(' Re-validating Configuration...');
-														const { PreFlightValidationServiceV8 } = await import(
-															'@/mfa/services/preFlightValidationServiceV8'
+														const { PreFlightValidationService } = await import(
+															'@/mfa/services/preFlightValidationService'
 														);
-														const { workerTokenServiceV8 } = await import(
-															'@/mfa/services/workerTokenServiceV8'
+														const { workerTokenService } = await import(
+															'@/mfa/services/workerTokenService'
 														);
 
-														const newWorkerToken = await workerTokenServiceV8.getToken();
+														const newWorkerToken = await workerTokenService.getToken();
 														const newValidationResult =
-															await PreFlightValidationServiceV8.validateBeforeAuthUrl({
+															await PreFlightValidationService.validateBeforeAuthUrl({
 																specVersion,
 																flowType,
 																credentials,
@@ -6960,14 +6960,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													setIsLoading(true);
 													setLoadingMessage(' Fixing errors...');
 
-													const { uiNotificationServiceV8 } = await import(
-														'@/mfa/services/uiNotificationServiceV8'
+													const { uiNotificationService } = await import(
+														'@/mfa/services/uiNotificationService'
 													);
-													const { CredentialsServiceV8 } = await import(
-														'@/mfa/services/credentialsServiceV8'
+													const { CredentialsService } = await import(
+														'@/mfa/services/credentialsService'
 													);
-													const { SharedCredentialsServiceV8 } = await import(
-														'@/mfa/services/sharedCredentialsServiceV8'
+													const { SharedCredentialsService } = await import(
+														'@/mfa/services/sharedCredentialsService'
 													);
 
 													const fixableErrors = preFlightValidationResult.fixableErrors || [];
@@ -6976,7 +6976,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 														.join('\n  • ');
 													const fixableCount = fixableErrors.length;
 
-													const confirmed = await uiNotificationServiceV8.confirm({
+													const confirmed = await uiNotificationService.confirm({
 														title: ' Fix All Errors?',
 														message: `Found ${fixableCount} fixable error(s).\n\nThe following will be fixed:\n  • ${fixDescriptions}\n\nWould you like to automatically fix all fixable errors?`,
 														confirmText: 'Yes, Fix All',
@@ -7032,7 +7032,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 														onCredentialsChange(updatedCredentials);
 
 														// Save to storage
-														await CredentialsServiceV8.saveCredentials(
+														await CredentialsService.saveCredentials(
 															flowKey,
 															updatedCredentials,
 															{
@@ -7044,7 +7044,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 														);
 
 														// Save shared credentials
-														await SharedCredentialsServiceV8.saveCredentials({
+														await SharedCredentialsService.saveCredentials({
 															environmentId: updatedCredentials.environmentId,
 															clientId: updatedCredentials.clientId,
 															clientSecret: updatedCredentials.clientSecret,
@@ -9198,18 +9198,18 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		} | null = null;
 
 		try {
-			const { PreFlightValidationServiceV8 } = await import(
-				'@/mfa/services/preFlightValidationServiceV8'
+			const { PreFlightValidationService } = await import(
+				'@/mfa/services/preFlightValidationService'
 			);
-			const { workerTokenServiceV8 } = await import('@/mfa/services/workerTokenServiceV8');
+			const { workerTokenService } = await import('@/mfa/services/workerTokenService');
 
 			setPreFlightStatus(' Retrieving worker token...');
-			const workerToken = await workerTokenServiceV8.getToken();
+			const workerToken = await workerTokenService.getToken();
 
 			setPreFlightStatus('✅ Validating configuration against PingOne...');
 
 			// For device code, only validate OAuth config (no redirect URI needed)
-			const oauthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
+			const oauthConfigResult = await PreFlightValidationService.validateOAuthConfig({
 				specVersion,
 				flowType,
 				credentials,
@@ -9217,7 +9217,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			});
 
 			// Analyze fixable errors
-			const fixableErrors = PreFlightValidationServiceV8.analyzeFixableErrors(
+			const fixableErrors = PreFlightValidationService.analyzeFixableErrors(
 				oauthConfigResult.errors,
 				{ specVersion, flowType, credentials, ...(workerToken && { workerToken }) },
 				undefined, // No redirect URIs for device code
@@ -9250,7 +9250,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const fixableErrors = validationResult.fixableErrors || [];
 
 				if (fixableErrors.length > 0) {
-					const { uiNotificationServiceV8 } = await import('@/mfa/services/uiNotificationServiceV8');
+					const { uiNotificationService } = await import('@/mfa/services/uiNotificationService');
 					const fixDescriptions = fixableErrors.map((fe) => `  • ${fe.fixDescription}`).join('\n');
 					const fixableCount = fixableErrors.length;
 
@@ -9258,7 +9258,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					message += `The following can be automatically fixed:\n${fixDescriptions}\n\n`;
 					message += `Would you like to automatically fix all fixable errors?`;
 
-					const confirmed = await uiNotificationServiceV8.confirm({
+					const confirmed = await uiNotificationService.confirm({
 						title: ' Fix All Errors?',
 						message: message,
 						confirmText: 'Yes, Fix All',
@@ -9282,9 +9282,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							}
 						}
 
-						const { CredentialsServiceV8 } = await import('@/mfa/services/credentialsServiceV8');
+						const { CredentialsService } = await import('@/mfa/services/credentialsService');
 						const flowKey = `${specVersion}-${flowType}-v8u`;
-						CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
+						CredentialsService.saveCredentials(flowKey, updatedCredentials);
 
 						if (onCredentialsChange) {
 							onCredentialsChange(updatedCredentials);
@@ -9298,14 +9298,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 						// Re-run validation
 						setPreFlightStatus(' Re-validating configuration...');
-						const newOAuthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
+						const newOAuthConfigResult = await PreFlightValidationService.validateOAuthConfig({
 							specVersion,
 							flowType,
 							credentials: updatedCredentials,
 							...(workerToken && { workerToken }),
 						});
 
-						const newFixableErrors = PreFlightValidationServiceV8.analyzeFixableErrors(
+						const newFixableErrors = PreFlightValidationService.analyzeFixableErrors(
 							newOAuthConfigResult.errors,
 							{
 								specVersion,
@@ -10981,18 +10981,18 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				} | null = null;
 
 				try {
-					const { PreFlightValidationServiceV8 } = await import(
-						'@/mfa/services/preFlightValidationServiceV8'
+					const { PreFlightValidationService } = await import(
+						'@/mfa/services/preFlightValidationService'
 					);
-					const { workerTokenServiceV8 } = await import('@/mfa/services/workerTokenServiceV8');
+					const { workerTokenService } = await import('@/mfa/services/workerTokenService');
 
 					setPreFlightStatus(' Retrieving worker token...');
-					const workerToken = await workerTokenServiceV8.getToken();
+					const workerToken = await workerTokenService.getToken();
 
 					setPreFlightStatus('✅ Validating configuration against PingOne...');
 
 					// For client credentials, only validate OAuth config (no redirect URI needed)
-					const oauthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
+					const oauthConfigResult = await PreFlightValidationService.validateOAuthConfig({
 						specVersion,
 						flowType,
 						credentials,
@@ -11007,10 +11007,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						| undefined;
 					if (workerToken && credentials.environmentId && credentials.clientId) {
 						try {
-							const { ConfigCheckerServiceV8 } = await import(
-								'@/mfa/services/configCheckerServiceV8'
+							const { ConfigCheckerService } = await import(
+								'@/mfa/services/configCheckerService'
 							);
-							const fetchedConfig = await ConfigCheckerServiceV8.fetchAppConfig(
+							const fetchedConfig = await ConfigCheckerService.fetchAppConfig(
 								credentials.environmentId,
 								credentials.clientId,
 								workerToken
@@ -11029,7 +11029,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}
 
 					// Analyze fixable errors
-					const fixableErrors = PreFlightValidationServiceV8.analyzeFixableErrors(
+					const fixableErrors = PreFlightValidationService.analyzeFixableErrors(
 						oauthConfigResult.errors,
 						{ specVersion, flowType, credentials, ...(workerToken && { workerToken }) },
 						undefined, // No redirect URIs for client credentials
@@ -11066,8 +11066,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						const fixableErrors = validationResult.fixableErrors || [];
 
 						if (fixableErrors.length > 0) {
-							const { uiNotificationServiceV8 } = await import(
-								'@/mfa/services/uiNotificationServiceV8'
+							const { uiNotificationService } = await import(
+								'@/mfa/services/uiNotificationService'
 							);
 							const fixDescriptions = fixableErrors
 								.map((fe) => `  • ${fe.fixDescription}`)
@@ -11079,7 +11079,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							message += `The following can be automatically fixed:\n${fixDescriptions}\n\n`;
 							message += `Would you like to automatically fix all fixable errors?`;
 
-							const confirmed = await uiNotificationServiceV8.confirm({
+							const confirmed = await uiNotificationService.confirm({
 								title: ' Fix All Errors?',
 								message: message,
 								confirmText: 'Yes, Fix All',
@@ -11114,9 +11114,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									}
 								}
 
-								const { CredentialsServiceV8 } = await import('@/mfa/services/credentialsServiceV8');
+								const { CredentialsService } = await import('@/mfa/services/credentialsService');
 								const flowKey = `${specVersion}-${flowType}-v8u`;
-								CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
+								CredentialsService.saveCredentials(flowKey, updatedCredentials);
 
 								if (onCredentialsChange) {
 									onCredentialsChange(updatedCredentials);
@@ -11130,7 +11130,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 								// Re-run validation
 								setPreFlightStatus(' Re-validating configuration...');
-								const newOAuthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig(
+								const newOAuthConfigResult = await PreFlightValidationService.validateOAuthConfig(
 									{
 										specVersion,
 										flowType,
@@ -11139,7 +11139,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									}
 								);
 
-								const newFixableErrors = PreFlightValidationServiceV8.analyzeFixableErrors(
+								const newFixableErrors = PreFlightValidationService.analyzeFixableErrors(
 									newOAuthConfigResult.errors,
 									{
 										specVersion,
@@ -12008,16 +12008,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				(!credentials.clientAuthMethod || credentials.clientAuthMethod === 'client_secret_post')
 			) {
 				try {
-					const { workerTokenServiceV8 } = await import('@/mfa/services/workerTokenServiceV8');
-					const { ConfigCheckerServiceV8 } = await import('@/mfa/services/configCheckerServiceV8');
-					const workerToken = await workerTokenServiceV8.getToken();
+					const { workerTokenService } = await import('@/mfa/services/workerTokenService');
+					const { ConfigCheckerService } = await import('@/mfa/services/configCheckerService');
+					const workerToken = await workerTokenService.getToken();
 
 					if (workerToken) {
 						logger.info(
 							`${MODULE_TAG} Final check: Fetching app config to ensure correct auth method...`,
 							'Logger info'
 						);
-						const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
+						const appConfig = await ConfigCheckerService.fetchAppConfig(
 							credentials.environmentId,
 							credentials.clientId,
 							workerToken
@@ -12361,14 +12361,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		}
 
 		// Check if UserInfo is allowed for this flow
-		const canCallUserInfo = TokenOperationsServiceV8.isOperationAllowed(
+		const canCallUserInfo = TokenOperationsService.isOperationAllowed(
 			flowType,
 			credentials.scopes,
 			'userinfo'
 		);
 
 		if (!canCallUserInfo) {
-			const rules = TokenOperationsServiceV8.getOperationRules(flowType, credentials.scopes);
+			const rules = TokenOperationsService.getOperationRules(flowType, credentials.scopes);
 			const errorMsg = `UserInfo endpoint is not available. ${rules.userInfoReason}`;
 			logger.warn('UnifiedFlowSteps', `${errorMsg}`);
 			modernMessaging.showBanner({
@@ -12451,14 +12451,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					break;
 			}
 
-			const canIntrospect = TokenOperationsServiceV8.isOperationAllowed(
+			const canIntrospect = TokenOperationsService.isOperationAllowed(
 				flowType,
 				credentials.scopes,
 				operation
 			);
 
 			if (!canIntrospect) {
-				const rules = TokenOperationsServiceV8.getOperationRules(flowType, credentials.scopes);
+				const rules = TokenOperationsService.getOperationRules(flowType, credentials.scopes);
 				let errorMsg: string;
 				if (tokenType === 'refresh') {
 					errorMsg = `Refresh token introspection is not available for this flow. ${rules.introspectionReason}`;
@@ -12542,7 +12542,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const issuerUrl = `https://auth.pingone.com/${credentials.environmentId}`;
 				logger.info(`${MODULE_TAG} Discovering endpoints from`, { issuerUrl });
 
-				const discoveryResult = await OidcDiscoveryServiceV8.discover(issuerUrl);
+				const discoveryResult = await OidcDiscoveryService.discover(issuerUrl);
 				logger.info(`${MODULE_TAG} Discovery result:`, {
 					success: discoveryResult.success,
 					hasIntrospectionEndpoint: !!discoveryResult.data?.introspectionEndpoint,
@@ -12744,7 +12744,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		setRefreshResult(null);
 
 		try {
-			const { OAuthIntegrationServiceV8 } = await import('@/mfa/services/oauthIntegrationServiceV8');
+			const { OAuthIntegrationService } = await import('@/mfa/services/oauthIntegrationService');
 
 			// Store old tokens for comparison
 			const oldTokens = {
@@ -12761,7 +12761,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				throw new Error('Redirect URI and scopes are required for token refresh');
 			}
 
-			const newTokenResponse = await OAuthIntegrationServiceV8.refreshAccessToken(
+			const newTokenResponse = await OAuthIntegrationService.refreshAccessToken(
 				{
 					environmentId: credentials.environmentId,
 					clientId: credentials.clientId,
@@ -13030,7 +13030,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		// Get operation rules to determine what's allowed
 		// Use the actual scopes that were sent (including offline_access if enableRefreshToken was true)
 		const scopesForRules = credentials.scopes || '';
-		const operationRules = TokenOperationsServiceV8.getOperationRules(flowType, scopesForRules);
+		const operationRules = TokenOperationsService.getOperationRules(flowType, scopesForRules);
 
 		// Debug logging
 		logger.info(`${MODULE_TAG} [INTROSPECTION] Operation rules check`, {
@@ -14463,7 +14463,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						{/* User Info (if ID token available) */}
 						{(() => {
 							if (callbackDetails.allParams.id_token) {
-								const decoded = TokenDisplayServiceV8.decodeJWT(callbackDetails.allParams.id_token);
+								const decoded = TokenDisplayService.decodeJWT(callbackDetails.allParams.id_token);
 								if (decoded?.payload) {
 									const payload = decoded.payload as Record<string, unknown>;
 									const username =
@@ -14561,7 +14561,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						{/* User Claims (from ID Token) */}
 						{(() => {
 							if (callbackDetails.allParams.id_token) {
-								const decoded = TokenDisplayServiceV8.decodeJWT(callbackDetails.allParams.id_token);
+								const decoded = TokenDisplayService.decodeJWT(callbackDetails.allParams.id_token);
 								if (decoded?.payload) {
 									const payload = decoded.payload as Record<string, unknown>;
 
@@ -15550,7 +15550,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			/>
 
 			{/* Worker Token vs Client Credentials Education Modal */}
-			<WorkerTokenVsClientCredentialsEducationModalV8
+			<WorkerTokenVsClientCredentialsEducationModal
 				isOpen={showWorkerTokenVsClientCredentialsModal}
 				onClose={() => setShowWorkerTokenVsClientCredentialsModal(false)}
 				context={flowType === 'client-credentials' ? 'client-credentials' : 'general'}
@@ -15580,23 +15580,23 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					onClose={async () => {
 						setShowWorkerTokenModal(false);
 						// After modal closes, check if token is available and re-run validation
-						const { WorkerTokenStatusServiceV8 } = await import(
-							'@/mfa/services/workerTokenStatusServiceV8'
+						const { WorkerTokenStatusService } = await import(
+							'@/mfa/services/workerTokenStatusService'
 						);
-						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+						const tokenStatus = WorkerTokenStatusService.checkWorkerTokenStatus();
 						if (tokenStatus.isValid) {
 							// Re-run pre-flight validation
 							setIsLoading(true);
 							setLoadingMessage(' Re-validating Configuration...');
 							try {
-								const { PreFlightValidationServiceV8 } = await import(
-									'@/mfa/services/preFlightValidationServiceV8'
+								const { PreFlightValidationService } = await import(
+									'@/mfa/services/preFlightValidationService'
 								);
-								const { workerTokenServiceV8 } = await import('@/mfa/services/workerTokenServiceV8');
+								const { workerTokenService } = await import('@/mfa/services/workerTokenService');
 
-								const newWorkerToken = await workerTokenServiceV8.getToken();
+								const newWorkerToken = await workerTokenService.getToken();
 								const newValidationResult =
-									await PreFlightValidationServiceV8.validateBeforeAuthUrl({
+									await PreFlightValidationService.validateBeforeAuthUrl({
 										specVersion,
 										flowType,
 										credentials,

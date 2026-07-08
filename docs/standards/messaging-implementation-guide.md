@@ -50,24 +50,24 @@ const YourFlowV7: React.FC = () => {
 
 ### **V8 Flows - Enhanced Toast**
 ```typescript
-// src/pages/flows/v8/YourFlowV8.tsx
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+// src/pages/flows/v8/YourFlow.tsx
+import { toast } from '@/v8/utils/toastNotifications';
 
-const YourFlowV8: React.FC = () => {
+const YourFlow: React.FC = () => {
   const handleSuccess = () => {
-    toastV8.success('Configuration saved successfully');
+    toast.success('Configuration saved successfully');
   };
 
   const handleError = () => {
-    toastV8.error('Failed to save configuration');
+    toast.error('Failed to save configuration');
   };
 
   const handleWarning = () => {
-    toastV8.warning('Please fill in all required fields');
+    toast.warning('Please fill in all required fields');
   };
 
   const handleInfo = () => {
-    toastV8.info('Authorization URL copied to clipboard');
+    toast.info('Authorization URL copied to clipboard');
   };
 
   return (
@@ -203,28 +203,28 @@ const handleSuccess = () => {
 };
 
 // AFTER (V8)
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { toast } from '@/v8/utils/toastNotifications';
 
 const handleSuccess = () => {
-  toastV8.success('Operation completed');
+  toast.success('Operation completed');
 };
 ```
 
 ### **Upgrading V8 to V9**
 ```typescript
 // BEFORE (V8)
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { toast } from '@/v8/utils/toastNotifications';
 
 const handleSuccess = () => {
-  toastV8.success('Configuration saved');
+  toast.success('Configuration saved');
 };
 
 const handleError = () => {
-  toastV8.error('Failed to save configuration');
+  toast.error('Failed to save configuration');
 };
 
 const handleInfo = () => {
-  toastV8.info('Status updated');
+  toast.info('Status updated');
 };
 
 // AFTER (V9)
@@ -284,7 +284,7 @@ const MyComponent: React.FC = () => {
 ### **Success Messages**
 ```typescript
 // V8 Toast
-toastV8.success('Operation completed successfully');
+toast.success('Operation completed successfully');
 
 // V9 Modern
 modernMessaging.showBanner({
@@ -298,7 +298,7 @@ modernMessaging.showBanner({
 ### **Error Messages**
 ```typescript
 // V8 Toast
-toastV8.error('Failed to complete operation');
+toast.error('Failed to complete operation');
 
 // V9 Modern (for critical errors)
 modernMessaging.showCriticalError({
@@ -325,7 +325,7 @@ modernMessaging.showBanner({
 ### **Warning Messages**
 ```typescript
 // V8 Toast
-toastV8.warning('Please check your configuration');
+toast.warning('Please check your configuration');
 
 // V9 Modern
 modernMessaging.showBanner({
@@ -339,7 +339,7 @@ modernMessaging.showBanner({
 ### **Info Messages**
 ```typescript
 // V8 Toast
-toastV8.info('Status updated');
+toast.info('Status updated');
 
 // V9 Modern
 modernMessaging.showFooterMessage({
@@ -357,12 +357,12 @@ modernMessaging.showFooterMessage({
 ```typescript
 // src/components/__tests__/YourComponent.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { toast } from '@/v8/utils/toastNotifications';
 import YourComponent from '../YourComponent';
 
-// Mock toastV8
-jest.mock('@/v8/utils/toastNotificationsV8');
-const mockToastV8 = toastV8 as jest.Mocked<typeof toastV8>;
+// Mock toast
+jest.mock('@/v8/utils/toastNotifications');
+const mockToast = toast as jest.Mocked<typeof toast>;
 
 describe('YourComponent', () => {
   it('should show success toast', () => {
@@ -370,7 +370,7 @@ describe('YourComponent', () => {
     
     fireEvent.click(screen.getByText('Success Button'));
     
-    expect(mockToastV8.success).toHaveBeenCalledWith(
+    expect(mockToast.success).toHaveBeenCalledWith(
       'Operation completed successfully'
     );
   });
@@ -418,7 +418,7 @@ const validateForm = (formData: FormData) => {
   
   if (errors.length > 0) {
     // V8
-    toastV8.warning(`Please fix: ${errors.join(', ')}`);
+    toast.warning(`Please fix: ${errors.join(', ')}`);
     
     // V9
     modernMessaging.showBanner({
@@ -431,7 +431,7 @@ const validateForm = (formData: FormData) => {
   }
   
   // V8
-  toastV8.success('Form validated successfully');
+  toast.success('Form validated successfully');
   
   // V9
   modernMessaging.showFooterMessage({
@@ -448,7 +448,7 @@ const validateForm = (formData: FormData) => {
 const makeApiCall = async () => {
   try {
     // V8
-    toastV8.info('Making API request...');
+    toast.info('Making API request...');
     
     // V9
     modernMessaging.showWaitScreen({
@@ -463,7 +463,7 @@ const makeApiCall = async () => {
     }
     
     // V8
-    toastV8.success('API request completed');
+    toast.success('API request completed');
     
     // V9
     modernMessaging.showBanner({
@@ -474,7 +474,7 @@ const makeApiCall = async () => {
     });
   } catch (error) {
     // V8
-    toastV8.error('API request failed');
+    toast.error('API request failed');
     
     // V9
     modernMessaging.showCriticalError({
@@ -503,7 +503,7 @@ const copyToClipboard = async (text: string, label: string) => {
     await navigator.clipboard.writeText(text);
     
     // V8
-    toastV8.success(`${label} copied to clipboard`);
+    toast.success(`${label} copied to clipboard`);
     
     // V9
     modernMessaging.showFooterMessage({
@@ -513,7 +513,7 @@ const copyToClipboard = async (text: string, label: string) => {
     });
   } catch (error) {
     // V8
-    toastV8.error(`Failed to copy ${label}`);
+    toast.error(`Failed to copy ${label}`);
     
     // V9
     modernMessaging.showFooterMessage({
@@ -534,7 +534,7 @@ const copyToClipboard = async (text: string, label: string) => {
 // Add debug logging to track message flow
 const handleSuccess = () => {
   console.log('[Messaging] Showing success message');
-  toastV8.success('Operation completed');
+  toast.success('Operation completed');
 };
 
 const handleV9Success = () => {

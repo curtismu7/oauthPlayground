@@ -14,16 +14,16 @@ echo "✓ All required files exist"
 
 # Check imports are correct
 echo "📦 Checking imports..."
-! grep -q "toastV9" src/pages/flows/CIBAFlowV9.tsx || { echo "✗ Found toastV9 import (should be toastV8)"; exit 1; }
-grep -q "toastV8" src/pages/flows/CIBAFlowV9.tsx || { echo "✗ Missing toastV8 import"; exit 1; }
+! grep -q "toastV9" src/pages/flows/CIBAFlowV9.tsx || { echo "✗ Found toastV9 import (should be toast)"; exit 1; }
+grep -q "toast" src/pages/flows/CIBAFlowV9.tsx || { echo "✗ Missing toast import"; exit 1; }
 echo "✓ Imports correct"
 
 # Check required components
 echo "🧩 Checking components..."
-grep -q "MFAHeaderV8" src/pages/flows/CIBAFlowV9.tsx || { echo "✗ Missing MFAHeaderV8"; exit 1; }
-grep -q "WorkerTokenStatusDisplayV8" src/pages/flows/CIBAFlowV9.tsx || { echo "✗ Missing WorkerTokenStatusDisplayV8"; exit 1; }
-grep -q "WorkerTokenModalV8" src/pages/flows/CIBAFlowV9.tsx || { echo "✗ Missing WorkerTokenModalV8"; exit 1; }
-grep -q "SuperSimpleApiDisplayV8" src/pages/flows/CIBAFlowV9.tsx || { echo "✗ Missing SuperSimpleApiDisplayV8"; exit 1; }
+grep -q "MFAHeader" src/pages/flows/CIBAFlowV9.tsx || { echo "✗ Missing MFAHeader"; exit 1; }
+grep -q "WorkerTokenStatusDisplay" src/pages/flows/CIBAFlowV9.tsx || { echo "✗ Missing WorkerTokenStatusDisplay"; exit 1; }
+grep -q "WorkerTokenModal" src/pages/flows/CIBAFlowV9.tsx || { echo "✗ Missing WorkerTokenModal"; exit 1; }
+grep -q "SuperSimpleApiDisplay" src/pages/flows/CIBAFlowV9.tsx || { echo "✗ Missing SuperSimpleApiDisplay"; exit 1; }
 echo "✓ All components present"
 
 # Check token delivery mode field

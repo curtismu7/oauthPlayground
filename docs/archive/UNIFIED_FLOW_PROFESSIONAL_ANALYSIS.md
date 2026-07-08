@@ -32,7 +32,7 @@ The Unified OAuth/OIDC Flow implementation represents a **professional-grade, pr
    - Location: `src/v8u/services/unifiedFlowIntegrationV8U.ts`
    ```typescript
    export class UnifiedFlowIntegrationV8U {
-     static getAvailableFlows(specVersion) → SpecVersionServiceV8
+     static getAvailableFlows(specVersion) → SpecVersionService
      static generateAuthorizationUrl(flowType, credentials) → Delegates to flow-specific services
      static exchangeCodeForTokens(...) → Delegates to flow services
    }
@@ -114,7 +114,7 @@ The Unified OAuth/OIDC Flow implementation represents a **professional-grade, pr
    
    // Suggested
    export const getAvailableFlows = (specVersion: SpecVersion): FlowType[] => {
-     return SpecVersionServiceV8.getAvailableFlows(specVersion);
+     return SpecVersionService.getAvailableFlows(specVersion);
    };
    ```
 

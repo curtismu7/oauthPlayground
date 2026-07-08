@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### Version consolidation Phase 8c: mfa V8 symbol strip (2026-07-08)
+
+- **What:** Renamed 185 `src/mfa/**/*V8*` files and stripped `V8` from exported symbols across the codebase.
+- **Cause:** Phase 4 moved folder to `mfa/` but filenames and exports still carried V8 suffix.
+- **Fix:** `git mv` batch rename; stem-based symbol replacement; `MFAFlowV8` → `MFARouterFlow` to avoid clash with `pages/flows/MFAFlow`.
+- **Files:** `src/mfa/**`, `src/App.tsx`, lab/flow consumers, `scripts/phase8c-mfa-rename.mjs`
+- **Regression check:** (1) `npm run build` passes. (2) `/mfa` and `/flows/mfa-v8` routes load. (3) `/v8/mfa/register/fido2` unchanged.
+
 ### Version consolidation Phase 7: migrate specialty flows to `src/flows/specialty` (2026-07-08)
 
 - **What:** Moved 17 specialty flow pages from `src/pages/flows/v9` into `src/flows/specialty`; fixed relative import depth.
@@ -258,8 +266,8 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 ### Biome Linting: MFA and Unified OAuth static-only class fixes (2026-03-16)
 
 - **What:** Biome linter was reporting `lint/complexity/noStaticOnlyClass` warnings for service classes that use static-only patterns. These are legitimate service patterns but needed justification comments.
-- **Fix:** Added `biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods` comments to all affected service classes. Also fixed duplicate `PasswordChangeError` interface in `OAuthIntegrationServiceV8.ts` and replaced `any` types with proper types in several files.
-- **Files:** `src/v8/lockdown/fido2/snapshot/mfaAuthenticationServiceV8.ts`, `src/v8/lockdown/fido2/snapshot/mfaConfigurationServiceV8.ts`, `src/v8/services/oauthErrorCodesServiceV8.ts`, `src/v8/services/oauthIntegrationServiceV8.ts`, `src/v8/services/unifiedFlowOptionsServiceV8.ts`, `src/services/errorHandlingService.ts`, `src/services/unifiedFlowLayoutService.ts`, `src/services/sharedService.ts`, `src/services/clientCredentialsSharedService.ts`, `src/services/serviceDiscoveryService.ts`, `src/protect-app/components/dashboard/DemoWorkerTokenUI.tsx`, `src/components/FIDO2RegistrationModal.tsx`
+- **Fix:** Added `biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods` comments to all affected service classes. Also fixed duplicate `PasswordChangeError` interface in `OAuthIntegrationService.ts` and replaced `any` types with proper types in several files.
+- **Files:** `src/v8/lockdown/fido2/snapshot/mfaAuthenticationService.ts`, `src/v8/lockdown/fido2/snapshot/mfaConfigurationService.ts`, `src/v8/services/oauthErrorCodesService.ts`, `src/v8/services/oauthIntegrationService.ts`, `src/v8/services/unifiedFlowOptionsService.ts`, `src/services/errorHandlingService.ts`, `src/services/unifiedFlowLayoutService.ts`, `src/services/sharedService.ts`, `src/services/clientCredentialsSharedService.ts`, `src/services/serviceDiscoveryService.ts`, `src/protect-app/components/dashboard/DemoWorkerTokenUI.tsx`, `src/components/FIDO2RegistrationModal.tsx`
 - **Regression check:** Run `npx biome check` on all MFA and Unified OAuth files → 0 lint errors. All services maintain functionality with proper type safety.
 
 ### V7MOAuthAuthCodeV9: unterminated string literal causing Vite 500 (2026-03-16)
@@ -359,8 +367,8 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 ### Remove /v8/mfa-feature-flags page (2026-03-16)
 
 - **What:** The MFA Feature Flags admin page at `/v8/mfa-feature-flags` was removed per request.
-- **Fix:** (1) Deleted `src/v8/pages/MFAFeatureFlagsAdminV8.tsx`. (2) Removed import and `<Route>` from `src/App.tsx`. (3) Removed entry from `src/config/sidebarMenuConfig.ts`. (4) Removed item block from `src/components/DragDropSidebar.tsx`.
-- **Files:** `src/v8/pages/MFAFeatureFlagsAdminV8.tsx` (deleted), `src/App.tsx`, `src/config/sidebarMenuConfig.ts`, `src/components/DragDropSidebar.tsx`
+- **Fix:** (1) Deleted `src/v8/pages/MFAFeatureFlagsAdmin.tsx`. (2) Removed import and `<Route>` from `src/App.tsx`. (3) Removed entry from `src/config/sidebarMenuConfig.ts`. (4) Removed item block from `src/components/DragDropSidebar.tsx`.
+- **Files:** `src/v8/pages/MFAFeatureFlagsAdmin.tsx` (deleted), `src/App.tsx`, `src/config/sidebarMenuConfig.ts`, `src/components/DragDropSidebar.tsx`
 - **Testing status:** Code analysis only — not manually verified. Manual test needed: navigating to `/v8/mfa-feature-flags` should 404 or redirect; link should not appear in sidebar or DragDrop list.
 - **Regression check:** All other routes in `App.tsx` must still render. Sidebar must not show a broken/missing item. DragDrop sidebar must not reference the deleted item.
 
@@ -411,8 +419,8 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 ### Worker Token Status: Enhanced refresh functionality (2026-03-15)
 
 - **What:** Worker token status display lacked prominent refresh option when no token existed, and didn't auto-refresh when tokens were obtained through other means. Users had to manually refresh to see updated token status.
-- **Fix:** (1) Enhanced `WorkerTokenStatusDisplayV8` with auto-refresh when token transitions from "missing" to "valid". (2) Added prominent green "Get Token" button when no worker token exists. (3) Implemented success notification when token is automatically detected. (4) Enhanced refresh button styling with conditional prominent mode (`$prominent` prop). (5) Added "Get Token" text label when token is missing/invalid.
-- **Files:** `src/v8/components/WorkerTokenStatusDisplayV8.tsx`
+- **Fix:** (1) Enhanced `WorkerTokenStatusDisplay` with auto-refresh when token transitions from "missing" to "valid". (2) Added prominent green "Get Token" button when no worker token exists. (3) Implemented success notification when token is automatically detected. (4) Enhanced refresh button styling with conditional prominent mode (`$prominent` prop). (5) Added "Get Token" text label when token is missing/invalid.
+- **Files:** `src/v8/components/WorkerTokenStatusDisplay.tsx`
 - **Regression check:** No worker token → green "Get Token" button appears. Obtain worker token → success message appears and fields auto-refresh. Existing token → standard refresh button. All display modes (compact, detailed, wide) show consistent behavior.
 
 ### UnifiedOAuthFlowV8U: Fixed temporal dead zone error (2026-03-15)
@@ -495,7 +503,7 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 ### Unified MFA Test Plan + test:unified-mfa script (2026-03-13)
 
 - **What:** Documented automated test plan for Unified MFA (like UNIFIED_OAUTH_TEST_PLAN) and added a single-command script to run MFA-focused tests.
-- **Fix:** (1) Created `docs/UNIFIED_MFA_TEST_PLAN.md` — overview, test categories (build, service/hook/utils, component, backend, E2E), MFA test file table, key routes, run commands, regression checklist, future additions. (2) Added `test:unified-mfa` script in package.json (Vitest run on 8 MFA test files). (3) Updated `docs/plans.md` — Plan Index row for Unified MFA Test Plan; Quick Links testing. (4) Note in plan: some MFA tests (useMFAPolicies, unifiedMFASuccessPageServiceV8, one mfaCredentialManagerV8 assertion) have pre-existing failures/Jest compatibility; fix or migrate as needed.
+- **Fix:** (1) Created `docs/UNIFIED_MFA_TEST_PLAN.md` — overview, test categories (build, service/hook/utils, component, backend, E2E), MFA test file table, key routes, run commands, regression checklist, future additions. (2) Added `test:unified-mfa` script in package.json (Vitest run on 8 MFA test files). (3) Updated `docs/plans.md` — Plan Index row for Unified MFA Test Plan; Quick Links testing. (4) Note in plan: some MFA tests (useMFAPolicies, unifiedMFASuccessPageService, one mfaCredentialManager assertion) have pre-existing failures/Jest compatibility; fix or migrate as needed.
 - **Files:** `docs/UNIFIED_MFA_TEST_PLAN.md`, `package.json`, `docs/plans.md`
 - **Regression check:** `pnpm run test:unified-mfa` runs MFA tests; see plan for full regression checklist and UNIFIED_MFA_INVENTORY prevention commands.
 
@@ -670,8 +678,8 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 ### Checkbox tooltips on hover (2026-03-14)
 
 - **What:** Users needed hover tooltips on checkboxes to understand what each one does.
-- **Fix:** Added `title` attribute to all main checkboxes: AI Assistant (Page, Configure, APIs, Specs, Workflows, Guide, Web, Live MCP), WorkerTokenSectionV8 (Silent API Retrieval, Show Token at End), workerTokenUIServiceV8, EnhancedFloatingLogViewer (Combine logs), OAuthLoginPanel (PKCE).
-- **Files:** `src/components/AIAssistant.tsx`, `AIAssistant/src/components/AIAssistant.tsx`, `src/v8/components/WorkerTokenSectionV8.tsx`, `src/v8/services/workerTokenUIServiceV8.tsx`, `src/components/EnhancedFloatingLogViewer.tsx`, `AIAssistant/src/components/OAuthLoginPanel.tsx`
+- **Fix:** Added `title` attribute to all main checkboxes: AI Assistant (Page, Configure, APIs, Specs, Workflows, Guide, Web, Live MCP), WorkerTokenSection (Silent API Retrieval, Show Token at End), workerTokenUIService, EnhancedFloatingLogViewer (Combine logs), OAuthLoginPanel (PKCE).
+- **Files:** `src/components/AIAssistant.tsx`, `AIAssistant/src/components/AIAssistant.tsx`, `src/v8/components/WorkerTokenSection.tsx`, `src/v8/services/workerTokenUIService.tsx`, `src/components/EnhancedFloatingLogViewer.tsx`, `AIAssistant/src/components/OAuthLoginPanel.tsx`
 - **Regression check:** Hover over any checkbox → tooltip appears describing its purpose.
 
 ### MCP list tools: cursor-based pagination (2026-03-14)
@@ -1129,10 +1137,10 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 
 ### Quick Wins 1–3 completed (2026-03-13)
 
-- **Quick Win #1 (UnifiedFlowErrorHandler):** MFAConfigurationPageV8 (9 catch blocks), FIDO2ConfigurationPageV8 (2), MobileFlowV8 (4: load devices, init auth, activate device, resend OTP).
-- **Quick Win #2 (Logger):** Verified complete; SuperSimpleApiDisplayV8 popout intentionally keeps console.log.
-- **Quick Win #3 (Duplicate utilities):** Created `src/utils/errorMessageUtils.ts` with `getErrorMessage()`. Consolidated errorHandlingUtilsV8.extractErrorMessage, unifiedErrorHandlerV8 local extractErrorMessage, ErrorHandlerV8.getErrorMessage.
-- **Files:** `MFAConfigurationPageV8.tsx`, `FIDO2ConfigurationPageV8.tsx`, `MobileFlowV8.tsx`, `errorMessageUtils.ts`, `errorHandlingUtilsV8.ts`, `unifiedErrorHandlerV8.ts`, `errorHandlerV8.ts`
+- **Quick Win #1 (UnifiedFlowErrorHandler):** MFAConfigurationPage (9 catch blocks), FIDO2ConfigurationPage (2), MobileFlow (4: load devices, init auth, activate device, resend OTP).
+- **Quick Win #2 (Logger):** Verified complete; SuperSimpleApiDisplay popout intentionally keeps console.log.
+- **Quick Win #3 (Duplicate utilities):** Created `src/utils/errorMessageUtils.ts` with `getErrorMessage()`. Consolidated errorHandlingUtils.extractErrorMessage, unifiedErrorHandler local extractErrorMessage, ErrorHandler.getErrorMessage.
+- **Files:** `MFAConfigurationPage.tsx`, `FIDO2ConfigurationPage.tsx`, `MobileFlow.tsx`, `errorMessageUtils.ts`, `errorHandlingUtils.ts`, `unifiedErrorHandler.ts`, `errorHandler.ts`
 - **Regression check:** MFA Configuration page → load/save settings, create policy, reset. FIDO2 Config → load policies. Mobile flow → load devices, authenticate, activate, resend OTP. Error messages display correctly.
 
 ### AIAssistant: includeApis ReferenceError (2026-03-13)
@@ -1159,15 +1167,15 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 ### UnifiedFlowErrorHandler Phase 1D rollout (2026-03-13)
 
 - **What:** Completed Phase 1D of UnifiedFlowErrorHandler adoption: Unified MFA flow, registration/device selection/config steps, MFA reporting, TOTP flow, device ordering flow.
-- **Fixes:** (1) **UnifiedMFARegistrationFlowV8**: init auth, OTP verify, resend code, register device. (2) **UnifiedRegistrationStep.modern**: register device. (3) **UnifiedDeviceSelectionStep** (non-modern): load devices (replaced unifiedErrorHandlerV8). (4) **UnifiedConfigurationStep.modern**: save config. (5) **MFAReportingFlowV8**: load reports. (6) **TOTPFlowV8**: activate device, delete device, delete expired device. (7) **MFADeviceOrderingFlowV8**: load devices, set default, save order, remove order.
-- **Files:** `UnifiedMFARegistrationFlowV8.tsx`, `UnifiedRegistrationStep.modern.tsx`, `UnifiedDeviceSelectionStep.tsx`, `UnifiedConfigurationStep.modern.tsx`, `MFAReportingFlowV8.tsx`, `TOTPFlowV8.tsx`, `MFADeviceOrderingFlowV8.tsx`
+- **Fixes:** (1) **UnifiedMFARegistrationFlow**: init auth, OTP verify, resend code, register device. (2) **UnifiedRegistrationStep.modern**: register device. (3) **UnifiedDeviceSelectionStep** (non-modern): load devices (replaced unifiedErrorHandler). (4) **UnifiedConfigurationStep.modern**: save config. (5) **MFAReportingFlow**: load reports. (6) **TOTPFlow**: activate device, delete device, delete expired device. (7) **MFADeviceOrderingFlow**: load devices, set default, save order, remove order.
+- **Files:** `UnifiedMFARegistrationFlow.tsx`, `UnifiedRegistrationStep.modern.tsx`, `UnifiedDeviceSelectionStep.tsx`, `UnifiedConfigurationStep.modern.tsx`, `MFAReportingFlow.tsx`, `TOTPFlow.tsx`, `MFADeviceOrderingFlow.tsx`
 - **Regression check:** MFA registration flow → init auth, OTP verify, resend, register errors handled. TOTP flow → activation, delete device errors handled. Device ordering → load, set default, save/remove order errors handled. MFA reporting → load reports errors handled.
 
 ### UnifiedFlowErrorHandler rollout (2026-03-13)
 
 - **What:** Extended UnifiedFlowErrorHandler adoption to replace inline logger+modernMessaging.showBanner catch blocks with centralized error handling across 14 additional files.
-- **Fixes:** (1) **Unified MFA steps**: UnifiedActivationStep.modern.tsx (activate, resend OTP), UnifiedDeviceSelectionStep.modern.tsx (load devices). (2) **Worker token**: WorkerTokenStatusDisplayV8, WorkerTokenSectionV8, workerTokenUIServiceV8. (3) **User/Config**: UserLoginSectionV8, RedirectUriValidatorV8. (4) **Pages/Hooks**: MFADeviceCreateDemoV8, useCibaFlowV8Enhanced, useHybridFlowV8, usePasskeyAuth.
-- **Files:** `src/v8/flows/unified/components/UnifiedActivationStep.modern.tsx`, `src/v8/flows/unified/components/UnifiedDeviceSelectionStep.modern.tsx`, `src/v8/components/WorkerTokenStatusDisplayV8.tsx`, `src/v8/components/WorkerTokenSectionV8.tsx`, `src/v8/services/workerTokenUIServiceV8.tsx`, `src/v8/components/UserLoginSectionV8.tsx`, `src/v8/components/RedirectUriValidatorV8.tsx`, `src/v8/pages/MFADeviceCreateDemoV8.tsx`, `src/v8/hooks/useCibaFlowV8Enhanced.ts`, `src/v8/hooks/useHybridFlowV8.ts`, `src/v8/hooks/usePasskeyAuth.ts`
+- **Fixes:** (1) **Unified MFA steps**: UnifiedActivationStep.modern.tsx (activate, resend OTP), UnifiedDeviceSelectionStep.modern.tsx (load devices). (2) **Worker token**: WorkerTokenStatusDisplay, WorkerTokenSection, workerTokenUIService. (3) **User/Config**: UserLoginSection, RedirectUriValidator. (4) **Pages/Hooks**: MFADeviceCreateDemo, useCibaFlowV8Enhanced, useHybridFlow, usePasskeyAuth.
+- **Files:** `src/v8/flows/unified/components/UnifiedActivationStep.modern.tsx`, `src/v8/flows/unified/components/UnifiedDeviceSelectionStep.modern.tsx`, `src/v8/components/WorkerTokenStatusDisplay.tsx`, `src/v8/components/WorkerTokenSection.tsx`, `src/v8/services/workerTokenUIService.tsx`, `src/v8/components/UserLoginSection.tsx`, `src/v8/components/RedirectUriValidator.tsx`, `src/v8/pages/MFADeviceCreateDemo.tsx`, `src/v8/hooks/useCibaFlowV8Enhanced.ts`, `src/v8/hooks/useHybridFlow.ts`, `src/v8/hooks/usePasskeyAuth.ts`
 - **Regression check:** MFA activation/resend OTP → errors show via UnifiedFlowErrorHandler. Device selection load → errors handled. Worker token refresh/clear → errors handled. User login refresh/logout → errors handled. Redirect URI copy → errors handled. Create Device playground → lookup, JSON parse, create device errors handled. CIBA flow → discovery, initiate, poll errors handled. Hybrid flow → load/save credentials, PKCE, auth URL, exchange, fragment errors handled. Passkey auth/register → errors handled.
 
 ### Logger adoption: replace console with centralized logger (2026-03-13)
@@ -1176,7 +1184,7 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **Fixes:** (1) **ApiKeyConfiguration**: Replaced console.error with logger.error for backup status load failure. (2) **ReportsPage**: Replaced console.log with logger.info for generated report. (3) **errorBoundaryUtils**: Replaced console.warn/error in ExternalScriptErrorBoundary with logger.warn/error (suppressExternalErrors keeps console overrides for filtering). (4) **brave-search-server**: Replaced console.error with server logger (src/server/utils/logger.js). (5) **mobileTemplates**: Fixed invalid Alert.console.warn → Alert.alert for React Native generated code.
 - **Files:** `src/components/ApiKeyConfiguration.tsx`, `src/v8u/pages/ReportsPage.tsx`, `src/utils/errorBoundaryUtils.tsx`, `src/server/mcp/brave-search-server.ts`, `src/services/codeGeneration/templates/mobile/mobileTemplates.ts`
 - **Regression check:** Configuration → API Keys → backup status loads; errors log via logger. Reports page → generate report → logs via logger. Error boundary catches errors; logs via logger. Brave Search MCP server starts; logs via server logger. Mobile templates generate valid React Native Alert.alert calls.
-- **Note:** SuperSimpleApiDisplayV8 popout window keeps console.log intentionally (popout runs in separate context without app bundle; logger is not available).
+- **Note:** SuperSimpleApiDisplay popout window keeps console.log intentionally (popout runs in separate context without app bundle; logger is not available).
 
 ### Browser Extension Error Prevention (2026-03-13)
 
@@ -1195,22 +1203,22 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 ### Fix navigation method calls in UnifiedRegistrationStep.modern (2026-03-13)
 
 - **What:** UnifiedRegistrationStep.modern.tsx was calling non-existent navigation methods (nav.previous(), nav.next()) causing TypeError.
-- **Fixes:** (1) **Updated navigation calls**: Replaced nav.previous() with nav.goToPrevious() and nav.next() with nav.goToNext(). (2) **Used correct hook methods**: Fixed calls to match useStepNavigationV8 hook interface. (3) **Resolved TypeError**: Fixed "nav.previous is not a function" error that was breaking navigation.
+- **Fixes:** (1) **Updated navigation calls**: Replaced nav.previous() with nav.goToPrevious() and nav.next() with nav.goToNext(). (2) **Used correct hook methods**: Fixed calls to match useStepNavigation hook interface. (3) **Resolved TypeError**: Fixed "nav.previous is not a function" error that was breaking navigation.
 - **Files:** `src/v8/flows/unified/components/UnifiedRegistrationStep.modern.tsx`
 - **Regression check:** Navigate through MFA registration steps → Previous/Next buttons work correctly. No more TypeError in console. Navigation between steps functions properly.
 
 ### Revert MCP server usage in Unified MFA and SharedCredentials (2026-03-13)
 
-- **What:** Unified MFA and SharedCredentialsServiceV8 were incorrectly using MCP server for credential loading, when only AIAssistant should use MCP server.
-- **Fixes:** (1) **Reverted UnifiedMFARegistrationFlowV8**: Removed MCP server credential loading and restored original localStorage/storage service loading chain. (2) **Reverted SharedCredentialsServiceV8**: Removed MCP server dependency and restored localStorage-only credential loading. (3) **Maintained separation**: Ensured Unified MFA and Unified OAuth use proxy/API infrastructure in server.js. (4) **AI-only MCP**: Confirmed only AIAssistant uses MCP server for credential management.
-- **Files:** `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`, `src/v8/services/sharedCredentialsServiceV8.ts`
+- **What:** Unified MFA and SharedCredentialsService were incorrectly using MCP server for credential loading, when only AIAssistant should use MCP server.
+- **Fixes:** (1) **Reverted UnifiedMFARegistrationFlow**: Removed MCP server credential loading and restored original localStorage/storage service loading chain. (2) **Reverted SharedCredentialsService**: Removed MCP server dependency and restored localStorage-only credential loading. (3) **Maintained separation**: Ensured Unified MFA and Unified OAuth use proxy/API infrastructure in server.js. (4) **AI-only MCP**: Confirmed only AIAssistant uses MCP server for credential management.
+- **Files:** `src/v8/flows/unified/UnifiedMFARegistrationFlow.tsx`, `src/v8/services/sharedCredentialsService.ts`
 - **Regression check:** Unified MFA flow loads credentials from localStorage/storage services only. Configuration page (reverted) loads from localStorage. AIAssistant continues to use MCP server. All OAuth/MFA flows use server.js proxy endpoints, not MCP server.
 
 ### Username dropdown independence from environment ID (2026-03-13)
 
 - **What:** Username dropdown in unified MFA flow was disabled when environment ID field was empty, preventing user search even though worker token modal handles environment context internally.
-- **Fixes:** (1) **Made environmentId optional**: Updated UserSearchDropdownV8 props to make environmentId optional since worker token modal provides context. (2) **Removed disabled state**: Removed `disabled={!environmentId}` from username dropdown in unified MFA flow. (3) **Updated loading logic**: Modified loadUsers function and useEffect hooks to not require environment ID for API calls. (4) **Worker token context**: Let MFAServiceV8 handle environment ID internally when not provided.
-- **Files:** `src/v8/components/UserSearchDropdownV8.tsx`, `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`
+- **Fixes:** (1) **Made environmentId optional**: Updated UserSearchDropdown props to make environmentId optional since worker token modal provides context. (2) **Removed disabled state**: Removed `disabled={!environmentId}` from username dropdown in unified MFA flow. (3) **Updated loading logic**: Modified loadUsers function and useEffect hooks to not require environment ID for API calls. (4) **Worker token context**: Let MFAService handle environment ID internally when not provided.
+- **Files:** `src/v8/components/UserSearchDropdown.tsx`, `src/v8/flows/unified/UnifiedMFARegistrationFlow.tsx`
 - **Regression check:** Navigate to `/v8/unified-mfa` with empty environment ID → username dropdown is enabled and functional. Click dropdown → opens user search modal → worker token modal handles environment context. Search works regardless of environment ID field state.
 
 ### MCP PingOne API debug logging (2026-03-13)
@@ -1263,25 +1271,25 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **Files:** `src/components/AIAssistant.tsx`
 - **Regression check:** Open OAuth Assistant → checkboxes grouped (Context | Connections); close button has white background with dark ×; collapse/expand/close buttons still work.
 
-### UserServiceV8: avoid ERROR log for expected "no worker token" (2026-03)
+### UserService: avoid ERROR log for expected "no worker token" (2026-03)
 
-- **What:** Console showed `[UserServiceV8] List users error Error: Worker token not available` when opening MFA user search without a worker token. `checkWorkerTokenStatusSync()` and async `getToken()` can disagree (token expired, refresh failed), so the API is still called.
-- **Fix:** In UserServiceV8.listUsers catch block, when the error is the expected "worker token not available" precondition, log at debug level instead of error. The UI (UserSearchDropdownV8) already handles this and shows "Worker token required" — no need for ERROR noise.
-- **Files:** `src/v8/services/userServiceV8.ts`
+- **What:** Console showed `[UserService] List users error Error: Worker token not available` when opening MFA user search without a worker token. `checkWorkerTokenStatusSync()` and async `getToken()` can disagree (token expired, refresh failed), so the API is still called.
+- **Fix:** In UserService.listUsers catch block, when the error is the expected "worker token not available" precondition, log at debug level instead of error. The UI (UserSearchDropdown) already handles this and shows "Worker token required" — no need for ERROR noise.
+- **Files:** `src/v8/services/userService.ts`
 - **Regression check:** Open `/v8/unified-mfa` → select device → open user search before getting worker token → no ERROR in console; UI shows worker token prompt. After getting token → user list loads.
 
 ### Unified MFA: Restart Flow button moved to bottom (2026-03)
 
 - **What:** Restart Flow button was in the flow header; user wanted it at the bottom with Previous/Next.
-- **Fix:** Removed `restart-flow-container` from MFAFlowBaseV8 flow-header; passed Restart Flow button as `children` to StepActionButtonsV8 so it renders with Previous/Next. Added `.restart-flow-button-bottom` styling for the bottom context.
-- **Files:** `src/v8/flows/shared/MFAFlowBaseV8.tsx`
+- **Fix:** Removed `restart-flow-container` from MFAFlowBase flow-header; passed Restart Flow button as `children` to StepActionButtons so it renders with Previous/Next. Added `.restart-flow-button-bottom` styling for the bottom context.
+- **Files:** `src/v8/flows/shared/MFAFlowBase.tsx`
 - **Regression check:** Open `/v8/unified-mfa` → select device → verify Restart Flow appears at bottom with Previous/Next; click Restart → confirm dialog → flow resets.
 
 ### Unified MFA: remove duplicate headers, migrate to red header (2026-03)
 
 - **What:** Unified MFA at `/v8/unified-mfa` showed duplicate headers (blue "V8 SMS OTP Registration" + green "PingOne MFA Device Management") and duplicate rows of navigation buttons. Neither used the standard PingOne red header with white text.
-- **Fix:** (1) Removed duplicate `MFAHeaderV8` from `UnifiedMFARegistrationFlowContent` when a device is selected; only `MFAFlowBaseV8`'s header is shown. (2) Passed `titleOverride` and `descriptionOverride` to `MFAFlowBaseV8` so device-specific titles appear. (3) `MFAFlowBaseV8` header already uses red gradient and white text. (4) Device selection screen `MFAHeaderV8` changed from `headerColor="blue"` to `headerColor="pingRed"`.
-- **Files:** `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`, `src/v8/flows/shared/MFAFlowBaseV8.tsx`
+- **Fix:** (1) Removed duplicate `MFAHeader` from `UnifiedMFARegistrationFlowContent` when a device is selected; only `MFAFlowBase`'s header is shown. (2) Passed `titleOverride` and `descriptionOverride` to `MFAFlowBase` so device-specific titles appear. (3) `MFAFlowBase` header already uses red gradient and white text. (4) Device selection screen `MFAHeader` changed from `headerColor="blue"` to `headerColor="pingRed"`.
+- **Files:** `src/v8/flows/unified/UnifiedMFARegistrationFlow.tsx`, `src/v8/flows/shared/MFAFlowBase.tsx`
 - **Regression check:** Open `/v8/unified-mfa` → select "SMS OTP Registration" → one header ("SMS OTP Registration"), one row of nav buttons, red header with white text. Device selection screen shows red header with white text.
 
 ### Standalone AIAssistant sync with main app (worker token / MCP) (2026-03)
@@ -1294,22 +1302,22 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 ### Unified MFA: persist section collapse state (2026-03)
 
 - **What:** Section collapse/expand state on Unified MFA device selection screen was lost on flow restart or browser refresh.
-- **Fix:** (1) Added `unified-mfa-v8` to FlowType (specVersionServiceV8) and flowSettingsServiceV8U getAllSettings/clearAllSettings. (2) DeviceTypeSelectionScreen uses `usePersistedCollapse('unified-mfa-v8', sectionId, default)` for credentials (Configuration block), worker-token-status, and policy-details. (3) Configuration section has collapsible header; Policy Details uses persisted collapse instead of native `<details>`.
-- **Files:** `src/v8/services/specVersionServiceV8.ts`, `src/v8u/services/flowSettingsServiceV8U.ts`, `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`
+- **Fix:** (1) Added `unified-mfa-v8` to FlowType (specVersionService) and flowSettingsServiceV8U getAllSettings/clearAllSettings. (2) DeviceTypeSelectionScreen uses `usePersistedCollapse('unified-mfa-v8', sectionId, default)` for credentials (Configuration block), worker-token-status, and policy-details. (3) Configuration section has collapsible header; Policy Details uses persisted collapse instead of native `<details>`.
+- **Files:** `src/v8/services/specVersionService.ts`, `src/v8u/services/flowSettingsServiceV8U.ts`, `src/v8/flows/unified/UnifiedMFARegistrationFlow.tsx`
 - **Regression check:** Open `/v8/unified-mfa` → collapse Configuration or Policy Details → refresh browser → sections stay collapsed. Restart flow (select device, go back) → collapse state persists.
 
 ### Complete pages implementation & credential synchronization (2026-03-13)
 
 - **What:** Several pages showed "coming soon" or "under maintenance" messages, and credentials weren't syncing between Configuration page, unified flows, and MCP server storage.
-- **Fixes:** (1) **SettingsPage**: Replaced placeholder with functional settings management (theme switching, notifications, language preferences, save/reset). (2) **ReportsPage**: Replaced placeholder with comprehensive reporting (report type selection, date ranges, mock generation, recent reports). (3) **UserManagementPage**: Fixed syntax errors and added mock user data with search/filter functionality. (4) **TokenMonitoringPage**: Fixed logger import crash in TokenDisplayService. (5) **Step components**: Implemented PollingStep (interactive token polling) and TokenRequestStep (OAuth token request form). (6) **Configuration page**: Added MCP server credential loading as primary source with localStorage fallback. (7) **SharedCredentialsServiceV8**: Added MCP server loading/saving for unified flow credential synchronization.
-- **Files:** `src/v8u/pages/SettingsPage.tsx`, `src/v8u/pages/ReportsPage.tsx`, `src/v8u/pages/UserManagementPage.tsx`, `src/services/tokenDisplayService.ts`, `src/v8u/components/steps/PollingStep.tsx`, `src/v8u/components/steps/TokenRequestStep.tsx`, `src/pages/Configuration.tsx`, `src/v8/services/sharedCredentialsServiceV8.ts`
+- **Fixes:** (1) **SettingsPage**: Replaced placeholder with functional settings management (theme switching, notifications, language preferences, save/reset). (2) **ReportsPage**: Replaced placeholder with comprehensive reporting (report type selection, date ranges, mock generation, recent reports). (3) **UserManagementPage**: Fixed syntax errors and added mock user data with search/filter functionality. (4) **TokenMonitoringPage**: Fixed logger import crash in TokenDisplayService. (5) **Step components**: Implemented PollingStep (interactive token polling) and TokenRequestStep (OAuth token request form). (6) **Configuration page**: Added MCP server credential loading as primary source with localStorage fallback. (7) **SharedCredentialsService**: Added MCP server loading/saving for unified flow credential synchronization.
+- **Files:** `src/v8u/pages/SettingsPage.tsx`, `src/v8u/pages/ReportsPage.tsx`, `src/v8u/pages/UserManagementPage.tsx`, `src/services/tokenDisplayService.ts`, `src/v8u/components/steps/PollingStep.tsx`, `src/v8u/components/steps/TokenRequestStep.tsx`, `src/pages/Configuration.tsx`, `src/v8/services/sharedCredentialsService.ts`
 - **Regression check:** Open `/v8u/settings` → functional theme/settings controls work. Open `/v8u/reports` → report generation interface works. Open `/v8u/user-management` → user list with search/filter works. Open `/token/operations` → no maintenance message, shows TokenMonitoringPage. Open `/configuration` → credentials load from MCP server. Save credentials in unified flow → appear in Configuration page and persist across restarts.
 
 ### Unified MFA: persist section collapse state (2026-03)
 
 - **What:** Collapsed/expanded state of sections in Unified MFA device selection screen was lost on flow restart or browser refresh.
 - **Fix:** (1) Added `unified-mfa-v8` to FlowType and flowSettingsServiceV8U (getAllSettings, clearAllSettings). (2) DeviceTypeSelectionScreen uses `usePersistedCollapse('unified-mfa-v8', ...)` for `credentials` (Configuration block), `worker-token-status`, and `policy-details`. (3) Configuration section has collapsible header with persisted state. (4) Policy Details (policy-details) replaced native `<details>` with persisted collapse.
-- **Files:** `src/v8/services/specVersionServiceV8.ts`, `src/v8u/services/flowSettingsServiceV8U.ts`, `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`
+- **Files:** `src/v8/services/specVersionService.ts`, `src/v8u/services/flowSettingsServiceV8U.ts`, `src/v8/flows/unified/UnifiedMFARegistrationFlow.tsx`
 - **Regression check:** Open `/v8/unified-mfa` → collapse Configuration → refresh → Configuration stays collapsed. Collapse Policy Details → refresh → stays collapsed.
 
 ### Callback step: CSRF/state_expired retry button (2026-03)
@@ -1363,8 +1371,8 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 
 ### Unified OAuth flow: red header and PlatformFlowHeader migration (2026-03)
 
-- **What:** `/v8u/unified/oauth-authz/0` used blue PageHeaderV8 instead of the standard red PingOne header with white text.
-- **Fix:** (1) Added `oauth-authz-v8u` to `FLOW_CONFIGS` in flowHeaderService (flowType: 'pingone', title: "Unified OAuth/OIDC Flow", matching subtitle). (2) Replaced `PageHeaderV8` with `PlatformFlowHeader` in UnifiedOAuthFlowV8U. (3) Moved flow breadcrumbs and action buttons (Flow & Spec Comparison Guide, Postman downloads) into a separate card below the header.
+- **What:** `/v8u/unified/oauth-authz/0` used blue PageHeader instead of the standard red PingOne header with white text.
+- **Fix:** (1) Added `oauth-authz-v8u` to `FLOW_CONFIGS` in flowHeaderService (flowType: 'pingone', title: "Unified OAuth/OIDC Flow", matching subtitle). (2) Replaced `PageHeader` with `PlatformFlowHeader` in UnifiedOAuthFlowV8U. (3) Moved flow breadcrumbs and action buttons (Flow & Spec Comparison Guide, Postman downloads) into a separate card below the header.
 - **Files:** `src/services/flowHeaderService.tsx`, `src/v8u/flows/UnifiedOAuthFlowV8U.tsx`
 - **Regression check:** Open `/v8u/unified/oauth-authz/0` — red header with white text "Unified OAuth/OIDC Flow"; breadcrumbs and buttons in card below; Flow & Spec Comparison Guide and Postman buttons still work.
 
@@ -1480,8 +1488,8 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 
 - **What:** "Get Worker Token" was always doing silent retrieval and ignoring the "Silent API Token Retrieval" checkbox. When the checkbox was unchecked, users still got silent fetch instead of the modal.
 - **Cause:** Several call sites passed `forceShowModal: !silentApiRetrieval` (or `false`) when the user clicked "Get Worker Token", so with Silent checked the modal never showed. The helper is designed so: **button click** → always show modal (`forceShowModal: true`); **automatic/background** fetch → respect checkbox (`forceShowModal: false`, use config `silentApiRetrieval`).
-- **Fix:** (1) **WorkerTokenSectionV8**: pass `true` for forceShowModal on "Get Worker Token" click. (2) **workerTokenUIServiceV8**: same. (3) **UnifiedFlowSteps**: pre-flight "Get Worker Token" button and automatic token attempt — button click now passes `forceShowModal: true` and uses config for overrides; automatic attempt uses `undefined` overrides so config (checkbox) is respected. (4) **UnifiedErrorDisplayV8**: button click now passes `forceShowModal: true`. (5) Lockdown snapshot UnifiedFlowSteps updated to match.
-- **Files:** `src/v8/components/WorkerTokenSectionV8.tsx`, `src/v8/services/workerTokenUIServiceV8.tsx`, `src/v8u/components/UnifiedFlowSteps.tsx`, `src/v8/flows/unified/components/UnifiedErrorDisplayV8.tsx`, `src/v8u/lockdown/unified/snapshot/components/UnifiedFlowSteps.tsx`
+- **Fix:** (1) **WorkerTokenSection**: pass `true` for forceShowModal on "Get Worker Token" click. (2) **workerTokenUIService**: same. (3) **UnifiedFlowSteps**: pre-flight "Get Worker Token" button and automatic token attempt — button click now passes `forceShowModal: true` and uses config for overrides; automatic attempt uses `undefined` overrides so config (checkbox) is respected. (4) **UnifiedErrorDisplay**: button click now passes `forceShowModal: true`. (5) Lockdown snapshot UnifiedFlowSteps updated to match.
+- **Files:** `src/v8/components/WorkerTokenSection.tsx`, `src/v8/services/workerTokenUIService.tsx`, `src/v8u/components/UnifiedFlowSteps.tsx`, `src/v8/flows/unified/components/UnifiedErrorDisplay.tsx`, `src/v8u/lockdown/unified/snapshot/components/UnifiedFlowSteps.tsx`
 - **Regression check:** Uncheck "Silent API Token Retrieval" on a page that has it (e.g. Token Status, Credentials form). Click "Get Worker Token" → modal opens. Check the box, click again → modal still opens (button always shows modal). Automatic fetches (e.g. pre-flight validation when token missing) use checkbox: silent ON → try silent first; silent OFF → no silent attempt.
 
 ### PingOne Dashboard: remove duplicate header (2026-03)
@@ -1571,7 +1579,7 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 
 ### Worker token: full analysis and single-modal plan (2026-03)
 
-- **What:** Documented worker token retrieval, storage, and modal usage across the app. **Deliverable:** `docs/WORKER_TOKEN_ANALYSIS_AND_PLAN.md` — services inventory (unifiedWorkerTokenService, workerTokenManager, workerTokenRepository, workerTokenServiceV8), modal inventory (V9 vs V8 vs Request modals), storage flow (credentials: SQLite + cache; token: unified path → IndexedDB + SQLite vs manager path → localStorage only), hardcoded-endpoint check, and recommendations (single modal = WorkerTokenModalV9 via `open-worker-token-modal`; all token writes via unifiedWorkerTokenService so IndexedDB + SQLite; no direct PingOne token URL from client). Includes plan to check all files in `/src` with file list and verification commands.
+- **What:** Documented worker token retrieval, storage, and modal usage across the app. **Deliverable:** `docs/WORKER_TOKEN_ANALYSIS_AND_PLAN.md` — services inventory (unifiedWorkerTokenService, workerTokenManager, workerTokenRepository, workerTokenService), modal inventory (V9 vs V8 vs Request modals), storage flow (credentials: SQLite + cache; token: unified path → IndexedDB + SQLite vs manager path → localStorage only), hardcoded-endpoint check, and recommendations (single modal = WorkerTokenModalV9 via `open-worker-token-modal`; all token writes via unifiedWorkerTokenService so IndexedDB + SQLite; no direct PingOne token URL from client). Includes plan to check all files in `/src` with file list and verification commands.
 - **Files:** `docs/WORKER_TOKEN_ANALYSIS_AND_PLAN.md`
 - **Regression check:** When changing worker token behavior, follow the doc: single modal, single read/write path, storage service for IndexedDB + SQLite.
 
@@ -1591,19 +1599,19 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 
 - **What:** Clicking "Get worker token" (which dispatches `open-worker-token-modal`) opened the modal immediately with no loading feedback, so the wait screen never appeared. **Fix:** In App, when the event fires we set `workerTokenModalOpening` to true and render `StandardModalSpinner` with message "Opening worker token...". After a minimum delay of 500ms we set `workerTokenModalOpening` to false and `showWorkerTokenModal` to true so the modal opens. The wait screen is always visible for at least 500ms so the user sees feedback even if the modal would open instantly.
 - **Files:** `src/App.tsx`
-- **Regression check:** Click "Get Worker Token" from any page (e.g. Token Status, WorkerTokenStatusDisplayV8) — "Opening worker token..." spinner appears for at least ~500ms, then WorkerTokenModalV9 opens.
+- **Regression check:** Click "Get Worker Token" from any page (e.g. Token Status, WorkerTokenStatusDisplay) — "Opening worker token..." spinner appears for at least ~500ms, then WorkerTokenModalV9 opens.
 
 ### Delete All Devices V8: restore username dropdown (2026-03)
 
 - **What:** On `/v8/delete-all-devices` the username SearchableDropdown was only shown when both environmentId and a valid worker token were present; otherwise a disabled plain input was shown, so the dropdown appeared "lost" when token was invalid. **Fix:** Always show the SearchableDropdown when environmentId is set; pass `disabled={!tokenStatus.isValid}` and a placeholder indicating that a valid worker token is required to search. When environmentId is missing, keep the plain disabled input with updated placeholder.
-- **Files:** `src/v8/pages/DeleteAllDevicesUtilityV8.tsx`
+- **Files:** `src/v8/pages/DeleteAllDevicesUtility.tsx`
 - **Regression check:** Open /v8/delete-all-devices with environment ID set — username control is the dropdown (enabled if token valid, disabled with hint if invalid). Without environment ID, plain input with "Enter environment ID first, then get worker token".
 
 ### Worker token V8: credentials.scopes.join is not a function (2026-03)
 
-- **What:** WorkerTokenManager and WorkerTokenModalV8 could receive credentials where `scopes` is a string (e.g. from SQLite or unified storage). Calling `.join()` on a string threw. **Fix:** (1) In `workerTokenManager.ts`, added `normalizeScopesToScopeString(scopes)` and use it when building the token request body; only add `scope` param when non-empty. (2) In `WorkerTokenModalV8.tsx`, when loading credentials set scope input from string or array so the field is populated and "Please provide at least one scope" validation does not wrongly fire.
-- **Files:** `src/services/workerTokenManager.ts`, `src/v8/components/WorkerTokenModalV8.tsx`
-- **Regression check:** Load a page that uses WorkerTokenSectionV8 or WorkerTokenModalV8 with credentials that have scopes stored as a string (e.g. from SQLite); refresh token or open modal — no "scopes.join is not a function". Generate worker token with scopes loaded as string — no "at least one scope" error when scope input is populated.
+- **What:** WorkerTokenManager and WorkerTokenModal could receive credentials where `scopes` is a string (e.g. from SQLite or unified storage). Calling `.join()` on a string threw. **Fix:** (1) In `workerTokenManager.ts`, added `normalizeScopesToScopeString(scopes)` and use it when building the token request body; only add `scope` param when non-empty. (2) In `WorkerTokenModal.tsx`, when loading credentials set scope input from string or array so the field is populated and "Please provide at least one scope" validation does not wrongly fire.
+- **Files:** `src/services/workerTokenManager.ts`, `src/v8/components/WorkerTokenModal.tsx`
+- **Regression check:** Load a page that uses WorkerTokenSection or WorkerTokenModal with credentials that have scopes stored as a string (e.g. from SQLite); refresh token or open modal — no "scopes.join is not a function". Generate worker token with scopes loaded as string — no "at least one scope" error when scope input is populated.
 
 ### Flow Comparison (v8u): red PingOne header (2026-03)
 
@@ -1675,9 +1683,9 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 
 ### Token button at top of pages: use Worker Token modal service (2026-03)
 
-- **What:** The "Get Worker Token" / token button at the top of pages (and in modals) was not using the Worker Token modal service (WorkerTokenModalV9 / unifiedWorkerTokenService). **Fix:** (1) **App.tsx:** Global worker token modal (opened by `open-worker-token-modal` event) now uses `WorkerTokenModalV9` instead of `WorkerTokenModal`, so the unified service is the single source of truth. (2) **WorkerTokenStatusDisplayV8:** "Get Worker Token" in the config section now dispatches `open-worker-token-modal` so the global V9 modal opens (previously called `handleShowWorkerTokenModal` with a no-op setter, so no modal appeared). (3) **PingOneApplicationPickerModal** and **ConfigurationURIChecker:** Replaced `WorkerTokenModal` with `WorkerTokenModalV9`; use `onTokenGenerated` (and for ConfigurationURIChecker, sync from `unifiedWorkerTokenService` on close) so token state stays in sync with the service.
-- **Files:** `src/App.tsx`, `src/v8/components/WorkerTokenStatusDisplayV8.tsx`, `src/components/PingOneApplicationPickerModal.tsx`, `src/components/ConfigurationURIChecker.tsx`
-- **Regression check:** From any page that shows WorkerTokenStatusDisplayV8 (e.g. RAR V9, PAR V9, Worker Token V9 flow), click "Get Worker Token" in the status/config section — WorkerTokenModalV9 opens (unified service). From App, any dispatch of `open-worker-token-modal` opens WorkerTokenModalV9. PingOne Application Picker and Configuration URI Checker "Get Worker Token" buttons open WorkerTokenModalV9 and token/callbacks work after generation.
+- **What:** The "Get Worker Token" / token button at the top of pages (and in modals) was not using the Worker Token modal service (WorkerTokenModalV9 / unifiedWorkerTokenService). **Fix:** (1) **App.tsx:** Global worker token modal (opened by `open-worker-token-modal` event) now uses `WorkerTokenModalV9` instead of `WorkerTokenModal`, so the unified service is the single source of truth. (2) **WorkerTokenStatusDisplay:** "Get Worker Token" in the config section now dispatches `open-worker-token-modal` so the global V9 modal opens (previously called `handleShowWorkerTokenModal` with a no-op setter, so no modal appeared). (3) **PingOneApplicationPickerModal** and **ConfigurationURIChecker:** Replaced `WorkerTokenModal` with `WorkerTokenModalV9`; use `onTokenGenerated` (and for ConfigurationURIChecker, sync from `unifiedWorkerTokenService` on close) so token state stays in sync with the service.
+- **Files:** `src/App.tsx`, `src/v8/components/WorkerTokenStatusDisplay.tsx`, `src/components/PingOneApplicationPickerModal.tsx`, `src/components/ConfigurationURIChecker.tsx`
+- **Regression check:** From any page that shows WorkerTokenStatusDisplay (e.g. RAR V9, PAR V9, Worker Token V9 flow), click "Get Worker Token" in the status/config section — WorkerTokenModalV9 opens (unified service). From App, any dispatch of `open-worker-token-modal` opens WorkerTokenModalV9. PingOne Application Picker and Configuration URI Checker "Get Worker Token" buttons open WorkerTokenModalV9 and token/callbacks work after generation.
 
 ### Token Management: real data only (unified storage + worker token) (2026-03)
 
@@ -1936,14 +1944,14 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
   - **Regression check:** Save worker token via modal on one flow; go to another page that needs worker token (e.g. Discover Apps, Environments) — token should be detected and used.
 
 - **Worker token “Time remaining” showed “NaNm”**
-  - **Fix:** `workerTokenStatusServiceV8U.formatWorkerTokenTimeRemaining` and `workerTokenStatusServiceV8.checkWorkerTokenStatusSync` normalize `expiresAt` to a number and handle NaN/empty; display shows “No expiration”, “Expired”, or “—”.
-  - **Files:** `src/v8u/services/workerTokenStatusServiceV8U.ts`, `src/v8/services/workerTokenStatusServiceV8.ts`
+  - **Fix:** `workerTokenStatusServiceV8U.formatWorkerTokenTimeRemaining` and `workerTokenStatusService.checkWorkerTokenStatusSync` normalize `expiresAt` to a number and handle NaN/empty; display shows “No expiration”, “Expired”, or “—”.
+  - **Files:** `src/v8u/services/workerTokenStatusServiceV8U.ts`, `src/v8/services/workerTokenStatusService.ts`
   - **Regression check:** Worker token status panel shows a sensible time (e.g. `45m`) or a safe label, never “NaNm”.
 
 - **Worker token: `RangeError: Invalid time value at Date.toISOString`**
   - **Cause:** When `expiresAt` from storage was invalid (NaN, unparseable string, or missing), code called `new Date(expiresAt).toISOString()` or compared dates without checking, causing RangeError in `useGlobalWorkerToken`, `checkWorkerTokenStatusSync`, and `WorkerTokenRepository.getToken`.
-  - **Fix:** In `workerTokenRepository.ts`: when logging expiration, use a safe value (only call `.toISOString()` when `expiresAtMs` is valid; otherwise log `'none'`); for expiration check, compute `expiresAtNum = new Date(data.expiresAt).getTime()` and only treat as expired when `!Number.isNaN(expiresAtNum) && Date.now() > expiresAtNum`. In `workerTokenStatusServiceV8.ts`: when logging expired token, use `expiresAtIso = Number.isNaN(expiresAt) || expiresAt <= 0 ? String(expiresAt) : new Date(expiresAt).toISOString()` so `.toISOString()` is never called on invalid dates.
-  - **Files:** `src/services/workerTokenRepository.ts`, `src/v8/services/workerTokenStatusServiceV8.ts`
+  - **Fix:** In `workerTokenRepository.ts`: when logging expiration, use a safe value (only call `.toISOString()` when `expiresAtMs` is valid; otherwise log `'none'`); for expiration check, compute `expiresAtNum = new Date(data.expiresAt).getTime()` and only treat as expired when `!Number.isNaN(expiresAtNum) && Date.now() > expiresAtNum`. In `workerTokenStatusService.ts`: when logging expired token, use `expiresAtIso = Number.isNaN(expiresAt) || expiresAt <= 0 ? String(expiresAt) : new Date(expiresAt).toISOString()` so `.toISOString()` is never called on invalid dates.
+  - **Files:** `src/services/workerTokenRepository.ts`, `src/v8/services/workerTokenStatusService.ts`
   - **Regression check:** With a worker token that has invalid or missing `expiresAt` in storage, open a page that uses worker token status (e.g. Unified OAuth flow); no RangeError in console; status shows “Expired” or “—” instead of throwing.
 
 ### Sidebar & menu
@@ -1967,8 +1975,8 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 ### MFA feature flags
 
 - **MFA feature flags page: always 100%, hide controls**
-  - **Fix:** `MFA_FLAGS_ALWAYS_100 = true` in `mfaFeatureFlagsV8.ts`; `isEnabled()` always true, `getFlagState`/`getAllFlags()` return 100%. Admin page when `MFA_FLAGS_ALWAYS_100` shows only header + short message; toggles/bulk ops/grid hidden.
-  - **Files:** `src/v8/services/mfaFeatureFlagsV8.ts`, `src/v8/pages/MFAFeatureFlagsAdminV8.tsx`
+  - **Fix:** `MFA_FLAGS_ALWAYS_100 = true` in `mfaFeatureFlags.ts`; `isEnabled()` always true, `getFlagState`/`getAllFlags()` return 100%. Admin page when `MFA_FLAGS_ALWAYS_100` shows only header + short message; toggles/bulk ops/grid hidden.
+  - **Files:** `src/v8/services/mfaFeatureFlags.ts`, `src/v8/pages/MFAFeatureFlagsAdmin.tsx`
   - **Regression check:** `/v8/mfa-feature-flags` shows “All flags at 100%” and no controls; app behaves as if all flags are on.
 
 ### Mock flows – SAML Bearer Assertion V9
@@ -2019,10 +2027,10 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
   - **Files:** `src/pages/flows/v9/SAMLBearerAssertionFlowV9.tsx`, `src/pages/flows/DPoPFlow.tsx`, `src/services/flowUIService.tsx`
   - **Regression check:** Open `/flows/saml-bearer-assertion-v9`, `/flows/dpop`, and other mock flows; action buttons are blue or outline blue when enabled, grey only when disabled.
 
-- **WorkerTokenRequestModalV8 (“Generated Worker Token” modal) – grey Close/Cancel/Copy buttons**
+- **WorkerTokenRequestModal (“Generated Worker Token” modal) – grey Close/Cancel/Copy buttons**
   - **Cause:** Modal used grey backgrounds for Close, Cancel, Copy (endpoint), preflight Close, and grey text for Copy/visibility icons in the request params section.
   - **Fix:** All enabled action buttons use primary or outline-primary styling: Close/Cancel → white bg, blue border/text (`#2563eb`); Copy (endpoint) → outline blue when not “Copied”, green when copied; preflight Close → outline blue; Copy/visibility icons in request params → text color `#2563eb`. Grey (`#9ca3af`) kept only for the disabled “Execute Request” state.
-  - **Files:** `src/v8/components/WorkerTokenRequestModalV8.tsx`
+  - **Files:** `src/v8/components/WorkerTokenRequestModal.tsx`
   - **Affected components:** Generated Worker Token modal (footer Close/Cancel, Token Endpoint Copy, preflight validation Close, client_id/client_secret/scope Copy and show/hide icons).
   - **Regression check:** Open any flow that shows the Worker Token request modal (e.g. Unified OAuth, Worker Token V9); generate a token so “Generated Worker Token” appears. Close, Copy, Token Management, Save Token must be blue or green when enabled; only disabled states (e.g. Execute while loading) may be grey.
 
@@ -2062,7 +2070,7 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 ### Console / UI fixes (past)
 
 - **AppDiscoveryModalV8U: validateDOMNesting &lt;button&gt; cannot appear as descendant of &lt;button&gt;** — Modal is now rendered with `createPortal(modalContent, document.body)` so it is never inside the form/tree where a parent could be a button. Backdrop remains `<div role="presentation">`.
-- **Popout window: `logger is not defined`** — Replaced `logger.info` with `console.log` in injected script in `SuperSimpleApiDisplayV8.tsx`.
+- **Popout window: `logger is not defined`** — Replaced `logger.info` with `console.log` in injected script in `SuperSimpleApiDisplay.tsx`.
 - **AppDiscoveryModalV8U: button inside button (validateDOMNesting)** — Backdrop is `<div role="presentation">`, not `<button>`; modal also portaled to body.
 
 **2026-03-18: Sidebar MDI icons — subset mismatch causing invisible/question-mark icons**
@@ -2101,7 +2109,7 @@ When changing the listed areas, run the corresponding checks to avoid regression
 - [ ] **Token source:** Any change to `unifiedWorkerTokenService`, `workerTokenManager`, or `workerTokenRepository` storage keys: verify `/environments` and "Discover Apps" still see a valid token after saving via Worker Token modal.
 - [ ] **useGlobalWorkerToken:** If you change how the hook gets the token, ensure it still prefers `unifiedWorkerTokenService` when that has a valid token (so it matches the modal).
 - [ ] **Environments page:** Changing `EnvironmentManagementPageV8.tsx` or `environmentServiceV8.ts`: with valid worker token, `/environments` must load the list; effect must depend on `isValid` and `token` so fetch runs when token becomes available.
-- [ ] **Worker token expiration (dates):** Changing `workerTokenRepository.ts` or `workerTokenStatusServiceV8.ts`: never call `new Date(...).toISOString()` or date comparison without validating (e.g. `Number.isNaN` on getTime()); invalid `expiresAt` must be handled without throwing RangeError.
+- [ ] **Worker token expiration (dates):** Changing `workerTokenRepository.ts` or `workerTokenStatusService.ts`: never call `new Date(...).toISOString()` or date comparison without validating (e.g. `Number.isNaN` on getTime()); invalid `expiresAt` must be handled without throwing RangeError.
 - [ ] **API Key Storage:** When changing `unifiedTokenStorageService.ts` or `apiKeyService.ts`: ensure `api_key` is included in `validTokenTypes` array. API keys must store without "Invalid token type: api_key" errors and must be retrievable via `getAllApiKeys()` and `getApiKey()`. See Update log "UnifiedTokenStorageService: API key storage error fixed".
 
 ### Sidebar
@@ -2112,7 +2120,7 @@ When changing the listed areas, run the corresponding checks to avoid regression
 
 ### MFA feature flags
 
-- [ ] **mfaFeatureFlagsV8.ts:** If you change `MFA_FLAGS_ALWAYS_100` or how flags are read: confirm `/v8/mfa-feature-flags` and all MFA flows still behave as “all flags 100%” when the constant is true.
+- [ ] **mfaFeatureFlags.ts:** If you change `MFA_FLAGS_ALWAYS_100` or how flags are read: confirm `/v8/mfa-feature-flags` and all MFA flows still behave as “all flags 100%” when the constant is true.
 
 ### Logging & discovery
 
@@ -2153,7 +2161,7 @@ When changing the listed areas, run the corresponding checks to avoid regression
 
 - [ ] **Global rule:** Buttons must never be grey when enabled; grey only when disabled. When changing shared components (e.g. `StandardizedCredentialExportImport`, `FlowUIService.getButton`, `ConfigCheckerButtons`, `DiscoveryPanel`), use `V9_COLORS` with template interpolation (e.g. `${V9_COLORS.PRIMARY.BLUE}`) and reserve grey for `&:disabled` only.
 - [ ] **StandardizedCredentialExportImport:** Export/Import buttons use `V9_COLORS` from `@/services/v9/V9ColorStandards` with interpolation; disabled state uses grey (`#9ca3af`). Changing this file: verify Export is green and Import is blue on e.g. `/flows/rar-v9`.
-- [ ] **WorkerTokenRequestModalV8:** Close, Cancel, Copy, and preflight Close use outline primary (white bg, blue border/text); Copy/visibility icons use blue text. Do not reintroduce grey fill for enabled buttons; grey only for disabled state (e.g. Execute while loading). Verify in "Generated Worker Token" modal after generating a token.
+- [ ] **WorkerTokenRequestModal:** Close, Cancel, Copy, and preflight Close use outline primary (white bg, blue border/text); Copy/visibility icons use blue text. Do not reintroduce grey fill for enabled buttons; grey only for disabled state (e.g. Execute while loading). Verify in "Generated Worker Token" modal after generating a token.
 - [ ] **ApiStatusPage:** RefreshButton and other styled components use `${V9_COLORS...}` interpolation; Refresh is blue when enabled, grey when disabled. Verify on `/api-status`.
 - [ ] **UltimateTokenDisplay / UltimateTokenDisplayDemo:** `V9_COLORS` must be imported and used with template interpolation in styled components; ActionButton primary/success/warning use blue/green/amber, default (secondary) uses outline blue (not grey). Demo page Button uses blue gradient. Grey only for `:disabled`. Verify on `/ultimate-token-display-demo`.
 
@@ -2245,9 +2253,9 @@ Run these when doing a broader change or before release:
 | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Worker token → Environments          | `useGlobalWorkerToken.ts`, `EnvironmentManagementPageV8.tsx`, `workerTokenRepository.ts`                                                                                                                                                                                        | Token from modal must be used on `/environments`; fetch only when token is valid and present.                                                              |
 | Worker token storage                 | `workerTokenRepository.ts`, `unifiedWorkerTokenService.ts`                                                                                                                                                                                                                      | Credentials in `unified_worker_token` must be found by repository; token in same key used by modal.                                                        |
-| Worker token expiration              | `workerTokenRepository.ts`, `workerTokenStatusServiceV8.ts`                                                                                                                                                                                                                     | Invalid or missing `expiresAt` must not cause RangeError; validate before calling `.toISOString()` or comparing dates.                                     |
+| Worker token expiration              | `workerTokenRepository.ts`, `workerTokenStatusService.ts`                                                                                                                                                                                                                     | Invalid or missing `expiresAt` must not cause RangeError; validate before calling `.toISOString()` or comparing dates.                                     |
 | Sidebar drag-and-drop                | `SidebarMenuPing.tsx`                                                                                                                                                                                                                                                           | Cross-group move and drop on group header must work; order persisted.                                                                                      |
-| MFA flags at 100%                    | `mfaFeatureFlagsV8.ts`, `MFAFeatureFlagsAdminV8.tsx`                                                                                                                                                                                                                            | When `MFA_FLAGS_ALWAYS_100` is true, all flags behave as 100%; admin UI shows message only.                                                                |
+| MFA flags at 100%                    | `mfaFeatureFlags.ts`, `MFAFeatureFlagsAdmin.tsx`                                                                                                                                                                                                                            | When `MFA_FLAGS_ALWAYS_100` is true, all flags behave as 100%; admin UI shows message only.                                                                |
 | Discovery / logger                   | `discoveryService.ts`                                                                                                                                                                                                                                                           | No use of `logger.discovery`; use `logger.info` (or existing methods).                                                                                     |
 | Log viewer filters                   | `EnhancedFloatingLogViewer.tsx`                                                                                                                                                                                                                                                 | Category filters must filter displayed log content.                                                                                                        |
 | MCP server spec compliance           | `pingone-mcp-server/src/index.ts`, `tests/backend/mcp-spec-validation.test.js`                                                                                                                                                                                                  | `pnpm run mcp:validate` must pass; tools have name, description, inputSchema; expected tools present.                                                      |
@@ -2255,7 +2263,7 @@ Run these when doing a broader change or before release:
 | Icons (Fi\*)                         | Any component using Feather icons                                                                                                                                                                                                                                               | Import from `src/icons`; never use `FiRefreshCw` or other Fi\* without import.                                                                             |
 | Configuration redirect URI catalogue | `flowRedirectUriMapping.ts`, `callbackUriService.ts`, `Configuration.tsx`                                                                                                                                                                                                       | Catalogue shows only Unified MFA and Unified OAuth (V8U); URIs match app routes; card z-index keeps it above other content.                                |
 | Developer & Tools headers            | `flowHeaderService.tsx`, PostmanCollectionGenerator, OAuthCodeGeneratorHub, ServiceTestRunner, SDKSampleApp, SDKExamplesHome, CodeExamplesDemo, UltimateTokenDisplayDemo, DavinciTodoApp, ApplicationGenerator, ClientGenerator, JWKSTroubleshooting, URLDecoder, V7MSettingsV9 | Developer & Tools sidebar pages must show red header (PingOne style) via FlowHeader with dedicated flowId; do not remove or revert to custom/blue headers. |
-| Button styling                       | `StandardizedCredentialExportImport.tsx`, FlowUIService, ConfigCheckerButtons, DiscoveryPanel, **WorkerTokenRequestModalV8.tsx**, **ApiStatusPage.tsx**                                                                                                                         | Buttons never grey when enabled; use V9_COLORS with `${}` interpolation or outline primary; grey only for `:disabled`.                                     |
+| Button styling                       | `StandardizedCredentialExportImport.tsx`, FlowUIService, ConfigCheckerButtons, DiscoveryPanel, **WorkerTokenRequestModal.tsx**, **ApiStatusPage.tsx**                                                                                                                         | Buttons never grey when enabled; use V9_COLORS with `${}` interpolation or outline primary; grey only for `:disabled`.                                     |
 | Step headers & UI components         | `flowUIService.tsx`, `flowComponentService.tsx`, `v7StepperService.tsx`                                                                                                                                                                                                         | Step numbers must have white text on blue backgrounds; getStepNumber() must include `color: #ffffff`.                                                      |
 | Logging (V9)                         | `PlatformLoggingService.ts`, `UnifiedFlowErrorBoundary.tsx`, `FlowNotAvailableModal.tsx`                                                                                                                                                                                              | Migrated callers use PlatformLoggingService; do not revert to unifiedFlowLoggerServiceV8U for these components.                                                  |
 

@@ -72,7 +72,7 @@ const DEVICE_CONFIGS = {
   deviceDisplayName="SMS OTP"
   instructions="Enter the 6-digit code sent to your mobile phone via SMS"
   onValidateOtp={async (otp) => {
-    await MFAServiceV8.activateDevice({
+    await MFAService.activateDevice({
       environmentId: credentials.environmentId,
       username: credentials.username,
       deviceId: mfaState.deviceId,
@@ -80,7 +80,7 @@ const DEVICE_CONFIGS = {
     });
   }}
   onResendOtp={async () => {
-    await MFAServiceV8.sendOTP({
+    await MFAService.sendOTP({
       environmentId: credentials.environmentId,
       username: credentials.username,
       deviceId: mfaState.deviceId,
@@ -194,7 +194,7 @@ const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) =
 ### Attempt Limiting
 ```typescript
 if (validationAttempts >= maxAttempts) {
-  toastV8.error('Maximum attempts reached. Please start over.');
+  toast.error('Maximum attempts reached. Please start over.');
   return;
 }
 ```

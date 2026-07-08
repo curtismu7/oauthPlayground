@@ -26,7 +26,7 @@
 import React, { useCallback, useEffect } from 'react';
 import { modernMessaging } from '@/platform/ModernMessagingService';
 import type { DeviceFlowConfig } from '@/mfa/config/deviceFlowConfigTypes';
-import type { MFAFlowBaseRenderProps } from '@/mfa/flows/shared/MFAFlowBaseV8';
+import type { MFAFlowBaseRenderProps } from '@/mfa/flows/shared/MFAFlowBase';
 
 import { logger } from '../../../../utils/logger';
 

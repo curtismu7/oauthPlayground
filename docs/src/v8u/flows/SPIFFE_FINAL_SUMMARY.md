@@ -7,7 +7,7 @@ A comprehensive educational mock flow demonstrating SPIFFE/SPIRE workload identi
 ## Key Features Implemented
 
 ### 1. Auto-Loading Environment ID ✅
-- **Integration**: Uses `EnvironmentIdServiceV8` to auto-load Environment ID from storage
+- **Integration**: Uses `EnvironmentIdService` to auto-load Environment ID from storage
 - **User Experience**: No need to re-enter Environment ID if already saved
 - **Visual Feedback**: Shows "✅ Auto-loaded from storage" when Environment ID is present
 - **Persistence**: Saves Environment ID when user enters a new one
@@ -108,7 +108,7 @@ Based on official SPIFFE documentation:
 ## Technical Implementation
 
 ### Services Used
-- `EnvironmentIdServiceV8`: Global environment ID storage
+- `EnvironmentIdService`: Global environment ID storage
 - Mock SVID generation with realistic X.509 certificates
 - Mock token exchange with JWT-formatted tokens
 
@@ -144,7 +144,7 @@ Based on official SPIFFE documentation:
 ## Files Modified
 
 1. **src/v8u/flows/SpiffeSpireFlowV8U.tsx** (main component)
-   - Added EnvironmentIdServiceV8 integration
+   - Added EnvironmentIdService integration
    - Added expandable education panel
    - Added step-by-step contextual alerts
    - Added helper text throughout

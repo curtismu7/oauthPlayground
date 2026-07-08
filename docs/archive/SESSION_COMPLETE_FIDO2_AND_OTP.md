@@ -32,7 +32,7 @@
 - **37.5% fewer total actions** (8 → 5)
 
 **Files Modified:**
-- `src/v8/flows/MFAFlowV8.tsx` - Main implementation
+- `src/v8/flows/MFAFlow.tsx` - Main implementation
 - `MFA_ENHANCEMENTS_IMPLEMENTED.md` - Updated documentation
 - `MFA_FIDO2_STREAMLINING_COMPLETE.md` - Detailed documentation
 - `FIDO2_STREAMLINING_SUMMARY.md` - Quick summary
@@ -70,7 +70,7 @@ setTimeout(() => {
   nav.goToNext(); // Go to Step 2
   setTimeout(() => {
     nav.goToNext(); // Go to Step 3 (verification)
-    toastV8.info('🔐 Ready to verify your FIDO2 device');
+    toast.info('🔐 Ready to verify your FIDO2 device');
   }, 300);
 }, 500);
 
@@ -131,7 +131,7 @@ const response = await global.fetch(otpEndpoint, {
 });
 ```
 
-**Frontend Implementation (mfaServiceV8.ts):**
+**Frontend Implementation (mfaService.ts):**
 ```typescript
 const response = await fetch('/api/pingone/mfa/send-otp', {
   method: 'POST',
@@ -198,7 +198,7 @@ if (response.status === 204) {
 5. `SESSION_COMPLETE_FIDO2_AND_OTP.md` - This document
 
 ### Modified:
-1. `src/v8/flows/MFAFlowV8.tsx` - FIDO2 streamlining implementation
+1. `src/v8/flows/MFAFlow.tsx` - FIDO2 streamlining implementation
 2. `MFA_ENHANCEMENTS_IMPLEMENTED.md` - Updated with FIDO2 completion
 
 ---

@@ -36,7 +36,7 @@ const MANIFEST_PATH = join(LOCKED_DIR, 'manifest.json');
 
 // Device code feature files to lock
 const DEVICE_CODE_FILES = [
-	'src/mfa/services/deviceCodeIntegrationServiceV8.ts',
+	'src/mfa/services/deviceCodeIntegrationService.ts',
 	'src/services/deviceFlowService.ts',
 ];
 
@@ -67,9 +67,9 @@ const CRITICAL_DEPS = [
 	'src/components/TeslaCarDisplayDeviceFlow.tsx',
 	'src/components/VizioTVDeviceFlow.tsx',
 	// Services
-	'src/mfa/services/credentialsServiceV8.ts',
-	'src/mfa/services/sharedCredentialsServiceV8.ts',
-	'src/mfa/services/environmentIdServiceV8.ts',
+	'src/mfa/services/credentialsService.ts',
+	'src/mfa/services/sharedCredentialsService.ts',
+	'src/mfa/services/environmentIdService.ts',
 	'src/utils/pingOneFetch.ts',
 	'src/utils/logger.ts',
 	// Components used by device flows

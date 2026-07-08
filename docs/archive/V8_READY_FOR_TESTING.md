@@ -162,24 +162,24 @@ npm test -- --coverage
 
 ### Flows
 ```
-src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx
-src/v8/flows/ImplicitFlowV8.tsx
+src/v8/flows/OAuthAuthorizationCodeFlow.tsx
+src/v8/flows/ImplicitFlow.tsx
 ```
 
 ### Services
 ```
-src/v8/services/oauthIntegrationServiceV8.ts
-src/v8/services/implicitFlowIntegrationServiceV8.ts
+src/v8/services/oauthIntegrationService.ts
+src/v8/services/implicitFlowIntegrationService.ts
 src/v8/config/testCredentials.ts
 ```
 
 ### Tests
 ```
-src/v8/services/__tests__/oauthIntegrationServiceV8.test.ts
-src/v8/services/__tests__/implicitFlowIntegrationServiceV8.test.ts
+src/v8/services/__tests__/oauthIntegrationService.test.ts
+src/v8/services/__tests__/implicitFlowIntegrationService.test.ts
 src/v8/services/__tests__/realPingOneTest.test.ts
-src/v8/flows/__tests__/OAuthAuthorizationCodeFlowV8.test.tsx
-src/v8/flows/__tests__/ImplicitFlowV8.test.tsx
+src/v8/flows/__tests__/OAuthAuthorizationCodeFlow.test.tsx
+src/v8/flows/__tests__/ImplicitFlow.test.tsx
 ```
 
 ### Documentation

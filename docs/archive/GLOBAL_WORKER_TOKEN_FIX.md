@@ -11,7 +11,7 @@ Changed the Application Picker to use the global worker token from `useWorkerTok
 
 ## Changes Made
 
-### File: `src/pages/flows/OAuthAuthorizationCodeFlowV8.tsx`
+### File: `src/pages/flows/OAuthAuthorizationCodeFlow.tsx`
 
 **Before:**
 ```typescript

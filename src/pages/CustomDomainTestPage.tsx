@@ -16,12 +16,12 @@ import {
 	saveCustomDomain,
 } from '../services/customDomainService';
 import { type PingOneRegion } from '../services/regionService';
-import { workerTokenServiceV8 } from '../mfa/services/workerTokenServiceV8';
+import { workerTokenService } from '../mfa/services/workerTokenService';
 import {
 	checkWorkerTokenStatusSync,
 	type TokenStatusInfo,
-} from '../mfa/services/workerTokenStatusServiceV8';
-import { handleShowWorkerTokenModal } from '../mfa/utils/workerTokenModalHelperV8';
+} from '../mfa/services/workerTokenStatusService';
+import { handleShowWorkerTokenModal } from '../mfa/utils/workerTokenModalHelper';
 import '../styles/dashboard.css';
 
 interface ApiTestSpec {
@@ -99,8 +99,8 @@ export default function CustomDomainTestPage() {
 			const status = checkWorkerTokenStatusSync();
 			setTokenStatus(status);
 			// Auto-fill access token + environmentId from stored credentials
-			const creds = await workerTokenServiceV8.loadCredentials();
-			const token = await workerTokenServiceV8.getToken();
+			const creds = await workerTokenService.loadCredentials();
+			const token = await workerTokenService.getToken();
 			setApiParams((prev) => ({
 				...prev,
 				accessToken: token ?? prev.accessToken,
@@ -625,7 +625,7 @@ export default function CustomDomainTestPage() {
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
 				onTokenGenerated={async (token) => {
-					const creds = await workerTokenServiceV8.loadCredentials();
+					const creds = await workerTokenService.loadCredentials();
 					setApiParams((prev) => ({
 						...prev,
 						accessToken: token,

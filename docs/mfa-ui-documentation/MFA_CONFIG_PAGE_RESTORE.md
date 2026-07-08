@@ -16,13 +16,13 @@
 
 ## Overview
 
-This document provides implementation details, code snippets, and restoration guidance for the MFA Configuration Page (`MFAConfigurationPageV8.tsx`).
+This document provides implementation details, code snippets, and restoration guidance for the MFA Configuration Page (`MFAConfigurationPage.tsx`).
 
 ---
 
 ## File Location
 
-**Component:** `src/v8/flows/MFAConfigurationPageV8.tsx`
+**Component:** `src/v8/flows/MFAConfigurationPage.tsx`
 
 ---
 
@@ -125,13 +125,13 @@ This document provides implementation details, code snippets, and restoration gu
 const handleSavePolicy = async () => {
   // ... validation ...
   
-  const credentials = await workerTokenServiceV8.loadCredentials();
+  const credentials = await workerTokenService.loadCredentials();
   if (!credentials) {
-    toastV8.error('Worker token credentials are missing...');
+    toast.error('Worker token credentials are missing...');
     return;
   }
   
-  await MFAServiceV8.updateDeviceAuthenticationPolicy(
+  await MFAService.updateDeviceAuthenticationPolicy(
     environmentId,
     selectedPolicyId,
     policyUpdate,
@@ -143,7 +143,7 @@ const handleSavePolicy = async () => {
 **Incorrect Implementation (DO NOT DO THIS):**
 ```typescript
 // ❌ WRONG: Missing region parameter
-await MFAServiceV8.updateDeviceAuthenticationPolicy(
+await MFAService.updateDeviceAuthenticationPolicy(
   environmentId,
   selectedPolicyId,
   policyUpdate
@@ -155,29 +155,29 @@ await MFAServiceV8.updateDeviceAuthenticationPolicy(
 
 ### 4. DOM Nesting (CRITICAL)
 
-**Contract:** `MFAInfoButtonV8` must NOT be nested inside `<p>` tags.
+**Contract:** `MFAInfoButton` must NOT be nested inside `<p>` tags.
 
 **Correct Implementation:**
 ```typescript
-// ✅ CORRECT: MFAInfoButtonV8 in div, not p
+// ✅ CORRECT: MFAInfoButton in div, not p
 <div style={{ margin: 0, fontSize: '13px', color: '#1e40af', lineHeight: '1.5' }}>
   Device Authentication Policies control policy-specific settings...
-  <MFAInfoButtonV8 contentKey="device.authentication.policy" displayMode="tooltip" />
+  <MFAInfoButton contentKey="device.authentication.policy" displayMode="tooltip" />
 </div>
 ```
 
 **Incorrect Implementation (DO NOT DO THIS):**
 ```typescript
-// ❌ WRONG: MFAInfoButtonV8 nested in <p>
+// ❌ WRONG: MFAInfoButton nested in <p>
 <p style={{ margin: 0, fontSize: '13px', color: '#1e40af' }}>
   Device Authentication Policies control policy-specific settings...
-  <MFAInfoButtonV8 contentKey="device.authentication.policy" displayMode="tooltip" />
+  <MFAInfoButton contentKey="device.authentication.policy" displayMode="tooltip" />
 </p>
 ```
 
 **Fix:**
-- Replace `<p>` with `<div>` when containing `MFAInfoButtonV8`
-- Or move `MFAInfoButtonV8` outside `<p>` tag
+- Replace `<p>` with `<div>` when containing `MFAInfoButton`
+- Or move `MFAInfoButton` outside `<p>` tag
 
 ---
 
@@ -255,12 +255,12 @@ const updatePolicy = (updates: Partial<DeviceAuthenticationPolicy>) => {
 useEffect(() => {
   const loadEnvironmentAndSettings = async () => {
     try {
-      const credentials = await workerTokenServiceV8.loadCredentials();
+      const credentials = await workerTokenService.loadCredentials();
       if (credentials?.environmentId) {
         setEnvironmentId(credentials.environmentId);
         
         // Only try to load PingOne settings if worker token is available
-        const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+        const tokenStatus = WorkerTokenStatusService.checkWorkerTokenStatus();
         if (tokenStatus.isValid) {
           await loadPingOneSettings(credentials.environmentId);
           await loadDeviceAuthPolicies(credentials.environmentId);
@@ -291,11 +291,11 @@ useEffect(() => {
 **Implementation:**
 ```typescript
 const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(
-  apiDisplayServiceV8.isVisible()
+  apiDisplayService.isVisible()
 );
 
 useEffect(() => {
-  const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
+  const unsubscribe = apiDisplayService.subscribe((visible) => {
     setIsApiDisplayVisible(visible);
   });
   return () => unsubscribe();
@@ -560,13 +560,13 @@ const ConfigSection: React.FC<ConfigSectionProps> = ({ title, description, child
 **Fix:**
 ```typescript
 // Load credentials and pass region
-const credentials = await workerTokenServiceV8.loadCredentials();
+const credentials = await workerTokenService.loadCredentials();
 if (!credentials) {
-  toastV8.error('Worker token credentials are missing...');
+  toast.error('Worker token credentials are missing...');
   return;
 }
 
-await MFAServiceV8.updateDeviceAuthenticationPolicy(
+await MFAService.updateDeviceAuthenticationPolicy(
   environmentId,
   selectedPolicyId,
   policyUpdate,
@@ -580,17 +580,17 @@ await MFAServiceV8.updateDeviceAuthenticationPolicy(
 
 **Fix:**
 ```typescript
-// Replace <p> with <div> when containing MFAInfoButtonV8
+// Replace <p> with <div> when containing MFAInfoButton
 // ❌ WRONG:
 <p>
   Text here
-  <MFAInfoButtonV8 />
+  <MFAInfoButton />
 </p>
 
 // ✅ CORRECT:
 <div>
   Text here
-  <MFAInfoButtonV8 />
+  <MFAInfoButton />
 </div>
 ```
 
@@ -647,7 +647,7 @@ const policyUpdate = {
 - [ ] Policy selector appears at top of Device Authentication Policy Settings section
 - [ ] Policy selector appears before info box
 - [ ] Policy update includes region parameter
-- [ ] No DOM nesting warnings (MFAInfoButtonV8 not in <p>)
+- [ ] No DOM nesting warnings (MFAInfoButton not in <p>)
 - [ ] Change tracking works for all sections independently
 - [ ] API Display padding adjusts when visible
 - [ ] PingOne sections only load when worker token is valid
@@ -669,7 +669,7 @@ const policyUpdate = {
 - **Section Order:** Worker Token Settings MUST be first, Device Authentication Policy Settings second (if environmentId exists)
 - **Policy Selector:** MUST be at the top of Device Authentication Policy Settings section, before info box
 - **Region Parameter:** `updateDeviceAuthenticationPolicy()` MUST receive `credentials.region` parameter
-- **DOM Nesting:** `MFAInfoButtonV8` must NOT be nested inside `<p>` tags
+- **DOM Nesting:** `MFAInfoButton` must NOT be nested inside `<p>` tags
 - **Policy Update:** Must include all fields (even defaults) for educational completeness
 - **Error Handling:** Missing worker token must not show errors (silently skip loading)
 

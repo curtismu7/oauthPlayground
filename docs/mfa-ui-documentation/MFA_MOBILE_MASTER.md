@@ -84,8 +84,8 @@ This document provides a comprehensive reference for Mobile device registration 
 - Device Status (Admin only): ACTIVE or ACTIVATION_REQUIRED
 
 **Navigation:**
-- From: `/v8/mfa/register/mobile` (MobileOTPConfigurationPageV8)
-- To: `/v8/mfa/register/mobile/device` (MobileFlowV8)
+- From: `/v8/mfa/register/mobile` (MobileOTPConfigurationPage)
+- To: `/v8/mfa/register/mobile/device` (MobileFlow)
 
 #### Step 1: Device Selection (Skipped in Registration)
 
@@ -93,7 +93,7 @@ This document provides a comprehensive reference for Mobile device registration 
 
 **Implementation:**
 ```typescript
-// In MobileFlowV8.tsx
+// In MobileFlow.tsx
 if (isConfigured && nav.currentStep === 1) {
     // Skip device selection, go directly to registration
     nav.goToStep(2);
@@ -582,7 +582,7 @@ case 'MOBILE':
     return new SMSFlowController(callbacks); // Uses SMS controller
 
 // In MFAFlowComponentFactory.ts
-MFAFlowComponentFactory.register('MOBILE', MobileFlowV8);
+MFAFlowComponentFactory.register('MOBILE', MobileFlow);
 ```
 
 ### Error 2: Mobile Routes Not Found
@@ -592,9 +592,9 @@ MFAFlowComponentFactory.register('MOBILE', MobileFlowV8);
 **Solution:** Ensure routes are defined in `App.tsx`:
 
 ```typescript
-<Route path="/v8/mfa/register/mobile" element={<MobileOTPConfigurationPageV8 />} />
-<Route path="/v8/mfa/register/mobile/device" element={<MobileFlowV8 />} />
-<Route path="/v8/mfa/register/mobile/docs" element={<MobileRegistrationDocsPageV8 />} />
+<Route path="/v8/mfa/register/mobile" element={<MobileOTPConfigurationPage />} />
+<Route path="/v8/mfa/register/mobile/device" element={<MobileFlow />} />
+<Route path="/v8/mfa/register/mobile/docs" element={<MobileRegistrationDocsPage />} />
 ```
 
 ### Error 3: Mobile Device Registration Fails
@@ -635,17 +635,17 @@ case 'MOBILE':
 
 ### Frontend Components
 
-1. **`src/v8/flows/types/MobileFlowV8.tsx`**
+1. **`src/v8/flows/types/MobileFlow.tsx`**
    - Main Mobile flow component
    - Handles registration and authentication flows
    - Uses `SMSFlowController` for logic
 
-2. **`src/v8/flows/types/MobileOTPConfigurationPageV8.tsx`**
+2. **`src/v8/flows/types/MobileOTPConfigurationPage.tsx`**
    - Mobile configuration page
    - User enters credentials and selects flow type
    - Navigates to Mobile flow
 
-3. **`src/v8/pages/MobileRegistrationDocsPageV8.tsx`**
+3. **`src/v8/pages/MobileRegistrationDocsPage.tsx`**
    - Mobile registration documentation page
    - Displays API calls and examples
 
@@ -655,18 +655,18 @@ case 'MOBILE':
    - Creates `SMSFlowController` for `MOBILE` device type
 
 2. **`src/v8/flows/factories/MFAFlowComponentFactory.ts`**
-   - Registers `MobileFlowV8` component for `MOBILE` device type
+   - Registers `MobileFlow` component for `MOBILE` device type
 
 ### Services
 
-1. **`src/v8/services/mfaServiceV8.ts`**
+1. **`src/v8/services/mfaService.ts`**
    - `registerDevice()` - Registers Mobile device
    - `activateDevice()` - Activates device with OTP
    - `getDevice()` - Retrieves device details
    - `selectDevice()` - Selects device for authentication
    - `validateOTP()` - Validates OTP code
 
-2. **`src/v8/services/mfaAuthenticationServiceV8.ts`**
+2. **`src/v8/services/mfaAuthenticationService.ts`**
    - `validateOTP()` - Validates OTP for authentication
    - `sendOTP()` - Sends OTP to device
 

@@ -14,7 +14,7 @@ again once a worker token is configured:
 1. **`useAutoEnvironmentId` hook** reads from all 5 known storage locations in
    priority order and stays reactive to `environmentIdUpdated` window events.
 2. **Cascade sync** in `unifiedWorkerTokenService` and `comprehensiveFlowDataService`
-   writes the environment ID to the canonical `EnvironmentIdServiceV8` store
+   writes the environment ID to the canonical `EnvironmentIdService` store
    whenever credentials are saved, so any flow that configures a worker token
    propagates the envId everywhere.
 3. **9 pages updated** to use `readBestEnvironmentId()` as their initial state,
@@ -44,9 +44,9 @@ calls `useContext` internally → Rules of Hooks violation).
 - `src/pages/PasskeyManager.tsx`
 - `src/pages/flows/JWTBearerTokenFlowV7.tsx`
 - `src/pages/flows/RARFlowV7.tsx`
-- `src/v8/pages/DeleteAllDevicesUtilityV8.tsx`
-- `src/v8/pages/MFADeviceCreateDemoV8.tsx`
-- `src/v8/flows/EmailMFASignOnFlowV8.tsx`
+- `src/v8/pages/DeleteAllDevicesUtility.tsx`
+- `src/v8/pages/MFADeviceCreateDemo.tsx`
+- `src/v8/flows/EmailMFASignOnFlow.tsx`
 - `src/services/pageLayoutService.ts` — debug instrumentation removed (no functional change)
 
 ---
@@ -68,13 +68,13 @@ calls `useContext` internally → Rules of Hooks violation).
 ### `unifiedWorkerTokenService.saveCredentials()`
 
 **Before:** Saved to localStorage, IndexedDB, unified storage, SQLite.
-**After:** Same as before + additionally calls `EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId)`.
+**After:** Same as before + additionally calls `EnvironmentIdService.saveEnvironmentId(credentials.environmentId)`.
 No breaking change to the function signature or return value.
 
 ### `comprehensiveFlowDataService.saveSharedEnvironment()`
 
 **Before:** Saved to localStorage only.
-**After:** Same + async cascade to `EnvironmentIdServiceV8` (best-effort, errors silently swallowed).
+**After:** Same + async cascade to `EnvironmentIdService` (best-effort, errors silently swallowed).
 No breaking change.
 
 ---
@@ -91,7 +91,7 @@ Implements the same dual-storage pattern as `customDomainService`:
 | --- | --- | --- |
 | IndexedDB | `oauth_playground_app_config` / `settings` / key `environment_id` | Fast client read, survives page refresh |
 | SQLite (API) | `POST /api/settings/environment-id` | Survives server restart, restorable across sessions |
-| localStorage | `v8:global_environment_id` | Compat with `EnvironmentIdServiceV8` and legacy consumers |
+| localStorage | `v8:global_environment_id` | Compat with `EnvironmentIdService` and legacy consumers |
 
 On **read** (`loadEnvironmentId()`): IndexedDB → API → localStorage (with backfill).
 On **write** (`saveEnvironmentId()`): writes IndexedDB + API concurrently, then localStorage; dispatches `environmentIdUpdated`.
@@ -140,9 +140,9 @@ git checkout HEAD -- \
   src/pages/PasskeyManager.tsx \
   src/pages/flows/JWTBearerTokenFlowV7.tsx \
   src/pages/flows/RARFlowV7.tsx \
-  src/v8/pages/DeleteAllDevicesUtilityV8.tsx \
-  src/v8/pages/MFADeviceCreateDemoV8.tsx \
-  src/v8/flows/EmailMFASignOnFlowV8.tsx
+  src/v8/pages/DeleteAllDevicesUtility.tsx \
+  src/v8/pages/MFADeviceCreateDemo.tsx \
+  src/v8/flows/EmailMFASignOnFlow.tsx
 
 # HelioMartPasswordReset hooks crash fix — do NOT revert unless you want the crash back
 # git checkout HEAD -- src/pages/security/HelioMartPasswordReset.tsx

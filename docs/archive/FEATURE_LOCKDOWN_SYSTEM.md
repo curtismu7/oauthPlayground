@@ -4,9 +4,9 @@
 
 ## Problem
 
-When working on a large codebase, changes to shared services (like `mfaServiceV8`, `workerTokenServiceV8`, etc.) can inadvertently break features that depend on them, even though the feature code itself hasn't changed.
+When working on a large codebase, changes to shared services (like `mfaService`, `workerTokenService`, etc.) can inadvertently break features that depend on them, even though the feature code itself hasn't changed.
 
-**Example:** You update `workerTokenServiceV8.ts` to add a new feature, and suddenly MFA breaks because it depends on the old API.
+**Example:** You update `workerTokenService.ts` to add a new feature, and suddenly MFA breaks because it depends on the old API.
 
 ## Solution
 
@@ -118,33 +118,33 @@ src/locked/
   mfa-v8/
     manifest.json          # Lock manifest with file hashes
     feature/               # Isolated MFA flow files
-      SMSFlowV8.tsx
-      EmailFlowV8.tsx
-      WhatsAppFlowV8.tsx
-      TOTPFlowV8.tsx
-      FIDO2FlowV8.tsx
-      MobileFlowV8.tsx
+      SMSFlow.tsx
+      EmailFlow.tsx
+      WhatsAppFlow.tsx
+      TOTPFlow.tsx
+      FIDO2Flow.tsx
+      MobileFlow.tsx
       ... (configuration pages)
     dependencies/          # Isolated dependencies
       v8/
         services/
-          mfaServiceV8.ts
-          mfaAuthenticationServiceV8.ts
-          mfaConfigurationServiceV8.ts
-          credentialsServiceV8.ts
-          workerTokenServiceV8.ts
+          mfaService.ts
+          mfaAuthenticationService.ts
+          mfaConfigurationService.ts
+          credentialsService.ts
+          workerTokenService.ts
           ...
         utils/
-          toastNotificationsV8.ts
-          analyticsLoggerV8.ts
+          toastNotifications.ts
+          analyticsLogger.ts
           ...
         flows/
           shared/
-            MFAFlowBaseV8.tsx
+            MFAFlowBase.tsx
             MFATypes.ts
             ...
         components/
-          MFADeviceLimitModalV8.tsx
+          MFADeviceLimitModal.tsx
           ...
 ```
 

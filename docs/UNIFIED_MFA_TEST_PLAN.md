@@ -44,16 +44,16 @@ This plan covers automated tests for the Unified MFA (Multi-Factor Authenticatio
 
 | Test file | Focus |
 |-----------|--------|
-| mfaTokenManagerV8.test.ts | Token handling for MFA flows |
-| mfaFeatureFlagsV8.test.ts | Feature flags for MFA |
-| mfaCredentialManagerV8.test.ts | Credential handling |
-| unifiedMFASuccessPageServiceV8.test.tsx | Success page validation, insights, props |
+| mfaTokenManager.test.ts | Token handling for MFA flows |
+| mfaFeatureFlags.test.ts | Feature flags for MFA |
+| mfaCredentialManager.test.ts | Credential handling |
+| unifiedMFASuccessPageService.test.tsx | Success page validation, insights, props |
 | useMFAPolicies.test.ts | useMFAPolicies hook (policies load, selection) |
 | useMFADevices.test.ts | useMFADevices hook (devices load, selection) |
 | useMFAAuthentication.test.ts | useMFAAuthentication hook (auth flow) |
 | mfaNextStepNormalizer.test.ts | Next-step normalization for MFA flows |
 
-**Note:** Some tests may use Jest-style mocks (`jest.mock`); the project uses Vitest — ensure compatibility or migrate to `vi.mock`. As of 2026-03, `useMFAPolicies.test.ts` and `unifiedMFASuccessPageServiceV8.test.tsx` may need mock migration; one `mfaCredentialManagerV8` validation test may need assertion update (expected error count).
+**Note:** Some tests may use Jest-style mocks (`jest.mock`); the project uses Vitest — ensure compatibility or migrate to `vi.mock`. As of 2026-03, `useMFAPolicies.test.ts` and `unifiedMFASuccessPageService.test.tsx` may need mock migration; one `mfaCredentialManager` validation test may need assertion update (expected error count).
 
 ---
 
@@ -61,7 +61,7 @@ This plan covers automated tests for the Unified MFA (Multi-Factor Authenticatio
 
 | Component / area | Test focus |
 |------------------|-------------|
-| UnifiedMFASuccessPageServiceV8 (unifiedMFASuccessPageServiceV8.test.tsx) | Success page data, validation insights, device/policy display |
+| UnifiedMFASuccessPageService (unifiedMFASuccessPageService.test.tsx) | Success page data, validation insights, device/policy display |
 | MFAEducationDemo | (If tested) Education content, step display |
 
 **Mocking:** Worker token hooks, credentials service, logger, API display service.

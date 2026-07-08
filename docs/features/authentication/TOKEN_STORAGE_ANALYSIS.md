@@ -13,10 +13,10 @@ This analysis reveals **multiple token storage systems** being used across the a
 - **Storage Keys**: 
   - IndexedDB: `unified_worker_tokens` (store: `unified_worker_token`)
   - localStorage: `unified_worker_token` (fallback)
-- **Used by**: `WorkerTokenStatusServiceV8`, `AppDiscoveryServiceV8`, `WorkerTokenUIServiceV8`
+- **Used by**: `WorkerTokenStatusService`, `AppDiscoveryService`, `WorkerTokenUIService`
 
 #### **Legacy Storage Systems**
-1. **V8 Service Wrapper**: `workerTokenServiceV8` → delegates to unified service
+1. **V8 Service Wrapper**: `workerTokenService` → delegates to unified service
 2. **Direct localStorage**: `worker_token`, `worker_token_expires_at`, `worker_credentials`
 3. **Page-specific**: `worker_token_audit`, `worker_token_metrics`, etc.
 
@@ -24,7 +24,7 @@ This analysis reveals **multiple token storage systems** being used across the a
 
 #### **Current Primary Method**
 ```typescript
-// WorkerTokenStatusServiceV8.ts - Line 101
+// WorkerTokenStatusService.ts - Line 101
 export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
     const status = await unifiedWorkerTokenServiceV2.getStatus();
     const token = await unifiedWorkerTokenServiceV2.getToken();
@@ -37,41 +37,41 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 // Various components using different methods:
 localStorage.getItem('worker_token')           // Direct localStorage
 localStorage.getItem('unified_worker_token')     // Unified service
-workerTokenServiceV8.getToken()                // V8 wrapper
+workerTokenService.getToken()                // V8 wrapper
 ```
 
 ### 3. **Components and Their Storage Usage**
 
 #### **✅ Using Correct Storage (Unified Service)**
-- `WorkerTokenStatusServiceV8` - ✅ Uses `unifiedWorkerTokenServiceV2`
-- `WorkerTokenUIServiceV8` - ✅ Uses `WorkerTokenStatusServiceV8`
-- `AppDiscoveryServiceV8` - ✅ Uses `unified_worker_token` localStorage
-- `UnifiedWorkerTokenServiceV8` - ✅ Uses `WorkerTokenUIServiceV8`
+- `WorkerTokenStatusService` - ✅ Uses `unifiedWorkerTokenServiceV2`
+- `WorkerTokenUIService` - ✅ Uses `WorkerTokenStatusService`
+- `AppDiscoveryService` - ✅ Uses `unified_worker_token` localStorage
+- `UnifiedWorkerTokenService` - ✅ Uses `WorkerTokenUIService`
 
 #### **❌ Using Legacy Storage**
-- `CredentialsFormV8U` - ⚠️ Uses `WorkerTokenStatusServiceV8` ✅ (correct)
-- `AppDiscoveryModalV8U` - ⚠️ Uses `WorkerTokenStatusServiceV8` ✅ (correct)
+- `CredentialsFormV8U` - ⚠️ Uses `WorkerTokenStatusService` ✅ (correct)
+- `AppDiscoveryModalV8U` - ⚠️ Uses `WorkerTokenStatusService` ✅ (correct)
 - `PingOneAuditActivities.tsx` - ❌ Uses `worker_token`, `worker_credentials`
 - `PingOneIdentityMetrics.tsx` - ❌ Uses `worker_token_metrics`, `worker_credentials`
 - `comprehensiveCredentialsService.tsx` - ❌ Uses `worker_token`, `worker_credentials`
 
 #### **🔄 Mixed Usage**
-- `WorkerTokenStatusDisplayV8` - ⚠️ Uses `WorkerTokenStatusServiceV8` ✅ (correct)
-- `MFAAuthenticationMainPageV8.tsx` - ⚠️ Uses `workerTokenServiceV8` ✅ (correct wrapper)
+- `WorkerTokenStatusDisplay` - ⚠️ Uses `WorkerTokenStatusService` ✅ (correct)
+- `MFAAuthenticationMainPage.tsx` - ⚠️ Uses `workerTokenService` ✅ (correct wrapper)
 
 ### 4. **Button Enable Logic Analysis**
 
 #### **MFA Flow Buttons**
 ```typescript
-// MFAConfigurationStepV8.tsx - Line 691
+// MFAConfigurationStep.tsx - Line 691
 const isTokenValid = tokenType === 'worker' ? tokenStatus.isValid : userTokenStatus === 'active';
 ```
-- ✅ Uses `tokenStatus.isValid` from `WorkerTokenStatusServiceV8`
+- ✅ Uses `tokenStatus.isValid` from `WorkerTokenStatusService`
 - ✅ Should work correctly after TypeScript fixes
 
 #### **Unified Flow Buttons**
 ```typescript
-// UnifiedWorkerTokenServiceV8 → WorkerTokenUIServiceV8
+// UnifiedWorkerTokenService → WorkerTokenUIService
 // Uses same tokenStatus.isValid logic
 ```
 - ✅ Uses same underlying service as MFA
@@ -96,7 +96,7 @@ const isTokenValid = tokenType === 'worker' ? tokenStatus.isValid : userTokenSta
 ## 🎯 Recommendations
 
 ### 1. **Standardize on Unified Service**
-✅ **Already Done**: Most components correctly use `WorkerTokenStatusServiceV8`
+✅ **Already Done**: Most components correctly use `WorkerTokenStatusService`
 
 ### 2. **Fix Legacy Components**
 ❌ **Need to Fix**: Update these components to use unified service:
@@ -126,8 +126,8 @@ const isTokenValid = tokenType === 'worker' ? tokenStatus.isValid : userTokenSta
 ## 🔧 Implementation Plan
 
 ### Phase 1: Update Legacy Components (High Priority)
-1. Update `PingOneAuditActivities.tsx` to use `WorkerTokenStatusServiceV8`
-2. Update `PingOneIdentityMetrics.tsx` to use `WorkerTokenStatusServiceV8`
+1. Update `PingOneAuditActivities.tsx` to use `WorkerTokenStatusService`
+2. Update `PingOneIdentityMetrics.tsx` to use `WorkerTokenStatusService`
 3. Update `comprehensiveCredentialsService.tsx` to use unified service
 
 ### Phase 2: Clean Up Storage Keys (Medium Priority)

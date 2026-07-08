@@ -91,7 +91,7 @@ catch (error) {
 ```typescript
 // BEFORE (NO RECOVERY)
 catch (error) {
-  toastV8.error('Failed to load credentials');
+  toast.error('Failed to load credentials');
 }
 ```
 
@@ -105,7 +105,7 @@ catch (error) {
   
   if (parsed.recoverySuggestion) {
     // Show recovery action button
-    toastV8.error(parsed.userFriendlyMessage, {
+    toast.error(parsed.userFriendlyMessage, {
       action: {
         label: 'Reset Flow',
         onClick: () => handleReset(),

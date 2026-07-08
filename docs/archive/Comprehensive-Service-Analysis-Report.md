@@ -37,39 +37,39 @@ The PingOne OAuth Playground contains **200+ services** across multiple service 
 
 | Service | Version | Usage Count | Primary Apps | Status |
 |---------|---------|-------------|--------------|---------|
-| **workerTokenServiceV8** | 9.0.0 | 25+ | All V8 flows | ✅ Core |
-| **WorkerTokenStatusServiceV8** | 9.0.0 | 20+ | All V8 flows | ✅ Core |
-| **credentialsServiceV8** | 9.0.0 | 18+ | All V8 flows | ✅ Core |
-| **sharedCredentialsServiceV8** | 9.0.0 | 15+ | All V8 flows | ✅ Core |
-| **mfaServiceV8** | 9.0.0 | 12+ | MFA flows | ✅ Core |
-| **oauthIntegrationServiceV8** | 9.0.0 | 10+ | OAuth flows | ✅ Core |
-| **configCheckerServiceV8** | 9.0.0 | 8+ | All flows | ✅ Core |
-| **environmentIdServiceV8** | 9.0.0 | 8+ | All flows | ✅ Core |
-| **specVersionServiceV8** | 9.0.0 | 7+ | All flows | ✅ Core |
-| **tokenDisplayServiceV8** | 9.0.0 | 6+ | Token flows | ✅ Core |
-| **UnifiedWorkerTokenServiceV8** | 9.0.0 | 5+ | Updated flows | ✅ New |
+| **workerTokenService** | 9.0.0 | 25+ | All V8 flows | ✅ Core |
+| **WorkerTokenStatusService** | 9.0.0 | 20+ | All V8 flows | ✅ Core |
+| **credentialsService** | 9.0.0 | 18+ | All V8 flows | ✅ Core |
+| **sharedCredentialsService** | 9.0.0 | 15+ | All V8 flows | ✅ Core |
+| **mfaService** | 9.0.0 | 12+ | MFA flows | ✅ Core |
+| **oauthIntegrationService** | 9.0.0 | 10+ | OAuth flows | ✅ Core |
+| **configCheckerService** | 9.0.0 | 8+ | All flows | ✅ Core |
+| **environmentIdService** | 9.0.0 | 8+ | All flows | ✅ Core |
+| **specVersionService** | 9.0.0 | 7+ | All flows | ✅ Core |
+| **tokenDisplayService** | 9.0.0 | 6+ | Token flows | ✅ Core |
+| **UnifiedWorkerTokenService** | 9.0.0 | 5+ | Updated flows | ✅ New |
 
 ### **🟡 Moderately Used Services**
 
 | Service | Version | Usage Count | Primary Apps | Status |
 |---------|---------|-------------|--------------|---------|
-| **appDiscoveryServiceV8** | 9.0.0 | 5+ | App discovery | 🟡 Used |
-| **deviceCodeIntegrationServiceV8** | 9.0.0 | 4+ | Device code flow | 🟡 Used |
-| **emailMfaSignOnFlowServiceV8** | 9.0.0 | 4+ | Email MFA | 🟡 Used |
-| **clientCredentialsIntegrationServiceV8** | 9.0.0 | 3+ | Client credentials | 🟡 Used |
-| **hybridFlowIntegrationServiceV8** | 9.0.0 | 3+ | Hybrid flow | 🟡 Used |
-| **implicitFlowIntegrationServiceV8** | 9.0.0 | 2+ | Implicit flow | 🟡 Used |
-| **redirectlessServiceV8** | 9.0.0 | 2+ | Redirectless flow | 🟡 Used |
+| **appDiscoveryService** | 9.0.0 | 5+ | App discovery | 🟡 Used |
+| **deviceCodeIntegrationService** | 9.0.0 | 4+ | Device code flow | 🟡 Used |
+| **emailMfaSignOnFlowService** | 9.0.0 | 4+ | Email MFA | 🟡 Used |
+| **clientCredentialsIntegrationService** | 9.0.0 | 3+ | Client credentials | 🟡 Used |
+| **hybridFlowIntegrationService** | 9.0.0 | 3+ | Hybrid flow | 🟡 Used |
+| **implicitFlowIntegrationService** | 9.0.0 | 2+ | Implicit flow | 🟡 Used |
+| **redirectlessService** | 9.0.0 | 2+ | Redirectless flow | 🟡 Used |
 
 ### **🔴 Rarely Used Services**
 
 | Service | Version | Usage Count | Primary Apps | Status |
 |---------|---------|-------------|--------------|---------|
-| **fido2SessionCookieServiceV8** | 9.0.0 | 1+ | FIDO2 flows | 🔴 Rare |
-| **phoneAutoPopulationServiceV8** | 9.0.0 | 1+ | Phone flows | 🔴 Rare |
-| **deviceCreateDemoServiceV8** | 9.0.0 | 1+ | Demo only | 🔴 Demo |
+| **fido2SessionCookieService** | 9.0.0 | 1+ | FIDO2 flows | 🔴 Rare |
+| **phoneAutoPopulationService** | 9.0.0 | 1+ | Phone flows | 🔴 Rare |
+| **deviceCreateDemoService** | 9.0.0 | 1+ | Demo only | 🔴 Demo |
 | **modalSpinnerServiceV8U** | 9.0.0 | 1+ | UI utilities | 🔴 UI |
-| **jarRequestObjectServiceV8** | 9.0.0 | 1+ | JAR flows | 🔴 Rare |
+| **jarRequestObjectService** | 9.0.0 | 1+ | JAR flows | 🔴 Rare |
 
 ---
 
@@ -99,12 +99,12 @@ Version 7.x:   5% of deprecated services
 │   └── pingOneAuthService (Legacy)
 ├── Token Management  
 │   ├── tokenManagementService (Legacy)
-│   ├── workerTokenServiceV8 (V8) ✅
+│   ├── workerTokenService (V8) ✅
 │   └── unifiedWorkerTokenServiceV2 (Legacy)
 └── Credential Management
     ├── credentialsRepository (Legacy)
-    ├── credentialsServiceV8 (V8) ✅
-    └── sharedCredentialsServiceV8 (V8) ✅
+    ├── credentialsService (V8) ✅
+    └── sharedCredentialsService (V8) ✅
 ```
 
 ### **Layer 2: Flow Services**
@@ -112,14 +112,14 @@ Version 7.x:   5% of deprecated services
 ├── OAuth 2.0 Flows
 │   ├── authorizationCodeSharedService (Legacy)
 │   ├── clientCredentialsSharedService (Legacy)
-│   └── oauthIntegrationServiceV8 (V8) ✅
+│   └── oauthIntegrationService (V8) ✅
 ├── OpenID Connect Flows
 │   ├── oidcDiscoveryService (Legacy)
-│   ├── oidcDiscoveryServiceV8 (V8) ✅
-│   └── idTokenValidationServiceV8 (V8) ✅
+│   ├── oidcDiscoveryService (V8) ✅
+│   └── idTokenValidationService (V8) ✅
 └── Device Authorization
     ├── deviceFlowService (Legacy)
-    └── deviceCodeIntegrationServiceV8 (V8) ✅
+    └── deviceCodeIntegrationService (V8) ✅
 ```
 
 ### **Layer 3: UI & Integration Services**
@@ -127,14 +127,14 @@ Version 7.x:   5% of deprecated services
 ├── UI Components
 │   ├── flowHeaderService (Legacy)
 │   ├── flowUIService (Legacy)
-│   └── unifiedWorkerTokenServiceV8 (V8) ✅
+│   └── unifiedWorkerTokenService (V8) ✅
 ├── Configuration Management
-│   ├── configCheckerServiceV8 (V8) ✅
-│   ├── environmentIdServiceV8 (V8) ✅
+│   ├── configCheckerService (V8) ✅
+│   ├── environmentIdService (V8) ✅
 │   └── flowSettingsServiceV8U (V8U) ✅
 └── Error Handling
     ├── errorHandlingService (Legacy)
-    ├── errorHandlerV8 (V8) ✅
+    ├── errorHandler (V8) ✅
     └── unifiedFlowErrorHandlerV8U (V8U) ✅
 ```
 
@@ -144,23 +144,23 @@ Version 7.x:   5% of deprecated services
 
 ### **🎯 Main Application (OAuth Playground)**
 **Primary Services Used:**
-- ✅ **workerTokenServiceV8** - Worker token management
-- ✅ **credentialsServiceV8** - Credential handling
-- ✅ **configCheckerServiceV8** - Configuration validation
-- ✅ **oauthIntegrationServiceV8** - OAuth flow integration
+- ✅ **workerTokenService** - Worker token management
+- ✅ **credentialsService** - Credential handling
+- ✅ **configCheckerService** - Configuration validation
+- ✅ **oauthIntegrationService** - OAuth flow integration
 
 ### **🔐 MFA Hub (Multi-Factor Authentication)**
 **Primary Services Used:**
-- ✅ **mfaServiceV8** - Core MFA functionality
-- ✅ **mfaAuthenticationServiceV8** - Authentication logic
-- ✅ **mfaConfigurationServiceV8** - MFA configuration
-- ✅ **workerTokenServiceV8** - Token requirements
+- ✅ **mfaService** - Core MFA functionality
+- ✅ **mfaAuthenticationService** - Authentication logic
+- ✅ **mfaConfigurationService** - MFA configuration
+- ✅ **workerTokenService** - Token requirements
 
 ### **📱 Device Code Flow**
 **Primary Services Used:**
-- ✅ **deviceCodeIntegrationServiceV8** - Device code handling
-- ✅ **oauthIntegrationServiceV8** - OAuth integration
-- ✅ **tokenDisplayServiceV8** - Token display
+- ✅ **deviceCodeIntegrationService** - Device code handling
+- ✅ **oauthIntegrationService** - OAuth integration
+- ✅ **tokenDisplayService** - Token display
 
 ### **🔄 Unified Flow (V8U)**
 **Primary Services Used:**
@@ -204,17 +204,17 @@ Version 7.x:   5% of deprecated services
 ## 📈 **Service Performance Metrics**
 
 ### **Most Imported Services**
-1. **workerTokenServiceV8** - 25+ imports
-2. **WorkerTokenStatusServiceV8** - 20+ imports  
-3. **credentialsServiceV8** - 18+ imports
-4. **sharedCredentialsServiceV8** - 15+ imports
-5. **mfaServiceV8** - 12+ imports
+1. **workerTokenService** - 25+ imports
+2. **WorkerTokenStatusService** - 20+ imports  
+3. **credentialsService** - 18+ imports
+4. **sharedCredentialsService** - 15+ imports
+5. **mfaService** - 12+ imports
 
 ### **Largest Services (by file size)**
 1. **postmanCollectionGeneratorV8** - 390KB
 2. **comprehensiveCredentialsService** - 88KB  
-3. **comprehensiveCredentialsServiceV8** - 78KB
-4. **mfaServiceV8** - 177KB
+3. **comprehensiveCredentialsService** - 78KB
+4. **mfaService** - 177KB
 5. **flowUIService** - 39KB
 
 ---

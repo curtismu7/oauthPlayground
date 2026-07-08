@@ -4,7 +4,7 @@
  * Script to update error handling patterns to use UnifiedFlowErrorHandler
  *
  * This script updates common error handling patterns:
- * 1. logger.error + toastV8.error -> UnifiedFlowErrorHandler.handleError
+ * 1. logger.error + toast.error -> UnifiedFlowErrorHandler.handleError
  * 2. logger.warn in catch blocks -> UnifiedFlowErrorHandler.handleError (with showToast: false)
  *
  * Usage: node scripts/update-error-handlers.cjs <file-path>
@@ -16,10 +16,10 @@ function updateErrorHandlers(filePath) {
 	const content = fs.readFileSync(filePath, 'utf-8');
 	const updateCount = 0;
 
-	// Pattern 1: logger.error followed by toastV8.error in catch block
+	// Pattern 1: logger.error followed by toast.error in catch block
 	// This is a common pattern that should use the error handler
 	const _pattern1 =
-		/(\} catch \([^)]+\) \{[\s\S]*?)logger\.error\([^;]+;[\s\S]*?toastV8\.error\([^;]+;/g;
+		/(\} catch \([^)]+\) \{[\s\S]*?)logger\.error\([^;]+;[\s\S]*?toast\.error\([^;]+;/g;
 
 	// Pattern 2: Simple logger.warn in catch blocks (debug/storage errors)
 	// Replace: logger.warn(`message`, { context })
@@ -34,8 +34,8 @@ function updateErrorHandlers(filePath) {
 		console.log(`\n--- Catch Block ${idx + 1} ---`);
 		console.log(`${catchBlock.substring(0, 200)}...`);
 
-		if (catchBlock.includes('logger.error') && catchBlock.includes('toastV8.error')) {
-			console.log('  ⚠️  Contains logger.error + toastV8.error (should use error handler)');
+		if (catchBlock.includes('logger.error') && catchBlock.includes('toast.error')) {
+			console.log('  ⚠️  Contains logger.error + toast.error (should use error handler)');
 		} else if (catchBlock.includes('logger.warn')) {
 			console.log('  ℹ️  Contains logger.warn (consider using error handler with showToast: false)');
 		} else if (catchBlock.includes('logger.error')) {

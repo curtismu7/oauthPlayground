@@ -1,0 +1,253 @@
+/**
+ * @file useSilentApiConfig.ts
+ * @module v8/hooks
+ * @description Centralized hook for Silent API and Show Token configuration management
+ * @version 8.1.0
+ * @since 2026-02-08
+ *
+ * Purpose: Provide a single source of truth for Silent API and Show Token checkbox state
+ * Ensures consistent behavior across all components using these configurations
+ *
+ * Features:
+ * - Centralized state management for both Silent API and Show Token
+ * - Automatic configuration synchronization
+ * - Event-driven updates across components
+ * - Foolproof persistence and loading
+ */
+
+import { useCallback, useEffect, useState } from 'react';
+import { modernMessaging } from '@/platform/ModernMessagingService';
+import { MFAConfigurationService } from '@/mfa/services/mfaConfigurationService';
+import { workerTokenConfigService } from '@/mfa/services/workerTokenConfigService';
+
+import { logger } from '../../utils/logger';
+
+const MODULE_TAG = '[ SILENT-API-CONFIG-V8]';
+
+export interface WorkerTokenConfig {
+	silentApiRetrieval: boolean;
+	showTokenAtEnd: boolean;
+}
+
+/**
+ * Hook for managing Worker Token configuration with centralized state
+ * Provides consistent behavior across all components for both Silent API and Show Token
+ */
+export const useWorkerTokenConfig = () => {
+	// Local state for immediate UI updates
+	const [config, setConfig] = useState<WorkerTokenConfig>(() => {
+		try {
+			// Initialize from centralized service
+			const serviceConfig = workerTokenConfigService.getConfigSync();
+			return {
+				silentApiRetrieval: serviceConfig.silentApiRetrieval,
+				showTokenAtEnd: serviceConfig.showTokenAtEnd,
+			};
+		} catch (error) {
+			logger.error(`${MODULE_TAG} Failed to initialize config:`, error);
+			return {
+				silentApiRetrieval: false,
+				showTokenAtEnd: true,
+			};
+		}
+	});
+
+	const [isReady, setIsReady] = useState(false);
+
+	// Load initial configuration
+	useEffect(() => {
+		const loadConfig = () => {
+			try {
+				const serviceConfig = workerTokenConfigService.getConfigSync();
+				setConfig({
+					silentApiRetrieval: serviceConfig.silentApiRetrieval,
+					showTokenAtEnd: serviceConfig.showTokenAtEnd,
+				});
+				setIsReady(true);
+				logger.info(`${MODULE_TAG} Configuration loaded:`, serviceConfig);
+			} catch (error) {
+				logger.error(`${MODULE_TAG} Failed to load configuration:`, error);
+				setIsReady(true);
+			}
+		};
+
+		loadConfig();
+
+		// Listen for configuration updates from other components
+		const handleConfigUpdate = (event?: Event) => {
+			logger.info(`${MODULE_TAG} Configuration update detected, reloading...`, {
+				eventType: event?.type,
+				timestamp: Date.now(),
+			});
+			loadConfig();
+		};
+
+		// Listen for MFA configuration updates (legacy support)
+		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate);
+
+		// Listen for worker token config updates (primary)
+		window.addEventListener('workerTokenConfigUpdated', handleConfigUpdate);
+
+		// Add debugging for event registration
+		logger.info(`${MODULE_TAG} Event listeners registered`, {
+			mfaConfigListener: true,
+			workerTokenConfigListener: true,
+			timestamp: Date.now(),
+		});
+
+		return () => {
+			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate);
+			window.removeEventListener('workerTokenConfigUpdated', handleConfigUpdate);
+			logger.info(`${MODULE_TAG} Event listeners cleaned up`, {
+				timestamp: Date.now(),
+			});
+		};
+	}, []);
+
+	// Update silentApiRetrieval setting
+	const updateSilentApiRetrieval = useCallback(async (value: boolean) => {
+		try {
+			logger.info(`${MODULE_TAG} Updating silentApiRetrieval to:`, value);
+
+			// Update local state immediately for responsive UI
+			setConfig((prev) => ({ ...prev, silentApiRetrieval: value }));
+
+			// Update centralized service
+			workerTokenConfigService.setSilentApiRetrieval(value);
+
+			// Update MFA configuration service for persistence
+			const mfaConfig = MFAConfigurationService.loadConfiguration();
+			mfaConfig.workerToken.silentApiRetrieval = value;
+			MFAConfigurationService.saveConfiguration(mfaConfig);
+
+			// Dispatch events to notify all components
+			window.dispatchEvent(
+				new CustomEvent('mfaConfigurationUpdated', {
+					detail: { workerToken: mfaConfig.workerToken },
+				})
+			);
+
+			window.dispatchEvent(
+				new CustomEvent('workerTokenConfigUpdated', {
+					detail: { silentApiRetrieval: value },
+				})
+			);
+
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `Silent API Token Retrieval set to: ${value}`,
+				duration: 3000,
+			});
+			logger.info(`${MODULE_TAG} SilentApiRetrieval updated successfully`, 'Logger info');
+		} catch (error) {
+			logger.error(`${MODULE_TAG} Failed to update silentApiRetrieval:`, error);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to update Silent API setting',
+				dismissible: true,
+			});
+
+			// Revert local state on error
+			const serviceConfig = workerTokenConfigService.getConfigSync();
+			setConfig({
+				silentApiRetrieval: serviceConfig.silentApiRetrieval,
+				showTokenAtEnd: serviceConfig.showTokenAtEnd,
+			});
+		}
+	}, []);
+
+	// Update showTokenAtEnd setting
+	const updateShowTokenAtEnd = useCallback(async (value: boolean) => {
+		try {
+			logger.info(`${MODULE_TAG} Updating showTokenAtEnd to:`, value);
+
+			// Update local state immediately for responsive UI
+			setConfig((prev) => ({ ...prev, showTokenAtEnd: value }));
+
+			// Update centralized service
+			workerTokenConfigService.setShowTokenAtEnd(value);
+
+			// Update MFA configuration service for persistence
+			const mfaConfig = MFAConfigurationService.loadConfiguration();
+			mfaConfig.workerToken.showTokenAtEnd = value;
+			MFAConfigurationService.saveConfiguration(mfaConfig);
+
+			// Dispatch events to notify all components
+			window.dispatchEvent(
+				new CustomEvent('mfaConfigurationUpdated', {
+					detail: { workerToken: mfaConfig.workerToken },
+				})
+			);
+
+			window.dispatchEvent(
+				new CustomEvent('workerTokenConfigUpdated', {
+					detail: { showTokenAtEnd: value },
+				})
+			);
+
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `Show Token After Generation set to: ${value}`,
+				duration: 3000,
+			});
+			logger.info(`${MODULE_TAG} ShowTokenAtEnd updated successfully`, 'Logger info');
+		} catch (error) {
+			logger.error(`${MODULE_TAG} Failed to update showTokenAtEnd:`, error);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to update token display setting',
+				dismissible: true,
+			});
+
+			// Revert local state on error
+			const serviceConfig = workerTokenConfigService.getConfigSync();
+			setConfig({
+				silentApiRetrieval: serviceConfig.silentApiRetrieval,
+				showTokenAtEnd: serviceConfig.showTokenAtEnd,
+			});
+		}
+	}, []);
+
+	// Force refresh configuration from storage
+	const refreshConfig = useCallback(() => {
+		try {
+			// Force service to reinitialize by clearing internal state
+			// Note: workerTokenConfigService doesn't have clearCache, so we reload directly
+
+			// Reload from storage
+			const serviceConfig = workerTokenConfigService.getConfigSync();
+			setConfig({
+				silentApiRetrieval: serviceConfig.silentApiRetrieval,
+				showTokenAtEnd: serviceConfig.showTokenAtEnd,
+			});
+
+			logger.info(`${MODULE_TAG} Configuration refreshed:`, serviceConfig);
+		} catch (error) {
+			logger.error(`${MODULE_TAG} Failed to refresh configuration:`, error);
+		}
+	}, []);
+
+	return {
+		// State
+		config,
+		silentApiRetrieval: config.silentApiRetrieval,
+		showTokenAtEnd: config.showTokenAtEnd,
+		isReady,
+
+		// Actions
+		updateSilentApiRetrieval,
+		updateShowTokenAtEnd,
+		refreshConfig,
+
+		// Utility
+		isSilentModeEnabled: config.silentApiRetrieval,
+		shouldShowTokenAtEnd: config.showTokenAtEnd,
+	};
+};
+
+// Backward compatibility alias
+export const useSilentApiConfig = useWorkerTokenConfig;
+
+export default useWorkerTokenConfig;

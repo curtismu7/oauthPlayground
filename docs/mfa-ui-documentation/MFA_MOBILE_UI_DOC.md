@@ -26,13 +26,13 @@ This document provides a complete reference for the UI structure, components, st
 ### Mobile Configuration Page
 
 **Location:** `/v8/mfa/register/mobile`  
-**Component:** `MobileOTPConfigurationPageV8.tsx`
+**Component:** `MobileOTPConfigurationPage.tsx`
 
 #### Layout Structure
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  MFANavigationV8 (Top Navigation Bar)                   │
+│  MFANavigation (Top Navigation Bar)                   │
 ├─────────────────────────────────────────────────────────┤
 │  Mobile Configuration Header (Blue Gradient)            │
 │  - Title: "Mobile Device Registration"                   │
@@ -69,7 +69,7 @@ This document provides a complete reference for the UI structure, components, st
 ## Mobile Registration Flow
 
 **Location:** `/v8/mfa/register/mobile/device`  
-**Component:** `MobileFlowV8.tsx`
+**Component:** `MobileFlow.tsx`
 
 **Note:** Mobile uses the SMS flow controller and follows SMS patterns. See [MFA SMS UI Documentation](./MFA_SMS_UI_DOC.md) for detailed UI structure.
 
@@ -94,13 +94,13 @@ This document provides a complete reference for the UI structure, components, st
 ### Step 2: Device Registration
 
 **UI Elements:**
-- Phone number input with country code picker (`CountryCodePickerV8`)
+- Phone number input with country code picker (`CountryCodePicker`)
 - Device name input (conditional, based on `promptForNicknameOnPairing`)
 - "Register Mobile Device" button
 - Loading indicator during registration
 
 **Phone Number Input:**
-- Uses `CountryCodePickerV8` component
+- Uses `CountryCodePicker` component
 - Validates E.164 format
 - Auto-populates from PingOne user profile (if available)
 
@@ -131,7 +131,7 @@ This document provides a complete reference for the UI structure, components, st
 ## Mobile Authentication Flow
 
 **Location:** `/v8/mfa/auth`  
-**Component:** `MFAAuthenticationMainPageV8.tsx`
+**Component:** `MFAAuthenticationMainPage.tsx`
 
 ### Device Selection
 
@@ -154,7 +154,7 @@ This document provides a complete reference for the UI structure, components, st
 
 ## Helper Components
 
-### CountryCodePickerV8
+### CountryCodePicker
 
 **Purpose:** Country code selector for phone number input
 

@@ -22,15 +22,15 @@ git checkout HEAD~10 -- \
   src/locked/unified-flow-v8u/feature/v8u/components/UnifiedFlowSteps.tsx \
   src/locked/unified-flow-v8u/feature/v8u/components/CredentialsFormV8U.tsx \
   src/locked/unified-flow-v8u/feature/v8u/flows/UnifiedOAuthFlowV8U.tsx \
-  src/v8/flows/MFAAuthenticationMainPageV8.tsx
+  src/v8/flows/MFAAuthenticationMainPage.tsx
 
 # Restore all Phase 2 integration files
 git checkout HEAD~10 -- \
   src/hooks/useAuthActions.ts \
   src/contexts/NewAuthContext.tsx \
-  src/v8/services/oauthIntegrationServiceV8.ts \
-  src/v8/services/hybridFlowIntegrationServiceV8.ts \
-  src/v8/services/implicitFlowIntegrationServiceV8.ts
+  src/v8/services/oauthIntegrationService.ts \
+  src/v8/services/hybridFlowIntegrationService.ts \
+  src/v8/services/implicitFlowIntegrationService.ts
 ```
 
 ### Restore Individual Files
@@ -131,9 +131,9 @@ grep "Array.isArray.*scopes" src/locked/unified-flow-v8u/feature/v8u/flows/Unifi
 
 ---
 
-#### 4. MFAAuthenticationMainPageV8.tsx
+#### 4. MFAAuthenticationMainPage.tsx
 
-**Location**: `/src/v8/flows/MFAAuthenticationMainPageV8.tsx`
+**Location**: `/src/v8/flows/MFAAuthenticationMainPage.tsx`
 
 **Modifications**:
 - Lines 60-62: Added imports
@@ -149,16 +149,16 @@ grep "Array.isArray.*scopes" src/locked/unified-flow-v8u/feature/v8u/flows/Unifi
 
 **Restore Command**:
 ```bash
-git checkout HEAD~10 -- src/v8/flows/MFAAuthenticationMainPageV8.tsx
+git checkout HEAD~10 -- src/v8/flows/MFAAuthenticationMainPage.tsx
 ```
 
 **Restore Verification**:
 ```bash
-grep "CredentialsRepository" src/v8/flows/MFAAuthenticationMainPageV8.tsx
+grep "CredentialsRepository" src/v8/flows/MFAAuthenticationMainPage.tsx
 # Should return no results
 
 # Count feature flag checks (should be 0)
-grep -c "USE_NEW_CREDENTIALS_REPO" src/v8/flows/MFAAuthenticationMainPageV8.tsx
+grep -c "USE_NEW_CREDENTIALS_REPO" src/v8/flows/MFAAuthenticationMainPage.tsx
 # Should return 0
 ```
 
@@ -223,9 +223,9 @@ grep "new-auth-context" src/contexts/NewAuthContext.tsx
 
 ---
 
-#### 7. oauthIntegrationServiceV8.ts
+#### 7. oauthIntegrationService.ts
 
-**Location**: `/src/v8/services/oauthIntegrationServiceV8.ts`
+**Location**: `/src/v8/services/oauthIntegrationService.ts`
 
 **Modifications**:
 - Lines 21-23: Added imports
@@ -235,24 +235,24 @@ grep "new-auth-context" src/contexts/NewAuthContext.tsx
 
 **Restore Command**:
 ```bash
-git checkout HEAD~10 -- src/v8/services/oauthIntegrationServiceV8.ts
+git checkout HEAD~10 -- src/v8/services/oauthIntegrationService.ts
 ```
 
 **Restore Verification**:
 ```bash
-grep "PkceManager\|StateManager" src/v8/services/oauthIntegrationServiceV8.ts
+grep "PkceManager\|StateManager" src/v8/services/oauthIntegrationService.ts
 # Should return no results
 
 # Check for old random generation
-grep "generateRandomString" src/v8/services/oauthIntegrationServiceV8.ts
+grep "generateRandomString" src/v8/services/oauthIntegrationService.ts
 # Should return results (old method)
 ```
 
 ---
 
-#### 8. hybridFlowIntegrationServiceV8.ts
+#### 8. hybridFlowIntegrationService.ts
 
-**Location**: `/src/v8/services/hybridFlowIntegrationServiceV8.ts`
+**Location**: `/src/v8/services/hybridFlowIntegrationService.ts`
 
 **Modifications**:
 - Lines 21-24: Added imports
@@ -262,20 +262,20 @@ grep "generateRandomString" src/v8/services/oauthIntegrationServiceV8.ts
 
 **Restore Command**:
 ```bash
-git checkout HEAD~10 -- src/v8/services/hybridFlowIntegrationServiceV8.ts
+git checkout HEAD~10 -- src/v8/services/hybridFlowIntegrationService.ts
 ```
 
 **Restore Verification**:
 ```bash
-grep "StateManager\|NonceManager\|PkceManager" src/v8/services/hybridFlowIntegrationServiceV8.ts
+grep "StateManager\|NonceManager\|PkceManager" src/v8/services/hybridFlowIntegrationService.ts
 # Should return no results
 ```
 
 ---
 
-#### 9. implicitFlowIntegrationServiceV8.ts
+#### 9. implicitFlowIntegrationService.ts
 
-**Location**: `/src/v8/services/implicitFlowIntegrationServiceV8.ts`
+**Location**: `/src/v8/services/implicitFlowIntegrationService.ts`
 
 **Modifications**:
 - Lines 19-21: Added imports
@@ -284,12 +284,12 @@ grep "StateManager\|NonceManager\|PkceManager" src/v8/services/hybridFlowIntegra
 
 **Restore Command**:
 ```bash
-git checkout HEAD~10 -- src/v8/services/implicitFlowIntegrationServiceV8.ts
+git checkout HEAD~10 -- src/v8/services/implicitFlowIntegrationService.ts
 ```
 
 **Restore Verification**:
 ```bash
-grep "StateManager\|NonceManager" src/v8/services/implicitFlowIntegrationServiceV8.ts
+grep "StateManager\|NonceManager" src/v8/services/implicitFlowIntegrationService.ts
 # Should return no results
 ```
 
@@ -360,15 +360,15 @@ git checkout HEAD~10 -- \
   src/locked/unified-flow-v8u/feature/v8u/components/UnifiedFlowSteps.tsx \
   src/locked/unified-flow-v8u/feature/v8u/components/CredentialsFormV8U.tsx \
   src/locked/unified-flow-v8u/feature/v8u/flows/UnifiedOAuthFlowV8U.tsx \
-  src/v8/flows/MFAAuthenticationMainPageV8.tsx
+  src/v8/flows/MFAAuthenticationMainPage.tsx
 
 # Restore only Phase 2 files
 git checkout HEAD~10 -- \
   src/hooks/useAuthActions.ts \
   src/contexts/NewAuthContext.tsx \
-  src/v8/services/oauthIntegrationServiceV8.ts \
-  src/v8/services/hybridFlowIntegrationServiceV8.ts \
-  src/v8/services/implicitFlowIntegrationServiceV8.ts
+  src/v8/services/oauthIntegrationService.ts \
+  src/v8/services/hybridFlowIntegrationService.ts \
+  src/v8/services/implicitFlowIntegrationService.ts
 
 # Commit the restore
 git add .
@@ -453,7 +453,7 @@ git checkout HEAD~10 -- \
   src/locked/unified-flow-v8u/feature/v8u/components/UnifiedFlowSteps.tsx \
   src/locked/unified-flow-v8u/feature/v8u/components/CredentialsFormV8U.tsx \
   src/locked/unified-flow-v8u/feature/v8u/flows/UnifiedOAuthFlowV8U.tsx \
-  src/v8/flows/MFAAuthenticationMainPageV8.tsx
+  src/v8/flows/MFAAuthenticationMainPage.tsx
 git commit -m "Rollback Phase 1 integration"
 git push
 ```
@@ -476,9 +476,9 @@ git push
 git checkout HEAD~10 -- \
   src/hooks/useAuthActions.ts \
   src/contexts/NewAuthContext.tsx \
-  src/v8/services/oauthIntegrationServiceV8.ts \
-  src/v8/services/hybridFlowIntegrationServiceV8.ts \
-  src/v8/services/implicitFlowIntegrationServiceV8.ts
+  src/v8/services/oauthIntegrationService.ts \
+  src/v8/services/hybridFlowIntegrationService.ts \
+  src/v8/services/implicitFlowIntegrationService.ts
 git commit -m "Rollback Phase 2 integration"
 git push
 ```
@@ -518,7 +518,7 @@ If you need to migrate credentials from new format back to old format:
 ```javascript
 // Run this script to convert credentials
 const CredentialsRepository = require('./src/services/credentialsRepository').CredentialsRepository;
-const CredentialsServiceV8 = require('./src/v8/services/credentialsServiceV8').CredentialsServiceV8;
+const CredentialsService = require('./src/v8/services/credentialsService').CredentialsService;
 
 // Get all flow keys
 const flowKeys = ['unified-oauth', 'mfa-v8', 'oauth-authz-v8u'];
@@ -537,7 +537,7 @@ flowKeys.forEach(flowKey => {
     };
     
     // Save to old service
-    CredentialsServiceV8.saveCredentials(flowKey, oldCreds);
+    CredentialsService.saveCredentials(flowKey, oldCreds);
     
     console.log(`Migrated ${flowKey}`);
   }

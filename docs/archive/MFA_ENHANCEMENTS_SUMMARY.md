@@ -205,8 +205,8 @@ if (testMode) {
 
 - **PingOne MFA API Docs:** https://apidocs.pingidentity.com/pingone/mfa/v1/api/
 - **WebAuthn Guide:** https://webauthn.guide/
-- **Current Implementation:** `src/v8/flows/MFAFlowV8.tsx`
-- **MFA Service:** `src/v8/services/mfaServiceV8.ts`
+- **Current Implementation:** `src/v8/flows/MFAFlow.tsx`
+- **MFA Service:** `src/v8/services/mfaService.ts`
 
 ---
 

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 import TokenDisplayService from '../../services/tokenDisplayService';
 import { logger } from '../../utils/logger';
-import { WorkerTokenExpiryBannerV8 } from '../../mfa/components/WorkerTokenExpiryBannerV8';
+import { WorkerTokenExpiryBanner } from '../../mfa/components/WorkerTokenExpiryBanner';
 import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { useUnifiedFlowState } from '../services/enhancedStateManagement';
 import {
@@ -745,7 +745,7 @@ export const TokenMonitoringPage: React.FC = () => {
 
 	return (
 		<PageContainer>
-			<WorkerTokenExpiryBannerV8
+			<WorkerTokenExpiryBanner
 				onFixToken={() => setShowWorkerTokenModal(true)}
 				marginBottom="24px"
 			/>

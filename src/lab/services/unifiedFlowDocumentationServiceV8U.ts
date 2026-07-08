@@ -6,8 +6,8 @@
  */
 
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
-import type { FlowType, SpecVersion } from '@/mfa/services/specVersionServiceV8';
-import { SpecVersionServiceV8 } from '@/mfa/services/specVersionServiceV8';
+import type { FlowType, SpecVersion } from '@/mfa/services/specVersionService';
+import { SpecVersionService } from '@/mfa/services/specVersionService';
 import {
 	convertTrackedCallsToDocumentation,
 	generateUnifiedFlowMarkdown,
@@ -61,7 +61,7 @@ export const generateAllUseCasesDocumentation = (): string => {
 	});
 	md += `\n### Supported Specification Versions\n\n`;
 	specVersions.forEach((spec) => {
-		const specLabel = SpecVersionServiceV8.getSpecLabel(spec);
+		const specLabel = SpecVersionService.getSpecLabel(spec);
 		md += `- **${specLabel}**\n`;
 	});
 	md += `\n---\n\n`;

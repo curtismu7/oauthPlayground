@@ -521,7 +521,7 @@ ReferenceError: tokenStatus is not defined
 - `handleEditSubscription`: read from `subscription.httpEndpoint?.url` (legacy fallback to `subscription.destination?.url`)
 - Form JSX: updated all `value={formData.*}` bindings; replaced `JSON` format option with `SPLUNK` / `NEWRELIC`; added `verifyTlsCertificates` checkbox
 - Subscription card: display `httpEndpoint.url` with legacy fallback; show `filterOptions.includedActionTypes` event list
-- Added `<SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />` for live API call visibility
+- Added `<SuperSimpleApiDisplay flowFilter="all" reserveSpace={true} />` for live API call visibility
 
 **`server.js`:**
 - POST `/api/pingone/subscriptions` validation: `!subscriptionData.destination` → `!subscriptionData.httpEndpoint?.url`
@@ -561,7 +561,7 @@ Additionally `server.js` regionMaps only handled `{ na: 'us', eu: 'eu', asia: 'a
 
 ---
 
-## Session 7 — WorkerTokenSectionV8 Migration: PingOneWebhookViewer
+## Session 7 — WorkerTokenSection Migration: PingOneWebhookViewer
 
 **Commit:** `7d94c9ded`  
 **Date:** 2026-02-27  
@@ -569,16 +569,16 @@ Additionally `server.js` regionMaps only handled `{ na: 'us', eu: 'eu', asia: 'a
 
 ### Problem
 
-`PingOneWebhookViewer` used a custom worker token UI: a `WorkerTokenModal` (conditionally shown only when no token), a `WorkerTokenDetectedBanner` (conditionally shown when token exists), and an inline environment ID card. This pattern had no persistent token status section — users could not see their token state, refresh it, or clear it. All other V8 pages use `WorkerTokenSectionV8`.
+`PingOneWebhookViewer` used a custom worker token UI: a `WorkerTokenModal` (conditionally shown only when no token), a `WorkerTokenDetectedBanner` (conditionally shown when token exists), and an inline environment ID card. This pattern had no persistent token status section — users could not see their token state, refresh it, or clear it. All other V8 pages use `WorkerTokenSection`.
 
 ### Changes
 
 **`src/pages/PingOneWebhookViewer.tsx`:**
 - Removed imports: `WorkerTokenModal`, `WorkerTokenDetectedBanner`
-- Added import: `WorkerTokenSectionV8` from `'../v8/components/WorkerTokenSectionV8'`
+- Added import: `WorkerTokenSection` from `'../v8/components/WorkerTokenSection'`
 - Removed state: `showWorkerTokenModal`
 - Replaced the three conditional JSX blocks (modal + banner + env ID card, ~80 lines) with:
-  - `<WorkerTokenSectionV8 environmentId={environmentId} onTokenUpdated={...} compact={false} showSettings={false} />`
+  - `<WorkerTokenSection environmentId={environmentId} onTokenUpdated={...} compact={false} showSettings={false} />`
   - `onTokenUpdated` callback updates both `workerToken` state, `environmentId`, and `selectedRegion` from `unified_worker_token` localStorage
   - Compact always-visible Environment ID `<input>` (not gated on `hasWorkerToken`)
 - Removed the "A worker token is required" warning card inside the Subscriptions tab (now redundant)

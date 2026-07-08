@@ -154,29 +154,29 @@ export const globalWorkerTokenService = GlobalWorkerTokenService.getInstance();
 #### **2.1 Leverage Existing V8 Services**
 
 **Services to Reuse:**
-1. **`credentialsServiceV8.ts`** - Credential management
-2. **`mfaServiceV8.ts`** - MFA device operations (146 methods!)
-3. **`mfaAuthenticationServiceV8.ts`** - Authentication flows
-4. **`environmentIdServiceV8.ts`** - Environment ID utilities
-5. **`storageServiceV8.ts`** - Persistent storage
-6. **`oidcDiscoveryServiceV8.ts`** - OIDC discovery
-7. **`apiDisplayServiceV8.ts`** - API call display
+1. **`credentialsService.ts`** - Credential management
+2. **`mfaService.ts`** - MFA device operations (146 methods!)
+3. **`mfaAuthenticationService.ts`** - Authentication flows
+4. **`environmentIdService.ts`** - Environment ID utilities
+5. **`storageService.ts`** - Persistent storage
+6. **`oidcDiscoveryService.ts`** - OIDC discovery
+7. **`apiDisplayService.ts`** - API call display
 
 **Integration Pattern:**
 ```typescript
 // src/v8/flows/unified/services/unifiedFlowServiceIntegration.ts
-import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { MFAService } from '@/v8/services/mfaService';
+import { CredentialsService } from '@/v8/services/credentialsService';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
 import { globalWorkerTokenService } from '@/v8/services/globalWorkerTokenService';
 
 export class UnifiedFlowServiceIntegration {
-  private mfaService: MFAServiceV8;
-  private credentialsService: CredentialsServiceV8;
+  private mfaService: MFAService;
+  private credentialsService: CredentialsService;
 
   constructor() {
-    this.mfaService = new MFAServiceV8();
-    this.credentialsService = CredentialsServiceV8;
+    this.mfaService = new MFAService();
+    this.credentialsService = CredentialsService;
   }
 
   async registerDevice(deviceType: string, deviceData: any) {
@@ -216,8 +216,8 @@ export class UnifiedFlowServiceIntegration {
 
 **Files to Simplify:**
 - `UnifiedConfigurationStep.tsx` - Remove credential inputs, use global services
-- `UnifiedRegistrationStep.tsx` - Use `mfaServiceV8` instead of custom API calls
-- `UnifiedActivationStep.tsx` - Use `mfaServiceV8` activation methods
+- `UnifiedRegistrationStep.tsx` - Use `mfaService` instead of custom API calls
+- `UnifiedActivationStep.tsx` - Use `mfaService` activation methods
 
 ---
 

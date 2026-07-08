@@ -34,7 +34,7 @@ PingOnePARFlowV7.tsx (2814 lines)
 ### After (V8) - Hook-Based Pattern ✅
 
 ```
-PingOnePARFlowV8/
+PingOnePARFlow/
 ├── types/
 │   └── parFlowTypes.ts          # TypeScript interfaces
 ├── constants/
@@ -42,7 +42,7 @@ PingOnePARFlowV8/
 ├── hooks/
 │   ├── usePARFlowState.ts       # State management
 │   └── usePAROperations.ts      # API operations (no service layer)
-├── PingOnePARFlowV8.tsx         # Main component (~400 lines)
+├── PingOnePARFlow.tsx         # Main component (~400 lines)
 ├── index.ts                     # Exports
 └── README.md                    # Documentation
 ```
@@ -427,7 +427,7 @@ test('generates PKCE codes', async () => {
    import PingOnePARFlowV7 from './pages/flows/PingOnePARFlowV7';
    
    // New
-   import PingOnePARFlowV8 from './pages/flows/PingOnePARFlowV8';
+   import PingOnePARFlow from './pages/flows/PingOnePARFlow';
    ```
 
 2. **Update routes**
@@ -436,7 +436,7 @@ test('generates PKCE codes', async () => {
    <Route path="/par-flow" element={<PingOnePARFlowV7 />} />
    
    // New
-   <Route path="/par-flow" element={<PingOnePARFlowV8 />} />
+   <Route path="/par-flow" element={<PingOnePARFlow />} />
    ```
 
 3. **Remove PARService imports**
@@ -445,7 +445,7 @@ test('generates PKCE codes', async () => {
    import { PARService } from './services/parService';
    
    // New - Use hooks instead
-   import { usePAROperations } from './pages/flows/PingOnePARFlowV8';
+   import { usePAROperations } from './pages/flows/PingOnePARFlow';
    ```
 
 ### For Users
@@ -511,6 +511,6 @@ This is now the **standard pattern** for implementing OAuth/OIDC flows in the ap
 ## Questions?
 
 For questions or feedback, please refer to:
-- `src/pages/flows/PingOnePARFlowV8/README.md` - Technical documentation
+- `src/pages/flows/PingOnePARFlow/README.md` - Technical documentation
 - `src/pages/flows/OAuthAuthorizationCodeFlowV7_1/` - Reference implementation
 - Authorization Code Flow V7.1 - Canonical pattern to follow

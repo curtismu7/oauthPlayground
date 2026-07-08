@@ -30,34 +30,34 @@ npm run test:run -- src/v8 src/contexts/__tests__/NewAuthContext.enhanced.test.t
 
 | Issue | Effect |
 |-------|--------|
-| `localStorage` mocked with no-op `vi.fn()` (no in-memory store) | `StorageServiceV8`, `MFAFeatureFlagsV8`, `ApiDisplayServiceV8`, `AppDiscoveryServiceV8`, `FlowResetServiceV8` save/load assertions fail (`expected false to be true`) |
-| `console.log` etc. replaced with `vi.fn()` globally | `toastNotificationsV8` tests expect log output — spies never fire |
+| `localStorage` mocked with no-op `vi.fn()` (no in-memory store) | `StorageService`, `MFAFeatureFlags`, `ApiDisplayService`, `AppDiscoveryService`, `FlowResetService` save/load assertions fail (`expected false to be true`) |
+| `console.log` etc. replaced with `vi.fn()` globally | `toastNotifications` tests expect log output — spies never fire |
 | `indexedDB` not mocked | 7 unhandled rejections when `unifiedTokenStorageService` singleton initializes on import |
 
 **Affected files (high fail count):**
 
-- `storageServiceV8.test.ts` — 20/31 fail
-- `mfaFeatureFlagsV8.test.ts` — 10/13 fail
-- `errorHandlerV8.test.ts` — partially (see B)
-- `apiDisplayServiceV8.test.ts` — 4/13 fail
-- `flowResetServiceV8.test.ts` — 13/15 fail
-- `appDiscoveryServiceV8.test.ts` — 3/20 fail
+- `storageService.test.ts` — 20/31 fail
+- `mfaFeatureFlags.test.ts` — 10/13 fail
+- `errorHandler.test.ts` — partially (see B)
+- `apiDisplayService.test.ts` — 4/13 fail
+- `flowResetService.test.ts` — 13/15 fail
+- `appDiscoveryService.test.ts` — 3/20 fail
 
 **Fix:** `tests/setup.ts` — in-memory `localStorage`/`sessionStorage`, `fake-indexeddb/auto`, remove global `console` mock.
 
-**Status (2026-07-08 P0 landed):** 150 fail → **142 fail**, 534 pass → **542 pass**, unhandled `indexedDB` errors eliminated. `storageServiceV8` tests still fail (assert `localStorage` but impl uses `unifiedTokenStorage`/IndexedDB). `mfaFeatureFlags`/`apiDisplay` failures are API/default drift, not mock no-ops.
+**Status (2026-07-08 P0 landed):** 150 fail → **142 fail**, 534 pass → **542 pass**, unhandled `indexedDB` errors eliminated. `storageService` tests still fail (assert `localStorage` but impl uses `unifiedTokenStorage`/IndexedDB). `mfaFeatureFlags`/`apiDisplay` failures are API/default drift, not mock no-ops.
 
 **Priority:** P0 done; remaining items P1+
 
 ---
 
-### B. `ErrorHandlerV8` API drift — **23 failures**
+### B. `ErrorHandler` API drift — **23 failures**
 
 Tests call removed static helpers: `getType`, `getCode`, `formatError`, `fromOAuthError`, `handleCallbackError`, `handleValidationErrors`.
 
 Implementation now exposes: `categorizeError`, `getErrorCategory`, `getUserMessage`, `getRecoverySuggestions`, `formatErrorForDisplay`, etc.
 
-**File:** `errorHandlerV8.test.ts` (23 fail / 21 pass)
+**File:** `errorHandler.test.ts` (23 fail / 21 pass)
 
 **Fix:** Rewrite failing cases against current API, or delete obsolete describe blocks.
 
@@ -71,9 +71,9 @@ Tests import components that no longer exist beside `__tests__/`:
 
 | Test file | Missing import |
 |-----------|----------------|
-| `ImplicitFlowV8.test.tsx` | `../ImplicitFlowV8` |
-| `OAuthAuthorizationCodeFlowV8.test.tsx` | `../OAuthAuthorizationCodeFlowV8` |
-| `TokenExchangeFlowV8.test.tsx` | `../TokenExchangeFlowV8` |
+| `ImplicitFlow.test.tsx` | `../ImplicitFlow` |
+| `OAuthAuthorizationCodeFlow.test.tsx` | `../OAuthAuthorizationCodeFlow` |
+| `TokenExchangeFlow.test.tsx` | `../TokenExchangeFlow` |
 
 Flows were moved/refactored (v8u / flows2). Tests were never updated or removed.
 
@@ -87,13 +87,13 @@ Flows were moved/refactored (v8u / flows2). Tests were never updated or removed.
 
 `useMFAPolicies.test.ts` (21 fail), `useMFADevices.test.ts` (3 fail)
 
-`vi.mock('@/v8/services/mfaServiceV8')` auto-mocks the module but `MFAServiceV8.getDeviceAuthenticationPolicies` is `undefined` → `mockResolvedValue` throws.
+`vi.mock('@/v8/services/mfaService')` auto-mocks the module but `MFAService.getDeviceAuthenticationPolicies` is `undefined` → `mockResolvedValue` throws.
 
 **Fix:** Explicit factory mock:
 
 ```ts
-vi.mock('@/v8/services/mfaServiceV8', () => ({
-  MFAServiceV8: {
+vi.mock('@/v8/services/mfaService', () => ({
+  MFAService: {
     getDeviceAuthenticationPolicies: vi.fn(),
     // ...other methods used by hooks
   },
@@ -106,7 +106,7 @@ vi.mock('@/v8/services/mfaServiceV8', () => ({
 
 ### E. OAuth integration service return-shape drift — **18 failures**
 
-`implicitFlowIntegrationServiceV8.test.ts` (14 fail), `oauthIntegrationServiceV8.test.ts` (4 fail), `realPingOneTest.test.ts` (5 fail)
+`implicitFlowIntegrationService.test.ts` (14 fail), `oauthIntegrationService.test.ts` (4 fail), `realPingOneTest.test.ts` (5 fail)
 
 Tests expect `generateAuthorizationUrl()` to return `{ authorizationUrl }`; implementation likely returns a different shape or async result (`authorizationUrl` is `undefined`).
 
@@ -116,11 +116,11 @@ Tests expect `generateAuthorizationUrl()` to return `{ authorizationUrl }`; impl
 
 ---
 
-### F. `SpecVersionServiceV8` label drift — **7 failures**
+### F. `SpecVersionService` label drift — **7 failures**
 
 Tests expect short labels (`'OAuth 2.0'`); implementation returns RFC-style strings (`'OAuth 2.0 Authorization Framework (RFC…)'`).
 
-**File:** `specVersionServiceV8.test.ts`
+**File:** `specVersionService.test.ts`
 
 **Fix:** Update expected strings or assert `toContain('OAuth 2.0')`.
 
@@ -130,7 +130,7 @@ Tests expect short labels (`'OAuth 2.0'`); implementation returns RFC-style stri
 
 ### G. JAR / crypto in Node — **5 failures**
 
-`jarRequestObjectServiceV8.test.ts` — `result.success` is `false` for HS256 signing in Vitest (likely missing `crypto.subtle` or Web Crypto polyfill in test env).
+`jarRequestObjectService.test.ts` — `result.success` is `false` for HS256 signing in Vitest (likely missing `crypto.subtle` or Web Crypto polyfill in test env).
 
 **Fix:** Mock `crypto.subtle` or run signing tests in `jsdom` with webcrypto; skip HS256 in node env.
 
@@ -140,8 +140,8 @@ Tests expect short labels (`'OAuth 2.0'`); implementation returns RFC-style stri
 
 ### H. UI component assertion drift — **7 failures**
 
-- `StepProgressBarV8.test.tsx` — progress text `/0%/` not found (UI copy/structure changed)
-- `StepValidationFeedbackV8.test.tsx` — collapse behavior + ARIA roles (`list`, `listitem`, `tooltip`) no longer match DOM
+- `StepProgressBar.test.tsx` — progress text `/0%/` not found (UI copy/structure changed)
+- `StepValidationFeedback.test.tsx` — collapse behavior + ARIA roles (`list`, `listitem`, `tooltip`) no longer match DOM
 
 **Fix:** Update selectors to match current components or relax role assertions.
 
@@ -165,14 +165,14 @@ FlowContextUtils callback/security tests fail (`expected false to be true`). Imp
 
 | File | Fail | Likely cause |
 |------|-----:|--------------|
-| `mfaCredentialManagerV8.test.ts` | 1 | Validation rule change |
-| `oauthIntegrationServiceV8.test.ts` | 4 | Token validation API (see E) |
+| `mfaCredentialManager.test.ts` | 1 | Validation rule change |
+| `oauthIntegrationService.test.ts` | 4 | Token validation API (see E) |
 
 ---
 
 ## Files fully green (15)
 
-`configCheckerServiceV8`, `validationServiceV8`, `tokenExchangeServiceV8`, `tokenGatewayV8`, `mfaTokenManagerV8`, `useStepNavigationV8`, `useWorkerToken`, `useMFAAuthentication`, `StepActionButtonsV8`, `registrationStatus`, `mfaNextStepNormalizer`, `unifiedMFASuccessPageServiceV8`, `unifiedFlowLoggerServiceV8U`, `FlowTypeSelector`, `unifiedFlowIntegrationV8U.integration` (partial v8u), and others with 0 failures in this run.
+`configCheckerService`, `validationService`, `tokenExchangeService`, `tokenGateway`, `mfaTokenManager`, `useStepNavigation`, `useWorkerToken`, `useMFAAuthentication`, `StepActionButtons`, `registrationStatus`, `mfaNextStepNormalizer`, `unifiedMFASuccessPageService`, `unifiedFlowLoggerServiceV8U`, `FlowTypeSelector`, `unifiedFlowIntegrationV8U.integration` (partial v8u), and others with 0 failures in this run.
 
 ---
 
@@ -183,7 +183,7 @@ FlowContextUtils callback/security tests fail (`expected false to be true`). Imp
 | **P0** | Fix `tests/setup.ts` — in-memory `localStorage`, `indexedDB` stub, console strategy | ~50 |
 | **P1** | Delete 3 orphan flow test files | 3 files |
 | **P1** | Fix MFA service explicit mocks | ~24 |
-| **P1** | Prune/update `errorHandlerV8.test.ts` obsolete methods | ~23 |
+| **P1** | Prune/update `errorHandler.test.ts` obsolete methods | ~23 |
 | **P2** | Update integration + spec version + NewAuthContext tests | ~35 |
 | **P2** | JAR crypto polyfill or skip in node | ~5 |
 | **P3** | UI component test selector updates | ~7 |

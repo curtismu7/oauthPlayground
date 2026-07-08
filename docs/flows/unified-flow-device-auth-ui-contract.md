@@ -92,7 +92,7 @@ const isValid =
 
 Before requesting device authorization, the system performs comprehensive pre-flight validation:
 
-**Service:** `PreFlightValidationServiceV8.validateBeforeAuthUrl()`
+**Service:** `PreFlightValidationService.validateBeforeAuthUrl()`
 
 **Validation Checks:**
 - ✅ Client secret requirements
@@ -227,7 +227,7 @@ flowState = {
 ### Step 2: Poll for Tokens
 
 **Component:** `renderStep2Poll()` in `UnifiedFlowSteps.tsx`  
-**Service:** `UnifiedFlowIntegrationV8U.pollForTokens()` → `DeviceCodeIntegrationServiceV8.pollForTokens()`  
+**Service:** `UnifiedFlowIntegrationV8U.pollForTokens()` → `DeviceCodeIntegrationService.pollForTokens()`  
 **Purpose:** Poll token endpoint until user authorizes the device
 
 #### Inputs
@@ -358,7 +358,7 @@ flowState.deviceCodeInterval = Math.max(errorData.interval, currentInterval + 5)
 ### Step 3: Display Tokens
 
 **Component:** `renderStep3Tokens()` in `UnifiedFlowSteps.tsx`  
-**Service:** `TokenDisplayServiceV8`  
+**Service:** `TokenDisplayService`  
 **Purpose:** Display received tokens with decode and copy options
 
 #### Inputs
@@ -385,7 +385,7 @@ flowState.deviceCodeInterval = Math.max(errorData.interval, currentInterval + 5)
 ### Step 4: Introspection & UserInfo
 
 **Component:** `renderStep4Introspection()` in `UnifiedFlowSteps.tsx`  
-**Service:** `TokenOperationsServiceV8`, `OidcDiscoveryServiceV8`  
+**Service:** `TokenOperationsService`, `OidcDiscoveryService`  
 **Purpose:** Allow token introspection and UserInfo calls
 
 #### Inputs
@@ -408,7 +408,7 @@ flowState.deviceCodeInterval = Math.max(errorData.interval, currentInterval + 5)
 
 **Feature:** Local ID Token Validation Modal  
 **Component:** `IDTokenValidationModalV8U`  
-**Service:** `IDTokenValidationServiceV8`
+**Service:** `IDTokenValidationService`
 
 **Trigger:**
 - Button: "🔐 Validate ID Token Locally"

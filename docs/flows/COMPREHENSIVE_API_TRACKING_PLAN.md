@@ -9,8 +9,8 @@
 ## 📋 COMPLETE API CALL INVENTORY
 
 ### 1. **Worker Token Management** ⏳ NOT TRACKED
-**Service:** `workerTokenServiceV8.ts`  
-**Location:** `src/v8/services/workerTokenServiceV8.ts`
+**Service:** `workerTokenService.ts`  
+**Location:** `src/v8/services/workerTokenService.ts`
 
 **API Calls:**
 - **Get Worker Token (Silent)**: When "Silent API" is enabled
@@ -27,7 +27,7 @@
 
 **Tracking Needed:**
 ```typescript
-// In workerTokenServiceV8.ts - getToken() method
+// In workerTokenService.ts - getToken() method
 apiCallTrackerService.trackApiCall({
   method: 'POST',
   url: '/api/worker-token',
@@ -41,8 +41,8 @@ apiCallTrackerService.trackApiCall({
 ---
 
 ### 2. **Application Discovery** ⏳ NOT TRACKED
-**Service:** `appDiscoveryServiceV8.ts`  
-**Location:** `src/v8/services/appDiscoveryServiceV8.ts`
+**Service:** `appDiscoveryService.ts`  
+**Location:** `src/v8/services/appDiscoveryService.ts`
 
 **API Calls:**
 - **List Applications**
@@ -63,7 +63,7 @@ apiCallTrackerService.trackApiCall({
 
 **Tracking Needed:**
 ```typescript
-// In appDiscoveryServiceV8.ts - discoverApplications()
+// In appDiscoveryService.ts - discoverApplications()
 apiCallTrackerService.trackApiCall({
   method: 'GET',
   url: '/api/pingone/applications',
@@ -73,7 +73,7 @@ apiCallTrackerService.trackApiCall({
   flowType: 'management-api'
 });
 
-// In appDiscoveryServiceV8.ts - fetchApplicationWithSecret()
+// In appDiscoveryService.ts - fetchApplicationWithSecret()
 apiCallTrackerService.trackApiCall({
   method: 'GET',
   url: `/api/pingone/applications/${appId}`,
@@ -87,8 +87,8 @@ apiCallTrackerService.trackApiCall({
 ---
 
 ### 3. **OIDC Discovery** ⏳ NOT TRACKED
-**Service:** `oidcDiscoveryServiceV8.ts`  
-**Location:** `src/v8/services/oidcDiscoveryServiceV8.ts`
+**Service:** `oidcDiscoveryService.ts`  
+**Location:** `src/v8/services/oidcDiscoveryService.ts`
 
 **API Calls:**
 - **Fetch OIDC Configuration**
@@ -101,7 +101,7 @@ apiCallTrackerService.trackApiCall({
 
 **Tracking Needed:**
 ```typescript
-// In oidcDiscoveryServiceV8.ts - discover()
+// In oidcDiscoveryService.ts - discover()
 apiCallTrackerService.trackApiCall({
   method: 'GET',
   url: '/api/pingone/oidc-discovery',
@@ -114,7 +114,7 @@ apiCallTrackerService.trackApiCall({
 ---
 
 ### 4. **JWKS Fetching** ⏳ NOT TRACKED
-**Service:** `jwksCacheServiceV8.ts`, `idTokenValidationServiceV8.ts`  
+**Service:** `jwksCacheService.ts`, `idTokenValidationService.ts`  
 **Location:** `src/v8/services/`
 
 **API Calls:**
@@ -127,7 +127,7 @@ apiCallTrackerService.trackApiCall({
 
 **Tracking Needed:**
 ```typescript
-// In jwksCacheServiceV8.ts - fetchJWKS() or similar
+// In jwksCacheService.ts - fetchJWKS() or similar
 apiCallTrackerService.trackApiCall({
   method: 'GET',
   url: `${jwksUri}`,
@@ -140,8 +140,8 @@ apiCallTrackerService.trackApiCall({
 ---
 
 ### 5. **Pre-flight Validation** ⏳ NOT TRACKED
-**Service:** `preFlightValidationServiceV8.ts`  
-**Location:** `src/v8/services/preFlightValidationServiceV8.ts`
+**Service:** `preFlightValidationService.ts`  
+**Location:** `src/v8/services/preFlightValidationService.ts`
 
 **API Calls:**
 - **Get Application Configuration**
@@ -154,7 +154,7 @@ apiCallTrackerService.trackApiCall({
 
 **Tracking Needed:**
 ```typescript
-// In preFlightValidationServiceV8.ts - validateOAuthConfig()
+// In preFlightValidationService.ts - validateOAuthConfig()
 apiCallTrackerService.trackApiCall({
   method: 'GET',
   url: `/api/pingone/applications/${clientId}`,
@@ -168,7 +168,7 @@ apiCallTrackerService.trackApiCall({
 ---
 
 ### 6. **PAR (Pushed Authorization Requests)** ⏳ NOT TRACKED
-**Service:** `parServiceV8.ts` (if exists) or in authorization flow services  
+**Service:** `parService.ts` (if exists) or in authorization flow services  
 **Location:** TBD
 
 **API Calls:**
@@ -197,7 +197,7 @@ apiCallTrackerService.trackApiCall({
 ---
 
 ### 7. **Token Introspection** ✅ ALREADY TRACKED
-**Service:** `tokenOperationsServiceV8.ts`  
+**Service:** `tokenOperationsService.ts`  
 **Status:** Already tracked in existing flows
 
 ---
@@ -256,16 +256,16 @@ apiCallTrackerService.trackApiCall({
 ## 🎯 IMPLEMENTATION STRATEGY
 
 ### Phase 1: Core Management API Calls (PRIORITY)
-1. **Worker Token retrieval** - Track in `workerTokenServiceV8.ts`
-2. **Application Discovery** - Track in `appDiscoveryServiceV8.ts`
-3. **Application Details** - Track in `appDiscoveryServiceV8.ts`
+1. **Worker Token retrieval** - Track in `workerTokenService.ts`
+2. **Application Discovery** - Track in `appDiscoveryService.ts`
+3. **Application Details** - Track in `appDiscoveryService.ts`
 
 ### Phase 2: OIDC Metadata Calls
-4. **OIDC Discovery** - Track in `oidcDiscoveryServiceV8.ts`
-5. **JWKS fetching** - Track in `jwksCacheServiceV8.ts`
+4. **OIDC Discovery** - Track in `oidcDiscoveryService.ts`
+5. **JWKS fetching** - Track in `jwksCacheService.ts`
 
 ### Phase 3: Validation & Advanced
-6. **Pre-flight validation** - Track in `preFlightValidationServiceV8.ts`
+6. **Pre-flight validation** - Track in `preFlightValidationService.ts`
 7. **Token Refresh** - Track in token operation handlers
 8. **PAR** - Track if/when implemented
 

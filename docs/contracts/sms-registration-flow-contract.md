@@ -91,18 +91,18 @@ The following values are retrieved from localStorage/sessionStorage and are **no
 #### On Submit Behavior by Flow Type
 
 **Admin Flow:**
-1. Call `MFAServiceV8.registerDevice()` with `status: "ACTIVE"`
+1. Call `MFAService.registerDevice()` with `status: "ACTIVE"`
 2. Device is immediately usable
 3. Skip activation step, go directly to Success
 
 **Admin Activation Required Flow:**
-1. Call `MFAServiceV8.registerDevice()` with `status: "ACTIVATION_REQUIRED"`
+1. Call `MFAService.registerDevice()` with `status: "ACTIVATION_REQUIRED"`
 2. PingOne automatically sends OTP to phone
 3. Proceed to Activation step
 
 **User Flow:**
 1. If not authenticated, redirect to PingOne OAuth
-2. After OAuth, call `MFAServiceV8.registerDevice()` with `status: "ACTIVATION_REQUIRED"`
+2. After OAuth, call `MFAService.registerDevice()` with `status: "ACTIVATION_REQUIRED"`
 3. PingOne automatically sends OTP to phone
 4. Proceed to Activation step
 
@@ -145,12 +145,12 @@ The following values are retrieved from localStorage/sessionStorage and are **no
 
 #### Resend OTP
 - 60-second cooldown between resends
-- Calls `MFAServiceV8.sendOTP()` (deprecated) or `MfaAuthenticationServiceV8.initializeDeviceAuthentication()`
+- Calls `MFAService.sendOTP()` (deprecated) or `MfaAuthenticationService.initializeDeviceAuthentication()`
 - Resets OTP input on resend
 
 #### Validation Flow
 1. User enters 6-digit OTP
-2. Call `MFAServiceV8.validateOTP()` with:
+2. Call `MFAService.validateOTP()` with:
    - `deviceAuthId` (from registration response)
    - `otp` (user entered)
    - `otpCheckUrl` (if available from _links)
@@ -403,7 +403,7 @@ interface MFACredentials {
 
 1. **Activation Step uses `activateDevice()`:**
 ```typescript
-const result = await MFAServiceV8.activateDevice({
+const result = await MFAService.activateDevice({
   environmentId: credentials.environmentId,
   username: credentials.username,
   deviceId: mfaState.deviceId,
@@ -423,7 +423,7 @@ if (result.status === 'ACTIVE') {
 
 3. **Resend uses `resendPairingCode()`:**
 ```typescript
-await MFAServiceV8.resendPairingCode({
+await MFAService.resendPairingCode({
   environmentId: credentials.environmentId,
   username: credentials.username,
   deviceId: mfaState.deviceId,
@@ -433,21 +433,21 @@ await MFAServiceV8.resendPairingCode({
 ### Completed Work (2026-01-30):
 
 1. **User Flow OAuth Integration:** ✅ IMPLEMENTED
-   - Uses `UserLoginModalV8` for OAuth authentication
+   - Uses `UserLoginModal` for OAuth authentication
    - When user selects "User Flow" and clicks submit, modal opens for PingOne login
    - After successful OAuth, continues with device registration using user token
 
 2. **API Call Tracking:** ✅ IMPLEMENTED
    - All MFA API calls (`registerDevice`, `activateDevice`, `resendPairingCode`) are tracked
-   - `SuperSimpleApiDisplayV8` component displays tracked calls with `flowFilter="mfa"`
+   - `SuperSimpleApiDisplay` component displays tracked calls with `flowFilter="mfa"`
 
 3. **Phone Number Formatting:** ✅ IMPLEMENTED
    - Form sends separate `phoneNumber` and `countryCode` fields
    - Must be formatted into single `phone` field for API
 
 4. **Credentials Sync:** ✅ IMPLEMENTED
-   - Configuration screen saves to both localStorage AND CredentialsServiceV8
-   - MFAFlowBase reads from CredentialsServiceV8
+   - Configuration screen saves to both localStorage AND CredentialsService
+   - MFAFlowBase reads from CredentialsService
 
 5. **Field Mapping:** ✅ IMPLEMENTED
    - Form field `deviceName` → API fields `nickname` and `name`
@@ -461,16 +461,16 @@ await MFAServiceV8.resendPairingCode({
 
 ### Pattern 1: Credentials Sync (DeviceTypeSelectionScreen)
 
-The configuration screen must save credentials to BOTH localStorage AND CredentialsServiceV8:
+The configuration screen must save credentials to BOTH localStorage AND CredentialsService:
 
 ```typescript
-// Sync environment ID to global service and CredentialsServiceV8 when it changes
+// Sync environment ID to global service and CredentialsService when it changes
 useEffect(() => {
   if (environmentId) {
     globalEnvironmentService.setEnvironmentId(environmentId);
     localStorage.setItem('mfa_environmentId', environmentId);
-    // Also save to CredentialsServiceV8 for MFAFlowBase to read
-    const currentCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+    // Also save to CredentialsService for MFAFlowBase to read
+    const currentCreds = CredentialsService.loadCredentials('mfa-flow-v8', {
       flowKey: 'mfa-flow-v8',
       flowType: 'oidc',
       includeClientSecret: false,
@@ -478,20 +478,20 @@ useEffect(() => {
       includeLogoutUri: false,
       includeScopes: false,
     });
-    CredentialsServiceV8.saveCredentials('mfa-flow-v8', {
+    CredentialsService.saveCredentials('mfa-flow-v8', {
       ...currentCreds,
       environmentId,
     });
   }
 }, [environmentId]);
 
-// Save username to localStorage and CredentialsServiceV8 when it changes
+// Save username to localStorage and CredentialsService when it changes
 useEffect(() => {
   if (username) {
     localStorage.setItem('mfa_unified_username', username);
     localStorage.setItem('mfa_username', username);
-    // Also save to CredentialsServiceV8 for MFAFlowBase to read
-    const currentCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+    // Also save to CredentialsService for MFAFlowBase to read
+    const currentCreds = CredentialsService.loadCredentials('mfa-flow-v8', {
       flowKey: 'mfa-flow-v8',
       flowType: 'oidc',
       includeClientSecret: false,
@@ -499,7 +499,7 @@ useEffect(() => {
       includeLogoutUri: false,
       includeScopes: false,
     });
-    CredentialsServiceV8.saveCredentials('mfa-flow-v8', {
+    CredentialsService.saveCredentials('mfa-flow-v8', {
       ...currentCreds,
       username,
     });
@@ -566,7 +566,7 @@ const performRegistration = useCallback(
 
       // Show the user login modal
       setShowUserLoginModal(true);
-      toastV8.info('User Flow requires PingOne authentication. Please log in to continue.');
+      toast.info('User Flow requires PingOne authentication. Please log in to continue.');
       return;
     }
 
@@ -668,17 +668,17 @@ const SMS_CONFIG: DeviceFlowConfig = {
 ### Core Functionality
 - [x] Fix activation step to use `activateDevice()` for registration flow
 - [x] Add skip logic for Admin Flow (ACTIVE status)
-- [x] Implement OAuth redirect for User Flow (via `UserLoginModalV8`)
+- [x] Implement OAuth redirect for User Flow (via `UserLoginModal`)
 - [x] Update resend OTP to use `resendPairingCode()` (non-deprecated method)
 - [x] Add proper error handling for each API call
 - [x] Add loading states during API calls
 - [x] Add success/error toast notifications
-- [x] Track API calls in SuperSimpleApiDisplayV8 (already implemented in `mfaServiceV8.ts`)
+- [x] Track API calls in SuperSimpleApiDisplay (already implemented in `mfaService.ts`)
 
 ### Field Mapping & Formatting (CRITICAL)
 - [x] Phone number formatting: `phoneNumber` + `countryCode` → `phone` (format: `+{code}.{number}`)
 - [x] Device name mapping: `deviceName` → `nickname` and `name`
-- [x] Credentials sync: Save to both localStorage AND CredentialsServiceV8
+- [x] Credentials sync: Save to both localStorage AND CredentialsService
 - [x] Nickname field in deviceFlowConfigs optionalFields array
 
 ### UI/UX
@@ -693,7 +693,7 @@ const SMS_CONFIG: DeviceFlowConfig = {
 ### Core Flow Files
 | File | Purpose |
 |------|---------|
-| `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx` | Main flow component - contains performRegistration, performRegistrationWithToken, credentials sync |
+| `src/v8/flows/unified/UnifiedMFARegistrationFlow.tsx` | Main flow component - contains performRegistration, performRegistrationWithToken, credentials sync |
 | `src/v8/flows/unified/components/UnifiedDeviceRegistrationForm.tsx` | Registration form UI - flow type selection, device tabs, submit handler |
 | `src/v8/flows/unified/components/DynamicFormRenderer.tsx` | Renders form fields dynamically based on deviceFlowConfigs |
 | `src/v8/flows/unified/components/UnifiedActivationStep.tsx` | OTP activation step - 6-digit code entry, resend logic |
@@ -708,37 +708,37 @@ const SMS_CONFIG: DeviceFlowConfig = {
 ### Service Files
 | File | Purpose |
 |------|---------|
-| `src/v8/services/mfaServiceV8.ts` | API service - registerDevice, activateDevice, resendPairingCode, lookupUserByUsername |
-| `src/v8/services/credentialsServiceV8.ts` | Credentials storage - loadCredentials, saveCredentials |
+| `src/v8/services/mfaService.ts` | API service - registerDevice, activateDevice, resendPairingCode, lookupUserByUsername |
+| `src/v8/services/credentialsService.ts` | Credentials storage - loadCredentials, saveCredentials |
 | `src/v8/services/globalEnvironmentService.ts` | Global environment ID management |
-| `src/v8/services/mfaTokenManagerV8.ts` | Worker token management |
+| `src/v8/services/mfaTokenManager.ts` | Worker token management |
 
 ### Component Files
 | File | Purpose |
 |------|---------|
-| `src/v8/components/UserLoginModalV8.tsx` | OAuth authentication modal for User Flow |
-| `src/v8/components/SuperSimpleApiDisplayV8.tsx` | API call tracking display |
-| `src/v8/components/CountryCodePickerV8.tsx` | Country code dropdown for phone fields |
-| `src/v8/components/EmailInputV8.tsx` | Email input with validation |
+| `src/v8/components/UserLoginModal.tsx` | OAuth authentication modal for User Flow |
+| `src/v8/components/SuperSimpleApiDisplay.tsx` | API call tracking display |
+| `src/v8/components/CountryCodePicker.tsx` | Country code dropdown for phone fields |
+| `src/v8/components/EmailInput.tsx` | Email input with validation |
 
 ---
 
 ## Quick Reference: Key Code Locations
 
 ### Phone Formatting
-`UnifiedMFARegistrationFlowV8.tsx` lines 1013-1023
+`UnifiedMFARegistrationFlow.tsx` lines 1013-1023
 
 ### Field Mapping (deviceName → nickname)
-`UnifiedMFARegistrationFlowV8.tsx` lines 1004-1011
+`UnifiedMFARegistrationFlow.tsx` lines 1004-1011
 
 ### Credentials Sync
-`UnifiedMFARegistrationFlowV8.tsx` lines 171-212
+`UnifiedMFARegistrationFlow.tsx` lines 171-212
 
 ### User Flow OAuth Check
-`UnifiedMFARegistrationFlowV8.tsx` lines 1071-1087
+`UnifiedMFARegistrationFlow.tsx` lines 1071-1087
 
 ### Device Status by Flow Type
-`UnifiedMFARegistrationFlowV8.tsx` lines 993-1001
+`UnifiedMFARegistrationFlow.tsx` lines 993-1001
 
 ### SMS Config
 `deviceFlowConfigs.ts` SMS_CONFIG constant (around line 121)

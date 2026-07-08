@@ -130,7 +130,7 @@ await new Promise(resolve => setTimeout(resolve, 1000 * 2 ** priority));
 ---
 
 #### **2.3 Unified Credentials Mockup**
-**File**: `src/v8/pages/UnifiedCredentialsMockupV8.tsx`  
+**File**: `src/v8/pages/UnifiedCredentialsMockup.tsx`  
 **Purpose**: Demo UI design for unified credentials  
 **Current State**: Static mockup with no real functionality
 

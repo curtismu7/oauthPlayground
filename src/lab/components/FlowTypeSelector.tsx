@@ -10,8 +10,8 @@ import React from 'react';
 import {
 	type FlowType,
 	type SpecVersion,
-	SpecVersionServiceV8,
-} from '@/mfa/services/specVersionServiceV8';
+	SpecVersionService,
+} from '@/mfa/services/specVersionService';
 import { logger } from '@/lab/services/unifiedFlowLoggerServiceV8U';
 
 const _MODULE_TAG = '[ FLOW-TYPE-SELECTOR-V8U]';
@@ -38,7 +38,7 @@ export const FlowTypeSelector: React.FC<FlowTypeSelectorProps> = ({
 	onChange,
 	disabled = false,
 }) => {
-	const availableFlows = SpecVersionServiceV8.getAvailableFlows(specVersion);
+	const availableFlows = SpecVersionService.getAvailableFlows(specVersion);
 
 	const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		const newFlowType = event.target.value as FlowType;

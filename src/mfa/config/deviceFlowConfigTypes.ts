@@ -6,7 +6,7 @@
  * @since 2026-01-29
  *
  * Purpose: Define types for configuration-driven device flows.
- * This enables a single UnifiedMFARegistrationFlowV8 component to handle
+ * This enables a single UnifiedMFARegistrationFlow component to handle
  * all device types (SMS, Email, Mobile, WhatsApp, TOTP, FIDO2) using
  * device-specific configurations instead of separate components.
  *

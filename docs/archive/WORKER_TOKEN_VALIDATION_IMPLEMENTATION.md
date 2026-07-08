@@ -36,7 +36,7 @@ useEffect(() => {
 	const checkTokenStatus = async () => {
 		try {
 			const { checkWorkerTokenStatus } = await import(
-				'@/v8/services/workerTokenStatusServiceV8'
+				'@/v8/services/workerTokenStatusService'
 			);
 			const status = await checkWorkerTokenStatus();
 			setHasValidWorkerToken(status.isValid);
@@ -53,7 +53,7 @@ useEffect(() => {
 						currentStep,
 					}
 				);
-				toastV8.error(
+				toast.error(
 					'Worker token is invalid or expired. Please refresh the worker token before continuing.',
 					{ duration: 7000 }
 				);
@@ -136,7 +136,7 @@ if (!canProceed) {
 // Click handler that shows helpful message when blocked by missing token
 const handleNextClick = () => {
 	if (!hasValidWorkerToken) {
-		toastV8.error(
+		toast.error(
 			'Valid worker token required. Click "Get Worker Token" above to proceed.',
 			{ duration: 5000 }
 		);
@@ -220,7 +220,7 @@ const handleNextClick = () => {
 
 ### Dependencies
 
-- `@/v8/services/workerTokenStatusServiceV8` - Token validation service
+- `@/v8/services/workerTokenStatusService` - Token validation service
   - `checkWorkerTokenStatus()` - Returns `TokenStatusInfo` with `isValid` boolean
   - Checks token presence, expiration, and validity
 
@@ -313,9 +313,9 @@ const handleNextClick = () => {
 ## Related Files
 
 - `src/v8u/components/UnifiedFlowSteps.tsx` (modified)
-- `src/v8/services/workerTokenStatusServiceV8.ts` (used)
+- `src/v8/services/workerTokenStatusService.ts` (used)
 - `src/services/unifiedWorkerTokenService.ts` (underlying service)
-- `src/v8/components/WorkerTokenStatusDisplayV8.tsx` (related UI)
+- `src/v8/components/WorkerTokenStatusDisplay.tsx` (related UI)
 
 ## Version
 

@@ -79,7 +79,7 @@ This document provides a complete analysis of the credential saving and retrieva
 **When**: User changes any field in the credentials form
 **What Gets Saved**:
 - Entire `updated` credentials object (includes ALL fields)
-- Saves to flow-specific storage via `CredentialsServiceV8.saveCredentials(flowKey, updated)`
+- Saves to flow-specific storage via `CredentialsService.saveCredentials(flowKey, updated)`
 - Also saves shared credentials if applicable
 
 **Location**: `src/v8u/components/CredentialsFormV8U.tsx:1368-1397`
@@ -238,11 +238,11 @@ This document provides a complete analysis of the credential saving and retrieva
    - Fixed `tokenEndpointAuthMethod` extraction from app lookup
    - Enhanced logging
 
-4. `src/v8/services/appDiscoveryServiceV8.ts`
+4. `src/v8/services/appDiscoveryService.ts`
    - Enhanced field extraction to handle both camelCase and snake_case
    - Enhanced logging
 
-5. `src/v8/services/credentialsServiceV8.ts`
+5. `src/v8/services/credentialsService.ts`
    - Added instrumentation to `saveCredentials`
    - Added instrumentation to `loadCredentials`
 

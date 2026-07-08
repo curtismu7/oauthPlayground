@@ -3,7 +3,7 @@
 ## Import
 ```tsx
 import { useActionButton } from '@/v8/hooks/useActionButton';
-import { PrimaryButton, SecondaryButton } from '@/v8/components/shared/ActionButtonV8';
+import { PrimaryButton, SecondaryButton } from '@/v8/components/shared/ActionButton';
 ```
 
 ## Setup

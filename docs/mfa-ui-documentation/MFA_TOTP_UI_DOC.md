@@ -25,13 +25,13 @@ This document provides a complete reference for the UI structure, components, st
 ### TOTP Configuration Page
 
 **Location:** `/v8/mfa/register/totp`  
-**Component:** `TOTPConfigurationPageV8.tsx`
+**Component:** `TOTPConfigurationPage.tsx`
 
 #### Layout Structure
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  MFANavigationV8 (Top Navigation Bar)                   │
+│  MFANavigation (Top Navigation Bar)                   │
 ├─────────────────────────────────────────────────────────┤
 │  TOTP Configuration Header (Orange Gradient)         │
 │  - Title: "TOTP Configuration"                           │
@@ -93,7 +93,7 @@ This document provides a complete reference for the UI structure, components, st
 ## Education Section
 
 **Location:** TOTP Configuration Page, after Shared Configuration Step  
-**Component:** `TOTPConfigurationPageV8.tsx`
+**Component:** `TOTPConfigurationPage.tsx`
 
 ### Educational Content
 
@@ -135,7 +135,7 @@ This document provides a complete reference for the UI structure, components, st
 ## TOTP Registration Flow
 
 **Location:** `/v8/mfa/register/totp/device`  
-**Component:** `TOTPFlowV8.tsx`
+**Component:** `TOTPFlow.tsx`
 
 ### Step 0: Configuration
 
@@ -254,7 +254,7 @@ This document provides a complete reference for the UI structure, components, st
 ## TOTP Authentication Flow
 
 **Location:** `/v8/mfa/auth`  
-**Component:** `MFAAuthenticationMainPageV8.tsx`
+**Component:** `MFAAuthenticationMainPage.tsx`
 
 ### Device Selection
 

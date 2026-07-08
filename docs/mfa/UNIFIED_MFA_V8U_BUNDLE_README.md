@@ -19,7 +19,7 @@ This zip contains the **Unified MFA** flow, **Unified OAuth (v8u)** flow, all re
 
 ## Key entry points
 
-- **Unified MFA (registration):** `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`  
+- **Unified MFA (registration):** `src/v8/flows/unified/UnifiedMFARegistrationFlow.tsx`  
   Route in App: `/v8/mfa-unified`
 - **Unified OAuth (v8u):** `src/v8u/flows/UnifiedOAuthFlowV8U.tsx`  
   Routes in App: `/v8u/unified/oauth-authz/:step?`, `/v8u/unified/:flowType?/:step?`

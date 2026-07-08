@@ -18,21 +18,21 @@ import type { DeviceType } from '../shared/MFATypes';
 const MODULE_TAG = '[ MFA-COMPONENT-FACTORY]';
 
 // Lazy load flow components for code splitting
-const SMSFlowV8 = lazy(() => import('../types/SMSFlowV8').then((m) => ({ default: m.SMSFlowV8 })));
-const MobileFlowV8 = lazy(() =>
-	import('../types/MobileFlowV8').then((m) => ({ default: m.MobileFlowV8 }))
+const SMSFlow = lazy(() => import('../types/SMSFlow').then((m) => ({ default: m.SMSFlow })));
+const MobileFlow = lazy(() =>
+	import('../types/MobileFlow').then((m) => ({ default: m.MobileFlow }))
 );
-const EmailFlowV8 = lazy(() =>
-	import('../types/EmailFlowV8').then((m) => ({ default: m.EmailFlowV8 }))
+const EmailFlow = lazy(() =>
+	import('../types/EmailFlow').then((m) => ({ default: m.EmailFlow }))
 );
-const TOTPFlowV8 = lazy(() =>
-	import('../types/TOTPFlowV8').then((m) => ({ default: m.TOTPFlowV8 }))
+const TOTPFlow = lazy(() =>
+	import('../types/TOTPFlow').then((m) => ({ default: m.TOTPFlow }))
 );
-const FIDO2FlowV8 = lazy(() =>
-	import('../types/FIDO2FlowV8').then((m) => ({ default: m.FIDO2FlowV8 }))
+const FIDO2Flow = lazy(() =>
+	import('../types/FIDO2Flow').then((m) => ({ default: m.FIDO2Flow }))
 );
-const WhatsAppFlowV8 = lazy(() =>
-	import('../types/WhatsAppFlowV8').then((m) => ({ default: m.WhatsAppFlowV8 }))
+const WhatsAppFlow = lazy(() =>
+	import('../types/WhatsAppFlow').then((m) => ({ default: m.WhatsAppFlow }))
 );
 
 // Placeholder component for unsupported types
@@ -64,12 +64,12 @@ export class MFAFlowComponentFactory {
 	 * Initialize and register all flow components
 	 */
 	static initialize(): void {
-		MFAFlowComponentFactory.register('SMS', SMSFlowV8);
-		MFAFlowComponentFactory.register('MOBILE', MobileFlowV8);
-		MFAFlowComponentFactory.register('EMAIL', EmailFlowV8);
-		MFAFlowComponentFactory.register('TOTP', TOTPFlowV8);
-		MFAFlowComponentFactory.register('FIDO2', FIDO2FlowV8);
-		MFAFlowComponentFactory.register('WHATSAPP', WhatsAppFlowV8);
+		MFAFlowComponentFactory.register('SMS', SMSFlow);
+		MFAFlowComponentFactory.register('MOBILE', MobileFlow);
+		MFAFlowComponentFactory.register('EMAIL', EmailFlow);
+		MFAFlowComponentFactory.register('TOTP', TOTPFlow);
+		MFAFlowComponentFactory.register('FIDO2', FIDO2Flow);
+		MFAFlowComponentFactory.register('WHATSAPP', WhatsAppFlow);
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /**
- * @file environmentIdServiceV8.ts
+ * @file environmentIdService.ts
  * @module v8/services
  * @description Global environment ID storage and retrieval service
  * @version 8.0.0
@@ -9,7 +9,7 @@
  * Once saved, it's automatically used across all flows.
  */
 
-const MODULE_TAG = 'EnvironmentIdServiceV8';
+const MODULE_TAG = 'EnvironmentIdService';
 const STORAGE_KEY = 'v8:global_environment_id';
 
 import { logger } from '../utils/logger';
@@ -22,7 +22,7 @@ declare global {
 }
 
 // biome-ignore lint/complexity/noStaticOnlyClass: V8 service pattern used across app
-export class EnvironmentIdServiceV8 {
+export class EnvironmentIdService {
 	/**
 	 * Get stored environment ID
 	 * @returns Environment ID or empty string if not set
@@ -54,7 +54,7 @@ export class EnvironmentIdServiceV8 {
 	static addDebugHelper(): void {
 		if (typeof window !== 'undefined') {
 			window.resetEnvironmentIdLogging = () => {
-				EnvironmentIdServiceV8.resetLoggingState();
+				EnvironmentIdService.resetLoggingState();
 				logger.info(MODULE_TAG, 'Logging state reset');
 			};
 		}
@@ -75,7 +75,7 @@ export class EnvironmentIdServiceV8 {
 			logger.info(MODULE_TAG, 'Saved environment ID');
 
 			// Add to history (new feature)
-			EnvironmentIdServiceV8.addToHistory(trimmed);
+			EnvironmentIdService.addToHistory(trimmed);
 
 			// Dispatch event so components can react
 			window.dispatchEvent(new Event('environmentIdUpdated'));
@@ -98,7 +98,7 @@ export class EnvironmentIdServiceV8 {
 	 * @returns True if environment ID exists
 	 */
 	static hasEnvironmentId(): boolean {
-		return !!EnvironmentIdServiceV8.getEnvironmentId();
+		return !!EnvironmentIdService.getEnvironmentId();
 	}
 
 	// ============================================================================
@@ -113,7 +113,7 @@ export class EnvironmentIdServiceV8 {
 	 * @returns Validation result with specific error message
 	 *
 	 * @example
-	 * const result = EnvironmentIdServiceV8.validateEnvironmentId(envId);
+	 * const result = EnvironmentIdService.validateEnvironmentId(envId);
 	 * if (!result.valid) {
 	 *   modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.error, dismissible: true });
 	 * }
@@ -172,7 +172,7 @@ export class EnvironmentIdServiceV8 {
 	 * @returns Array of recent environment IDs (most recent first)
 	 *
 	 * @example
-	 * const recent = EnvironmentIdServiceV8.getRecentEnvironmentIds(5);
+	 * const recent = EnvironmentIdService.getRecentEnvironmentIds(5);
 	 * // Show in dropdown for quick selection
 	 */
 	static getRecentEnvironmentIds(limit: number = 5): string[] {
@@ -197,7 +197,7 @@ export class EnvironmentIdServiceV8 {
 	 */
 	private static addToHistory(envId: string): void {
 		try {
-			const history = EnvironmentIdServiceV8.getRecentEnvironmentIds(10);
+			const history = EnvironmentIdService.getRecentEnvironmentIds(10);
 
 			// Remove if already exists (to move to front)
 			const filtered = history.filter((id) => id !== envId);
@@ -231,10 +231,10 @@ export class EnvironmentIdServiceV8 {
 	 * @returns Formatted environment ID
 	 *
 	 * @example
-	 * const short = EnvironmentIdServiceV8.formatEnvironmentId(envId, 'short');
+	 * const short = EnvironmentIdService.formatEnvironmentId(envId, 'short');
 	 * // "12345678..."
 	 *
-	 * const medium = EnvironmentIdServiceV8.formatEnvironmentId(envId, 'medium');
+	 * const medium = EnvironmentIdService.formatEnvironmentId(envId, 'medium');
 	 * // "12345678-1234..."
 	 */
 	static formatEnvironmentId(envId: string, format: 'short' | 'medium' | 'full' = 'short'): string {
@@ -264,6 +264,6 @@ export class EnvironmentIdServiceV8 {
 }
 
 // Initialize debug helper
-EnvironmentIdServiceV8.addDebugHelper();
+EnvironmentIdService.addDebugHelper();
 
-export default EnvironmentIdServiceV8;
+export default EnvironmentIdService;

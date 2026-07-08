@@ -212,7 +212,7 @@
 ## 🔍 Code Changes
 
 ### Files Modified:
-- ✅ `src/v8/flows/MFAFlowV8.tsx`
+- ✅ `src/v8/flows/MFAFlow.tsx`
 
 ### Lines Added:
 - ~150 lines of test mode logic

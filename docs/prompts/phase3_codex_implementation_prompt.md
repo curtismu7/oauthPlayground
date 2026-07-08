@@ -221,11 +221,11 @@
 ## 9) Next 5 Implementation Tasks
 
 **Task 1: Add Route-Lock + Resume (1 file)**
-- Edit: `src/locked/mfa-hub-v8/feature/MFAHubV8.tsx`
+- Edit: `src/locked/mfa-hub-v8/feature/MFAHub.tsx`
 - Add: `useEffect` hooks for `beforeunload` + `popstate`; check IndexedDB on mount; prompt user to resume
 
 **Task 2: Implement IndexedDB Journal Service (1 file)**
-- Create: `src/locked/mfa-hub-v8/dependencies/services/journalServiceV8.ts`
+- Create: `src/locked/mfa-hub-v8/dependencies/services/journalService.ts`
 - Methods: `recordApiCall()`, `recordEvent()`, `getIncompleteRuns()`, `prune()`
 
 **Task 3: Wire HTTP Interceptor to Journal (2 files)**
@@ -233,7 +233,7 @@
 - Edit: `dependencies/utils/oauth.ts` (wrap fetch with interceptor)
 
 **Task 4: Build State Machine Wrapper (1 file)**
-- Create: `src/locked/mfa-hub-v8/dependencies/services/stateMachineV8.ts`
+- Create: `src/locked/mfa-hub-v8/dependencies/services/stateMachine.ts`
 - Exports: `dispatch(event)`, `getState()`, `subscribe(listener)`; auto-journals transitions
 
 **Task 5: Backend Log Shipping Endpoint (3 files)**

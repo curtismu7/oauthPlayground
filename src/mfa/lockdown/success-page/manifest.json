@@ -5,19 +5,19 @@
 	"updated": "2025-01-27T00:00:00.000Z",
 	"files": [
 		{
-			"path": "src/mfa/services/unifiedMFASuccessPageServiceV8.tsx",
+			"path": "src/mfa/services/unifiedMFASuccessPageService.tsx",
 			"hash": "TO_BE_COMPUTED",
 			"description": "Main unified success page component - handles all device types (SMS, EMAIL, TOTP, FIDO2, VOICE, WHATSAPP) and both registration/authentication flows"
 		},
 		{
-			"path": "src/mfa/flows/shared/mfaSuccessPageServiceV8.tsx",
+			"path": "src/mfa/flows/shared/mfaSuccessPageService.tsx",
 			"hash": "TO_BE_COMPUTED",
-			"description": "Shared success page service - converts MFA flow data to unified format and provides MFASuccessPageV8 wrapper component"
+			"description": "Shared success page service - converts MFA flow data to unified format and provides MFASuccessPage wrapper component"
 		},
 		{
 			"path": "src/mfa/components/MFAAuthenticationSuccessPage.tsx",
 			"hash": "TO_BE_COMPUTED",
-			"description": "Authentication success page wrapper - converts authentication flow state to unified format for UnifiedMFASuccessPageV8"
+			"description": "Authentication success page wrapper - converts authentication flow state to unified format for UnifiedMFASuccessPage"
 		}
 	]
 }

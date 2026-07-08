@@ -16,7 +16,7 @@ Your job is to:
 Repo context (from the diagnostics zip):
 
 - Backend: `server.js`
-- FIDO2 & MFA services: `FIDO2FlowController.ts`, `mfaServiceV8.ts`
+- FIDO2 & MFA services: `FIDO2FlowController.ts`, `mfaService.ts`
 - Logs: `server-log-recent.txt`, `pingone-api-log-recent.txt`
 
 ---
@@ -53,7 +53,7 @@ If PingOne says the header looks like “hashed with SHA-256 and encoded with Ba
 Work in this directory (from the diagnostics zip):
 
 - `fido2-diagnostic/FIDO2FlowController.ts`
-- `fido2-diagnostic/mfaServiceV8.ts`
+- `fido2-diagnostic/mfaService.ts`
 - `fido2-diagnostic/server.js`
 - plus logs:
   - `fido2-diagnostic/server-log-recent.txt`
@@ -62,7 +62,7 @@ Work in this directory (from the diagnostics zip):
 When updating the real repo, map these paths back to:
 
 - `src/v8/flows/FIDO2FlowController.ts` (or similar)
-- `src/v8/services/mfaServiceV8.ts`
+- `src/v8/services/mfaService.ts`
 - Backend `server.js` (Node/Express OAuth proxy / PingOne proxy)
 
 **Do not** break any other flow (SMS, Email, existing MFA, OAuth, etc.).
@@ -73,15 +73,15 @@ When updating the real repo, map these paths back to:
 
 ### 3.1 Frontend → Backend
 
-From `mfaServiceV8.ts` we already have the right mental model:
+From `mfaService.ts` we already have the right mental model:
 
-- `MFAServiceV8.getToken(...)` returns either:
+- `MFAService.getToken(...)` returns either:
   - a **worker token** (default), or
   - a **user token** (if `tokenType: 'user'` is explicitly requested).
 - `registerDevice` and other methods do:
 
 ```ts
-const accessToken = await MFAServiceV8.getToken(...);
+const accessToken = await MFAService.getToken(...);
 // accessToken should be a plain JWT string
 ```
 

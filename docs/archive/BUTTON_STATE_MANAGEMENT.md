@@ -20,7 +20,7 @@ This implementation provides a global flow state management system to ensure con
   - Prevents multiple simultaneous actions
   - Error handling
 
-### 3. ActionButtonV8 Component (`src/v8/components/shared/ActionButtonV8.tsx`)
+### 3. ActionButton Component (`src/v8/components/shared/ActionButton.tsx`)
 - **Purpose**: Consistent button UI with loading states
 - **Features**:
   - Built-in loading spinner
@@ -33,7 +33,7 @@ This implementation provides a global flow state management system to ensure con
 ### Basic Example
 
 ```tsx
-import { PrimaryButton } from '@/v8/components/shared/ActionButtonV8';
+import { PrimaryButton } from '@/v8/components/shared/ActionButton';
 import { useActionButton } from '@/v8/hooks/useActionButton';
 
 const MyComponent: React.FC = () => {
@@ -62,7 +62,7 @@ const MyComponent: React.FC = () => {
 ### Multiple Buttons
 
 ```tsx
-import { PrimaryButton, SecondaryButton } from '@/v8/components/shared/ActionButtonV8';
+import { PrimaryButton, SecondaryButton } from '@/v8/components/shared/ActionButton';
 import { useActionButton } from '@/v8/hooks/useActionButton';
 
 const MyFlow: React.FC = () => {

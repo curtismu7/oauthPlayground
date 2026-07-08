@@ -5,9 +5,9 @@ echo "=============================================="
 
 # Test 1: Check MFA flow environment ID fallback
 echo "📋 Checking MFA flow environment ID fallback..."
-if grep -q "Applied global environment ID fallback for MFA flow" src/mfa/flows/shared/MFAFlowBaseV8.tsx && \
-   grep -q "v8:global_environment_id" src/mfa/flows/shared/MFAFlowBaseV8.tsx && \
-   grep -q "🔍 DEBUG: Checking global environment ID fallback" src/mfa/flows/shared/MFAFlowBaseV8.tsx; then
+if grep -q "Applied global environment ID fallback for MFA flow" src/mfa/flows/shared/MFAFlowBase.tsx && \
+   grep -q "v8:global_environment_id" src/mfa/flows/shared/MFAFlowBase.tsx && \
+   grep -q "🔍 DEBUG: Checking global environment ID fallback" src/mfa/flows/shared/MFAFlowBase.tsx; then
     echo "✅ MFA flow environment ID fallback implemented with debug logging"
 else
     echo "❌ MFA flow environment ID fallback missing!"
@@ -18,7 +18,7 @@ fi
 echo "📋 Checking AppDiscoveryModalV8U tokenStatus fixes..."
 if grep -q "globalTokenStatus" src/lab/components/AppDiscoveryModalV8U.tsx && \
    ! grep -q "tokenStatus" src/lab/components/AppDiscoveryModalV8U.tsx && \
-   ! grep -q "WorkerTokenStatusServiceV8" src/lab/components/AppDiscoveryModalV8U.tsx; then
+   ! grep -q "WorkerTokenStatusService" src/lab/components/AppDiscoveryModalV8U.tsx; then
     echo "✅ AppDiscoveryModalV8U tokenStatus references fixed"
 else
     echo "❌ AppDiscoveryModalV8U tokenStatus references not fixed!"
@@ -27,7 +27,7 @@ fi
 
 # Test 3: Check localStorage access pattern in MFA flow
 echo "📋 Checking localStorage access pattern in MFA flow..."
-if grep -q "localStorage.getItem.*v8:global_environment_id" src/mfa/flows/shared/MFAFlowBaseV8.tsx; then
+if grep -q "localStorage.getItem.*v8:global_environment_id" src/mfa/flows/shared/MFAFlowBase.tsx; then
     echo "✅ localStorage access pattern implemented in MFA flow"
 else
     echo "❌ localStorage access pattern missing in MFA flow!"
@@ -36,7 +36,7 @@ fi
 
 # Test 4: Check error handling in both components
 echo "📋 Checking error handling in both components..."
-if grep -q "Failed to access global environment ID for fallback" src/mfa/flows/shared/MFAFlowBaseV8.tsx && \
+if grep -q "Failed to access global environment ID for fallback" src/mfa/flows/shared/MFAFlowBase.tsx && \
    grep -q "Discovery error" src/lab/components/AppDiscoveryModalV8U.tsx; then
     echo "✅ Error handling implemented in both components"
 else
@@ -46,8 +46,8 @@ fi
 
 # Test 5: Check debug logging in MFA flow
 echo "📋 Checking debug logging in MFA flow..."
-if grep -q "🔍 DEBUG: Environment ID already exists in storage" src/mfa/flows/shared/MFAFlowBaseV8.tsx && \
-   grep -q "willApplyFallback" src/mfa/flows/shared/MFAFlowBaseV8.tsx; then
+if grep -q "🔍 DEBUG: Environment ID already exists in storage" src/mfa/flows/shared/MFAFlowBase.tsx && \
+   grep -q "willApplyFallback" src/mfa/flows/shared/MFAFlowBase.tsx; then
     echo "✅ Debug logging implemented in MFA flow"
 else
     echo "❌ Debug logging missing in MFA flow!"

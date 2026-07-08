@@ -1,0 +1,412 @@
+/**
+ * @file workerTokenModalHelper.ts
+ * @module v8/utils
+ * @description Helper function to handle worker token modal display with silent API retrieval support
+ * @version 8.1.0
+ * @since 2025-01-XX
+ *
+ * IMPORTANT: This file delegates to tokenGateway for all token acquisition.
+ * Do NOT add direct token fetch logic here - use tokenGateway instead.
+ */
+
+import { modernMessaging } from '@/platform/ModernMessagingService';
+import { tokenGateway } from '@/mfa/services/auth/tokenGateway';
+import { workerTokenConfigService } from '@/mfa/services/workerTokenConfigService';
+import { workerTokenService } from '@/mfa/services/workerTokenService';
+import {
+	type TokenStatusInfo,
+	WorkerTokenStatusService,
+} from '@/mfa/services/workerTokenStatusService';
+import { logger } from '../../utils/logger';
+
+const MODULE_TAG = '[ WORKER-TOKEN-MODAL-HELPER-V8]';
+
+/**
+ * Attempts to silently retrieve worker token if silentApiRetrieval is enabled
+ * Returns true if token was successfully retrieved, false otherwise
+ *
+ * IMPORTANT: This function delegates to tokenGateway for actual token acquisition.
+ * All token fetch logic is centralized in tokenGateway to prevent regressions.
+ *
+ * @param silentApiRetrievalOverride - Override for silent retrieval setting (if not provided, uses centralized service)
+ * @param forceRefresh - If true, force token refresh even if valid token exists
+ */
+async function attemptSilentTokenRetrieval(
+	silentApiRetrievalOverride?: boolean,
+	forceRefresh: boolean = false
+): Promise<boolean> {
+	try {
+		// FOOLPROOF: Use multiple sources to ensure we get the correct configuration
+		let silentApiRetrieval = false;
+
+		if (silentApiRetrievalOverride !== undefined) {
+			// Use explicit override if provided
+			silentApiRetrieval = silentApiRetrievalOverride;
+			logger.info(`${MODULE_TAG} Using override silentApiRetrieval:`, silentApiRetrieval);
+		} else {
+			// Try multiple sources for configuration
+			try {
+				// First try centralized service
+				silentApiRetrieval = workerTokenConfigService.getSilentApiRetrieval();
+				logger.info(
+					`${MODULE_TAG} Using workerTokenConfigService silentApiRetrieval:`,
+					silentApiRetrieval
+				);
+			} catch (serviceError) {
+				logger.warn(
+					`${MODULE_TAG} Failed to get config from workerTokenConfigService:`,
+					serviceError
+				);
+
+				// Fallback to MFA configuration service
+				try {
+					const { MFAConfigurationService } = await import(
+						'@/mfa/services/mfaConfigurationService'
+					);
+					const mfaConfig = MFAConfigurationService.loadConfiguration();
+					silentApiRetrieval = mfaConfig.workerToken?.silentApiRetrieval ?? false;
+					logger.info(
+						`${MODULE_TAG} Using MFAConfigurationService fallback silentApiRetrieval:`,
+						silentApiRetrieval
+					);
+				} catch (fallbackError) {
+					logger.error(`${MODULE_TAG} All configuration sources failed:`, fallbackError);
+					silentApiRetrieval = false;
+				}
+			}
+		}
+
+		if (!silentApiRetrieval) {
+			logger.info(`${MODULE_TAG} Silent retrieval disabled`, 'Logger info');
+			return false;
+		}
+
+		logger.info(
+			`${MODULE_TAG} Attempting silent token retrieval via tokenGateway...`,
+			forceRefresh ? '(force refresh)' : ''
+		);
+
+		// Delegate to canonical token gateway
+		const result = await tokenGateway.getWorkerToken({
+			mode: 'silent',
+			forceRefresh: forceRefresh,
+			timeout: 10000,
+			maxRetries: 2,
+			debug: true,
+		});
+
+		if (result.success) {
+			logger.info(`${MODULE_TAG} Token automatically fetched via tokenGateway`, 'Logger info');
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Worker token automatically retrieved!',
+				duration: 3000,
+			});
+			return true;
+		}
+
+		// Handle specific error cases
+		if (result.error) {
+			logger.info(
+				`${MODULE_TAG} Silent retrieval failed:`,
+				result.error.code,
+				result.error.message
+			);
+
+			if (result.error.code === 'NO_CREDENTIALS') {
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message:
+						'Silent API retrieval requires saved credentials. Click "Get Worker Token" to configure.',
+					dismissible: true,
+				});
+			} else if (result.error.code === 'TIMEOUT') {
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: 'Token retrieval timed out. Please try again.',
+					dismissible: true,
+				});
+			} else if (result.error.code === 'NETWORK_ERROR') {
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: 'Network error during token retrieval. Check your connection.',
+					dismissible: true,
+				});
+			}
+			// Other errors are handled silently - user can click button to get details
+		}
+
+		return false;
+	} catch (error) {
+		logger.error(`${MODULE_TAG} Unexpected error in silent retrieval:`, error);
+		return false;
+	}
+}
+
+/**
+ * Handles showing worker token modal with silent API retrieval support
+ * Checks if silentApiRetrieval is enabled and attempts to fetch token silently first
+ * Only shows modal if silent retrieval fails or is disabled
+ * Respects showTokenAtEnd setting to display token without modal
+ *
+ * IMPORTANT: When user explicitly clicks "Get Worker Token" button, always show modal
+ * to allow credential configuration, even if silentApiRetrieval is ON.
+ *
+ * Now uses workerTokenConfigService as the default source for configuration.
+ * Override parameters are still supported for backward compatibility.
+ *
+ * @param setShowModal - Function to set modal visibility
+ * @param setTokenStatus - Optional function to update token status after retrieval
+ * @param overrideSilentApiRetrieval - Optional override for silentApiRetrieval (takes precedence over centralized service)
+ * @param overrideShowTokenAtEnd - Optional override for showTokenAtEnd (takes precedence over centralized service)
+ * @param forceShowModal - If true, always show modal (user explicitly clicked button)
+ * @param setSilentLoading - Optional function to update loading state during silent retrieval
+ * @returns Promise that resolves when modal handling is complete
+ */
+export async function handleShowWorkerTokenModal(
+	setShowModal: (show: boolean) => void,
+	setTokenStatus?: (status: TokenStatusInfo) => void | Promise<void>,
+	overrideSilentApiRetrieval?: boolean,
+	overrideShowTokenAtEnd?: boolean,
+	forceShowModal: boolean = false, // Default to false for automatic calls
+	setSilentLoading?: (loading: boolean) => void // New parameter for loading state
+): Promise<void> {
+	// #region agent log
+	// #endregion
+
+	// SIMPLIFIED: Use centralized service with clear priority
+	let silentApiRetrieval = false;
+	let showTokenAtEnd = false;
+
+	// Priority 1: Explicit overrides (highest priority)
+	if (overrideSilentApiRetrieval !== undefined) {
+		silentApiRetrieval = overrideSilentApiRetrieval;
+		logger.info(`${MODULE_TAG} Using override silentApiRetrieval:`, silentApiRetrieval);
+	} else {
+		// Priority 2: Centralized service (recommended)
+		try {
+			silentApiRetrieval = workerTokenConfigService.getSilentApiRetrieval();
+			logger.info(
+				`${MODULE_TAG} ✅ Using workerTokenConfigService silentApiRetrieval:`,
+				silentApiRetrieval
+			);
+		} catch (serviceError) {
+			logger.warn(
+				`${MODULE_TAG} ⚠️ workerTokenConfigService failed, using fallback:`,
+				serviceError
+			);
+			// Priority 3: Direct MFA service (fallback)
+			try {
+				const { MFAConfigurationService } = await import(
+					'@/mfa/services/mfaConfigurationService'
+				);
+				const mfaConfig = MFAConfigurationService.loadConfiguration();
+				silentApiRetrieval = mfaConfig.workerToken?.silentApiRetrieval ?? false;
+				logger.info(
+					`${MODULE_TAG} Using MFAConfigurationService fallback silentApiRetrieval:`,
+					silentApiRetrieval
+				);
+			} catch (fallbackError) {
+				logger.error(`${MODULE_TAG} ❌ All silentApiRetrieval sources failed:`, fallbackError);
+				silentApiRetrieval = false;
+			}
+		}
+	}
+
+	// Priority 1: Explicit overrides (highest priority)
+	if (overrideShowTokenAtEnd !== undefined) {
+		showTokenAtEnd = overrideShowTokenAtEnd;
+		logger.info(`${MODULE_TAG} Using override showTokenAtEnd:`, showTokenAtEnd);
+	} else {
+		// Priority 2: Centralized service (recommended)
+		try {
+			showTokenAtEnd = workerTokenConfigService.getShowTokenAtEnd();
+			logger.info(
+				`${MODULE_TAG} ✅ Using workerTokenConfigService showTokenAtEnd:`,
+				showTokenAtEnd
+			);
+		} catch (serviceError) {
+			logger.warn(
+				`${MODULE_TAG} ⚠️ workerTokenConfigService failed, using fallback:`,
+				serviceError
+			);
+			// Priority 3: Direct MFA service (fallback)
+			try {
+				const { MFAConfigurationService } = await import(
+					'@/mfa/services/mfaConfigurationService'
+				);
+				const mfaConfig = MFAConfigurationService.loadConfiguration();
+				showTokenAtEnd = mfaConfig.workerToken?.showTokenAtEnd ?? false;
+				logger.info(
+					`${MODULE_TAG} Using MFAConfigurationService fallback showTokenAtEnd:`,
+					showTokenAtEnd
+				);
+			} catch (fallbackError) {
+				logger.error(`${MODULE_TAG} ❌ All showTokenAtEnd sources failed:`, fallbackError);
+				showTokenAtEnd = false;
+			}
+		}
+	}
+
+	// Log final configuration for debugging
+	logger.info(`${MODULE_TAG} Final configuration:`, {
+		silentApiRetrieval,
+		showTokenAtEnd,
+		forceShowModal,
+		source: overrideSilentApiRetrieval !== undefined ? 'override' : 'service',
+	});
+
+	// Check current token status
+	const currentStatus = WorkerTokenStatusService.checkWorkerTokenStatusSync();
+
+	// If token is already valid AND user didn't explicitly click button
+	if (currentStatus.isValid && !forceShowModal) {
+		// Only show modal if BOTH silentApiRetrieval is OFF AND showTokenAtEnd is ON
+		// If silentApiRetrieval is ON, we should be truly silent (no modals)
+		if (!silentApiRetrieval && showTokenAtEnd) {
+			setShowModal(true);
+			return;
+		}
+
+		return;
+	}
+
+	// Token is missing or expired (or forceShowModal=true which bypasses the early return above)
+	// If silentApiRetrieval is ON, attempt silent retrieval
+	if (silentApiRetrieval) {
+		// Show loading state during silent retrieval
+		if (setSilentLoading) {
+			setSilentLoading(true);
+		}
+
+		// #region agent log
+		// #endregion
+		const silentRetrievalSucceeded = await attemptSilentTokenRetrieval(
+			silentApiRetrieval,
+			forceShowModal // Force refresh if user explicitly clicked button
+		);
+
+		// Hide loading state
+		if (setSilentLoading) {
+			setSilentLoading(false);
+		}
+		// #region agent log
+		// #endregion
+
+		if (silentRetrievalSucceeded) {
+			// Token was successfully retrieved silently
+			if (setTokenStatus) {
+				const newStatus = WorkerTokenStatusService.checkWorkerTokenStatusSync();
+				await setTokenStatus(newStatus);
+			}
+
+			// For silent API retrieval, only show modal if user explicitly clicked button
+			// If silent retrieval succeeded automatically, user should return to step 0 without modal
+			if (forceShowModal) {
+				// User explicitly clicked "Get Worker Token" - show modal even in silent mode
+				setShowModal(true);
+			}
+			// If this was automatic silent retrieval (not user-clicked), don't show modal
+			// User should continue to step 0 as expected
+			return;
+		}
+
+		// Silent retrieval failed
+		// If user explicitly clicked button (forceShowModal), show modal to allow credential configuration
+		// If credentials are missing, show modal to allow configuration (even in silent mode)
+		// Otherwise, respect silentApiRetrieval setting and don't show modal
+		if (forceShowModal) {
+			setShowModal(true);
+			return;
+		}
+
+		// Check if failure was due to missing credentials
+		const credentialsCheck = await workerTokenService.loadCredentials();
+		if (!credentialsCheck) {
+			// ALWAYS show modal when credentials are missing, even in silent mode
+			// User needs to configure credentials to continue
+			logger.warn(
+				`${MODULE_TAG} No credentials configured. Showing modal for credential setup.`,
+				'Logger warning'
+			);
+			setShowModal(true);
+			return;
+		}
+
+		return;
+	}
+
+	// silentApiRetrieval is OFF - show modal if showTokenAtEnd is ON OR if user explicitly clicked button
+	if (forceShowModal || showTokenAtEnd) {
+		setShowModal(true);
+	} else {
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Simple credential-check helpers (merged from workerTokenModalHelperV8_SIMPLE)
+// ---------------------------------------------------------------------------
+
+/**
+ * DEAD SIMPLE worker token modal logic:
+ * 1. Check if credentials exist (browser storage or sqlite)
+ * 2. If credentials exist → NO MODAL (let silent API work)
+ * 3. If no credentials → SHOW MODAL (tell user they need to enter creds)
+ *
+ * This bypasses silentApiRetrieval/showTokenAtEnd complexity and focuses
+ * purely on: credentials present → no modal, missing → modal.
+ */
+export async function handleShowWorkerTokenModalSimple(
+	setShowModal: (show: boolean) => void,
+	forceShowModal: boolean = false
+): Promise<void> {
+	try {
+		logger.info(`${MODULE_TAG} Starting simple modal check`, 'Logger info');
+
+		if (forceShowModal) {
+			logger.info(`${MODULE_TAG} User clicked button → showing modal`, 'Logger info');
+			setShowModal(true);
+			return;
+		}
+
+		const credentials = await workerTokenService.loadCredentials();
+		const hasCredentials = credentials !== null;
+
+		logger.info(`${MODULE_TAG} Credentials check:`, { hasCredentials });
+
+		if (hasCredentials) {
+			logger.info(`${MODULE_TAG} Credentials exist → no modal needed`, 'Logger info');
+			setShowModal(false);
+		} else {
+			logger.info(
+				`${MODULE_TAG} No credentials → showing modal for credential entry`,
+				'Logger info'
+			);
+			setShowModal(true);
+		}
+	} catch (error) {
+		logger.error(`${MODULE_TAG} Error in simple modal logic:`, error);
+		setShowModal(true);
+	}
+}
+
+/**
+ * Synchronous check for credentials presence using localStorage.
+ * Use for immediate (non-async) gating decisions.
+ */
+export function hasCredentialsSync(): boolean {
+	try {
+		const stored = localStorage.getItem('unified_worker_token');
+		if (!stored) return false;
+		const data = JSON.parse(stored) as Record<string, unknown>;
+		const credentials =
+			(data.credentials as unknown) ??
+			((data.data as Record<string, unknown>)?.credentials as unknown);
+		return credentials !== null && typeof credentials === 'object';
+	} catch {
+		return false;
+	}
+}

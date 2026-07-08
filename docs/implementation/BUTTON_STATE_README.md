@@ -9,7 +9,7 @@
 ```tsx
 // 1. Import
 import { useActionButton } from '@/v8/hooks/useActionButton';
-import { PrimaryButton } from '@/v8/components/shared/ActionButtonV8';
+import { PrimaryButton } from '@/v8/components/shared/ActionButton';
 
 // 2. Create hook instance
 const myAction = useActionButton();
@@ -68,7 +68,7 @@ src/v8/
 - [x] Core infrastructure
 - [x] Integration into App.tsx
 - [x] Documentation
-- [x] Reference implementation (OAuthAuthorizationCodeFlowV8)
+- [x] Reference implementation (OAuthAuthorizationCodeFlow)
 
 ### In Progress 🔄
 - [ ] Unit tests
@@ -188,7 +188,7 @@ onClick={() => action.executeAction(
 ### Questions?
 - Check [Quick Reference](./docs/BUTTON_STATE_QUICK_REFERENCE.md) first
 - Review [Full Documentation](./docs/BUTTON_STATE_MANAGEMENT.md)
-- See reference implementation in `OAuthAuthorizationCodeFlowV8.tsx`
+- See reference implementation in `OAuthAuthorizationCodeFlow.tsx`
 
 ### Issues?
 - Check console logs (action names are logged)
@@ -230,7 +230,7 @@ onClick={() => action.executeAction(
 
 - [MFA Unified Consistency Plan](./docs/MFA_UNIFIED_CONSISTENCY_PLAN.md)
 - [Quick Win 1 Status](./docs/QUICK_WIN_1_IMPLEMENTATION_STATUS.md)
-- [ActionButtonV8 Component](./src/v8/components/shared/ActionButtonV8.tsx)
+- [ActionButton Component](./src/v8/components/shared/ActionButton.tsx)
 
 ---
 
