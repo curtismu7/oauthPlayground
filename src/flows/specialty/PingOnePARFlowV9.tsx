@@ -15,11 +15,11 @@ import {
 } from '../../services/parConfigurationService';
 import { PKCEServiceUtils } from '../../services/pkceService';
 import { type AuthorizationDetail, RARService } from '../../services/rarService';
-import { FlowCredentialService } from '../../platform/core/FlowCredentialService';
 import { CredentialStorageService } from '../../platform/CredentialStorageService';
 import { FlowRestartButton } from '../../platform/FlowRestartButton';
 import { ModernMessagingService } from '../../platform/ModernMessagingService';
 import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { logger } from '../../utils/logger';
 import type { DiscoveredApp } from '../../mfa/components/AppPicker';
@@ -356,17 +356,22 @@ const PingOnePARFlowV9: React.FC = () => {
 							</button>
 						</div>
 
-						{/* Credentials Input */}
+						{/* Credentials Input — FlowCredentialService is storage-only; use the credentials UI component */}
 						<CompactAppPickerV8U
 							onAppSelected={handleParAppSelected}
 						/>
-						<FlowCredentialService
-							flowKey="pingone-par-flow-v9"
+						<ComprehensiveCredentialsService
+							flowType="pingone-par-flow-v9"
+							credentials={controller.credentials}
 							onCredentialsChange={(credentials) => {
 								if (credentials) {
 									controller.setCredentials(credentials);
 								}
 							}}
+							showConfigChecker={false}
+							showRedirectUri={true}
+							showPostLogoutRedirectUri={false}
+							showLoginHint={false}
 						/>
 					</div>
 				);
