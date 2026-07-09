@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### OAuth flow audit artifacts + remediation status (2026-07-09)
+
+- **What:** Checked in smoke-audit script and JSON report; annotated known issues with fix commits / remaining open items.
+- **Cause:** Audit run produced untracked `scripts/oauth-flow-smoke-audit.mjs` and `docs/reports/oauth-flow-audit-2026-07-08.json`.
+- **Fix:** Commit artifacts; mark critical/high issues fixed (`069196201`, `93fdda826`, `964a45b4c`). Also fixed low-severity `/v8u/unified` console noise: `WorkerTokenBanner` `visible` → `$visible` transient prop.
+- **Files:** `scripts/oauth-flow-smoke-audit.mjs`, `docs/reports/oauth-flow-audit-2026-07-08.json`, this log
+- **Regression check:** Re-run `node scripts/oauth-flow-smoke-audit.mjs` against `:8000`; expect `/flows/par`, `/flows/dpop`, `/flows/pingone-par-v9`, `/flows/par-v9` ok.
+
 ### OAuth flow audit fixes: PAR/DPoP routes, PingOnePAR crash, auth-code gate, E2E (2026-07-08)
 
 - **What:** Fixed critical route hijacks and crashes found in the OAuth flow audit; aligned E2E with canonical paths.

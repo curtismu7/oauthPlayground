@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { globalWorkerTokenService } from '../mfa/services/globalWorkerTokenService';
 
-const BannerContainer = styled.div<{ visible: boolean }>`
-  display: ${props => props.visible ? 'flex' : 'none'};
+const BannerContainer = styled.div<{ $visible: boolean }>`
+  display: ${props => props.$visible ? 'flex' : 'none'};
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
@@ -130,7 +130,7 @@ export function WorkerTokenBanner({
   }, [onTokenAcquired, dismissed]);
 
   return (
-    <BannerContainer visible={visible}>
+    <BannerContainer $visible={visible}>
       <IconContainer>⚠</IconContainer>
       <MessageContainer>{message}</MessageContainer>
       <ButtonGroup>
