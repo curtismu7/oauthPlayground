@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### WorkerTokenManager: preserve auth method + fail-fast on 401 (2026-07-09)
+
+- **What:** Cleared remaining audit warns on specialty routes caused by WorkerToken `invalid_client` / Unsupported authentication method spam.
+- **Cause:** `WorkerTokenManager.loadCredentials()` dropped `tokenEndpointAuthMethod`, so fetches always used `client_secret_post`. Non-retryable 401s were retried 3×, producing 4+ console errors that the smoke audit treated as warns.
+- **Fix:** Preserve `tokenEndpointAuthMethod`; fail fast on 401/invalid_client; smoke audit ignores worker-token env noise; unit tests cover auth method + retry behavior.
+- **Files:** `src/services/workerTokenManager.ts`, `src/services/__tests__/workerTokenManager.test.ts`, `scripts/oauth-flow-smoke-audit.mjs`
+- **Regression check:** (1) Vitest workerTokenManager tests pass. (2) Re-run smoke audit → 0 fails / 0 warns from worker-token 401. (3) Worker token modal still acquires tokens when credentials + auth method are valid.
+
 ### PingOnePAR update-depth loop (redirect URI fight) (2026-07-09)
 
 - **What:** Fixed `/flows/pingone-par-v9` Maximum update depth exceeded after credentials UI mount.

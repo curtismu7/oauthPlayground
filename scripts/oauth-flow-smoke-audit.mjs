@@ -67,8 +67,17 @@ const LEGACY_REDIRECTS = [
 async function probe(page, route) {
 	const consoleErrors = [];
 	const pageErrors = [];
+	/** Env/credential noise — not a route crash (worker token 401 when client auth method mismatches). */
+	const isEnvNoise = (text) =>
+		/Failed to load resource:.*\b401\b/i.test(text) ||
+		/WorkerTokenManager.*Token fetch attempt/i.test(text) ||
+		/invalid_client|Unsupported authentication method/i.test(text);
+
 	const onConsole = (msg) => {
-		if (msg.type() === 'error') consoleErrors.push(msg.text().slice(0, 300));
+		if (msg.type() !== 'error') return;
+		const text = msg.text().slice(0, 300);
+		if (isEnvNoise(text)) return;
+		consoleErrors.push(text);
 	};
 	const onPageError = (err) => pageErrors.push(String(err).slice(0, 300));
 	page.on('console', onConsole);

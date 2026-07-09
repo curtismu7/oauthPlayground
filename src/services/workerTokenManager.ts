@@ -134,7 +134,9 @@ export class WorkerTokenManager {
 		const result = await workerTokenRepository.loadCredentials();
 		if (!result) return null;
 
-		// Convert UnifiedWorkerTokenCredentials to WorkerTokenCredentials
+		// Convert UnifiedWorkerTokenCredentials to WorkerTokenCredentials.
+		// Preserve tokenEndpointAuthMethod — dropping it forced client_secret_post and
+		// caused PingOne "Unsupported authentication method" / invalid_client 401s.
 		return {
 			environmentId: result.environmentId,
 			clientId: result.clientId,
@@ -142,6 +144,7 @@ export class WorkerTokenManager {
 			scopes: result.scopes || [],
 			region: result.region || 'us',
 			tokenEndpoint: result.tokenEndpoint || '',
+			tokenEndpointAuthMethod: result.tokenEndpointAuthMethod,
 		};
 	}
 
@@ -285,12 +288,24 @@ export class WorkerTokenManager {
 				return token;
 			} catch (error) {
 				lastError = error as Error;
+				const message = lastError.message || '';
+				const nonRetryable =
+					/\b401\b/.test(message) ||
+					/invalid_client|unauthorized_client|unsupported authentication method|credentials not configured/i.test(
+						message
+					);
+
 				logger.error(
 					'WorkerTokenManager',
 					`❌ Token fetch attempt ${attempt} failed:`,
 					undefined,
 					error as Error
 				);
+
+				// Auth/config failures will not succeed on retry — fail fast to avoid console spam.
+				if (nonRetryable) {
+					break;
+				}
 
 				if (attempt < maxRetries) {
 					// Exponential backoff: 1s, 2s, 4s
