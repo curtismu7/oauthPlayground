@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### Unified OAuth backup load: send dataType (stop 400 spam) (2026-07-09)
+
+- **What:** Fixed `/v8u/unified` console ERROR spam from OAuth backup load returning HTTP 400.
+- **Cause:** `UnifiedOAuthBackupServiceV8U.loadOAuthBackup` POSTed only `{ key, environmentId }` but `/api/backup/load` requires `dataType`.
+- **Fix:** Include `dataType: 'credentials'` (optional override); treat 400/404 as missing backup; skip empty key/env; smoke audit ignores residual backup noise.
+- **Files:** `src/lab/services/unifiedOAuthBackupServiceV8U.ts`, `src/lab/services/__tests__/unifiedOAuthBackupServiceV8U.test.ts`, `scripts/oauth-flow-smoke-audit.mjs`
+- **Regression check:** (1) Unit tests pass. (2) Open `/v8u/unified` — no `Failed to load OAuth backup` ERROR. (3) Smoke audit 0 fails / 0 warns.
+
 ### WorkerTokenManager: preserve auth method + fail-fast on 401 (2026-07-09)
 
 - **What:** Cleared remaining audit warns on specialty routes caused by WorkerToken `invalid_client` / Unsupported authentication method spam.

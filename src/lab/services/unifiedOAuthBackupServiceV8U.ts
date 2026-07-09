@@ -116,12 +116,22 @@ export class UnifiedOAuthBackupServiceV8U {
 	 */
 	static async loadOAuthBackup(
 		key: string,
-		environmentId: string
+		environmentId: string,
+		dataType: BackupOptions['dataType'] = 'credentials'
 	): Promise<OAuthBackupData | null> {
 		try {
+			if (!key?.trim() || !environmentId?.trim()) {
+				logger.debug(`${_MODULE_TAG} Skipping backup load — missing key or environmentId`, {
+					key,
+					environmentId,
+				});
+				return null;
+			}
+
 			const payload = {
 				key,
 				environmentId,
+				dataType: dataType || 'credentials',
 			};
 
 			const response = await fetch(`${UnifiedOAuthBackupServiceV8U.BACKUP_API_BASE}/load`, {
@@ -141,23 +151,36 @@ export class UnifiedOAuthBackupServiceV8U {
 			}
 
 			if (!response.ok) {
-				if (response.status === 404) {
-					logger.debug(`${_MODULE_TAG} No backup found for key`, { key, environmentId });
+				// 404 = no backup; 400 = bad/incomplete request — both are non-fatal for flow load
+				if (response.status === 404 || response.status === 400) {
+					logger.debug(`${_MODULE_TAG} No backup found for key`, {
+						key,
+						environmentId,
+						dataType: payload.dataType,
+						status: response.status,
+					});
 					return null;
 				}
-				throw new Error(`Backup load failed: ${response.statusText}`);
+				throw new Error(`Backup load failed: ${response.status} ${response.statusText}`);
 			}
 
 			const result = await response.json();
 
 			if (result.success && result.data) {
-				const data = JSON.parse(result.data);
+				const data = typeof result.data === 'string' ? JSON.parse(result.data) : result.data;
 				logger.info(`${_MODULE_TAG} ✅ OAuth backup loaded`, {
 					key,
 					environmentId,
 					flowType: data.flowType,
 				});
 				return data;
+			} else if (result.data) {
+				// backupStore may return the record directly without { success, data }
+				const data = typeof result.data === 'string' ? JSON.parse(result.data) : result.data;
+				return data as OAuthBackupData;
+			} else if (result.key && result.data !== undefined) {
+				const data = typeof result.data === 'string' ? JSON.parse(result.data) : result.data;
+				return data as OAuthBackupData;
 			} else {
 				logger.debug(`${_MODULE_TAG} No backup data found`, { key, environmentId });
 				return null;
