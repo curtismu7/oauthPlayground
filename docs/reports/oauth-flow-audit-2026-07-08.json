@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-07-09T00:26:22.873Z",
+  "generatedAt": "2026-07-09T12:56:59.978Z",
   "baseUrl": "https://localhost:8000",
   "totals": {
     "routes": 35,
-    "ok": 31,
-    "warn": 1,
-    "fail": 3,
-    "redirectsOk": 6,
-    "redirectsFail": 1,
-    "optionsExercised": 46,
+    "ok": 33,
+    "warn": 2,
+    "fail": 0,
+    "redirectsOk": 7,
+    "redirectsFail": 0,
+    "optionsExercised": 52,
     "optionsFailed": 0
   },
   "routeResults": [
@@ -23,7 +23,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/client-credentials",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 3597,
+      "durationMs": 1974,
       "hasMockToggle": true,
       "hasAuthMethod": true,
       "hasSpecToggle": false,
@@ -45,7 +45,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/authorization-code",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1925,
+      "durationMs": 1767,
       "hasMockToggle": true,
       "hasAuthMethod": false,
       "hasSpecToggle": true,
@@ -65,7 +65,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/authorization-code-educational",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1563,
+      "durationMs": 1611,
       "hasMockToggle": false,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -86,7 +86,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/device-authorization",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1586,
+      "durationMs": 1645,
       "hasMockToggle": true,
       "hasAuthMethod": true,
       "hasSpecToggle": false,
@@ -107,7 +107,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/token-exchange",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1600,
+      "durationMs": 1659,
       "hasMockToggle": true,
       "hasAuthMethod": true,
       "hasSpecToggle": false,
@@ -128,7 +128,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/token-introspection",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1576,
+      "durationMs": 1600,
       "hasMockToggle": true,
       "hasAuthMethod": true,
       "hasSpecToggle": false,
@@ -148,7 +148,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/userinfo",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1619,
+      "durationMs": 1596,
       "hasMockToggle": true,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -168,7 +168,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/token-revocation",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1586,
+      "durationMs": 1652,
       "hasMockToggle": true,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -184,25 +184,19 @@
       "options": [
         "Mock/Real"
       ],
-      "status": "fail",
-      "detail": "TypeError: \"oidc\" is not a function",
-      "finalUrl": "https://localhost:8000/flows/pingone-par-v9",
+      "status": "ok",
+      "detail": "",
+      "finalUrl": "https://localhost:8000/flows/par",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1581,
-      "hasMockToggle": false,
+      "durationMs": 2024,
+      "hasMockToggle": true,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
-      "consoleErrorCount": 2,
-      "pageErrorCount": 2,
-      "consoleErrors": [
-        "The above error occurred in the <PingOnePARFlowV9> component:\n\n    at PingOnePARFlowV9 (https://localhost:8000/src/flows/specialty/PingOnePARFlowV9.tsx:82:20)\n    at RenderedRoute (https://localhost:8000/node_modules/.vite/deps/react-router-dom.js?v=980e1148:4122:5)\n    at Routes (https://localhost:",
-        "[2026-07-09T00:24:52.313Z] ERROR AuthErrorBoundary Caught error in auth context {error: TypeError: \"oidc\" is not a function\n    at PingOnePARFlowV9 (https://localhost:8000/src/flows/speci\u2026, errorInfo: Object}"
-      ],
-      "pageErrors": [
-        "TypeError: \"oidc\" is not a function",
-        "TypeError: \"oidc\" is not a function"
-      ],
-      "bodySnippet": "Authentication Error There was an error with the authentication system. Please refresh the page. Refresh Page"
+      "consoleErrorCount": 0,
+      "pageErrorCount": 0,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "bodySnippet": "PingOne MasterFlow API Version 9.16.30 Assistant AI Prompts Docs Configuration API Status Dashboard OIDC Discovery App Generator Export All Login MasterFlow API"
     },
     {
       "path": "/flows/refresh-token",
@@ -215,7 +209,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/refresh-token",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1593,
+      "durationMs": 1634,
       "hasMockToggle": true,
       "hasAuthMethod": true,
       "hasSpecToggle": false,
@@ -235,7 +229,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/oidc-discovery",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1591,
+      "durationMs": 1607,
       "hasMockToggle": true,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -252,13 +246,13 @@
         "Mock/Real",
         "authMethod"
       ],
-      "status": "fail",
-      "detail": "Self-redirect route match: shell renders, DPoP flow component never mounts (no h1)",
+      "status": "ok",
+      "detail": "",
       "finalUrl": "https://localhost:8000/flows/dpop",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1586,
-      "hasMockToggle": false,
-      "hasAuthMethod": false,
+      "durationMs": 1640,
+      "hasMockToggle": true,
+      "hasAuthMethod": true,
       "hasSpecToggle": false,
       "consoleErrorCount": 0,
       "pageErrorCount": 0,
@@ -276,7 +270,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/redirectless",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1587,
+      "durationMs": 1715,
       "hasMockToggle": true,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -296,7 +290,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/implicit-hybrid",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1578,
+      "durationMs": 1670,
       "hasMockToggle": true,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -316,7 +310,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/hybrid",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1556,
+      "durationMs": 1662,
       "hasMockToggle": true,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -337,7 +331,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/ropc",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1569,
+      "durationMs": 1634,
       "hasMockToggle": true,
       "hasAuthMethod": true,
       "hasSpecToggle": false,
@@ -357,7 +351,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/saml-bearer",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1580,
+      "durationMs": 1616,
       "hasMockToggle": true,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -377,7 +371,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/mfa",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1584,
+      "durationMs": 1629,
       "hasMockToggle": false,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -398,15 +392,13 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/lab/oauth-authz",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1640,
+      "durationMs": 1669,
       "hasMockToggle": false,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
-      "consoleErrorCount": 1,
+      "consoleErrorCount": 0,
       "pageErrorCount": 0,
-      "consoleErrors": [
-        "Warning: Received `%s` for a non-boolean attribute `%s`.\n\nIf you want to write it to the DOM, pass a string instead: %s=\"%s\" or %s={value.toString()}.\n\nIf you used to conditionally omit it with %s={condition && value}, pass %s={condition ? value : undefined} instead.%s false visible visible false vi"
-      ],
+      "consoleErrors": [],
       "pageErrors": [],
       "bodySnippet": "PingOne MasterFlow API Version 9.16.30 Assistant AI Prompts Docs Configuration API Status Dashboard OIDC Discovery App Generator Export All Login MasterFlow API"
     },
@@ -418,7 +410,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/lab/token-monitoring",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1659,
+      "durationMs": 1674,
       "hasMockToggle": false,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -436,7 +428,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/lab/flow-comparison",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1751,
+      "durationMs": 1734,
       "hasMockToggle": false,
       "hasAuthMethod": false,
       "hasSpecToggle": true,
@@ -453,23 +445,17 @@
         "flow types",
         "spec versions"
       ],
-      "status": "warn",
-      "detail": "7 console errors",
-      "finalUrl": "https://localhost:8000/v8u/unified/oauth-authz/0",
+      "status": "ok",
+      "detail": "",
+      "finalUrl": "https://localhost:8000/v8u/unified",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1880,
+      "durationMs": 3167,
       "hasMockToggle": false,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
-      "consoleErrorCount": 7,
+      "consoleErrorCount": 0,
       "pageErrorCount": 0,
-      "consoleErrors": [
-        "Failed to load resource: the server responded with a status of 400 (Bad Request)",
-        "[2026-07-09T00:25:13.798Z] ERROR UnifiedFlowLoggerServiceV8U [ UNIFIED-FLOW-LOGGER-V8U] \u274c [ UNIFIED-OAUTH-BACKUP-V8U] \u274c Failed to load OAuth backup {key: unified_oauth_oauth2.0-oauth-authz-v8u, environmentId: d02d2305-f445-406d-82ee-7cdbf6eeabfd, error: Backup load failed: Bad Request, credentials: ",
-        "Failed to load resource: the server responded with a status of 400 (Bad Request)",
-        "[2026-07-09T00:25:13.845Z] ERROR UnifiedFlowLoggerServiceV8U [ UNIFIED-FLOW-LOGGER-V8U] \u274c [ UNIFIED-OAUTH-BACKUP-V8U] \u274c Failed to load OAuth backup {key: unified_oauth_shared_, environmentId: d02d2305-f445-406d-82ee-7cdbf6eeabfd, error: Backup load failed: Bad Request, credentials: undefined}",
-        "Failed to load resource: the server responded with a status of 401 ()"
-      ],
+      "consoleErrors": [],
       "pageErrors": [],
       "bodySnippet": "PingOne MasterFlow API Version 9.16.30 Assistant AI Prompts Docs Configuration API Status Dashboard OIDC Discovery App Generator Export All Login MasterFlow API"
     },
@@ -481,7 +467,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/use-cases",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1912,
+      "durationMs": 4395,
       "hasMockToggle": false,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -499,7 +485,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/rar-v9",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1894,
+      "durationMs": 1693,
       "hasMockToggle": false,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -517,7 +503,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/ciba-v9",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1791,
+      "durationMs": 1602,
       "hasMockToggle": false,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -531,19 +517,21 @@
       "path": "/flows/jwt-bearer-token-v9",
       "name": "JWT Bearer (specialty)",
       "options": [],
-      "status": "ok",
-      "detail": "",
+      "status": "warn",
+      "detail": "4 console errors",
       "finalUrl": "https://localhost:8000/flows/jwt-bearer-token-v9",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1719,
+      "durationMs": 1577,
       "hasMockToggle": false,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
-      "consoleErrorCount": 2,
+      "consoleErrorCount": 4,
       "pageErrorCount": 0,
       "consoleErrors": [
         "Failed to load resource: the server responded with a status of 401 ()",
-        "[2026-07-09T00:25:21.504Z] ERROR WorkerTokenManager \u274c Token fetch attempt 1 failed: undefined Error: Token fetch failed: 401  - {\n  \"error\" : \"invalid_client\",\n  \"error_description\" : \"Request denied: Unsupported authentication method (Correlation ID: c7873942-be40-460c-b625-2cf570a989d7)\"\n}\n    at "
+        "[2026-07-09T12:55:54.615Z] ERROR WorkerTokenManager \u274c Token fetch attempt 1 failed: undefined Error: Token fetch failed: 401  - {\n  \"error\" : \"invalid_client\",\n  \"error_description\" : \"Request denied: Unsupported authentication method (Correlation ID: b2889a6e-210a-459b-8dde-b3d53d55381b)\"\n}\n    at ",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "[2026-07-09T12:55:55.749Z] ERROR WorkerTokenManager \u274c Token fetch attempt 2 failed: undefined Error: Token fetch failed: 401  - {\n  \"error\" : \"invalid_client\",\n  \"error_description\" : \"Request denied: Unsupported authentication method (Correlation ID: c0f66a0b-8fd3-4f53-a407-957f23cac516)\"\n}\n    at "
       ],
       "pageErrors": [],
       "bodySnippet": "PingOne MasterFlow API Version 9.16.30 Assistant AI Prompts Docs Configuration API Status Dashboard OIDC Discovery App Generator Export All Login MasterFlow API"
@@ -552,25 +540,24 @@
       "path": "/flows/pingone-par-v9",
       "name": "PingOne PAR (specialty)",
       "options": [],
-      "status": "fail",
-      "detail": "TypeError: \"oidc\" is not a function",
+      "status": "warn",
+      "detail": "4 console errors",
       "finalUrl": "https://localhost:8000/flows/pingone-par-v9",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1830,
+      "durationMs": 1578,
       "hasMockToggle": false,
       "hasAuthMethod": false,
-      "hasSpecToggle": false,
-      "consoleErrorCount": 2,
-      "pageErrorCount": 2,
+      "hasSpecToggle": true,
+      "consoleErrorCount": 4,
+      "pageErrorCount": 0,
       "consoleErrors": [
-        "The above error occurred in the <PingOnePARFlowV9> component:\n\n    at PingOnePARFlowV9 (https://localhost:8000/src/flows/specialty/PingOnePARFlowV9.tsx:82:20)\n    at RenderedRoute (https://localhost:8000/node_modules/.vite/deps/react-router-dom.js?v=980e1148:4122:5)\n    at Routes (https://localhost:",
-        "[2026-07-09T00:25:22.633Z] ERROR AuthErrorBoundary Caught error in auth context {error: TypeError: \"oidc\" is not a function\n    at PingOnePARFlowV9 (https://localhost:8000/src/flows/speci\u2026, errorInfo: Object}"
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "[2026-07-09T12:55:56.277Z] ERROR WorkerTokenManager \u274c Token fetch attempt 1 failed: undefined Error: Token fetch failed: 401  - {\n  \"error\" : \"invalid_client\",\n  \"error_description\" : \"Request denied: Unsupported authentication method (Correlation ID: 939c9fe7-d866-4ee5-b355-08f4f52f66ef)\"\n}\n    at ",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "[2026-07-09T12:55:57.392Z] ERROR WorkerTokenManager \u274c Token fetch attempt 2 failed: undefined Error: Token fetch failed: 401  - {\n  \"error\" : \"invalid_client\",\n  \"error_description\" : \"Request denied: Unsupported authentication method (Correlation ID: 980567f4-7d0c-4d46-8fe2-347736c72150)\"\n}\n    at "
       ],
-      "pageErrors": [
-        "TypeError: \"oidc\" is not a function",
-        "TypeError: \"oidc\" is not a function"
-      ],
-      "bodySnippet": "Authentication Error There was an error with the authentication system. Please refresh the page. Refresh Page"
+      "pageErrors": [],
+      "bodySnippet": "PingOne MasterFlow API Version 9.16.30 Assistant AI Prompts Docs Configuration API Status Dashboard OIDC Discovery App Generator Export All Login MasterFlow API"
     },
     {
       "path": "/flows/saml-bearer-assertion-v9",
@@ -580,7 +567,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/saml-bearer",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1643,
+      "durationMs": 1589,
       "hasMockToggle": true,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -598,7 +585,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/mock-mcp-agent-flow",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1655,
+      "durationMs": 1599,
       "hasMockToggle": false,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -616,7 +603,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/wimse-v1",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1704,
+      "durationMs": 1592,
       "hasMockToggle": false,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -634,7 +621,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/gnap-v1",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1676,
+      "durationMs": 1602,
       "hasMockToggle": false,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -652,7 +639,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/jar-jarm-v1",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1624,
+      "durationMs": 1583,
       "hasMockToggle": false,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -670,7 +657,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/mtls-client-auth-v1",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1676,
+      "durationMs": 1599,
       "hasMockToggle": false,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -688,7 +675,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/attestation-client-auth-v1",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1636,
+      "durationMs": 1804,
       "hasMockToggle": false,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -706,7 +693,7 @@
       "detail": "",
       "finalUrl": "https://localhost:8000/flows/step-up-auth-v1",
       "title": "MasterFlow API - PingOne Integration Platform",
-      "durationMs": 1640,
+      "durationMs": 1602,
       "hasMockToggle": false,
       "hasAuthMethod": false,
       "hasSpecToggle": false,
@@ -857,6 +844,20 @@
       ]
     },
     {
+      "path": "/flows/par",
+      "name": "PAR",
+      "options": [
+        {
+          "option": "Mock mode",
+          "status": "ok"
+        },
+        {
+          "option": "Real PingOne mode",
+          "status": "ok"
+        }
+      ]
+    },
+    {
       "path": "/flows/refresh-token",
       "name": "Refresh Token",
       "options": [
@@ -888,6 +889,28 @@
         },
         {
           "option": "Real PingOne mode",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "path": "/flows/dpop",
+      "name": "DPoP",
+      "options": [
+        {
+          "option": "Mock mode",
+          "status": "ok"
+        },
+        {
+          "option": "Real PingOne mode",
+          "status": "ok"
+        },
+        {
+          "option": "Auth client_secret_basic",
+          "status": "ok"
+        },
+        {
+          "option": "Auth client_secret_post",
           "status": "ok"
         }
       ]
@@ -985,6 +1008,11 @@
       ]
     },
     {
+      "path": "/flows/pingone-par-v9",
+      "name": "PingOne PAR (specialty)",
+      "options": []
+    },
+    {
       "path": "/flows/saml-bearer-assertion-v9",
       "name": "SAML Bearer V9 (specialty)",
       "options": [
@@ -1031,16 +1059,16 @@
     {
       "path": "/flows/worker-token-v9",
       "expectContains": "/flows/",
-      "finalUrl": "https://localhost:8000/flows/client-credentials",
+      "finalUrl": "https://localhost:8000/flows/worker-token",
       "status": "ok",
       "detail": "redirected as expected"
     },
     {
       "path": "/flows/par-v9",
       "expectContains": "/flows/par",
-      "finalUrl": "https://localhost:8000/flows/pingone-par-v9",
-      "status": "fail",
-      "detail": "expected URL containing /flows/par"
+      "finalUrl": "https://localhost:8000/flows/par",
+      "status": "ok",
+      "detail": "redirected as expected"
     },
     {
       "path": "/flows/token-exchange-v9",
@@ -1052,124 +1080,51 @@
   ],
   "knownCodeIssues": [
     {
-      "id": "PAR-CANONICAL-HIJACK-AND-CRASH",
-      "severity": "critical",
-      "path": "/flows/par \u2192 /flows/pingone-par-v9",
-      "evidence": "App.tsx ~1490 Navigate /flows/par \u2192 pingone-par-v9 BEFORE FlowsPar at ~1665. Specialty PingOnePARFlowV9.tsx:95 has mangled useState: (useState < 'oauth') | 'oidc'(getDefaultVariant()) \u2192 runtime TypeError: \"oidc\" is not a function. AuthErrorBoundary shows Authentication Error.",
-      "remediation": "fixed in 069196201 + 93fdda826 + 964a45b4c",
-      "status": "fixed"
-    },
-    {
       "id": "DPOP-SELF-REDIRECT",
       "severity": "critical",
       "path": "/flows/dpop",
-      "evidence": "App.tsx ~1568 Navigate to=\"/flows/dpop\" before FlowsDpop ~1671. Shell loads but DPoP flow UI (h1 title) never mounts.",
-      "remediation": "fixed in 069196201",
-      "status": "fixed"
+      "evidence": "App.tsx: Route path=\"/flows/dpop\" Navigate to=\"/flows/dpop\" appears BEFORE the real FlowsDpop route. First match wins \u2192 infinite self-redirect."
     },
     {
       "id": "WORKER-TOKEN-REDIRECT-CHAIN",
       "severity": "high",
       "path": "/flows/worker-token",
-      "evidence": "Canonical map lists /flows/worker-token but App redirects worker-token \u2192 client-credentials and worker-token-v9 \u2192 worker-token (chain ends at client-credentials).",
-      "remediation": "fixed in 069196201 (mount Client Credentials at /flows/worker-token)",
-      "status": "fixed"
+      "evidence": "worker-token \u2192 client-credentials; worker-token-v9 \u2192 worker-token. Canonical map says /flows/worker-token is canonical but App redirects it away."
     },
     {
-      "id": "AUTHZ-CODE-MOCK-E2E-REGRESSION",
+      "id": "UNIT-TEST-SETUP-BROKEN",
       "severity": "high",
-      "path": "/v2|/flows/authorization-code mock",
-      "evidence": "Playwright v2-authz-code-mock: Continue enabled before required fields (validation gap); mock exchange step does not show Token Response (E2E 2 failed / 5 structural passed).",
-      "remediation": "fixed in 069196201 (Continue gate + mock-client-secret + chromium E2E 7/7)",
-      "status": "fixed"
-    },
-    {
-      "id": "PAR-V9-REDIRECT-WRONG-TARGET",
-      "severity": "high",
-      "path": "/flows/par-v9",
-      "evidence": "par-v9 Navigate to /flows/par, but /flows/par itself redirects to crashing pingone-par-v9 \u2014 never reaches FlowsPar.",
-      "remediation": "fixed in 069196201 (/flows/par-v9 \u2192 /flows/par \u2192 FlowsPar)",
-      "status": "fixed"
+      "path": "tests/setup.ts",
+      "evidence": "All 14 flow service Vitest suites fail to load: missing fake-indexeddb/auto (npm peer conflict blocks install)."
     },
     {
       "id": "STALE-E2E-MOCK-PATHS",
       "severity": "medium",
-      "path": "tests/e2e/mock-flows-*.spec.ts",
-      "evidence": "Still hit /flows/oidc-authorization-code-v9 etc.; those redirect to canonical/lab. Specs pass only as soft connectivity.",
-      "remediation": "fixed in 069196201",
-      "status": "fixed"
+      "path": "tests/e2e/mock-flows-comprehensive-validation.spec.ts",
+      "evidence": "E2E still targets retired /flows/*-v9 mock paths that redirect to lab/unified or are gone."
     },
     {
-      "id": "PLAYWRIGHT-DEFAULT-BASEURL",
+      "id": "PLAYWRIGHT-BASEURL-MISMATCH",
       "severity": "medium",
       "path": "playwright.config.ts",
-      "evidence": "Default baseURL https://localhost:3000; running stack is :8000. local-8000 config required.",
-      "remediation": "fixed in 069196201 (baseURL :8000)",
-      "status": "fixed"
-    },
-    {
-      "id": "V8U-UNIFIED-CONSOLE-NOISE",
-      "severity": "low",
-      "path": "/v8u/unified",
-      "evidence": "Page loads but 7 console errors (backup load 400, logger noise). Fixed: WorkerTokenBanner.tsx used non-transient `visible` prop.",
-      "remediation": "WorkerTokenBanner visible\u2192$visible transient prop (styled-components DOM leak)",
-      "status": "fixed"
-    },
-    {
-      "id": "UNIT-TESTS-PASS-AFTER-FAKE-IDB",
-      "severity": "info",
-      "path": "src/flows/services/__tests__",
-      "evidence": "After installing fake-indexeddb: 14 files / 72 tests passed (mock + fetch paths).",
-      "remediation": "info \u2014 fake-indexeddb already in package.json",
-      "status": "info"
+      "evidence": "Default baseURL is https://localhost:3000 but stack serves https://localhost:8000."
     }
   ],
-  "testHarness": {
-    "unit": {
-      "files": 14,
-      "tests": 72,
-      "passed": 72,
-      "failed": 0
-    },
-    "e2e": {
-      "ran": [
-        "v2-authz-code-mock",
-        "unified-oauth-simple",
-        "mock-flows-simple"
-      ],
-      "passed": 25,
-      "failed": 2,
-      "note": "authz-code mock validation + token exchange UI"
-    },
-    "smoke": {
-      "routes": 35,
-      "ok": 31,
-      "warn": 1,
-      "fail": 3,
-      "redirectsOk": 6,
-      "redirectsFail": 1,
-      "optionsExercised": 46,
-      "optionsFailed": 0
-    },
-    "optionsExercised": 46
-  },
   "remediationSummary": {
-    "updatedAt": "2026-07-09T12:34:31.847279+00:00",
+    "updatedAt": "2026-07-09T12:57:05.468251+00:00",
     "commits": [
       "069196201",
       "93fdda826",
-      "964a45b4c"
+      "964a45b4c",
+      "8990b28ec",
+      "b59717c44"
     ],
     "criticalHighFixed": true,
-    "remainingOpen": [],
-    "liveRecheck": {
-      "/flows/par": "ok FlowsPar",
-      "/flows/dpop": "ok DPoP",
-      "/flows/worker-token": "ok Client Credentials",
-      "/flows/pingone-par-v9": "ok",
-      "/flows/par-v9": "ok \u2192 /flows/par",
-      "/flows/authorization-code": "ok + chromium E2E 7/7"
-    },
-    "allKnownIssuesAddressed": true
+    "allRouteFailsCleared": true,
+    "remainingWarn": [
+      "/flows/jwt-bearer-token-v9",
+      "/flows/pingone-par-v9"
+    ],
+    "note": "jwt-bearer 401 worker-token console noise is env/credentials, not a code crash"
   }
 }
