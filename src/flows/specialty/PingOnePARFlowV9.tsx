@@ -13,14 +13,13 @@ import {
 	type PARConfiguration,
 	PARConfigurationServiceUtils,
 } from '../../services/parConfigurationService';
-import { PKCEServiceUtils } from '../../services/pkceService';
+import { type PKCECodes, PKCEServiceUtils } from '../../services/pkceService';
 import { type AuthorizationDetail, RARService } from '../../services/rarService';
 import { CredentialStorageService } from '../../platform/CredentialStorageService';
 import { FlowRestartButton } from '../../platform/FlowRestartButton';
 import { ModernMessagingService } from '../../platform/ModernMessagingService';
 import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { logger } from '../../utils/logger';
 import type { DiscoveredApp } from '../../mfa/components/AppPicker';
 import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
@@ -69,8 +68,6 @@ const cloneAuthorizationDetail = (detail: AuthorizationDetail): AuthorizationDet
 	// educational-ok: deep clone of authorization detail for UI mutation safety
 	JSON.parse(JSON.stringify(detail));
 
-const _log = createModuleLogger('src/flows/specialty/PingOnePARFlowV9.tsx');
-
 const PingOnePARFlowV9: React.FC = () => {
 	const location = useLocation();
 	const [currentStep, setCurrentStep] = useState(0);
@@ -118,13 +115,12 @@ const PingOnePARFlowV9: React.FC = () => {
 		(app: DiscoveredApp) => {
 			const updated = { ...controller.credentials, clientId: app.id };
 			controller.setCredentials(updated);
+			const toSave: Record<string, string> = { clientId: app.id };
+			if (updated.clientSecret) toSave.clientSecret = updated.clientSecret;
+			if (updated.environmentId) toSave.environmentId = updated.environmentId;
 			CredentialStorageService.save(
 				'v9:pingone-par',
-				{
-					clientId: app.id,
-					clientSecret: updated.clientSecret,
-					environmentId: updated.environmentId,
-				},
+				toSave,
 				updated.environmentId ? { environmentId: updated.environmentId } : {}
 			);
 		},
@@ -197,26 +193,38 @@ const PingOnePARFlowV9: React.FC = () => {
 	const [pkceCodes, setPkceCodes] = useState<PKCECodes | null>(null);
 
 	const generatePKCE = useCallback(() => {
-		try {
-			const codes = PKCEServiceUtils.generatePKCECodes();
-			setPkceCodes(codes);
+		void (async () => {
+			try {
+				const codes = await PKCEServiceUtils.generateCodes();
+				setPkceCodes(codes);
 
-			// Store PKCE codes for PAR flow
-			PKCEStorageServiceV8U.storePKCECodes('pingone-par-flow-v9', codes);
+				// Store PKCE codes for PAR flow
+				await PKCEStorageServiceV8U.savePKCECodes('pingone-par-flow-v9', codes);
 
-			messagingService.showSuccessBanner('PKCE codes generated successfully');
-			logger.info('PingOnePARFlowV9', 'PKCE codes generated', {
-				codeChallengeLength: codes.codeChallenge.length,
-				codeVerifierLength: codes.codeVerifier.length,
-			});
-		} catch (_error) {
-			messagingService.showErrorBanner('Failed to generate PKCE codes');
-		}
+				messagingService.showBanner({
+					type: 'success',
+					title: 'PKCE Ready',
+					message: 'PKCE codes generated successfully',
+					dismissible: true,
+				});
+				logger.info('PingOnePARFlowV9', 'PKCE codes generated', {
+					codeChallengeLength: codes.codeChallenge.length,
+					codeVerifierLength: codes.codeVerifier.length,
+				});
+			} catch (_error) {
+				messagingService.showBanner({
+					type: 'error',
+					title: 'PKCE Failed',
+					message: 'Failed to generate PKCE codes',
+					dismissible: true,
+				});
+			}
+		})();
 	}, [messagingService]);
 
 	// Load stored PKCE codes on mount
 	useEffect(() => {
-		const storedCodes = PKCEStorageServiceV8U.getStoredPKCECodes('pingone-par-flow-v9');
+		const storedCodes = PKCEStorageServiceV8U.loadPKCECodes('pingone-par-flow-v9');
 		if (storedCodes) {
 			setPkceCodes(storedCodes);
 			logger.info('PingOnePARFlowV9', 'Loaded stored PKCE codes');
@@ -250,12 +258,12 @@ const PingOnePARFlowV9: React.FC = () => {
 		setPkceCodes(null);
 
 		// Clear PKCE storage
-		PKCEStorageServiceV8U.clearPKCECodes('pingone-par-flow-v9');
+		void PKCEStorageServiceV8U.clearPKCECodes('pingone-par-flow-v9');
 
 		// Reset controller
-		controller.reset();
+		controller.resetFlow();
 
-		messagingService.showSuccessBanner('Flow restarted successfully');
+		messagingService.showBanner({ type: 'success', title: 'Flow Restarted', message: 'Flow restarted successfully', dismissible: true });
 		logger.info('PingOnePARFlowV9', 'Flow restarted');
 	}, [controller, messagingService]);
 
@@ -264,13 +272,13 @@ const PingOnePARFlowV9: React.FC = () => {
 		switch (currentStep) {
 			case 0: // Setup & Credentials
 				if (!controller.credentials?.environmentId || !controller.credentials?.clientId) {
-					messagingService.showErrorBanner('Please configure environment ID and client ID');
+					messagingService.showBanner({ type: 'error', title: 'Missing Credentials', message: 'Please configure environment ID and client ID', dismissible: true });
 					return false;
 				}
 				return true;
 			case 1: // PKCE Generation
 				if (!pkceCodes) {
-					messagingService.showErrorBanner('Please generate PKCE codes first');
+					messagingService.showBanner({ type: 'error', title: 'PKCE Required', message: 'Please generate PKCE codes first', dismissible: true });
 					return false;
 				}
 				return true;
@@ -601,7 +609,7 @@ const PingOnePARFlowV9: React.FC = () => {
 							</h4>
 							<AuthorizationDetailsEditor
 								authorizationDetails={authorizationDetails}
-								onChange={handleAuthorizationDetailsChange}
+								onUpdate={handleAuthorizationDetailsChange}
 							/>
 						</div>
 					</div>
@@ -808,16 +816,9 @@ const PingOnePARFlowV9: React.FC = () => {
 							Introspect and manage the received tokens.
 						</p>
 
-						{controller.tokens?.accessToken ? (
+						{controller.tokens?.access_token ? (
 							<div>
-								<ColoredTokenDisplay
-									accessToken={controller.tokens.accessToken}
-									refreshToken={controller.tokens.refreshToken}
-									idToken={controller.tokens.idToken}
-									tokenType={controller.tokens.tokenType}
-									expiresIn={controller.tokens.expiresIn}
-									scope={controller.tokens.scope}
-								/>
+								<ColoredTokenDisplay tokens={controller.tokens} />
 							</div>
 						) : (
 							<div
@@ -1054,7 +1055,12 @@ const PingOnePARFlowV9: React.FC = () => {
 							)}
 						</div>
 						<div>
-							<FlowRestartButton onRestart={handleRestartFlow} />
+							<FlowRestartButton
+								onRestart={handleRestartFlow}
+								currentStep={currentStep}
+								totalSteps={STEP_METADATA.length}
+								position="footer"
+							/>
 							{currentStep < STEP_METADATA.length - 1 && (
 								<button
 									type="button"
