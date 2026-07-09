@@ -8,12 +8,12 @@ import { expect, test } from '@playwright/test';
 
 test.describe('Mock Flows - Comprehensive Field Validation', () => {
 	const mockFlows = [
-		'/flows/oidc-authorization-code-v9',
-		'/flows/client-credentials-v9',
-		'/flows/device-authorization-v9',
-		'/flows/implicit-v9',
-		'/flows/oidc-hybrid-v9',
-		'/flows/dpop-authorization-code-v9',
+		'/flows/authorization-code',
+		'/flows/client-credentials',
+		'/flows/device-authorization',
+		'/flows/implicit-hybrid',
+		'/flows/hybrid',
+		'/flows/dpop',
 		'/flows/mock-mcp-agent-flow',
 	];
 

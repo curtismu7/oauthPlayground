@@ -1396,8 +1396,8 @@ const AppRoutes: React.FC = () => {
 										path="/flows/worker-token-v7"
 										element={<Navigate to="/flows/worker-token-v9" replace />}
 									/>
-									{/* V9 Worker Token Flow */}
-									<Route path="/flows/worker-token" element={<Navigate to="/flows/client-credentials" replace />} />
+									{/* Worker Token — educational alias of client-credentials (canonical path kept for sidebar) */}
+									<Route path="/flows/worker-token" element={<FlowsClientCredentials />} />
 									<Route path="/flows/worker-token-v9" element={<Navigate to="/flows/worker-token" replace />} />
 									{/* Legacy V6 routes - redirect to V9 */}
 									<Route
@@ -1486,10 +1486,7 @@ const AppRoutes: React.FC = () => {
 										path="/flows/redirectless-v7-real"
 										element={<Navigate to="/flows/redirectless" replace />}
 									/>
-									<Route
-										path="/flows/par"
-										element={<Navigate to="/flows/pingone-par-v9" replace />}
-									/>
+									{/* Canonical /flows/par is FlowsPar (below). Specialty PingOne PAR stays at /flows/pingone-par-v9. */}
 									<Route path="/flows-old/jwt-bearer" element={<JWTBearerFlow />} />
 									{/* Unsupported by PingOne flows */}
 									<Route
@@ -1562,10 +1559,8 @@ const AppRoutes: React.FC = () => {
 									<Route path="/flows/rar-v7" element={<Navigate to="/flows/rar-v9" replace />} />
 									{/* V9 RAR Flow (mock/educational) */}
 									<Route path="/flows/rar-v9" element={<RARFlowV9 />} />
-									{/* PAR — retired, redirect to flows2 */}
+									{/* Legacy PAR/DPoP aliases — canonical routes are FlowsPar / FlowsDpop below */}
 									<Route path="/flows/par-v9" element={<Navigate to="/flows/par" replace />} />
-									{/* DPoP Flow — retired, redirect to flows2 */}
-									<Route path="/flows/dpop" element={<Navigate to="/flows/dpop" replace />} />
 									{/* Mock MCP Agent Flow (educational) */}
 									<Route path="/flows/mock-mcp-agent-flow" element={<MockMcpAgentFlowPage />} />
 									{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}

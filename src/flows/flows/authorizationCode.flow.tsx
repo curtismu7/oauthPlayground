@@ -361,11 +361,10 @@ const AuthorizationCodeFlow: React.FC = () => {
 		}
 	}, [result, creds, mode]);
 
-	// Mock runs offline — never gate it on real credentials.
-	const configured =
-		mode === 'mock'
-			? true
-			: Boolean(creds.environmentId && creds.clientId && creds.clientSecret && redirectUri);
+	// Require the same credential fields in mock and real so Continue stays disabled until filled.
+	const configured = Boolean(
+		creds.environmentId && creds.clientId && creds.clientSecret && redirectUri
+	);
 	const cur = engine.current.id;
 
 	return (

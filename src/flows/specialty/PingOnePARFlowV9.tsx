@@ -92,7 +92,7 @@ const PingOnePARFlowV9: React.FC = () => {
 		return 'oidc';
 	};
 
-	const [selectedVariant, setSelectedVariant] = (useState < 'oauth') | 'oidc'(getDefaultVariant());
+	const [selectedVariant, setSelectedVariant] = useState<'oauth' | 'oidc'>(getDefaultVariant());
 
 	// Initialize authorization code flow controller with V9 settings
 	// Use dedicated PAR flow key to ensure separate storage

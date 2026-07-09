@@ -9,7 +9,7 @@ export default defineConfig({
 	timeout: 60000,
 	reporter: [['html'], ['junit', { outputFile: 'test-results/junit.xml' }]],
 	use: {
-		baseURL: 'https://localhost:3000',
+		baseURL: process.env.PLAYWRIGHT_BASE_URL || 'https://localhost:8000',
 		ignoreHTTPSErrors: true,
 		trace: 'on-first-retry',
 		screenshot: 'only-on-failure',
@@ -41,7 +41,7 @@ export default defineConfig({
 
 	webServer: {
 		command: 'npm run start',
-		url: 'https://localhost:3000',
+		url: process.env.PLAYWRIGHT_BASE_URL || 'https://localhost:8000',
 		reuseExistingServer: !process.env.CI,
 		timeout: 120 * 1000,
 		ignoreHTTPSErrors: true,

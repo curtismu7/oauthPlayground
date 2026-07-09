@@ -13,7 +13,7 @@ test.describe('Mock Flows - Basic Connectivity', () => {
 	});
 
 	test('can access a mock flow route', async ({ page }) => {
-		const response = await page.goto('/flows/oidc-authorization-code-v9');
+		const response = await page.goto('/flows/authorization-code');
 		expect(response?.status()).toBe(200);
 
 		// Wait for page to load
@@ -39,9 +39,9 @@ test.describe('Mock Flows - Basic Connectivity', () => {
 
 	test('test multiple mock flow routes for basic loading', async ({ page }) => {
 		const mockFlows = [
-			'/flows/oidc-authorization-code-v9',
-			'/flows/client-credentials-v9',
-			'/flows/device-authorization-v9',
+			'/flows/authorization-code',
+			'/flows/client-credentials',
+			'/flows/device-authorization',
 		];
 
 		for (const flow of mockFlows) {

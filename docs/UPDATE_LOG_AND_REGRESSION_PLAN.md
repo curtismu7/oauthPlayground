@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### OAuth flow audit fixes: PAR/DPoP routes, PingOnePAR crash, auth-code gate, E2E (2026-07-08)
+
+- **What:** Fixed critical route hijacks and crashes found in the OAuth flow audit; aligned E2E with canonical paths.
+- **Cause:** (1) App.tsx registered `/flows/par` → specialty Navigate and `/flows/dpop` self-Navigate before the real FlowsPar/FlowsDpop routes. (2) `PingOnePARFlowV9.tsx` had mangled `useState` syntax. (3) Auth-code mock treated `configured` as always true. (4) Playwright defaulted to `:3000` and E2E still hit retired `*-v9` paths / wrong mock secret.
+- **Fix:** Removed bad Navigates; mount FlowsClientCredentials at `/flows/worker-token`; restore `useState<'oauth' | 'oidc'>`; require credentials for Continue in mock+real; Playwright baseURL `:8000`; E2E paths → `/flows/*` with `mock-client-secret`.
+- **Files:** `src/App.tsx`, `src/flows/specialty/PingOnePARFlowV9.tsx`, `src/flows/flows/authorizationCode.flow.tsx`, `playwright.config.ts`, `tests/e2e/v2-authz-code-mock.spec.ts`, `tests/e2e/mock-flows-*.spec.ts`
+- **Regression check:** (1) `/flows/par` shows FlowsPar (not Authentication Error). (2) `/flows/dpop` shows DPoP h1 + Mock toggle. (3) `/flows/pingone-par-v9` loads without crash. (4) `/flows/worker-token` stays on worker-token URL with Client Credentials UI. (5) Auth-code Continue disabled when fields cleared.
+
 ### Version consolidation Phase 8c: mfa V8 symbol strip (2026-07-08)
 
 - **What:** Renamed 185 `src/mfa/**/*V8*` files and stripped `V8` from exported symbols across the codebase.
@@ -2100,6 +2108,10 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 
 When changing the listed areas, run the corresponding checks to avoid regressions.
 
+### Canonical OAuth flow routes
+
+- [ ] **PAR / DPoP / worker-token:** `/flows/par` and `/flows/dpop` must mount `FlowsPar` / `FlowsDpop` — never self-Navigate or hijack to specialty. `/flows/worker-token` must render Client Credentials UI at that URL (not redirect away). Specialty PingOne PAR stays at `/flows/pingone-par-v9` and must not crash on load. See Update log "OAuth flow audit fixes".
+
 ### Worker token & credentials
 
 - [ ] **Token button / global modal:** Any "Get Worker Token" (or equivalent) button that opens a worker token modal must use the Worker Token modal service: either open `WorkerTokenModalV9` (which uses `unifiedWorkerTokenService`) or dispatch `open-worker-token-modal` so App shows `WorkerTokenModalV9`. Do not use the legacy `WorkerTokenModal` for new code. See Update log "Token button at top of pages: use Worker Token modal service".
@@ -2251,7 +2263,7 @@ Run these when doing a broader change or before release:
 
 | Area                                 | Key files                                                                                                                                                                                                                                                                       | What not to break                                                                                                                                          |
 | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker token → Environments          | `useGlobalWorkerToken.ts`, `EnvironmentManagementPageV8.tsx`, `workerTokenRepository.ts`                                                                                                                                                                                        | Token from modal must be used on `/environments`; fetch only when token is valid and present.                                                              |
+| Canonical flow routes (PAR / DPoP / worker-token) | `App.tsx`, `canonicalRoutes.ts` | `/flows/par` and `/flows/dpop` must mount FlowsPar / FlowsDpop — never self-Navigate or hijack to specialty. `/flows/worker-token` must render (Client Credentials UI), not redirect away. Specialty PingOne PAR stays at `/flows/pingone-par-v9`. |
 | Worker token storage                 | `workerTokenRepository.ts`, `unifiedWorkerTokenService.ts`                                                                                                                                                                                                                      | Credentials in `unified_worker_token` must be found by repository; token in same key used by modal.                                                        |
 | Worker token expiration              | `workerTokenRepository.ts`, `workerTokenStatusService.ts`                                                                                                                                                                                                                     | Invalid or missing `expiresAt` must not cause RangeError; validate before calling `.toISOString()` or comparing dates.                                     |
 | Sidebar drag-and-drop                | `SidebarMenuPing.tsx`                                                                                                                                                                                                                                                           | Cross-group move and drop on group header must work; order persisted.                                                                                      |
