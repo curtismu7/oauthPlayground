@@ -20,6 +20,7 @@ import { FlowRestartButton } from '../../platform/FlowRestartButton';
 import { ModernMessagingService } from '../../platform/ModernMessagingService';
 import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { callbackUriService } from '../../services/callbackUriService';
 import { logger } from '../../utils/logger';
 import type { DiscoveredApp } from '../../mfa/components/AppPicker';
 import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
@@ -60,6 +61,15 @@ const STEP_METADATA = [
 		subtitle: 'Review the completed PAR flow and next steps',
 	},
 ];
+
+const PAR_FLOW_TYPE = 'pingone-par-v9';
+const PAR_FLOW_KEY = 'pingone-par-flow-v9';
+
+/** Canonical PAR redirect URI for current origin (authz-callback). */
+const getParRedirectUri = (): string => {
+	const { redirectUri } = callbackUriService.getCallbackUriForFlow(PAR_FLOW_TYPE);
+	return redirectUri || `${typeof window !== 'undefined' ? window.location.origin : 'https://localhost:8000'}/authz-callback`;
+};
 
 const RAR_TEMPLATES = RARService.getTemplates();
 
@@ -110,38 +120,54 @@ const PingOnePARFlowV9: React.FC = () => {
 		setAuthorizationDetails(details);
 	}, []);
 
-	// Override redirect URI for PAR flows to use par-callback
 	const handleParAppSelected = useCallback(
 		(app: DiscoveredApp) => {
-			const updated = { ...controller.credentials, clientId: app.id };
+			const updated = {
+				...controller.credentials,
+				clientId: app.id,
+				redirectUri: controller.credentials.redirectUri || getParRedirectUri(),
+			};
 			controller.setCredentials(updated);
 			const toSave: Record<string, string> = { clientId: app.id };
 			if (updated.clientSecret) toSave.clientSecret = updated.clientSecret;
 			if (updated.environmentId) toSave.environmentId = updated.environmentId;
-			CredentialStorageService.save(
+			void CredentialStorageService.save(
 				'v9:pingone-par',
 				toSave,
 				updated.environmentId ? { environmentId: updated.environmentId } : {}
 			);
 		},
-		[controller]
+		[controller.credentials, controller.setCredentials]
 	);
 
+	const handleCredentialsChange = useCallback(
+		(credentials: typeof controller.credentials) => {
+			if (!credentials) return;
+			const prev = controller.credentials;
+			const nextRedirect = credentials.redirectUri || getParRedirectUri();
+			const unchanged =
+				prev.environmentId === credentials.environmentId &&
+				prev.clientId === credentials.clientId &&
+				prev.clientSecret === credentials.clientSecret &&
+				prev.redirectUri === nextRedirect &&
+				String(prev.scopes ?? prev.scope ?? '') === String(credentials.scopes ?? credentials.scope ?? '');
+			if (unchanged) return;
+			controller.setCredentials({ ...credentials, redirectUri: nextRedirect });
+		},
+		[controller.credentials, controller.setCredentials]
+	);
+
+	// Ensure redirect URI is set once when missing — do not fight ComprehensiveCredentialsService defaults.
 	useEffect(() => {
-		if (
-			controller.credentials &&
-			controller.credentials.redirectUri !== 'https://localhost:3000/par-callback'
-		) {
-			logger.info('PingOnePARFlowV9', 'Overriding redirect URI for PAR flow', {
-				from: controller.credentials.redirectUri,
-				to: 'https://localhost:3000/par-callback',
-			});
+		const current = controller.credentials?.redirectUri;
+		if (!current || !current.trim()) {
 			controller.setCredentials({
 				...controller.credentials,
-				redirectUri: 'https://localhost:3000/par-callback',
+				redirectUri: getParRedirectUri(),
 			});
 		}
-	}, [controller.credentials, controller.setCredentials]); // Only run when variant changes
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- only seed empty redirectUri
+	}, []);
 
 	// Ensure PAR flow uses its own credential storage
 	useEffect(() => {
@@ -369,13 +395,9 @@ const PingOnePARFlowV9: React.FC = () => {
 							onAppSelected={handleParAppSelected}
 						/>
 						<ComprehensiveCredentialsService
-							flowType="pingone-par-flow-v9"
+							flowType={PAR_FLOW_TYPE}
 							credentials={controller.credentials}
-							onCredentialsChange={(credentials) => {
-								if (credentials) {
-									controller.setCredentials(credentials);
-								}
-							}}
+							onCredentialsChange={handleCredentialsChange}
 							showConfigChecker={false}
 							showRedirectUri={true}
 							showPostLogoutRedirectUri={false}
@@ -580,7 +602,7 @@ const PingOnePARFlowV9: React.FC = () => {
 								</div>
 								<div style={{ marginBottom: '0.5rem' }}>
 									<strong>Redirect URI:</strong>{' '}
-									{controller.credentials?.redirectUri || 'https://localhost:3000/par-callback'}
+									{controller.credentials?.redirectUri || getParRedirectUri()}
 								</div>
 								<div style={{ marginBottom: '0.5rem' }}>
 									<strong>Scopes:</strong>{' '}
@@ -721,7 +743,7 @@ const PingOnePARFlowV9: React.FC = () => {
 									fontSize: '0.875rem',
 								}}
 							>
-								https://localhost:3000/par-callback?
+								{getParRedirectUri()}?
 								<br />
 								code=authorization_code_here
 								<br />
@@ -789,7 +811,7 @@ const PingOnePARFlowV9: React.FC = () => {
 								<br />
 								code=authorization_code_here
 								<br />
-								redirect_uri=https://localhost:3000/par-callback
+								redirect_uri={getParRedirectUri()}
 								<br />
 								client_id={controller.credentials?.clientId}
 								<br />

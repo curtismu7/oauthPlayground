@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### PingOnePAR update-depth loop (redirect URI fight) (2026-07-09)
+
+- **What:** Fixed `/flows/pingone-par-v9` Maximum update depth exceeded after credentials UI mount.
+- **Cause:** Parent forced `https://localhost:3000/par-callback` while `ComprehensiveCredentialsService` pushed canonical `authz-callback` via `onCredentialsChange`, causing a setState loop. Inline change handler also recreated every render.
+- **Fix:** Use `callbackUriService` / `pingone-par-v9` redirect; seed redirect only when empty; stable equality-gated `handleCredentialsChange`; map `pingone-par-flow-v9` alias in redirect URI catalog.
+- **Files:** `src/flows/specialty/PingOnePARFlowV9.tsx`, `src/utils/flowRedirectUriMapping.ts`
+- **Regression check:** Open `/flows/pingone-par-v9` — no update-depth warning; redirect URI shows `…/authz-callback`.
+
 ### OAuth flow audit artifacts + remediation status (2026-07-09)
 
 - **What:** Checked in smoke-audit script and JSON report; annotated known issues with fix commits / remaining open items.

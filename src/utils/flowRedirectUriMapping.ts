@@ -126,6 +126,13 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		specification: 'RFC 9126 (PAR)',
 	},
 	{
+		flowType: 'pingone-par-flow-v9',
+		requiresRedirectUri: true,
+		callbackPath: 'authz-callback',
+		description: 'Pushed Authorization Request (V9 storage key alias)',
+		specification: 'RFC 9126 (PAR)',
+	},
+	{
 		flowType: 'redirectless-v9',
 		requiresRedirectUri: false,
 		callbackPath: 'N/A',
