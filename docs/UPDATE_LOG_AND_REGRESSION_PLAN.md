@@ -32,10 +32,10 @@ This document:
 ### OAuth flow audit fixes: PAR/DPoP routes, PingOnePAR crash, auth-code gate, E2E (2026-07-08)
 
 - **What:** Fixed critical route hijacks and crashes found in the OAuth flow audit; aligned E2E with canonical paths.
-- **Cause:** (1) App.tsx registered `/flows/par` → specialty Navigate and `/flows/dpop` self-Navigate before the real FlowsPar/FlowsDpop routes. (2) `PingOnePARFlowV9.tsx` had mangled `useState` syntax. (3) Auth-code mock treated `configured` as always true. (4) Playwright defaulted to `:3000` and E2E still hit retired `*-v9` paths / wrong mock secret.
-- **Fix:** Removed bad Navigates; mount FlowsClientCredentials at `/flows/worker-token`; restore `useState<'oauth' | 'oidc'>`; require credentials for Continue in mock+real; Playwright baseURL `:8000`; E2E paths → `/flows/*` with `mock-client-secret`.
+- **Cause:** (1) App.tsx registered `/flows/par` → specialty Navigate and `/flows/dpop` self-Navigate before the real FlowsPar/FlowsDpop routes. (2) `PingOnePARFlowV9.tsx` had mangled `useState` syntax and rendered storage-only `FlowCredentialService` as JSX (`Element type is invalid … got: object`). (3) Auth-code mock treated `configured` as always true. (4) Playwright defaulted to `:3000` and E2E still hit retired `*-v9` paths / wrong mock secret.
+- **Fix:** Removed bad Navigates; mount FlowsClientCredentials at `/flows/worker-token`; restore `useState<'oauth' | 'oidc'>`; replace credentials JSX with `ComprehensiveCredentialsService`; require credentials for Continue in mock+real; Playwright baseURL `:8000`; E2E paths → `/flows/*` with `mock-client-secret`.
 - **Files:** `src/App.tsx`, `src/flows/specialty/PingOnePARFlowV9.tsx`, `src/flows/flows/authorizationCode.flow.tsx`, `playwright.config.ts`, `tests/e2e/v2-authz-code-mock.spec.ts`, `tests/e2e/mock-flows-*.spec.ts`
-- **Regression check:** (1) `/flows/par` shows FlowsPar (not Authentication Error). (2) `/flows/dpop` shows DPoP h1 + Mock toggle. (3) `/flows/pingone-par-v9` loads without crash. (4) `/flows/worker-token` stays on worker-token URL with Client Credentials UI. (5) Auth-code Continue disabled when fields cleared.
+- **Regression check:** (1) `/flows/par` shows FlowsPar (not Authentication Error). (2) `/flows/dpop` shows DPoP h1 + Mock toggle. (3) `/flows/pingone-par-v9` loads without crash (credentials UI visible). (4) `/flows/worker-token` stays on worker-token URL with Client Credentials UI. (5) Auth-code Continue disabled when fields cleared.
 
 ### Version consolidation Phase 8c: mfa V8 symbol strip (2026-07-08)
 
