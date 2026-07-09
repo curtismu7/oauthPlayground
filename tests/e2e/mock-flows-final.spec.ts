@@ -8,12 +8,12 @@ import { expect, test } from '@playwright/test';
 
 test.describe('Mock Flows - Core Functionality', () => {
 	const mockFlows = [
-		'/flows/oidc-authorization-code-v9',
-		'/flows/client-credentials-v9',
-		'/flows/device-authorization-v9',
-		'/flows/implicit-v9',
-		'/flows/oidc-hybrid-v9',
-		'/flows/dpop-authorization-code-v9',
+		'/flows/authorization-code',
+		'/flows/client-credentials',
+		'/flows/device-authorization',
+		'/flows/implicit-hybrid',
+		'/flows/hybrid',
+		'/flows/dpop',
 		'/flows/mock-mcp-agent-flow',
 	];
 
@@ -41,7 +41,7 @@ test.describe('Mock Flows - Core Functionality', () => {
 
 	test('mock flows have pre-filled form data', async ({ page }) => {
 		// Test a few key flows for pre-filled data
-		const keyFlows = ['/flows/oidc-authorization-code-v9', '/flows/client-credentials-v9'];
+		const keyFlows = ['/flows/authorization-code', '/flows/client-credentials'];
 
 		for (const flow of keyFlows) {
 			await page.goto(flow, { timeout: 15000 });
@@ -79,7 +79,7 @@ test.describe('Mock Flows - Core Functionality', () => {
 
 	test('mock flows do not require user credentials', async ({ page }) => {
 		// Test that flows can be used without entering credentials
-		await page.goto('/flows/oidc-authorization-code-v9', { timeout: 15000 });
+		await page.goto('/flows/authorization-code', { timeout: 15000 });
 		await page.waitForTimeout(3000);
 
 		// Look for buttons that would allow proceeding through the flow
@@ -121,7 +121,7 @@ test.describe('Mock Flows - Core Functionality', () => {
 
 	test('mock flows handle navigation gracefully', async ({ page }) => {
 		// Test direct navigation to mock flows
-		const testFlow = '/flows/client-credentials-v9';
+		const testFlow = '/flows/client-credentials';
 
 		await page.goto(testFlow, { timeout: 15000 });
 		await page.waitForTimeout(3000);

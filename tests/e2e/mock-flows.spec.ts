@@ -10,7 +10,7 @@ import { expect, test } from '@playwright/test';
 test.describe('Mock Flows - OIDC', () => {
 	test.describe('Authorization Code Flow', () => {
 		test('loads and displays pre-filled mock data', async ({ page }) => {
-			await page.goto('/flows/oidc-authorization-code-v9');
+			await page.goto('/flows/authorization-code');
 			await expect(page).toHaveURL(/\/flows\/oidc-authorization-code-v9/);
 
 			// Check for mock flow banner - look for specific flow content, not sidebar
@@ -57,7 +57,7 @@ test.describe('Mock Flows - OIDC', () => {
 		});
 
 		test('can navigate to authorization endpoint', async ({ page }) => {
-			await page.goto('/flows/oidc-authorization-code-v9');
+			await page.goto('/flows/authorization-code');
 			await page.waitForTimeout(3000);
 
 			// Look for the authorize button or similar
@@ -80,7 +80,7 @@ test.describe('Mock Flows - OIDC', () => {
 
 	test.describe('Hybrid Flow', () => {
 		test('loads with pre-filled mock credentials', async ({ page }) => {
-			await page.goto('/flows/oidc-hybrid-v9');
+			await page.goto('/flows/hybrid');
 			await expect(page).toHaveURL(/\/flows\/oidc-hybrid-v9/);
 
 			// Check for mock banner
@@ -131,7 +131,7 @@ test.describe('Mock Flows - OIDC', () => {
 
 	test.describe('Implicit Flow', () => {
 		test('loads implicit grant flow with mock data', async ({ page }) => {
-			await page.goto('/flows/implicit-v9');
+			await page.goto('/flows/implicit-hybrid');
 			await expect(page).toHaveURL(/\/flows\/implicit-v9/);
 
 			// Check for implicit flow content
@@ -165,7 +165,7 @@ test.describe('Mock Flows - OIDC', () => {
 
 	test.describe('DPoP Flow', () => {
 		test('loads DPoP Authorization Code flow', async ({ page }) => {
-			await page.goto('/flows/dpop-authorization-code-v9');
+			await page.goto('/flows/dpop');
 			await expect(page).toHaveURL(/\/flows\/dpop-authorization-code-v9/);
 
 			// Check for DPoP content
@@ -240,18 +240,18 @@ test.describe('Mock Flows - MCP & Agent', () => {
 test.describe('Mock Flows - Error Handling', () => {
 	test('all mock flows handle navigation gracefully', async ({ page }) => {
 		const mockFlows = [
-			'/flows/oidc-authorization-code-v9',
-			'/flows/oidc-hybrid-v9',
+			'/flows/authorization-code',
+			'/flows/hybrid',
 			'/flows/ciba-v9',
-			'/flows/client-credentials-v9',
-			'/flows/device-authorization-v9',
+			'/flows/client-credentials',
+			'/flows/device-authorization',
 			'/flows/ropc-v9',
-			'/flows/implicit-v9',
+			'/flows/implicit-hybrid',
 			'/flows/jwt-bearer-token-v9',
 			'/flows/saml-bearer-assertion-v9',
 			'/flows/par-v9',
 			'/flows/rar-v9',
-			'/flows/dpop-authorization-code-v9',
+			'/flows/dpop',
 			'/flows/mock-mcp-agent-flow',
 		];
 
@@ -306,9 +306,9 @@ test.describe('Mock Flows - Error Handling', () => {
 
 	test('mock flows do not require user credentials', async ({ page }) => {
 		const criticalFlows = [
-			'/flows/oidc-authorization-code-v9',
-			'/flows/client-credentials-v9',
-			'/flows/device-authorization-v9',
+			'/flows/authorization-code',
+			'/flows/client-credentials',
+			'/flows/device-authorization',
 		];
 
 		for (const flow of criticalFlows) {
@@ -339,7 +339,7 @@ test.describe('Mock Flows - Error Handling', () => {
 
 test.describe('Mock Flows - UI Consistency', () => {
 	test('all mock flows have consistent styling and layout', async ({ page }) => {
-		const testFlows = ['/flows/oidc-authorization-code-v9', '/flows/client-credentials-v9'];
+		const testFlows = ['/flows/authorization-code', '/flows/client-credentials'];
 
 		for (const flow of testFlows) {
 			await page.goto(flow);

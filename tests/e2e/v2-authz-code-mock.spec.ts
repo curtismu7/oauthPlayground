@@ -6,9 +6,9 @@
 import type { Page } from '@playwright/test';
 import { expect, test } from '@playwright/test';
 
-const MOCK_ENV_ID = 'demo-env-00000000-0000-0000-0000-000000000001';
-const MOCK_CLIENT_ID = 'demo-client-00000000-0000-0000-0000-000000000002';
-const MOCK_CLIENT_SECRET = 'demo-secret-value';
+const MOCK_ENV_ID = 'a1234567-b890-c123-d456-e7890f123456';
+const MOCK_CLIENT_ID = 'mock-client-demo-1234567890';
+const MOCK_CLIENT_SECRET = 'mock-client-secret';
 
 // FieldGroup renders <label>text</label><input/> as adjacent siblings — no for/id association.
 // Use the CSS adjacent sibling selector to locate inputs by their label text.
@@ -24,9 +24,9 @@ const modeBtn = (page: Page, name: 'Mock' | 'Real PingOne') =>
 const stepHeading = (page: Page, text: string) =>
     page.getByRole('heading', { name: text, exact: true });
 
-test.describe('Authorization Code + PKCE — V2 mock mode', () => {
+test.describe('Authorization Code + PKCE — mock mode', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('/v2/flows/authorization-code');
+        await page.goto('/flows/authorization-code');
         await page.waitForLoadState('networkidle');
     });
 
@@ -44,6 +44,11 @@ test.describe('Authorization Code + PKCE — V2 mock mode', () => {
     });
 
     test('Continue is disabled until all required fields are filled', async ({ page }) => {
+        // Clear any env-prefilled credentials so the gate is exercised from empty.
+        await fieldInput(page, 'Environment ID').fill('');
+        await fieldInput(page, 'Client ID').fill('');
+        await page.locator('input[type="password"]').fill('');
+
         const continueBtn = page.getByRole('button', { name: 'Continue' });
         await expect(continueBtn).toBeDisabled();
 
