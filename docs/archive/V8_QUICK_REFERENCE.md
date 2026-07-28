@@ -8,7 +8,7 @@
 
 ### Client Secret
 ```
-***REMOVED-PINGONE-CLIENT-SECRET***
+YOUR_PINGONE_CLIENT_SECRET
 ```
 
 ### Redirect URIs
@@ -57,7 +57,7 @@ Response Types: Code, ID Token, Access Token
 ```
 Environment ID: [Your PingOne Environment ID]
 Client ID: [Your Client ID]
-Client Secret: ***REMOVED-PINGONE-CLIENT-SECRET***
+Client Secret: YOUR_PINGONE_CLIENT_SECRET
 Redirect URI: http://localhost:3000/authz-callback
 Scopes: openid profile email
 ```

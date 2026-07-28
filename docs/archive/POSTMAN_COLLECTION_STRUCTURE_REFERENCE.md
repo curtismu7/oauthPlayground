@@ -48,7 +48,7 @@ This document provides a complete reference of all groups, subgroups, and API ca
 
 **Default Worker Credentials:**
 - `worker_client_id`: `66a4686b-9222-4ad2-91b6-03113711c9aa` (hardcoded, never overridden)
-- `worker_client_secret`: `***REMOVED-PINGONE-CLIENT-SECRET***` (hardcoded, never overridden)
+- `worker_client_secret`: `YOUR_PINGONE_CLIENT_SECRET` (hardcoded, never overridden)
 
 ---
 

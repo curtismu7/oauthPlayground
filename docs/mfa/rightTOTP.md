@@ -62,8 +62,8 @@ The TOTP device creation response contains (important parts):
 {
   "id": "{{deviceID}}",
   "status": "ACTIVATION_REQUIRED",
-  "secret": "***REMOVED-TOTP-SEED***",
-  "keyUri": "otpauth://totp/cmuir@pingone.com?secret=***REMOVED-TOTP-SEED***",
+  "secret": "YOUR_TOTP_SECRET",
+  "keyUri": "otpauth://totp/cmuir@pingone.com?secret=YOUR_TOTP_SECRET",
   "_links": {
     "device.activate": {
       "href": "https://.../environments/{{envID}}/users/{{userID}}/devices/{{deviceID}}"

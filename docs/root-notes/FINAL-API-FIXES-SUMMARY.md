@@ -97,7 +97,7 @@ $ node test-password-operations.mjs
 ## 🔑 Worker Credentials Used
 
 - **Client ID**: `66a4686b-9222-4ad2-91b6-03113711c9aa`
-- **Client Secret**: `***REMOVED-PINGONE-CLIENT-SECRET***`
+- **Client Secret**: `YOUR_PINGONE_CLIENT_SECRET`
 - **Auth Method**: Client Secret Post
 - **Environment ID**: `b9817c16-9910-4415-b67e-4ac687da74d9`
 - **Grant Type**: `client_credentials`

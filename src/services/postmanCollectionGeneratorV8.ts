@@ -525,7 +525,7 @@ export const generatePostmanCollection = (
 	});
 	variables.push({
 		key: 'worker_client_secret',
-		value: '***REMOVED-PINGONE-CLIENT-SECRET***',
+		value: 'YOUR_PINGONE_CLIENT_SECRET',
 		type: 'secret',
 	});
 
@@ -546,7 +546,7 @@ export const generatePostmanCollection = (
 	} else {
 		variables.push({
 			key: 'user_client_secret',
-			value: '***REMOVED-PINGONE-CLIENT-SECRET***',
+			value: 'YOUR_PINGONE_CLIENT_SECRET',
 			type: 'secret',
 		});
 	}
@@ -5362,7 +5362,7 @@ export const generateUseCasesPostmanCollection = (
 		{ key: 'worker_client_id', value: '66a4686b-9222-4ad2-91b6-03113711c9aa', type: 'string' },
 		{
 			key: 'worker_client_secret',
-			value: '***REMOVED-PINGONE-CLIENT-SECRET***',
+			value: 'YOUR_PINGONE_CLIENT_SECRET',
 			type: 'secret',
 		},
 		// User/OAuth client credentials (for OAuth flows - user authentication)
@@ -5375,7 +5375,7 @@ export const generateUseCasesPostmanCollection = (
 			key: 'user_client_secret',
 			value:
 				credentials?.clientSecret ||
-				'***REMOVED-PINGONE-CLIENT-SECRET***',
+				'YOUR_PINGONE_CLIENT_SECRET',
 			type: 'secret',
 		},
 		{ key: 'redirect_uri', value: 'https://localhost:3000/postman-callback', type: 'string' },
@@ -5489,7 +5489,7 @@ export const generateComprehensiveUnifiedPostmanCollection = (credentials?: {
 	});
 	variables.push({
 		key: 'worker_client_secret',
-		value: '***REMOVED-PINGONE-CLIENT-SECRET***',
+		value: 'YOUR_PINGONE_CLIENT_SECRET',
 		type: 'secret',
 	});
 
@@ -5510,7 +5510,7 @@ export const generateComprehensiveUnifiedPostmanCollection = (credentials?: {
 	} else {
 		variables.push({
 			key: 'user_client_secret',
-			value: '***REMOVED-PINGONE-CLIENT-SECRET***',
+			value: 'YOUR_PINGONE_CLIENT_SECRET',
 			type: 'secret',
 		});
 	}

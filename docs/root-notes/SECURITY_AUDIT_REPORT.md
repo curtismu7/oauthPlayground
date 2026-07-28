@@ -99,7 +99,7 @@ const requestBody = {
 **Status:** ⚠️ PARTIALLY ADDRESSED
 
 **Issue:**
-A hardcoded client secret value (`***REMOVED-PINGONE-CLIENT-SECRET***`) is present in:
+A hardcoded client secret value (`YOUR_PINGONE_CLIENT_SECRET`) is present in:
 - `src/pages/Login.tsx:481` (detection/cleanup code)
 - `src/components/CompleteMFAFlowV7.tsx:493`
 - Various test/documentation files

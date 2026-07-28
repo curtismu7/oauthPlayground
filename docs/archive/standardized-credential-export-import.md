@@ -15,7 +15,7 @@ All Production menu group apps now use a standardized credential export/import f
   "credentials": {
     "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
     "clientId": "66a4686b-9222-4ad2-91b6-03113711c9aa",
-    "clientSecret": "***REMOVED-PINGONE-CLIENT-SECRET***",
+    "clientSecret": "YOUR_PINGONE_CLIENT_SECRET",
     "scopes": ["openid"],
     "region": "us",
     "authMethod": "client_secret_basic"

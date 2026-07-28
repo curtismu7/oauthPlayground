@@ -60,7 +60,7 @@ export const COLLECTION_VERSION = '9.0.0';
 
 **Default Values:**
 - `worker_client_id`: `'66a4686b-9222-4ad2-91b6-03113711c9aa'`
-- `worker_client_secret`: `'***REMOVED-PINGONE-CLIENT-SECRET***'`
+- `worker_client_secret`: `'YOUR_PINGONE_CLIENT_SECRET'`
 
 ---
 
@@ -388,7 +388,7 @@ pm.environment.set("variableName", jsonData.property);
 | Variable | Default Value | Notes |
 |----------|---------------|-------|
 | `worker_client_id` | `66a4686b-9222-4ad2-91b6-03113711c9aa` | Always hardcoded |
-| `worker_client_secret` | `***REMOVED-PINGONE-CLIENT-SECRET***` | Always hardcoded |
+| `worker_client_secret` | `YOUR_PINGONE_CLIENT_SECRET` | Always hardcoded |
 | `apiPath` | `https://api.pingone.com` | API base URL |
 | `authPath` | `https://auth.pingone.com` | Auth base URL |
 | `envID` | `b9817c16-9910-4415-b67e-4ac687da74d9` | Example (user should override) |

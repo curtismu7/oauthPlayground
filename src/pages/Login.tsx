@@ -464,10 +464,11 @@ const Login = () => {
 			try {
 				const parsedCredentials = JSON.parse(savedCredentials);
 
-				// Check if the client secret is the problematic hardcoded one
+				// Check if the client secret is the problematic hardcoded one.
+				// Matched by prefix so the leaked value is not stored in source.
 				if (
-					parsedCredentials.clientSecret ===
-					'***REMOVED-PINGONE-CLIENT-SECRET***'
+					typeof parsedCredentials.clientSecret === 'string' &&
+					parsedCredentials.clientSecret.startsWith('0mClRqd3')
 				) {
 					logger.info(' [Login] Clearing problematic hardcoded client secret', 'Logger info');
 					parsedCredentials.clientSecret = '';

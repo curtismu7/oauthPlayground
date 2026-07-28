@@ -3,7 +3,7 @@
 
 const ENV_ID = 'b9817c16-9910-4415-b67e-4ac687da74d9';
 const CLIENT_ID = '66a4686b-9222-4ad2-91b6-03113711c9aa';
-const CLIENT_SECRET = '***REMOVED-PINGONE-CLIENT-SECRET***';
+const CLIENT_SECRET = 'YOUR_PINGONE_CLIENT_SECRET';
 const TEST_USERNAME = 'curtis7';
 
 async function getWorkerToken() {

@@ -304,7 +304,7 @@ pm.environment.set("variableName", jsonData.property);
 
 **Values:**
 - `worker_client_id`: `'66a4686b-9222-4ad2-91b6-03113711c9aa'`
-- `worker_client_secret`: `'***REMOVED-PINGONE-CLIENT-SECRET***'`
+- `worker_client_secret`: `'YOUR_PINGONE_CLIENT_SECRET'`
 
 **Important:**
 - Worker credentials are ALWAYS hardcoded (never use authorization credentials)

@@ -95,7 +95,7 @@ body: JSON.stringify({
 2. Fill in configuration:
    - Environment ID: `b9817c16-9910-4415-b67e-4ac687da74d9`
    - Client ID: `a4f963ea-0736-456a-be72-b1fa4f63f81f`
-   - Client Secret: `***REMOVED-PINGONE-CLIENT-SECRET***`
+   - Client Secret: `YOUR_PINGONE_CLIENT_SECRET`
    - Scopes: `openid`
 3. Select **Redirectless** mode
 4. Authentication Method: **Username & Password**
@@ -169,7 +169,7 @@ Open browser DevTools → Network tab → Filter: `check-username-password`
   "username": "curtis7",
   "password": "***",
   "clientId": "a4f963ea-0736-456a-be72-b1fa4f63f81f",
-  "clientSecret": "***REMOVED-PINGONE-CLIENT-SECRET***"
+  "clientSecret": "YOUR_PINGONE_CLIENT_SECRET"
 }
 ```
 

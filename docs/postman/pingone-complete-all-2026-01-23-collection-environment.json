@@ -22,7 +22,7 @@
 		},
 		{
 			"key": "worker_client_secret",
-			"value": "***REMOVED-PINGONE-CLIENT-SECRET***",
+			"value": "YOUR_PINGONE_CLIENT_SECRET",
 			"type": "secret",
 			"enabled": true
 		},
@@ -34,7 +34,7 @@
 		},
 		{
 			"key": "user_client_secret",
-			"value": "***REMOVED-PINGONE-CLIENT-SECRET***",
+			"value": "YOUR_PINGONE_CLIENT_SECRET",
 			"type": "secret",
 			"enabled": true
 		},

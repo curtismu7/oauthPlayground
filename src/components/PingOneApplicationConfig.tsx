@@ -544,7 +544,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 												<br />
 												client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f
 												<br />
-												client_secret=***REMOVED-PINGONE-CLIENT-SECRET***
+												client_secret=YOUR_PINGONE_CLIENT_SECRET
 												<br />
 												response_type=code
 												<br />

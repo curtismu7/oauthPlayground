@@ -7,7 +7,7 @@ import fetch from 'node-fetch';
 const testCredentials = {
 	environmentId: 'b9817c16-9910-4415-b67e-4ac687da74d9',
 	clientId: 'a4f963ea-0736-456a-be72-b1fa4f63f81f',
-	clientSecret: '***REMOVED-PINGONE-CLIENT-SECRET***',
+	clientSecret: 'YOUR_PINGONE_CLIENT_SECRET',
 	redirectUri: 'https://localhost:3000/authz-callback',
 	scopes: 'openid profile email',
 };

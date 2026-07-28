@@ -115,3 +115,12 @@ secrets.vault.tmp
 secrets.vault.audit.log
 secrets.vault.pre-*
 .certs/
+
+# --- Secret hygiene (added 2026-07-28 after account-wide secret audit) ---
+# gitignore alone does not untrack already-committed files; these were
+# untracked with `git rm --cached` in the same commit.
+.env.local.py
+.oauth_cache
+data/enhanced_credentials.db
+*.pem
+*.backup.[0-9]*

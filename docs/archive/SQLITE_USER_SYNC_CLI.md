@@ -12,7 +12,7 @@ Users are now stored in **SQLite database (server-side)** for fast search and lo
 npm run db:seed-users -- \
   --envId b9817c16-9910-4415-b67e-4ac687da74d9 \
   --clientId 66a4686b-9222-4ad2-91b6-03113711c9aa \
-  --clientSecret ***REMOVED-PINGONE-CLIENT-SECRET***
+  --clientSecret YOUR_PINGONE_CLIENT_SECRET
 ```
 
 ### With Options:
@@ -21,7 +21,7 @@ npm run db:seed-users -- \
 npm run db:seed-users -- \
   --envId b9817c16-9910-4415-b67e-4ac687da74d9 \
   --clientId 66a4686b-9222-4ad2-91b6-03113711c9aa \
-  --clientSecret ***REMOVED-PINGONE-CLIENT-SECRET*** \
+  --clientSecret YOUR_PINGONE_CLIENT_SECRET \
   --maxPages 50 \
   --clear
 ```

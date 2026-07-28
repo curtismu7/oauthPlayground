@@ -1591,10 +1591,10 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 
 ### Brave Search API key: full persistence (2026-03-12)
 
-- **What:** Stored the Brave Search API key (`***REMOVED-BRAVE-API-KEY***`) in all four persistence layers so it survives server restarts:
+- **What:** Stored the Brave Search API key (`YOUR_BRAVE_API_KEY`) in all four persistence layers so it survives server restarts:
   1. **Live** — `POST /api/api-key/brave-search` sets `process.env.BRAVE_API_KEY` immediately.
   2. **Disk file** — `~/.pingone-playground/credentials/brave-config.json` (same pattern as `groq-config.json`).
-  3. **`.env`** — `BRAVE_API_KEY=***REMOVED-BRAVE-API-KEY***`.
+  3. **`.env`** — `BRAVE_API_KEY=YOUR_BRAVE_API_KEY`.
   4. **`server.js` startup loader** — reads `brave-config.json` on boot and sets `process.env.BRAVE_API_KEY` (mirrors the Groq startup loader).
      Also added `BRAVE_KEY_FILE` constant at the top of `server.js`, disk-persist logic in `POST /api/api-key/brave-search`, and disk-fallback in `GET /api/api-key/brave-search` (same pattern as Groq).
 - **Files:** `server.js` (`BRAVE_KEY_FILE` constant, GET fallback, POST persist, startup loader), `.env` (`BRAVE_API_KEY`), `~/.pingone-playground/credentials/brave-config.json`

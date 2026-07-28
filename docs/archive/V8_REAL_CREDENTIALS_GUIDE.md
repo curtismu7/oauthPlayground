@@ -47,7 +47,7 @@ Example: abc123def456...
 
 ### Client Secret
 ```
-***REMOVED-PINGONE-CLIENT-SECRET***
+YOUR_PINGONE_CLIENT_SECRET
 ```
 
 ### Redirect URIs (Configured)
@@ -81,7 +81,7 @@ Sidebar → V8 Flows (Latest) → Authorization Code (V8)
 ```
 Environment ID: [Your PingOne Environment ID]
 Client ID: [Your Client ID]
-Client Secret: ***REMOVED-PINGONE-CLIENT-SECRET***
+Client Secret: YOUR_PINGONE_CLIENT_SECRET
 Redirect URI: http://localhost:3000/authz-callback
 Scopes: openid profile email
 ```
@@ -256,7 +256,7 @@ for features like:
 
 ### Issue: "Invalid client secret"
 **Solution:**
-- Use: `***REMOVED-PINGONE-CLIENT-SECRET***`
+- Use: `YOUR_PINGONE_CLIENT_SECRET`
 - Copy exactly as shown
 - No extra spaces or characters
 

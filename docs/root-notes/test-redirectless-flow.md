@@ -34,7 +34,7 @@ The PingOne Flow API (`/api/pingone/flows/check-username-password`) was returnin
    b. Fill in configuration:
    - Environment ID: `b9817c16-9910-4415-b67e-4ac687da74d9`
    - Client ID: `a4f963ea-0736-456a-be72-b1fa4f63f81f`
-   - Client Secret: `***REMOVED-PINGONE-CLIENT-SECRET***`
+   - Client Secret: `YOUR_PINGONE_CLIENT_SECRET`
    - Scopes: `openid`
    
    c. Select **Redirectless** mode

@@ -24,7 +24,7 @@ a4f963ea-0736-456a-be72-b1fa4f63f81f
 
 **Worker Token:**
 ```
-***REMOVED-PINGONE-CLIENT-SECRET***
+YOUR_PINGONE_CLIENT_SECRET
 ```
 
 ---

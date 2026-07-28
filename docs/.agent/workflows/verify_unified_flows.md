@@ -26,7 +26,7 @@ This workflow guides you through verifying that all OAuth and OIDC flows are wor
 2.  **Select Flow Type:** `Client Credentials`
 3.  **Enter Credentials:**
     -   **Client ID:** `a4f963ea-0736-456a-be72-b1fa4f63f81f`
-    -   **Client Secret:** `***REMOVED-PINGONE-CLIENT-SECRET***`
+    -   **Client Secret:** `YOUR_PINGONE_CLIENT_SECRET`
     -   **Environment ID:** `b9817c16-9910-4415-b67e-4ac687da74d9`
 4.  **Execute:**
     -   Click "Next".
@@ -80,7 +80,7 @@ This workflow guides you through verifying that all OAuth and OIDC flows are wor
 2.  **Select Flow Type:** `Authorization Code`
 3.  **Enter Credentials:**
     -   **Client ID:** `a4f963ea-0736-456a-be72-b1fa4f63f81f`
-    -   **Client Secret:** `***REMOVED-PINGONE-CLIENT-SECRET***`
+    -   **Client Secret:** `YOUR_PINGONE_CLIENT_SECRET`
     -   **Environment ID:** `b9817c16-9910-4415-b67e-4ac687da74d9`
     -   **Redirect URI:** `https://localhost:3000/unified-callback`
 4.  **Execute:**
@@ -100,7 +100,7 @@ This workflow guides you through verifying that all OAuth and OIDC flows are wor
 2.  **Select Flow Type:** `Hybrid Flow`
 3.  **Enter Credentials:**
     -   **Client ID:** `a4f963ea-0736-456a-be72-b1fa4f63f81f`
-    -   **Client Secret:** `***REMOVED-PINGONE-CLIENT-SECRET***`
+    -   **Client Secret:** `YOUR_PINGONE_CLIENT_SECRET`
     -   **Environment ID:** `b9817c16-9910-4415-b67e-4ac687da74d9`
     -   **Redirect URI:** `https://localhost:3000/unified-callback`
 4.  **Execute:**
