@@ -124,3 +124,14 @@ secrets.vault.pre-*
 data/enhanced_credentials.db
 *.pem
 *.backup.[0-9]*
+# `*.backup.[0-9]*` requires a digit after .backup, so it never matched
+# `api.pingdemo.com.key.backup` or `.key.backup` — both real TLS private keys
+# that reached public history on 2026-02-22 as a result. Match any .backup, and
+# key material by extension. Note gitignore does not untrack what is already
+# committed: resources/keys/private_key.pem sat in HEAD for months despite the
+# `*.pem` above, and needed an explicit `git rm`.
+*.backup
+*.key
+*.p12
+*.pfx
+*.jks
